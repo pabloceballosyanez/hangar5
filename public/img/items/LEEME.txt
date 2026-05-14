@@ -1,0 +1,27 @@
+# 📸 Imágenes de Hangar5
+
+Cada carpeta corresponde a un ítem del catálogo.
+Pon tus fotos aquí con nombres secuenciales:
+
+```
+casa-del-arbol/
+  01.jpg    ← foto principal
+  02.jpg    ← foto adicional
+  03.jpg    ← foto adicional
+
+medialuna/
+  01.jpg    ← foto principal
+  02.jpg
+
+moto-1/
+  01.jpg    ← foto principal
+
+bici-1/
+  01.jpg    ← foto principal
+  02.jpg
+  03.jpg
+```
+
+**Formatos aceptados:** `.jpg` `.jpeg` `.png` `.webp`
+**Nombres:** `01, 02, 03...` secuenciales
+**Tamaño recomendado:** 1200×1500px para cabañas, 1200×675px para equipo
