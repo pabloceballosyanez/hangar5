@@ -60,7 +60,11 @@ export function BookingForm({ item }: BookingFormProps) {
     const checkoutData = await checkoutRes.json();
 
     if (checkoutData.url) {
+      // Stripe checkout
       window.location.href = checkoutData.url;
+    } else if (checkoutData.redirectUrl) {
+      // Manual confirmation
+      router.push(checkoutData.redirectUrl);
     } else {
       setBookingComplete(true);
       router.push(`/reservar/${booking.id}`);

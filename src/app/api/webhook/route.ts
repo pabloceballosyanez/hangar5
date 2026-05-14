@@ -1,31 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
+import { MercadoPagoConfig, Payment } from "mercadopago";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
-  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
-    return NextResponse.json({ error: "Stripe not configured" }, { status: 400 });
+  const body = await req.json();
+  const topic = body.topic || body.type;
+  const resourceId = body.resource || body.data?.id;
+
+  if (!resourceId) {
+    return NextResponse.json({ error: "No resource" }, { status: 400 });
   }
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-  const sig = req.headers.get("stripe-signature")!;
-  const body = await req.text();
+  // Mercado Pago envía topic: "merchant_order" o "payment"
+  if (topic === "payment" && process.env.MP_ACCESS_TOKEN) {
+    const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+    const paymentApi = new Payment(client);
+    const payment = await paymentApi.get({ id: resourceId as string });
 
-  let event: Stripe.Event;
-  try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch {
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
-  }
-
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const bookingId = session.metadata?.bookingId;
-    if (bookingId) {
-      await prisma.booking.update({
-        where: { id: bookingId },
-        data: { status: "paid" },
-      });
+    if (payment.status === "approved") {
+      const bookingId = payment.metadata?.booking_id || payment.external_reference;
+      if (bookingId) {
+        await prisma.booking.update({
+          where: { id: bookingId },
+          data: { status: "paid" },
+        });
+      }
     }
   }
 
