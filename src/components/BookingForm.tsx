@@ -7,6 +7,8 @@ interface BookingFormProps {
   item: { id: string; slug: string; name: string; price: number; type: string };
 }
 
+function formatPrice(cents: number) { return (cents / 100).toLocaleString("es-MX"); }
+
 export function BookingForm({ item }: BookingFormProps) {
   const router = useRouter();
   const [startDate, setStartDate] = useState("");
@@ -19,6 +21,7 @@ export function BookingForm({ item }: BookingFormProps) {
   const [loading, setLoading] = useState(false);
   const [availability, setAvailability] = useState<{ available: boolean; checked: boolean }>({ available: false, checked: false });
   const [error, setError] = useState("");
+  const [bookingComplete, setBookingComplete] = useState(false);
 
   const checkAvailability = async () => {
     if (!startDate || !endDate) return;
@@ -35,37 +38,31 @@ export function BookingForm({ item }: BookingFormProps) {
     setLoading(true);
     setError("");
 
-    // Create booking
     const bookingRes = await fetch("/api/bookings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        itemId: item.id, customerName: name, customerEmail: email,
-        customerPhone: phone, startDate, endDate, guests, notes,
-      }),
+      body: JSON.stringify({ itemId: item.id, customerName: name, customerEmail: email, customerPhone: phone, startDate, endDate, guests, notes }),
     });
 
     if (!bookingRes.ok) {
       const err = await bookingRes.json();
-      setError(err.error || "Error creating booking");
+      setError(err.error || "Error al crear la reserva");
       setLoading(false);
       return;
     }
 
     const booking = await bookingRes.json();
-
-    // Try Stripe checkout
     const checkoutRes = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bookingId: booking.id }),
     });
-
     const checkoutData = await checkoutRes.json();
 
     if (checkoutData.url) {
       window.location.href = checkoutData.url;
     } else {
+      setBookingComplete(true);
       router.push(`/reservar/${booking.id}`);
     }
   };
@@ -74,100 +71,119 @@ export function BookingForm({ item }: BookingFormProps) {
     ? Math.max(1, Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
   const total = days * item.price;
-
   const isRental = item.type === "moto" || item.type === "bici";
 
+  const inputClass = "w-full border border-[#e0d6cf] rounded-lg p-4 bg-white text-[#1b4235] placeholder:text-[#b88364]/50 focus:outline-none focus:border-[#b88364] focus:ring-1 focus:ring-[#b88364]/20 transition-all text-sm";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Dates */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-[#1b4235] mb-1 uppercase tracking-wider">
-            Fecha {isRental ? "inicio" : "entrada"}
+          <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-2 font-medium">
+            {isRental ? "Inicio" : "Entrada"}
           </label>
-          <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setAvailability({ available: false, checked: false }); }}
-            min={new Date().toISOString().split("T")[0]}
-            className="w-full border border-[#b88364]/30 p-3 focus:outline-none focus:border-[#b88364]"
-            required />
+          <input type="date" value={startDate}
+            onChange={(e) => { setStartDate(e.target.value); setAvailability({ available: false, checked: false }); }}
+            min={new Date().toISOString().split("T")[0]} className={inputClass} required />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[#1b4235] mb-1 uppercase tracking-wider">
-            Fecha {isRental ? "fin" : "salida"}
+          <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-2 font-medium">
+            {isRental ? "Fin" : "Salida"}
           </label>
-          <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setAvailability({ available: false, checked: false }); }}
-            min={startDate || new Date().toISOString().split("T")[0]}
-            className="w-full border border-[#b88364]/30 p-3 focus:outline-none focus:border-[#b88364]"
-            required />
+          <input type="date" value={endDate}
+            onChange={(e) => { setEndDate(e.target.value); setAvailability({ available: false, checked: false }); }}
+            min={startDate || new Date().toISOString().split("T")[0]} className={inputClass} required />
         </div>
       </div>
 
-      {startDate && endDate && startDate < endDate && (
+      {/* Check availability button */}
+      {startDate && endDate && startDate < endDate && !availability.checked && (
         <button type="button" onClick={checkAvailability} disabled={loading}
-          className="w-full py-2 border border-[#1b4235] text-[#1b4235] text-sm uppercase tracking-wider hover:bg-[#1b4235] hover:text-white transition-colors disabled:opacity-50">
+          className="w-full py-3 border-2 border-[#b88364]/20 text-[#b88364] rounded-lg uppercase tracking-wider text-xs font-medium hover:bg-[#b88364]/5 transition-colors disabled:opacity-50">
           {loading ? "Verificando..." : "Verificar disponibilidad"}
         </button>
       )}
 
+      {/* Availability result */}
       {availability.checked && (
-        <div className={`p-3 text-sm ${availability.available ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
-          {availability.available ? "✓ Disponible para estas fechas" : "✗ No disponible. Selecciona otras fechas."}
-        </div>
+        availability.available ? (
+          <div className="bg-[#ebf5eb] text-[#1b4235] rounded-lg p-4 text-sm flex items-center gap-3">
+            <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            Disponible para estas fechas
+          </div>
+        ) : (
+          <div className="bg-[#fef0ef] text-[#8b1a1a] rounded-lg p-4 text-sm flex items-center gap-3">
+            <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            No disponible para estas fechas. Por favor selecciona otras.
+          </div>
+        )
       )}
 
+      {/* Booking details */}
       {availability.available && (
         <>
-          <div className="bg-[#f7f3f0] p-4">
-            <div className="flex justify-between text-sm text-[#1b4235] mb-1">
+          {/* Price summary */}
+          <div className="bg-[#f7f3f0] rounded-lg p-5">
+            <div className="flex justify-between text-sm text-[#1b4235] mb-2">
               <span>{item.name} × {days} {isRental ? "día(s)" : "noche(s)"}</span>
-              <span>${(total / 100).toLocaleString()} MXN</span>
+              <span>${formatPrice(total)} MXN</span>
             </div>
-            <div className="border-t border-[#b88364]/30 mt-2 pt-2 flex justify-between font-bold text-[#1b4235]">
+            <div className="border-t border-[#b88364]/20 mt-3 pt-3 flex justify-between font-semibold text-[#1b4235]">
               <span>Total</span>
-              <span>${(total / 100).toLocaleString()} MXN</span>
+              <span>${formatPrice(total)} MXN</span>
             </div>
           </div>
 
+          {/* Contact fields */}
           <div>
-            <label className="block text-sm font-medium text-[#1b4235] mb-1 uppercase tracking-wider">Nombre completo *</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-              className="w-full border border-[#b88364]/30 p-3 focus:outline-none focus:border-[#b88364]" required />
+            <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-2 font-medium">Nombre completo *</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="Tu nombre" required />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#1b4235] mb-1 uppercase tracking-wider">Email *</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-[#b88364]/30 p-3 focus:outline-none focus:border-[#b88364]" required />
+            <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-2 font-medium">Correo electrónico *</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} placeholder="tu@email.com" required />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#1b4235] mb-1 uppercase tracking-wider">Teléfono</label>
-            <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-              className="w-full border border-[#b88364]/30 p-3 focus:outline-none focus:border-[#b88364]" />
+            <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-2 font-medium">Teléfono</label>
+            <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass} placeholder="+52 55 ..." />
           </div>
 
           {!isRental && (
             <div>
-              <label className="block text-sm font-medium text-[#1b4235] mb-1 uppercase tracking-wider">Huéspedes</label>
-              <input type="number" value={guests} onChange={(e) => setGuests(parseInt(e.target.value))} min="1" max="10"
-                className="w-full border border-[#b88364]/30 p-3 focus:outline-none focus:border-[#b88364]" />
+              <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-2 font-medium">Huéspedes</label>
+              <input type="number" value={guests} onChange={(e) => setGuests(parseInt(e.target.value))} min="1" max="10" className={inputClass} />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-[#1b4235] mb-1 uppercase tracking-wider">Notas adicionales</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
-              className="w-full border border-[#b88364]/30 p-3 focus:outline-none focus:border-[#b88364]"
-              placeholder="¿Algo que debamos saber?" />
+            <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-2 font-medium">Notas adicionales</label>
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
+              className={inputClass} placeholder="¿Algo que debamos saber?" />
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && (
+            <div className="bg-[#fef0ef] text-[#8b1a1a] rounded-lg p-4 text-sm">{error}</div>
+          )}
 
           <button type="submit" disabled={loading}
-            className="w-full py-4 bg-[#1b4235] text-[#edd3c5] uppercase tracking-widest text-sm hover:bg-[#0f2a20] transition-colors disabled:opacity-50">
-            {loading ? "Procesando..." : "Reservar ahora"}
+            className="w-full py-4 bg-[#1b4235] text-white rounded-lg uppercase tracking-wider text-sm font-medium hover:bg-[#0f2a20] transition-colors disabled:opacity-50 shadow-lg shadow-[#1b4235]/10">
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                Procesando...
+              </span>
+            ) : "Reservar ahora"}
           </button>
 
-          <p className="text-xs text-center text-gray-400 mt-4">
-            Serás redirigido a Stripe para completar el pago. Tus datos están seguros.
+          <p className="text-xs text-center text-[#b88364]/60 mt-3">
+            Serás redirigido a Stripe para completar el pago de forma segura.
           </p>
         </>
       )}
