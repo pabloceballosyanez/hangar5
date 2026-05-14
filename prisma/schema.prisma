@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Item {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  type        String    // "cabana", "glamping", "moto", "bici"
+  description String?
+  price       Int       // price per night/day in MXN cents
+  capacity    String?   // e.g. "2 huéspedes / Cama Queen"
+  image       String?   // URL or placeholder
+  featured    Boolean   @default(false)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  bookings    Booking[]
+}
+
+model Booking {
+  id          String    @id @default(cuid())
+  itemId      String
+  item        Item      @relation(fields: [itemId], references: [id])
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  startDate   DateTime  // check-in / rental start
+  endDate     DateTime  // check-out / rental end
+  guests      Int       @default(1)
+  totalPrice  Int       // in MXN cents
+  status      String    @default("pending") // pending, paid, confirmed, cancelled
+  stripeSessionId String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([itemId, startDate, endDate])
+  @@index([status])
+}
