@@ -15,7 +15,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV DATABASE_URL=file:/app/data/hangar5.db
 
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 RUN groupadd --system --gid 1001 nodejs && \
     useradd --system --uid 1001 -g nodejs -d /home/nextjs -m -s /bin/bash nextjs && \
     chown -R nextjs:nodejs /home/nextjs
