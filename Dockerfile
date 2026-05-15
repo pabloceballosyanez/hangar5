@@ -1,8 +1,9 @@
 # Build stage
 FROM node:22-alpine AS builder
+RUN apk add --no-cache python3 make g++
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npx prisma generate
