@@ -30,6 +30,5 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 
 EXPOSE 3000
-VOLUME /app/data
 
 CMD ["sh", "-c", "node node_modules/prisma/build/index.js db push && node server.js"]
