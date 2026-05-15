@@ -32,4 +32,4 @@ COPY --from=builder /app/prisma.config.ts ./
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "mkdir -p /app/data && npx --no-install prisma db push 2>&1 || echo 'PRISMA WARN: db push failed, continuing anyway'; echo '--- Starting server ---'; node server.js 2>&1"]
+CMD ["sh", "-c", "echo 'INICIO: $(date)' && mkdir -p /app/data && ls -la /app/data && echo 'DB_PATH: $DATABASE_URL' && node server.js 2>&1"]
