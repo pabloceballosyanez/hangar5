@@ -27,6 +27,9 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
+# Remove .env from build output (production uses env vars)
+RUN rm -f .env
+
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma.config.ts ./
 
