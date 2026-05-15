@@ -35,7 +35,4 @@ ENV HOSTNAME="0.0.0.0"
 ENV NEXT_PUBLIC_URL=""
 ENV HOME=/home/nextjs
 
-# Database volume mount point
-VOLUME /app/data
-
 CMD ["sh", "-c", "npx prisma db push && node server.js"]
