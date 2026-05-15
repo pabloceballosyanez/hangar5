@@ -1,0 +1,19 @@
+services:
+  hangar5:
+    build: .
+    container_name: hangar5
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/hangar5.db
+      - NEXT_PUBLIC_URL=https://hangar5.tudominio.com
+      - MP_ACCESS_TOKEN=${MP_ACCESS_TOKEN:-}
+    volumes:
+      - ./data:/app/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
