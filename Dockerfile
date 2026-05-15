@@ -16,8 +16,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN groupadd --system --gid 1001 nodejs
-RUN useradd --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 -g nodejs -d /home/nextjs -m -s /bin/bash nextjs && \
+    chown -R nextjs:nodejs /home/nextjs
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -32,6 +33,7 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV NEXT_PUBLIC_URL=""
+ENV HOME=/home/nextjs
 
 # Database volume mount point
 VOLUME /app/data
