@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: hangar5
+    env: node
+    buildCommand: npx prisma generate && npm run build
+    startCommand: npx prisma db push && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:/app/data/hangar5.db
+      - key: NEXT_PUBLIC_URL
+        value: https://hangar5.onrender.com
