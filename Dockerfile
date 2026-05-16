@@ -38,4 +38,5 @@ EXPOSE 3000
 # Railway sets HOSTNAME to container hostname, breaking bind
 CMD ["sh", "-c", "mkdir -p /app/data && node server.js &
 sleep 2
-node node_modules/prisma/build/index.js db push"]
+node node_modules/prisma/build/index.js db push
+wait"]
