@@ -11,3 +11,5 @@ services:
         value: file:/app/data/hangar5.db
       - key: NEXT_PUBLIC_URL
         value: https://hangar5.onrender.com
+      - key: HOSTNAME
+        value: 0.0.0.0
