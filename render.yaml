@@ -2,8 +2,8 @@ services:
   - type: web
     name: hangar5
     env: node
-    buildCommand: npx prisma generate --config=prisma.config.mjs && npm run build
-    startCommand: npx prisma db push --config=prisma.config.mjs && npm start
+    buildCommand: npx prisma generate && npm run build
+    startCommand: npx prisma db push --url=$DATABASE_URL && npm start
     envVars:
       - key: NODE_ENV
         value: production
