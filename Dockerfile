@@ -36,4 +36,4 @@ EXPOSE 3000
 
 # IMPORTANT: unset HOSTNAME so Next.js defaults to 0.0.0.0
 # Railway sets HOSTNAME to container hostname, breaking bind
-CMD ["sh", "-c", "unset HOSTNAME && mkdir -p /app/data && node node_modules/prisma/build/index.js db push && node server.js"]
+CMD ["sh", "-c", "unset HOSTNAME && mkdir -p /app/data && node node_modules/prisma/build/index.js db push; node server.js"]
