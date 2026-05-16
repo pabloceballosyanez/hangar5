@@ -18,7 +18,6 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL=file:/app/data/hangar5.db
-ENV PORT=3000
 ENV NEXT_PUBLIC_URL=""
 
 COPY --from=builder /app/public ./public
