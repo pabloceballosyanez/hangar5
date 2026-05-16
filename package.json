@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "npx prisma generate && next build",
-    "start": "npx prisma db push --url=$DATABASE_URL && next start",
+    "start": "npx prisma db push --url=file:./prisma/dev.db && next start",
     "lint": "eslint"
   },
   "dependencies": {
