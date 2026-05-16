@@ -3,11 +3,11 @@ FROM node:22-slim AS builder
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm install 2>&1
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npx prisma generate
-RUN npm run build
+RUN echo '=== PRISMA GEN ===' && npx prisma generate 2>&1
+RUN echo '=== NEXT BUILD ===' && npm run build 2>&1
 
 # Production stage
 FROM node:22-slim AS runner
