@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { BookingForm } from "@/components/BookingForm";
 import { ItemCalendar } from "@/components/ItemCalendar";
+import Gallery from "@/components/Gallery";
+import { getItemImages } from "@/lib/images";
 import { notFound } from "next/navigation";
 
 function formatPrice(cents: number) { return (cents / 100).toLocaleString("es-MX"); }
@@ -10,6 +12,8 @@ export default async function ItemPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const item = await prisma.item.findUnique({ where: { slug } });
   if (!item) notFound();
+
+  const images = getItemImages(slug);
 
   const typeLabels: Record<string, string> = { cabana: "Cabaña", glamping: "Glamping", moto: "Moto", bici: "Bicicleta" };
   const isRental = item.type === "moto" || item.type === "bici";
@@ -32,15 +36,21 @@ export default async function ItemPage({ params }: { params: Promise<{ slug: str
         </div>
 
         <div className="grid md:grid-cols-2 gap-16 mb-20">
-          {/* Image */}
+          {/* Image Gallery */}
           <div>
-            <div className="aspect-[4/5] rounded-lg overflow-hidden bg-cover bg-center shadow-lg"
-              style={{ backgroundImage: `url('${item.image || "/img/paisaje.jpg"}')` }} />
-            <div className="grid grid-cols-3 gap-2 mt-2">
-              <div className="aspect-square rounded bg-cover bg-center opacity-60" style={{ backgroundImage: `url('${item.image || "/img/paisaje.jpg"}')` }} />
-              <div className="aspect-square rounded bg-cover bg-center opacity-60" style={{ backgroundImage: `url('${item.image || "/img/paisaje.jpg"}')` }} />
-              <div className="aspect-square rounded bg-cover bg-center opacity-60" style={{ backgroundImage: `url('${item.image || "/img/paisaje.jpg"}')` }} />
-            </div>
+            {images.length > 0 ? (
+              <Gallery images={images} />
+            ) : (
+              <>
+                <div className="aspect-[4/5] rounded-lg overflow-hidden bg-cover bg-center shadow-lg"
+                  style={{ backgroundImage: `url('${item.image || "/img/paisaje.jpg"}')` }} />
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  <div className="aspect-square rounded bg-cover bg-center opacity-60" style={{ backgroundImage: `url('${item.image || "/img/paisaje.jpg"}')` }} />
+                  <div className="aspect-square rounded bg-cover bg-center opacity-60" style={{ backgroundImage: `url('${item.image || "/img/paisaje.jpg"}')` }} />
+                  <div className="aspect-square rounded bg-cover bg-center opacity-60" style={{ backgroundImage: `url('${item.image || "/img/paisaje.jpg"}')` }} />
+                </div>
+              </>
+            )}
           </div>
 
           {/* Details */}
