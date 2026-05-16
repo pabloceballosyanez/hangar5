@@ -18,6 +18,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL=file:/app/data/hangar5.db
+ENV HOSTNAME=0.0.0.0
 ENV NEXT_PUBLIC_URL=""
 
 COPY --from=builder /app/public ./public
@@ -35,4 +36,6 @@ EXPOSE 3000
 
 # IMPORTANT: unset HOSTNAME so Next.js defaults to 0.0.0.0
 # Railway sets HOSTNAME to container hostname, breaking bind
-CMD ["sh", "-c", "unset HOSTNAME && mkdir -p /app/data && node node_modules/prisma/build/index.js db push; node server.js"]
+CMD ["sh", "-c", "mkdir -p /app/data && node server.js &
+sleep 2
+node node_modules/prisma/build/index.js db push"]
