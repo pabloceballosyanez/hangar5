@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getTypeLabel, isActivity } from "@/lib/types";
 
 export default async function AdminPage() {
   const bookings = await prisma.booking.findMany({
@@ -16,6 +17,10 @@ export default async function AdminPage() {
 
   const items = await prisma.item.findMany();
 
+  const cabanas = items.filter(i => i.type === "cabana" || i.type === "glamping");
+  const activities = items.filter(i => isActivity(i.type));
+  const rentals = items.filter(i => i.type === "moto" || i.type === "bici");
+
   return (
     <main className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -27,19 +32,51 @@ export default async function AdminPage() {
           </div>
         </div>
 
+        {/* Items grouped by type */}
         <section className="mb-16">
           <h2 className="text-xl font-medium text-[#1b4235] uppercase tracking-wider mb-6">Items</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {items.map((item) => (
-              <div key={item.id} className="border p-4">
-                <p className="font-medium text-[#1b4235] text-sm">{item.name}</p>
-                <p className="text-xs text-[#b88364]">{item.type}</p>
-                <p className="text-sm font-bold">${(item.price / 100).toLocaleString()}</p>
-              </div>
-            ))}
+
+          <div className="mb-8">
+            <h3 className="text-sm tracking-[0.2em] uppercase text-[#b88364] mb-3">🏠 Alojamientos</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {cabanas.map((item) => (
+                <div key={item.id} className="border p-4 rounded">
+                  <p className="font-medium text-[#1b4235] text-sm">{item.name}</p>
+                  <p className="text-xs text-[#b88364]">{getTypeLabel(item.type)}</p>
+                  <p className="text-sm font-bold">${(item.price / 100).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-sm tracking-[0.2em] uppercase text-[#b88364] mb-3">🪂 Actividades</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {activities.map((item) => (
+                <div key={item.id} className="border p-4 rounded">
+                  <p className="font-medium text-[#1b4235] text-sm">{item.name}</p>
+                  <p className="text-xs text-[#b88364]">{getTypeLabel(item.type)}</p>
+                  <p className="text-sm font-bold">${(item.price / 100).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm tracking-[0.2em] uppercase text-[#b88364] mb-3">🏍️ Renta</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {rentals.map((item) => (
+                <div key={item.id} className="border p-4 rounded">
+                  <p className="font-medium text-[#1b4235] text-sm">{item.name}</p>
+                  <p className="text-xs text-[#b88364]">{getTypeLabel(item.type)}</p>
+                  <p className="text-sm font-bold">${(item.price / 100).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
+        {/* Bookings */}
         <section>
           <h2 className="text-xl font-medium text-[#1b4235] uppercase tracking-wider mb-6">Reservas</h2>
           <div className="overflow-x-auto">
@@ -48,29 +85,39 @@ export default async function AdminPage() {
                 <tr className="border-b text-left text-[#b88364] uppercase tracking-wider text-xs">
                   <th className="py-3 pr-4">Item</th>
                   <th className="py-3 pr-4">Cliente</th>
-                  <th className="py-3 pr-4">Entrada</th>
-                  <th className="py-3 pr-4">Salida</th>
+                  <th className="py-3 pr-4">Tipo</th>
+                  <th className="py-3 pr-4">Fecha</th>
+                  <th className="py-3 pr-4">Personas</th>
                   <th className="py-3 pr-4">Total</th>
                   <th className="py-3 pr-4">Estado</th>
                   <th className="py-3">ID</th>
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((b) => (
-                  <tr key={b.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 pr-4 font-medium">{b.item.name}</td>
-                    <td className="py-3 pr-4">{b.customerName}<br /><span className="text-xs text-gray-400">{b.customerEmail}</span></td>
-                    <td className="py-3 pr-4">{new Date(b.startDate).toLocaleDateString("es-MX")}</td>
-                    <td className="py-3 pr-4">{new Date(b.endDate).toLocaleDateString("es-MX")}</td>
-                    <td className="py-3 pr-4 font-medium">${(b.totalPrice / 100).toLocaleString()}</td>
-                    <td className="py-3 pr-4">
-                      <span className={`px-2 py-1 text-xs uppercase ${statusColors[b.status] || ""}`}>
-                        {b.status}
-                      </span>
-                    </td>
-                    <td className="py-3 text-xs text-gray-400">{b.id.slice(-8)}</td>
-                  </tr>
-                ))}
+                {bookings.map((b) => {
+                  const isAct = isActivity(b.item.type);
+                  return (
+                    <tr key={b.id} className="border-b hover:bg-gray-50">
+                      <td className="py-3 pr-4 font-medium">{b.item.name}</td>
+                      <td className="py-3 pr-4">{b.customerName}<br /><span className="text-xs text-gray-400">{b.customerEmail}</span></td>
+                      <td className="py-3 pr-4 text-xs">{isAct ? "Actividad" : "Reserva"}</td>
+                      <td className="py-3 pr-4 text-xs">
+                        {isAct
+                          ? new Date(b.startDate).toLocaleDateString("es-MX")
+                          : `${new Date(b.startDate).toLocaleDateString("es-MX")} → ${new Date(b.endDate).toLocaleDateString("es-MX")}`
+                        }
+                      </td>
+                      <td className="py-3 pr-4">{b.guests}</td>
+                      <td className="py-3 pr-4 font-medium">${(b.totalPrice / 100).toLocaleString()}</td>
+                      <td className="py-3 pr-4">
+                        <span className={`px-2 py-1 text-xs uppercase ${statusColors[b.status] || ""}`}>
+                          {b.status}
+                        </span>
+                      </td>
+                      <td className="py-3 text-xs text-gray-400">{b.id.slice(-8)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

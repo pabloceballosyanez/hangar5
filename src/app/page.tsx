@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getTypeLabel } from "@/lib/types";
 
 function formatPrice(cents: number) {
   return (cents / 100).toLocaleString("es-MX");
@@ -8,8 +9,11 @@ function formatPrice(cents: number) {
 export default async function Home() {
   const featured = await prisma.item.findMany({ where: { featured: true, active: true } });
   const glampings = await prisma.item.findMany({ where: { type: "glamping", active: true } });
+  const activities = await prisma.item.findMany({ where: { type: { in: ["parapente", "aladelta", "hike"] }, active: true } });
   const bikes = await prisma.item.findMany({ where: { type: "bici", active: true } });
   const motos = await prisma.item.findMany({ where: { type: "moto", active: true } });
+  const parapentes = activities.filter(a => a.type === "parapente" || a.type === "aladelta");
+  const hikes = activities.filter(a => a.type === "hike");
 
   return (
     <main className="min-h-screen bg-[#faf7f5]">
@@ -20,7 +24,8 @@ export default async function Home() {
           <div className="hidden md:flex gap-10 text-xs tracking-[0.2em] uppercase">
             <a href="#cabanas" className="hover:opacity-70 transition-opacity">Cabañas</a>
             <a href="#glampings" className="hover:opacity-70 transition-opacity">Glampings</a>
-            <a href="#equipo" className="hover:opacity-70 transition-opacity">Equipo</a>
+            <a href="#actividades" className="hover:opacity-70 transition-opacity">Actividades</a>
+            <a href="#renta" className="hover:opacity-70 transition-opacity">Renta</a>
             <a href="#contacto" className="hover:opacity-70 transition-opacity">Contacto</a>
           </div>
           <Link href="/admin" className="text-xs tracking-[0.2em] uppercase opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
@@ -57,10 +62,10 @@ export default async function Home() {
             <h2 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em]">Las Cabañas</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-12">
-            {featured.map((item, i) => (
+            {featured.filter(i => i.type === "cabana").map((item) => (
               <Link key={item.id} href={`/item/${item.slug}`} className="group block">
                 <div className="relative overflow-hidden aspect-[3/4] mb-6">
-                  <div className="absolute inset-0 bg-[url('/img/cabana-1.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700" style={{ backgroundImage: `url('${item.image}')` }} />
+                  <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700" style={{ backgroundImage: `url('${item.image}')` }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                     <span className="text-white text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
@@ -106,31 +111,101 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Equipo */}
-      <section id="equipo" className="py-32 bg-[#faf7f5]">
+      {/* Actividades */}
+      <section id="actividades" className="py-32 bg-[#faf7f5]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="mb-20">
+            <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Experiencias</p>
+            <h2 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em]">Actividades</h2>
+          </div>
+
+          {/* Vuelos */}
+          <div className="mb-24">
+            <div className="flex items-center gap-4 mb-10">
+              <div className="h-px flex-1 bg-[#b88364]/20" />
+              <h3 className="text-lg tracking-[0.3em] uppercase text-[#b88364]">Vuelos</h3>
+              <div className="h-px flex-1 bg-[#b88364]/20" />
+            </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {parapentes.map((item) => (
+                <Link key={item.id} href={`/item/${item.slug}`} className="group block">
+                  <div className="relative overflow-hidden aspect-[4/5] mb-6 rounded-lg">
+                    <div className="absolute inset-0 bg-[#1b4235] flex items-center justify-center text-[#b88364] text-4xl group-hover:scale-105 transition-transform duration-700">
+                      {item.type === "parapente" ? "🪂" : "🪁"}
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                      <span className="text-white text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                        Reservar →
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-2">{getTypeLabel(item.type)}</p>
+                  <h3 className="text-xl font-serif text-[#1b4235] mb-2">{item.name}</h3>
+                  <p className="text-sm text-[#5c3d2e] mb-3 line-clamp-2">{item.description}</p>
+                  <p className="text-lg font-medium text-[#1b4235]">
+                    ${formatPrice(item.price)} <span className="text-sm text-[#b88364] font-normal">MXN / persona</span>
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Hikes */}
+          {hikes.length > 0 && (
+            <div>
+              <div className="flex items-center gap-4 mb-10">
+                <div className="h-px flex-1 bg-[#b88364]/20" />
+                <h3 className="text-lg tracking-[0.3em] uppercase text-[#b88364]">Senderismo</h3>
+                <div className="h-px flex-1 bg-[#b88364]/20" />
+              </div>
+              <div className="grid md:grid-cols-2 gap-8">
+                {hikes.map((item) => (
+                  <Link key={item.id} href={`/item/${item.slug}`} className="group flex gap-6 p-6 bg-white hover:shadow-xl transition-all duration-500 rounded-lg border border-transparent hover:border-[#b88364]/20">
+                    <div className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-[#1b4235] flex items-center justify-center text-4xl">
+                      🥾
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-1">Hike</p>
+                      <h4 className="text-xl font-serif text-[#1b4235] mb-1">{item.name}</h4>
+                      <p className="text-sm text-[#5c3d2e] mb-2 line-clamp-2">{item.description}</p>
+                      <p className="text-lg font-medium text-[#1b4235]">
+                        ${formatPrice(item.price)} <span className="text-sm text-[#b88364] font-normal">MXN / persona</span>
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Renta de Equipo */}
+      <section id="renta" className="py-32 bg-[#1b4235] text-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
             <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Aventura</p>
-            <h2 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em]">Renta de Equipo</h2>
+            <h2 className="font-serif text-5xl md:text-6xl tracking-[-0.02em]">Renta de Equipo</h2>
           </div>
 
           {/* Motos */}
           <div className="mb-24">
             <div className="flex items-center gap-4 mb-10">
-              <div className="h-px flex-1 bg-[#b88364]/20" />
+              <div className="h-px flex-1 bg-white/10" />
               <h3 className="text-lg tracking-[0.3em] uppercase text-[#b88364]">Motos</h3>
-              <div className="h-px flex-1 bg-[#b88364]/20" />
+              <div className="h-px flex-1 bg-white/10" />
             </div>
             <div className="grid md:grid-cols-2 gap-8">
               {motos.map((item) => (
-                <Link key={item.id} href={`/item/${item.slug}`} className="group flex gap-6 p-6 bg-white hover:bg-white hover:shadow-xl transition-all duration-500 rounded-lg border border-transparent hover:border-[#b88364]/20">
+                <Link key={item.id} href={`/item/${item.slug}`} className="group flex gap-6 p-6 bg-white/5 hover:bg-white/10 transition-all duration-500 rounded-lg border border-white/10 hover:border-[#b88364]/30">
                   <div className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url('${item.image}')` }} />
                   <div className="flex flex-col justify-center">
                     <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-1">Moto</p>
-                    <h4 className="text-xl font-serif text-[#1b4235] mb-1">{item.name}</h4>
-                    <p className="text-sm text-[#5c3d2e] mb-2 line-clamp-2">{item.description}</p>
-                    <p className="text-lg font-medium text-[#1b4235]">
-                      ${formatPrice(item.price)} <span className="text-sm text-[#b88364] font-normal">MXN / día</span>
+                    <h4 className="text-xl font-serif mb-1">{item.name}</h4>
+                    <p className="text-sm text-white/60 mb-2 line-clamp-2">{item.description}</p>
+                    <p className="text-lg font-medium">
+                      ${formatPrice(item.price)} <span className="text-sm text-white/50 font-normal">MXN / día</span>
                     </p>
                   </div>
                 </Link>
@@ -141,19 +216,19 @@ export default async function Home() {
           {/* Bicis */}
           <div>
             <div className="flex items-center gap-4 mb-10">
-              <div className="h-px flex-1 bg-[#b88364]/20" />
+              <div className="h-px flex-1 bg-white/10" />
               <h3 className="text-lg tracking-[0.3em] uppercase text-[#b88364]">Bicicletas</h3>
-              <div className="h-px flex-1 bg-[#b88364]/20" />
+              <div className="h-px flex-1 bg-white/10" />
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {bikes.map((item) => (
-                <Link key={item.id} href={`/item/${item.slug}`} className="group block p-6 bg-white hover:shadow-xl transition-all duration-500 rounded-lg border border-transparent hover:border-[#b88364]/20">
+                <Link key={item.id} href={`/item/${item.slug}`} className="group block p-6 bg-white/5 hover:bg-white/10 transition-all duration-500 rounded-lg border border-white/10 hover:border-[#b88364]/30">
                   <div className="w-full h-48 rounded-lg overflow-hidden mb-4 bg-cover bg-center" style={{ backgroundImage: `url('${item.image}')` }} />
                   <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-1">Bicicleta</p>
-                  <h4 className="text-lg font-serif text-[#1b4235] mb-1">{item.name}</h4>
-                  <p className="text-sm text-[#5c3d2e] mb-2 line-clamp-2">{item.description}</p>
-                  <p className="text-base font-medium text-[#1b4235]">
-                    ${formatPrice(item.price)} <span className="text-sm text-[#b88364] font-normal">MXN / día</span>
+                  <h4 className="text-lg font-serif mb-1">{item.name}</h4>
+                  <p className="text-sm text-white/60 mb-2 line-clamp-2">{item.description}</p>
+                  <p className="text-base font-medium">
+                    ${formatPrice(item.price)} <span className="text-sm text-white/50 font-normal">MXN / día</span>
                   </p>
                 </Link>
               ))}
@@ -163,8 +238,8 @@ export default async function Home() {
       </section>
 
       {/* Contacto */}
-      <section id="contacto" className="py-32 bg-[#1b4235] text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[url('/img/paisaje.jpg')] bg-cover bg-center" />
+      <section id="contacto" className="py-32 bg-[#faf7f5] text-[#1b4235] relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5 bg-[url('/img/paisaje.jpg')] bg-cover bg-center" />
         <div className="relative z-10 max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-16">
             <div>
@@ -186,18 +261,18 @@ export default async function Home() {
               </div>
             </div>
             <div className="flex flex-col justify-end">
-              <div className="border border-white/10 rounded-lg p-8">
+              <div className="border border-[#1b4235]/10 rounded-lg p-8 bg-white/50 backdrop-blur-sm">
                 <p className="text-xs tracking-[0.3em] uppercase text-[#b88364] mb-4">Ubicación</p>
                 <p className="text-2xl font-serif leading-relaxed mb-4">
                   El Peñón Temascaltepec
                 </p>
-                <p className="text-white/50 text-sm">
+                <p className="text-[#5c3d2e]/60 text-sm">
                   51305 El Peñón, Méx.<br />
                   A 2 horas de CDMX y 45 min de Toluca
                 </p>
-                <div className="mt-6 pt-6 border-t border-white/10">
+                <div className="mt-6 pt-6 border-t border-[#1b4235]/10">
                   <a href="https://maps.google.com/?q=El+Peñón+Temascaltepec+51305" target="_blank" rel="noopener"
-                    className="inline-flex items-center gap-2 text-sm tracking-wider uppercase text-[#b88364] hover:text-white transition-colors">
+                    className="inline-flex items-center gap-2 text-sm tracking-wider uppercase text-[#b88364] hover:text-[#1b4235] transition-colors">
                     Ver en Google Maps →
                   </a>
                 </div>

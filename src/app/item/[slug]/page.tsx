@@ -4,6 +4,7 @@ import { BookingForm } from "@/components/BookingForm";
 import { ItemCalendar } from "@/components/ItemCalendar";
 import Gallery from "@/components/Gallery";
 import { getItemImages } from "@/lib/images";
+import { getTypeLabel, isActivity, isRental } from "@/lib/types";
 import { notFound } from "next/navigation";
 
 function formatPrice(cents: number) { return (cents / 100).toLocaleString("es-MX"); }
@@ -15,9 +16,9 @@ export default async function ItemPage({ params }: { params: Promise<{ slug: str
 
   const images = getItemImages(slug);
 
-  const typeLabels: Record<string, string> = { cabana: "Cabaña", glamping: "Glamping", moto: "Moto", bici: "Bicicleta" };
-  const isRental = item.type === "moto" || item.type === "bici";
-  const unit = isRental ? "día" : "noche";
+  const isRent = isRental(item.type);
+  const isAct = isActivity(item.type);
+  const unit = isAct ? "persona" : (isRent ? "día" : "noche");
 
   return (
     <main className="min-h-screen bg-[#faf7f5]">
@@ -31,7 +32,7 @@ export default async function ItemPage({ params }: { params: Promise<{ slug: str
       <div className="max-w-7xl mx-auto px-6 py-16">
         {/* Breadcrumb & type */}
         <div className="mb-12">
-          <p className="text-xs tracking-[0.3em] uppercase text-[#b88364] mb-3">{typeLabels[item.type]}</p>
+          <p className="text-xs tracking-[0.3em] uppercase text-[#b88364] mb-3">{getTypeLabel(item.type)}</p>
           <h1 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em] mb-6">{item.name}</h1>
         </div>
 
@@ -68,11 +69,11 @@ export default async function ItemPage({ params }: { params: Promise<{ slug: str
                 <svg className="w-5 h-5 text-[#b88364]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Por {unit}</span>
+                <span>{isAct ? "Por persona" : `Por ${unit}`}</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-3xl font-serif text-[#1b4235] font-medium">${formatPrice(item.price)}</span>
-                <span className="text-[#b88364]">MXN / {unit}</span>
+                <span className="text-[#b88364]">MXN / {isAct ? "persona" : unit}</span>
               </div>
             </div>
 
@@ -89,7 +90,7 @@ export default async function ItemPage({ params }: { params: Promise<{ slug: str
           <div className="mb-8 text-center">
             <div className="h-px w-24 bg-[#b88364]/30 mx-auto mb-8" />
             <h2 className="font-serif text-3xl text-[#1b4235] tracking-[-0.02em] mb-3">Reservar</h2>
-            <p className="text-[#5c3d2e] text-sm">Selecciona tus fechas y completa el formulario</p>
+            <p className="text-[#5c3d2e] text-sm">{isAct ? "Elige la fecha y número de participantes" : "Selecciona tus fechas y completa el formulario"}</p>
           </div>
           <div className="bg-white border border-black/5 rounded-lg p-8 shadow-sm">
             <BookingForm item={item} />
