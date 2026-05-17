@@ -191,9 +191,9 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
           <div className="flex items-center gap-4 text-sm text-[#b88364]">
             <span>{data.bookings.length} reservas</span>
             <span>{data.items.length} items</span>
-            <button onClick={() => { localStorage.removeItem(SESSION_KEY); router.push("/admin/login"); }} className="ml-4 text-[10px] uppercase tracking-wider border border-[#b88364]/30 px-3 py-1 rounded hover:bg-[#b88364]/5 transition-colors">
+            <a href="/api/admin/logout" className="ml-4 text-[10px] uppercase tracking-wider border border-[#b88364]/30 px-3 py-1 rounded hover:bg-[#b88364]/5 transition-colors">
               Salir
-            </button>
+            </a>
           </div>
         </div>
 

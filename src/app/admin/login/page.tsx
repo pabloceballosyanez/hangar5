@@ -1,54 +1,21 @@
-"use client";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+const ADMIN_PW = "hangar5admin2026";
+const COOKIE_NAME = "hangar5_admin_session";
 
 export const dynamic = "force-dynamic";
 
-const ADMIN_PW = "hangar5admin2026";
-const SESSION_KEY = "hangar5_admin_session";
+export default async function AdminLogin({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
+  const params = await searchParams;
+  const error = params.error === "1" ? "Contraseña incorrecta" : "";
 
-export default function AdminLogin() {
-  const router = useRouter();
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    const session = localStorage.getItem(SESSION_KEY);
-    if (session === "true") {
-      const from = new URLSearchParams(window.location.search).get("from") || "/admin";
-      router.replace(from);
-    } else {
-      setChecking(false);
-    }
-  }, [router]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    await new Promise(r => setTimeout(r, 400));
-
-    if (password !== ADMIN_PW) {
-      setError("Contraseña incorrecta");
-      setLoading(false);
-      return;
-    }
-
-    localStorage.setItem(SESSION_KEY, "true");
-    const from = new URLSearchParams(window.location.search).get("from") || "/admin";
-    router.replace(from);
-  };
-
-  if (checking) {
-    return (
-      <main className="min-h-screen bg-[#1b4235] flex items-center justify-center">
-        <div className="text-white/50 text-sm">Verificando sesión...</div>
-      </main>
-    );
+  // Check if already logged in
+  const cookieStore = await cookies();
+  const session = cookieStore.get(COOKIE_NAME);
+  if (session?.value === "true") {
+    redirect(params.from || "/admin");
   }
 
   return (
@@ -60,15 +27,14 @@ export default function AdminLogin() {
             <p className="text-sm text-[#b88364] uppercase tracking-wider">Admin</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form method="POST" action="/api/admin/login" className="space-y-4">
             <div>
               <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-2 font-medium">
                 Contraseña
               </label>
               <input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
                 className="w-full border border-[#e0d6cf] rounded-lg p-4 bg-white text-[#1b4235] focus:outline-none focus:border-[#b88364] focus:ring-1 focus:ring-[#b88364]/20 transition-all text-sm"
                 placeholder="••••••••"
                 autoFocus
@@ -84,10 +50,9 @@ export default function AdminLogin() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-[#1b4235] text-white rounded-lg uppercase tracking-wider text-sm font-medium hover:bg-[#0f2a20] transition-colors disabled:opacity-50"
+              className="w-full py-4 bg-[#1b4235] text-white rounded-lg uppercase tracking-wider text-sm font-medium hover:bg-[#0f2a20] transition-colors"
             >
-              {loading ? "Entrando..." : "Entrar"}
+              Entrar
             </button>
           </form>
 

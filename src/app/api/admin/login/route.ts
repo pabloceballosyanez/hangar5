@@ -1,0 +1,25 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const ADMIN_PW = "hangar5admin2026";
+const COOKIE_NAME = "hangar5_admin_session";
+
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
+  const password = formData.get("password") as string;
+  const from = req.nextUrl.searchParams.get("from") || "/admin";
+
+  if (password !== ADMIN_PW) {
+    return NextResponse.redirect(new URL("/admin/login?error=1", req.url));
+  }
+
+  const response = NextResponse.redirect(new URL(from, req.url));
+  response.cookies.set(COOKIE_NAME, "true", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24, // 24 hours
+  });
+
+  return response;
+}
