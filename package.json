@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "npx prisma generate && next build",
-    "start": "cp -n prisma/dev.db /data/hangar5.db 2>/dev/null; sqlite3 /data/hangar5.db 'ALTER TABLE Booking ADD COLUMN paymentMethod TEXT' 2>/dev/null || true; echo '[DB] ready'; next start",
+    "start": "cp -n prisma/dev.db /data/hangar5.db 2>/dev/null; node scripts/migrate.js /data/hangar5.db; next start",
     "lint": "eslint"
   },
   "dependencies": {
