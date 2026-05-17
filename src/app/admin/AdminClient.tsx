@@ -611,7 +611,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                         const created = await res.json();
                         setData(d => ({ ...d, items: [...d.items, created] }));
                         setNewItemMsg("✅ Creado");
-                        setTimeout(() => { setShowNewItem(false); setNewItem({ name: '', slug: '', type: 'cabana', description: '', price: 0, capacity: '', image: '' }); setNewItemMsg(''); }, 1000);
+                        setTimeout(() => { setShowNewItem(false); setNewItem({ name: '', slug: '', type: 'cabana', description: '', price: 0, capacity: '', image: '', featured: false, active: true }); setNewItemMsg(''); }, 1000);
                       } else {
                         const err = await res.json();
                         setNewItemMsg("❌ " + (err.error || "Error"));
