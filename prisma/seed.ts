@@ -21,6 +21,7 @@ const items = [
   { name: "Parapente — Exploración", slug: "parapente-exploracion", type: "parapente", description: "Vuelo en tándem extendido de aproximadamente 45 minutos sobre los paisajes del Peñón. Más altura, más distancia, más adrenalina. Incluye instructor certificado y equipo completo.", price: 350000, capacity: "45 min · 1 persona", image: "/img/items/parapente-exploracion/01.jpg", featured: true },
   { name: "Ala Delta", slug: "ala-delta", type: "aladelta", description: "Vuelo en tándem con instructor de aproximadamente 20 minutos de duración aterrizando en Hangar 5. Una perspectiva única del valle desde las alas.", price: 300000, capacity: "20 min · 1 persona", image: "/img/items/ala-delta/01.jpg", featured: true },
   { name: "Hike Guiado", slug: "hike-guiado", type: "hike", description: "Caminata guiada de aproximadamente una hora por los bosques aledaños al Peñón. Grupos de 1 a 4 personas como máximo. Conecta con la naturaleza a través de senderos espectaculares.", price: 50000, capacity: "~1 hora · grupos de 1-4 pers.", image: "/img/items/hike-guiado/01.jpg", featured: true },
+  { name: 'Zopilote', slug: 'zopilote', type: 'cabana', description: 'Cabaña Zopilote — un espacio único para conectar con la naturaleza rodeado de los paisajes del Peñón.', price: 220000, capacity: '2 huéspedes · Cama Queen', image: '/img/items/zopilote/01.jpg', featured: true },
 ];
 
 async function main() {
@@ -39,27 +40,3 @@ main()
   .catch((e) => { console.error(e); process.exit(1); })
   .finally(() => prisma.$disconnect());
 
-// Zopilote (creada desde admin)
-async function addMisc() {
-  await prisma.item.upsert({
-    where: { slug: "zopilote" },
-    update: {},
-    create: {
-      name: "Zopilote",
-      slug: "zopilote",
-      type: "cabana",
-      description: "Cabaña Zopilote — un espacio único para conectar con la naturaleza.",
-      price: 220000,
-      capacity: "2 huéspedes",
-      image: "/img/items/zopilote/01.jpg",
-      featured: true,
-      active: true,
-    },
-  });
-  console.log("Zopilote added");
-}
-
-main()
-  .then(() => addMisc())
-  .catch((e) => { console.error(e); process.exit(1); })
-  .finally(() => prisma.$disconnect());
