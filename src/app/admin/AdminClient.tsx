@@ -37,6 +37,9 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
   const [statusLoading, setStatusLoading] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [editForm, setEditForm] = useState({ name: "", description: "", price: 0, capacity: "", active: true, featured: false });
+  const [showNewItem, setShowNewItem] = useState(false);
+  const [newItem, setNewItem] = useState({ name: "", slug: "", type: "cabana", description: "", price: 0, capacity: "", image: "" });
+  const [newItemMsg, setNewItemMsg] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [editMsg, setEditMsg] = useState("");
   const [blockForm, setBlockForm] = useState({ itemId: "", startDate: "", endDate: "", reason: "" });
@@ -518,6 +521,104 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
         {/* ===== TAB: ITEMS ===== */}
         {tab === "items" && (
           <>
+            {/* New Item button */}
+            <div className="mb-6 flex justify-end">
+              <button onClick={() => setShowNewItem(true)}
+                className="px-4 py-2 text-xs uppercase tracking-wider bg-[#1b4235] text-white rounded-lg hover:bg-[#0f2a20] transition-colors">
+                + Nuevo ítem
+              </button>
+            </div>
+
+            {/* Create Item modal */}
+            {showNewItem && (
+              <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" onClick={() => { setShowNewItem(false); setNewItemMsg(""); }}>
+                <div className="bg-white rounded-lg w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                  <h3 className="text-lg font-medium text-[#1b4235] mb-1">Nuevo ítem</h3>
+                  <p className="text-xs text-[#b88364] uppercase tracking-wider mb-6">Crear un nuevo elemento</p>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Nombre *</label>
+                      <input type="text" value={newItem.name} onChange={e => {
+                        const name = e.target.value;
+                        const slug = name.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/g, '-').replace(/^-|-$/g, '');
+                        setNewItem(f => ({ ...f, name, slug }));
+                      }} className={inputClass} placeholder="Ej: Moto Enduro 300cc #3" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Slug *</label>
+                        <input type="text" value={newItem.slug} onChange={e => setNewItem(f => ({ ...f, slug: e.target.value }))} className={inputClass} placeholder="moto-3" />
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Tipo *</label>
+                        <select value={newItem.type} onChange={e => setNewItem(f => ({ ...f, type: e.target.value }))} className={inputClass}>
+                          <option value="cabana">Cabaña</option>
+                          <option value="glamping">Glamping</option>
+                          <option value="moto">Moto</option>
+                          <option value="bici">Bicicleta</option>
+                          <option value="parapente">Parapente</option>
+                          <option value="aladelta">Ala Delta</option>
+                          <option value="hike">Hike</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Descripción</label>
+                      <textarea value={newItem.description} onChange={e => setNewItem(f => ({ ...f, description: e.target.value }))} rows={3} className={inputClass} placeholder="Descripción del ítem" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Precio (centavos) *</label>
+                        <input type="number" value={newItem.price} onChange={e => setNewItem(f => ({ ...f, price: parseInt(e.target.value) || 0 }))} className={inputClass} />
+                        <p className="text-xs text-gray-400 mt-1">${formatPrice(newItem.price)} MXN</p>
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Capacidad</label>
+                        <input type="text" value={newItem.capacity} onChange={e => setNewItem(f => ({ ...f, capacity: e.target.value }))} className={inputClass} placeholder="Ej: 1 persona" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Imagen (opcional)</label>
+                      <input type="text" value={newItem.image} onChange={e => setNewItem(f => ({ ...f, image: e.target.value }))} className={inputClass} placeholder={`/img/items/${newItem.slug}/01.jpg`} />
+                    </div>
+                  </div>
+
+                  {newItemMsg && <p className="mt-4 text-sm">{newItemMsg}</p>}
+
+                  <div className="flex gap-3 mt-6">
+                    <button onClick={async () => {
+                      if (!newItem.name || !newItem.slug || !newItem.type || !newItem.price) {
+                        setNewItemMsg("❌ Completa los campos obligatorios"); return;
+                      }
+                      setNewItemMsg("");
+                      const res = await fetch('/api/admin/items', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...newItem, image: newItem.image || '/img/items/' + newItem.slug + '/01.jpg' }),
+                      });
+                      if (res.ok) {
+                        const created = await res.json();
+                        setData(d => ({ ...d, items: [...d.items, created] }));
+                        setNewItemMsg("✅ Creado");
+                        setTimeout(() => { setShowNewItem(false); setNewItem({ name: '', slug: '', type: 'cabana', description: '', price: 0, capacity: '', image: '' }); setNewItemMsg(''); }, 1000);
+                      } else {
+                        const err = await res.json();
+                        setNewItemMsg("❌ " + (err.error || "Error"));
+                      }
+                    }}
+                      className="flex-1 py-3 bg-[#1b4235] text-white rounded-lg text-sm uppercase tracking-wider hover:bg-[#0f2a20] transition-colors">
+                      Crear
+                    </button>
+                    <button onClick={() => { setShowNewItem(false); setNewItemMsg(""); }}
+                      className="px-6 py-3 border border-[#e0d6cf] text-[#5c3d2e] rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Items editor modal */}
             {editingItem && (
               <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" onClick={() => setEditingItem(null)}>
