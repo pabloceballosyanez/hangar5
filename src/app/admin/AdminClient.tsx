@@ -38,7 +38,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [editForm, setEditForm] = useState({ name: "", description: "", price: 0, capacity: "", active: true, featured: false });
   const [showNewItem, setShowNewItem] = useState(false);
-  const [newItem, setNewItem] = useState({ name: "", slug: "", type: "cabana", description: "", price: 0, capacity: "", image: "" });
+  const [newItem, setNewItem] = useState({ name: "", slug: "", type: "cabana", description: "", price: 0, capacity: "", image: "", featured: false, active: true });
   const [newItemMsg, setNewItemMsg] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [editMsg, setEditMsg] = useState("");
@@ -581,6 +581,16 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                     <div>
                       <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Imagen (opcional)</label>
                       <input type="text" value={newItem.image} onChange={e => setNewItem(f => ({ ...f, image: e.target.value }))} className={inputClass} placeholder={`/img/items/${newItem.slug}/01.jpg`} />
+                    </div>
+                    <div className="flex gap-6">
+                      <label className="flex items-center gap-2 text-sm text-[#1b4235]">
+                        <input type="checkbox" checked={newItem.active} onChange={e => setNewItem(f => ({ ...f, active: e.target.checked }))} className="w-4 h-4" />
+                        Activo
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-[#1b4235]">
+                        <input type="checkbox" checked={newItem.featured} onChange={e => setNewItem(f => ({ ...f, featured: e.target.checked }))} className="w-4 h-4" />
+                        Destacado
+                      </label>
                     </div>
                   </div>
 

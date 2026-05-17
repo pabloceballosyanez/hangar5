@@ -10,6 +10,7 @@ function formatPrice(cents: number) {
 
 export default async function Home() {
   const featured = await prisma.item.findMany({ where: { featured: true, active: true } });
+  const cabanas = await prisma.item.findMany({ where: { type: "cabana", active: true } });
   const glampings = await prisma.item.findMany({ where: { type: "glamping", active: true } });
   const activities = await prisma.item.findMany({ where: { type: { in: ["parapente", "aladelta", "hike"] }, active: true } });
   const bikes = await prisma.item.findMany({ where: { type: "bici", active: true } });
@@ -64,7 +65,7 @@ export default async function Home() {
             <h2 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em]">Las Cabañas</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-12">
-            {featured.filter(i => i.type === "cabana").map((item) => (
+            {cabanas.map((item) => (
               <Link key={item.id} href={`/item/${item.slug}`} className="group block">
                 <div className="relative overflow-hidden aspect-[3/4] mb-6">
                   <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700" style={{ backgroundImage: `url('${item.image}')` }} />
