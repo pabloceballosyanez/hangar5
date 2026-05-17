@@ -10,6 +10,12 @@ interface BookingFormProps {
 
 function formatPrice(cents: number) { return (cents / 100).toLocaleString("es-MX"); }
 
+const PAYMENT_METHODS = [
+  { id: "card", label: "💳 Tarjeta de crédito/débito", desc: "Paga con Mercado Pago" },
+  { id: "transfer", label: "🏦 Transferencia bancaria", desc: "Datos para depositar" },
+  { id: "cash", label: "💵 Efectivo al llegar", desc: "Paga cuando estés aquí" },
+];
+
 export function BookingForm({ item }: BookingFormProps) {
   const router = useRouter();
   const [startDate, setStartDate] = useState("");
@@ -19,10 +25,13 @@ export function BookingForm({ item }: BookingFormProps) {
   const [phone, setPhone] = useState("");
   const [guests, setGuests] = useState(1);
   const [notes, setNotes] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("card");
   const [loading, setLoading] = useState(false);
   const [availability, setAvailability] = useState<{ available: boolean; checked: boolean }>({ available: false, checked: false });
   const [error, setError] = useState("");
   const [bookingComplete, setBookingComplete] = useState(false);
+
+  const isTestMode = paymentMethod === "card" && !(typeof window !== "undefined" && window.__NEXT_DATA__?.props?.pageProps?.hasMpToken);
 
   const isRent = isRental(item.type);
   const isAct = isActivity(item.type);
@@ -49,7 +58,7 @@ export function BookingForm({ item }: BookingFormProps) {
     const bookingRes = await fetch("/api/bookings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ itemId: item.id, customerName: name, customerEmail: email, customerPhone: phone, startDate, endDate: effectiveEnd, guests, notes }),
+      body: JSON.stringify({ itemId: item.id, customerName: name, customerEmail: email, customerPhone: phone, startDate, endDate: effectiveEnd, guests, notes, paymentMethod }),
     });
 
     if (!bookingRes.ok) {
@@ -63,7 +72,7 @@ export function BookingForm({ item }: BookingFormProps) {
     const checkoutRes = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookingId: booking.id }),
+      body: JSON.stringify({ bookingId: booking.id, paymentMethod }),
     });
     const checkoutData = await checkoutRes.json();
 
@@ -206,6 +215,37 @@ export function BookingForm({ item }: BookingFormProps) {
             <div className="bg-[#fef0ef] text-[#8b1a1a] rounded-lg p-4 text-sm">{error}</div>
           )}
 
+          {/* Payment method */}
+          <div>
+            <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-3 font-medium">Método de pago</label>
+            <div className="space-y-2">
+              {PAYMENT_METHODS.map(pm => (
+                <label key={pm.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                  paymentMethod === pm.id
+                    ? "border-[#1b4235] bg-[#1b4235]/5"
+                    : "border-[#e0d6cf] bg-white hover:border-[#b88364]/30"
+                }`}>
+                  <input type="radio" name="paymentMethod" value={pm.id}
+                    checked={paymentMethod === pm.id}
+                    onChange={() => setPaymentMethod(pm.id)}
+                    className="w-4 h-4 accent-[#1b4235]" />
+                  <div>
+                    <span className="text-sm text-[#1b4235] font-medium">{pm.label}</span>
+                    <span className="block text-[10px] text-[#b88364]/60">{pm.desc}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Modo prueba badge (when paying with card and no MP token) */}
+          {paymentMethod === "card" && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+              <p className="text-xs uppercase tracking-wider text-amber-700 font-medium">🧪 MODO PRUEBA</p>
+              <p className="text-[11px] text-amber-600/70 mt-1">No hay pasarela configurada. La reserva se confirmará sin cobro real.</p>
+            </div>
+          )}
+
           <button type="submit" disabled={loading || !availability.available}
             className="w-full py-4 bg-[#1b4235] text-white rounded-lg uppercase tracking-wider text-sm font-medium hover:bg-[#0f2a20] transition-colors disabled:opacity-50 shadow-lg shadow-[#1b4235]/10">
             {loading ? (
@@ -213,11 +253,17 @@ export function BookingForm({ item }: BookingFormProps) {
                 <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
                 Procesando...
               </span>
-            ) : isAct ? "Reservar actividad" : "Reservar ahora"}
+            ) : (
+              paymentMethod === "card" ? (isAct ? "Reservar actividad" : "Reservar ahora") :
+              paymentMethod === "transfer" ? "Confirmar reserva (transferencia)" :
+              "Confirmar reserva (efectivo)"
+            )}
           </button>
 
           <p className="text-xs text-center text-[#b88364]/60 mt-3">
-            Serás redirigido a Stripe para completar el pago de forma segura.
+            {paymentMethod === "card" ? "Sin cargos hasta confirmar disponibilidad." :
+             paymentMethod === "transfer" ? "Recibirás los datos bancarios después de confirmar." :
+             "Paga en efectivo al llegar a Hangar 5."}
           </p>
         </>
       )}

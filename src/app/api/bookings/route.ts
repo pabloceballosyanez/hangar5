@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { itemId, customerName, customerEmail, customerPhone, startDate, endDate, guests, notes } = body;
+  const { itemId, customerName, customerEmail, customerPhone, startDate, endDate, guests, notes, paymentMethod } = body;
 
   if (!itemId || !customerName || !customerEmail || !startDate || !endDate) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
       endDate: end,
       guests: guests || 1,
       totalPrice,
+      paymentMethod: paymentMethod || null,
       notes,
       status: "pending",
     },

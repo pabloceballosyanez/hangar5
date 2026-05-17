@@ -4,14 +4,17 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   let bookingId: string | null = null;
+  let paymentMethod: string | null = null;
 
   const contentType = req.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
     const body = await req.json();
     bookingId = body.bookingId;
+    paymentMethod = body.paymentMethod || null;
   } else {
     const form = await req.formData();
     bookingId = form.get("bookingId") as string;
+    paymentMethod = form.get("paymentMethod") as string || null;
   }
 
   if (!bookingId) {
@@ -27,16 +30,46 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Reserva no encontrada" }, { status: 404 });
   }
 
-  // Sin Mercado Pago: confirmación manual
-  if (!process.env.MP_ACCESS_TOKEN) {
+  // Use the payment method from booking if not passed in
+  const method = paymentMethod || booking.paymentMethod || "card";
+
+  // Transferencia bancaria
+  if (method === "transfer") {
     await prisma.booking.update({
       where: { id: bookingId },
-      data: { status: "confirmed" },
+      data: { status: "confirmed", paymentMethod: "transfer" },
     });
     return NextResponse.json({
-      mode: "manual",
+      mode: "transfer",
       confirmed: true,
-      redirectUrl: `/reservar/${booking.id}?confirmed=true`,
+      redirectUrl: `/reservar/${booking.id}?confirmed=true&payment=transfer`,
+    });
+  }
+
+  // Efectivo al llegar
+  if (method === "cash") {
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { status: "confirmed", paymentMethod: "cash" },
+    });
+    return NextResponse.json({
+      mode: "cash",
+      confirmed: true,
+      redirectUrl: `/reservar/${booking.id}?confirmed=true&payment=cash`,
+    });
+  }
+
+  // Tarjeta vía Mercado Pago
+  if (!process.env.MP_ACCESS_TOKEN) {
+    // Sin token: modo prueba — se confirma igual
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { status: "confirmed", paymentMethod: "card" },
+    });
+    return NextResponse.json({
+      mode: "test",
+      confirmed: true,
+      redirectUrl: `/reservar/${booking.id}?confirmed=true&payment=card`,
     });
   }
 
@@ -78,7 +111,7 @@ export async function POST(req: NextRequest) {
   // Guardar ID de preferencia
   await prisma.booking.update({
     where: { id: booking.id },
-    data: { stripeSessionId: result.id! }, // reusamos el campo como "paymentRef"
+    data: { stripeSessionId: result.id!, paymentMethod: "card" },
   });
 
   return NextResponse.json({ url: result.init_point! });

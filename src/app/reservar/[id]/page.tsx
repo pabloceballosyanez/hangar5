@@ -3,9 +3,15 @@ import { prisma } from "@/lib/prisma";
 
 function fmt(c: number) { return (c / 100).toLocaleString("es-MX"); }
 
+const paymentLabels: Record<string, string> = {
+  card: "💳 Tarjeta",
+  transfer: "🏦 Transferencia bancaria",
+  cash: "💵 Efectivo",
+};
+
 export default async function Page({ params, searchParams }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string; confirmed?: string }>;
+  searchParams: Promise<{ success?: string; confirmed?: string; payment?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -14,13 +20,36 @@ export default async function Page({ params, searchParams }: {
 
   const isPaid = sp.success && booking.status === "paid";
   const isConfirmed = sp.confirmed || booking.status === "confirmed";
+  const paymentMethod = sp.payment || booking.paymentMethod;
 
-  const statusEmoji = isPaid ? "🎉" : isConfirmed ? "✅" : "⏳";
-  const statusTitle = isPaid ? "¡Pago Completado!" : isConfirmed ? "¡Reserva Confirmada!" : "Reserva Pendiente";
-  const statusDesc = isPaid ? "Tu pago ha sido procesado. ¡Te esperamos!" :
-    isConfirmed ? "Tu reserva ha sido confirmada. Recibirás un correo con los detalles." :
-    booking.status === "pending" ? "Falta completar el pago para confirmar tu reserva." :
-    `Estado: ${booking.status}`;
+  const bankName = process.env.BANK_NAME || "";
+  const bankClabe = process.env.BANK_CLABE || "";
+  const bankHolder = process.env.BANK_ACCOUNT_HOLDER || "";
+  const bankCard = process.env.BANK_CARD || "";
+
+  let statusEmoji, statusTitle, statusDesc;
+
+  if (isPaid) {
+    statusEmoji = "🎉";
+    statusTitle = "¡Pago Completado!";
+    statusDesc = "Tu pago ha sido procesado. ¡Te esperamos en Hangar 5!";
+  } else if (paymentMethod === "transfer" && isConfirmed) {
+    statusEmoji = "✅";
+    statusTitle = "¡Reserva Confirmada!";
+    statusDesc = "Realiza el pago por transferencia y envíanos tu comprobante para agilizar tu llegada.";
+  } else if (paymentMethod === "cash" && isConfirmed) {
+    statusEmoji = "✅";
+    statusTitle = "¡Reserva Confirmada!";
+    statusDesc = "Paga en efectivo cuando llegues a Hangar 5. ¡Te esperamos!";
+  } else if (isConfirmed) {
+    statusEmoji = "✅";
+    statusTitle = "¡Reserva Confirmada!";
+    statusDesc = "Tu reserva ha sido confirmada. Te esperamos en Hangar 5.";
+  } else {
+    statusEmoji = "⏳";
+    statusTitle = "Reserva Pendiente";
+    statusDesc = booking.status === "pending" ? "Falta completar el pago para confirmar tu reserva." : `Estado: ${booking.status}`;
+  }
 
   const isRental = booking.item.type === "moto" || booking.item.type === "bici";
   const unit = isRental ? "día(s)" : "noche(s)";
@@ -52,6 +81,32 @@ export default async function Page({ params, searchParams }: {
               </button>
             </form>
           )}
+          {/* Payment method badge */}
+          {paymentMethod && (
+            <div className={`mt-3 pt-3 border-t border-[#b88364]/10 text-xs flex items-center gap-2 ${
+              paymentMethod === "transfer" ? "text-amber-700" : "text-[#b88364]"
+            }`}>
+              <span>{paymentLabels[paymentMethod] || paymentMethod}</span>
+            </div>
+          )}
+
+          {/* Bank details for transferencias */}
+          {paymentMethod === "transfer" && isConfirmed && (bankName || bankClabe) && (
+            <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4 text-left">
+              <p className="text-xs uppercase tracking-wider text-amber-800 font-medium mb-3">📋 Datos para transferencia</p>
+              <div className="space-y-2 text-xs text-amber-900">
+                {bankName && <p><span className="text-amber-600">Banco:</span> {bankName}</p>}
+                {bankClabe && <p><span className="text-amber-600">CLABE:</span> <span className="font-mono font-bold">{bankClabe}</span></p>}
+                {bankCard && <p><span className="text-amber-600">Tarjeta:</span> <span className="font-mono">{bankCard}</span></p>}
+                {bankHolder && <p><span className="text-amber-600">Titular:</span> {bankHolder}</p>}
+                <p className="mt-2"><span className="text-amber-600">Referencia:</span> <span className="font-mono font-bold">{booking.id.slice(-8).toUpperCase()}</span></p>
+              </div>
+              <p className="text-[11px] text-amber-600/70 mt-3 italic">
+                Envía tu comprobante al <strong>+52 722 455 6628</strong> (WhatsApp) para confirmar tu pago.
+              </p>
+            </div>
+          )}
+
           {booking.notes && (
             <p className="mt-3 text-xs text-[#b88364] italic">Nota: {booking.notes}</p>
           )}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { isActivity, getTypeLabel } from "@/lib/types";
 
 type Item = { id: string; name: string; slug: string; type: string; description: string | null; price: number; capacity: string | null; image: string | null; featured: boolean; active: boolean };
-type Booking = { id: string; itemId: string; customerName: string; customerEmail: string; customerPhone: string | null; startDate: string; endDate: string; guests: number; totalPrice: number; status: string; notes: string | null; item: { name: string; type: string } };
+type Booking = { id: string; itemId: string; customerName: string; customerEmail: string; customerPhone: string | null; startDate: string; endDate: string; guests: number; totalPrice: number; status: string; paymentMethod: string | null; notes: string | null; item: { name: string; type: string } };
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -24,6 +24,12 @@ const statusLabels: Record<string, string> = {
   confirmed: "Confirmada",
   cancelled: "Cancelada",
   maintenance: "Mantenimiento",
+};
+
+const paymentLabels: Record<string, string> = {
+  card: "💳 Tarjeta",
+  transfer: "🏦 Transferencia",
+  cash: "💵 Efectivo",
 };
 
 export default function AdminClient({ bookings, items, cabanas, activities, rentals }: {
@@ -436,6 +442,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                     <th className="py-3 pr-4">Fechas</th>
                     <th className="py-3 pr-4">Pers.</th>
                     <th className="py-3 pr-4">Total</th>
+                    <th className="py-3 pr-4">Pago</th>
                     <th className="py-3 pr-4">Estado</th>
                     <th className="py-3">Acciones</th>
                   </tr>
@@ -464,6 +471,9 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                         <td className="py-3 pr-4">{b.guests}</td>
                         <td className="py-3 pr-4 font-medium">
                           {b.totalPrice > 0 ? `$${(b.totalPrice / 100).toLocaleString()}` : <span className="text-gray-400">—</span>}
+                        </td>
+                        <td className="py-3 pr-4">
+                          <span className="text-xs whitespace-nowrap">{paymentLabels[b.paymentMethod || ""] || "—"}</span>
                         </td>
                         <td className="py-3 pr-4">
                           <span className={`px-2 py-1 text-xs uppercase rounded ${statusColors[b.status] || ""}`}>
