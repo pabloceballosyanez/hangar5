@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "npx prisma generate && next build",
-    "start": "cp -n prisma/dev.db /data/hangar5.db 2>/dev/null; npx prisma db push --url=file:/data/hangar5.db 2>/dev/null; next start",
+    "start": "cp -n prisma/dev.db /data/hangar5.db 2>/dev/null; npx prisma db push --accept-data-loss --url=file:/data/hangar5.db 2>&1; next start",
     "lint": "eslint"
   },
   "dependencies": {
