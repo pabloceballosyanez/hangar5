@@ -40,8 +40,11 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
   const [editSaving, setEditSaving] = useState(false);
   const [editMsg, setEditMsg] = useState("");
   const [blockForm, setBlockForm] = useState({ itemId: "", startDate: "", endDate: "", reason: "" });
+  const [reserveForm, setReserveForm] = useState({ itemId: "", startDate: "", endDate: "", reason: "", customerName: "", customerEmail: "", customerPhone: "", guests: 1 });
   const [showBlock, setShowBlock] = useState(false);
+  const [showReserve, setShowReserve] = useState(false);
   const [blockMsg, setBlockMsg] = useState("");
+  const [reserveMsg, setReserveMsg] = useState("");
   const [tab, setTab] = useState<"dashboard" | "reservas" | "items">("dashboard");
   const [calMonth, setCalMonth] = useState(() => new Date().getMonth());
   const [calYear, setCalYear] = useState(() => new Date().getFullYear());
@@ -137,14 +140,14 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
     setEditSaving(false);
   };
 
-  // Block dates
+  // Block dates for maintenance
   const blockDates = async () => {
     if (!blockForm.itemId || !blockForm.startDate || !blockForm.endDate) return;
     setBlockMsg("");
     const res = await fetch("/api/admin/bookings/block", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(blockForm),
+      body: JSON.stringify({ ...blockForm, type: "maintenance" }),
     });
     if (res.ok) {
       const created = await res.json();
@@ -155,6 +158,27 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
     } else {
       const err = await res.json();
       setBlockMsg("❌ " + (err.error || "Error"));
+    }
+  };
+
+  // Admin reservation (no payment)
+  const createReservation = async () => {
+    if (!reserveForm.itemId || !reserveForm.startDate || !reserveForm.endDate) return;
+    setReserveMsg("");
+    const res = await fetch("/api/admin/bookings/block", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...reserveForm, type: "reservation" }),
+    });
+    if (res.ok) {
+      const created = await res.json();
+      setData(d => ({ ...d, bookings: [created, ...d.bookings] }));
+      setReserveMsg("✅ Reserva creada");
+      setReserveForm({ itemId: "", startDate: "", endDate: "", reason: "", customerName: "", customerEmail: "", customerPhone: "", guests: 1 });
+      setTimeout(() => setShowReserve(false), 1500);
+    } else {
+      const err = await res.json();
+      setReserveMsg("❌ " + (err.error || "Error"));
     }
   };
 
@@ -338,15 +362,19 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
         {/* ===== TAB: RESERVAS ===== */}
         {tab === "reservas" && (
           <>
-            {/* Block dates button */}
-            <div className="mb-6 flex justify-end">
-              <button onClick={() => setShowBlock(!showBlock)}
+            {/* Action buttons */}
+            <div className="mb-6 flex justify-end gap-3">
+              <button onClick={() => { setShowBlock(!showBlock); setShowReserve(false); }}
                 className="px-4 py-2 text-xs uppercase tracking-wider border border-[#b88364]/30 text-[#b88364] rounded-lg hover:bg-[#b88364]/5 transition-colors">
                 {showBlock ? "Cerrar" : "🔧 Bloquear fechas"}
               </button>
+              <button onClick={() => { setShowReserve(!showReserve); setShowBlock(false); }}
+                className="px-4 py-2 text-xs uppercase tracking-wider bg-[#1b4235] text-white rounded-lg hover:bg-[#0f2a20] transition-colors">
+                {showReserve ? "Cerrar" : "📝 Reserva manual"}
+              </button>
             </div>
 
-            {/* Block form */}
+            {/* Maintenance block form */}
             {showBlock && (
               <div className="mb-8 bg-[#f7f3f0] rounded-lg p-6 border border-[#e0d6cf]">
                 <h3 className="text-sm uppercase tracking-wider text-[#1b4235] font-medium mb-4">🔧 Bloquear fechas por mantenimiento</h3>
@@ -365,6 +393,34 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                 <button onClick={blockDates} className="px-6 py-2 bg-[#1b4235] text-white rounded-lg text-xs uppercase tracking-wider hover:bg-[#0f2a20] transition-colors">
                   Bloquear
                 </button>
+              </div>
+            )}
+
+            {/* Manual reservation form */}
+            {showReserve && (
+              <div className="mb-8 bg-blue-50 rounded-lg p-6 border border-blue-200">
+                <h3 className="text-sm uppercase tracking-wider text-[#1b4235] font-medium mb-4">📝 Reserva manual (sin pago)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <select value={reserveForm.itemId} onChange={e => setReserveForm(f => ({ ...f, itemId: e.target.value }))} className={inputClass}>
+                    <option value="">Seleccionar item...</option>
+                    {data.items.map(i => (
+                      <option key={i.id} value={i.id}>{i.name} ({getTypeLabel(i.type)})</option>
+                    ))}
+                  </select>
+                  <input type="date" value={reserveForm.startDate} onChange={e => setReserveForm(f => ({ ...f, startDate: e.target.value }))} className={inputClass} />
+                  <input type="date" value={reserveForm.endDate} onChange={e => setReserveForm(f => ({ ...f, endDate: e.target.value }))} className={inputClass} />
+                  <input type="text" value={reserveForm.customerName} onChange={e => setReserveForm(f => ({ ...f, customerName: e.target.value }))} className={inputClass} placeholder="Nombre del huésped" />
+                  <input type="email" value={reserveForm.customerEmail} onChange={e => setReserveForm(f => ({ ...f, customerEmail: e.target.value }))} className={inputClass} placeholder="Email (opcional)" />
+                  <input type="tel" value={reserveForm.customerPhone} onChange={e => setReserveForm(f => ({ ...f, customerPhone: e.target.value }))} className={inputClass} placeholder="Teléfono (opcional)" />
+                  <input type="number" value={reserveForm.guests} onChange={e => setReserveForm(f => ({ ...f, guests: Math.max(1, parseInt(e.target.value) || 1) }))} min="1" className={inputClass} placeholder="Personas" />
+                  <input type="text" value={reserveForm.reason} onChange={e => setReserveForm(f => ({ ...f, reason: e.target.value }))} className={inputClass} placeholder="Notas (opcional)" />
+                </div>
+                {reserveMsg && <p className="text-sm mb-3">{reserveMsg}</p>}
+                <button onClick={createReservation} className="px-6 py-2 bg-[#1b4235] text-white rounded-lg text-xs uppercase tracking-wider hover:bg-[#0f2a20] transition-colors">
+                  Crear reserva
+                </button>
+              </div>
+            )}
               </div>
             )}
 
