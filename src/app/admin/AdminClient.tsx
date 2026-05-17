@@ -26,8 +26,6 @@ const statusLabels: Record<string, string> = {
   maintenance: "Mantenimiento",
 };
 
-const SESSION_KEY = "hangar5_admin_session";
-
 export default function AdminClient({ bookings, items, cabanas, activities, rentals }: {
   bookings: Booking[];
   items: Item[];
@@ -35,26 +33,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
   activities: Item[];
   rentals: Item[];
 }) {
-  const router = useRouter();
-  const [authed, setAuthed] = useState(false);
   const [data, setData] = useState({ bookings, items });
-
-  useEffect(() => {
-    const session = localStorage.getItem(SESSION_KEY);
-    if (session !== "true") {
-      router.replace("/admin/login");
-    } else {
-      setAuthed(true);
-    }
-  }, [router]);
-
-  if (!authed) {
-    return (
-      <main className="min-h-screen bg-[#1b4235] flex items-center justify-center">
-        <div className="text-white/50 text-sm">Verificando sesión...</div>
-      </main>
-    );
-  }
   const [statusLoading, setStatusLoading] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [editForm, setEditForm] = useState({ name: "", description: "", price: 0, capacity: "", active: true, featured: false });
