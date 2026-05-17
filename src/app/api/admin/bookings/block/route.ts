@@ -13,6 +13,11 @@ export async function POST(req: NextRequest) {
   const start = new Date(startDate);
   const end = new Date(endDate);
 
+  const item = await prisma.item.findUnique({ where: { id: itemId } });
+  if (!item) {
+    return NextResponse.json({ error: "Item no encontrado" }, { status: 404 });
+  }
+
   const isAct = isActivity(item.type);
 
   // Allow same-day for activities
@@ -22,11 +27,6 @@ export async function POST(req: NextRequest) {
 
   // For activities, use the same date for both
   const effectiveEnd = isAct ? new Date(start) : end;
-
-  const item = await prisma.item.findUnique({ where: { id: itemId } });
-  if (!item) {
-    return NextResponse.json({ error: "Item no encontrado" }, { status: 404 });
-  }
 
   // Check for conflicts (don't block if already booked)
   const conflicts = await prisma.booking.findMany({
