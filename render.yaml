@@ -3,12 +3,12 @@ services:
     name: hangar5
     env: node
     buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: npx prisma db push --url=$DATABASE_URL && npm start
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: file:./data/hangar5.db
+        value: file:./prisma/dev.db
       - key: NEXT_PUBLIC_URL
         value: https://hangar5.onrender.com
       - key: HOSTNAME
