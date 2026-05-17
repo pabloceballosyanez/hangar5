@@ -38,3 +38,28 @@ async function main() {
 main()
   .catch((e) => { console.error(e); process.exit(1); })
   .finally(() => prisma.$disconnect());
+
+// Zopilote (creada desde admin)
+async function addMisc() {
+  await prisma.item.upsert({
+    where: { slug: "zopilote" },
+    update: {},
+    create: {
+      name: "Zopilote",
+      slug: "zopilote",
+      type: "cabana",
+      description: "Cabaña Zopilote — un espacio único para conectar con la naturaleza.",
+      price: 220000,
+      capacity: "2 huéspedes",
+      image: "/img/items/zopilote/01.jpg",
+      featured: true,
+      active: true,
+    },
+  });
+  console.log("Zopilote added");
+}
+
+main()
+  .then(() => addMisc())
+  .catch((e) => { console.error(e); process.exit(1); })
+  .finally(() => prisma.$disconnect());
