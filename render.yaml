@@ -8,7 +8,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: file:/app/data/hangar5.db
+        value: file:./data/hangar5.db
       - key: NEXT_PUBLIC_URL
         value: https://hangar5.onrender.com
       - key: HOSTNAME
