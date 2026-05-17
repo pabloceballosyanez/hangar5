@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const ADMIN_PW = "hangar5admin2026";
 const SESSION_KEY = "hangar5_admin_session";
 
-function LoginForm() {
+export default function AdminLogin() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,7 +16,8 @@ function LoginForm() {
   useEffect(() => {
     const session = localStorage.getItem(SESSION_KEY);
     if (session === "true") {
-      router.replace("/admin");
+      const from = new URLSearchParams(window.location.search).get("from") || "/admin";
+      router.replace(from);
     } else {
       setChecking(false);
     }
@@ -37,7 +37,7 @@ function LoginForm() {
     }
 
     localStorage.setItem(SESSION_KEY, "true");
-    const from = searchParams.get("from") || "/admin";
+    const from = new URLSearchParams(window.location.search).get("from") || "/admin";
     router.replace(from);
   };
 
@@ -95,17 +95,5 @@ function LoginForm() {
         </div>
       </div>
     </main>
-  );
-}
-
-export default function AdminLogin() {
-  return (
-    <Suspense fallback={
-      <main className="min-h-screen bg-[#1b4235] flex items-center justify-center">
-        <div className="text-white/50 text-sm">Cargando...</div>
-      </main>
-    }>
-      <LoginForm />
-    </Suspense>
   );
 }
