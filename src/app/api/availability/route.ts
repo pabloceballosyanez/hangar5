@@ -14,6 +14,19 @@ export async function GET(req: NextRequest) {
   const startDate = new Date(start);
   const endDate = new Date(end);
 
+  // For activities / single-day bookings (same start and end), check if that date is taken
+  if (startDate.getTime() === endDate.getTime()) {
+    const conflicts = await prisma.booking.findMany({
+      where: {
+        itemId,
+        status: { notIn: ["cancelled"] },
+        startDate: { gte: startDate },
+        endDate: { lte: endDate },
+      },
+    });
+    return NextResponse.json({ available: conflicts.length === 0, conflicts: conflicts.length });
+  }
+
   if (endDate <= startDate) {
     return NextResponse.json({ available: false, reason: "End date must be after start date" });
   }

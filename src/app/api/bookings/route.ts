@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isActivity } from "@/lib/types";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -23,32 +24,56 @@ export async function POST(req: NextRequest) {
   const start = new Date(startDate);
   const end = new Date(endDate);
 
-  if (end <= start) {
-    return NextResponse.json({ error: "End date must be after start date" }, { status: 400 });
-  }
-
-  // Check availability
-  const conflicts = await prisma.booking.findMany({
-    where: {
-      itemId,
-      status: { notIn: ["cancelled"] },
-      startDate: { lt: end },
-      endDate: { gt: start },
-    },
-  });
-
-  if (conflicts.length > 0) {
-    return NextResponse.json({ error: "Item not available for these dates" }, { status: 409 });
-  }
-
-  // Get item for price calculation
+  // Get item to determine type
   const item = await prisma.item.findUnique({ where: { id: itemId } });
   if (!item) {
     return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
 
-  const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  const totalPrice = item.price * Math.max(days, 1);
+  const isAct = isActivity(item.type);
+
+  // Allow same-day bookings for activities
+  if (!isAct && end <= start) {
+    return NextResponse.json({ error: "End date must be after start date" }, { status: 400 });
+  }
+
+  // Check availability
+  let conflicts;
+  if (isAct) {
+    // Same-day: check if that date is taken
+    conflicts = await prisma.booking.findMany({
+      where: {
+        itemId,
+        status: { notIn: ["cancelled"] },
+        startDate: { gte: start },
+        endDate: { lte: end },
+      },
+    });
+  } else {
+    conflicts = await prisma.booking.findMany({
+      where: {
+        itemId,
+        status: { notIn: ["cancelled"] },
+        startDate: { lt: end },
+        endDate: { gt: start },
+      },
+    });
+  }
+
+  if (conflicts.length > 0) {
+    return NextResponse.json({ error: "Item not available for these dates" }, { status: 409 });
+  }
+
+  // Calculate price
+  let totalPrice;
+  if (isAct) {
+    // Activities: price × participants
+    totalPrice = item.price * (guests || 1);
+  } else {
+    // Rentals/accommodations: price × nights/days
+    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    totalPrice = item.price * Math.max(days, 1);
+  }
 
   const booking = await prisma.booking.create({
     data: {

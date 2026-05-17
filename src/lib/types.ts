@@ -1,5 +1,5 @@
 export type ItemType = "cabana" | "glamping" | "moto" | "bici" | "parapente" | "aladelta" | "hike";
-export type BookingStatus = "pending" | "paid" | "confirmed" | "cancelled";
+export type BookingStatus = "pending" | "paid" | "confirmed" | "cancelled" | "maintenance";
 
 export interface BookingFormData {
   customerName: string;

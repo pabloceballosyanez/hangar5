@@ -130,9 +130,7 @@ export default async function Home() {
               {parapentes.map((item) => (
                 <Link key={item.id} href={`/item/${item.slug}`} className="group block">
                   <div className="relative overflow-hidden aspect-[4/5] mb-6 rounded-lg">
-                    <div className="absolute inset-0 bg-[#1b4235] flex items-center justify-center text-[#b88364] text-4xl group-hover:scale-105 transition-transform duration-700">
-                      {item.type === "parapente" ? "🪂" : "🪁"}
-                    </div>
+                    <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700" style={{ backgroundImage: `url('${item.image}')` }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                       <span className="text-white text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
@@ -162,9 +160,7 @@ export default async function Home() {
               <div className="grid md:grid-cols-2 gap-8">
                 {hikes.map((item) => (
                   <Link key={item.id} href={`/item/${item.slug}`} className="group flex gap-6 p-6 bg-white hover:shadow-xl transition-all duration-500 rounded-lg border border-transparent hover:border-[#b88364]/20">
-                    <div className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-[#1b4235] flex items-center justify-center text-4xl">
-                      🥾
-                    </div>
+                    <div className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url('${item.image}')` }} />
                     <div className="flex flex-col justify-center">
                       <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-1">Hike</p>
                       <h4 className="text-xl font-serif text-[#1b4235] mb-1">{item.name}</h4>
