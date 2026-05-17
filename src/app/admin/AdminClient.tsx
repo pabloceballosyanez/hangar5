@@ -421,8 +421,6 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                 </button>
               </div>
             )}
-              </div>
-            )}
 
             {/* Reservations table */}
             <div className="overflow-x-auto">
