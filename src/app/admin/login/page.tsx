@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 const ADMIN_PW = "hangar5admin2026";
 const SESSION_KEY = "hangar5_admin_session";
 
