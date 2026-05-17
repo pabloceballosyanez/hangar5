@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getTypeLabel } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 function formatPrice(cents: number) {
   return (cents / 100).toLocaleString("es-MX");
 }
