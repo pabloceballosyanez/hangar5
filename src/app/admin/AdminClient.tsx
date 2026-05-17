@@ -525,7 +525,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
               <div>
                 <h3 className="text-sm tracking-[0.2em] uppercase text-[#b88364] mb-4 border-b pb-2">🏠 Alojamientos</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {cabanas.map((item) => (
+                  {data.items.filter(i => i.type === "cabana" || i.type === "glamping").map((item) => (
                     <ItemCard key={item.id} item={item} onEdit={openEdit} formatPrice={formatPrice} />
                   ))}
                 </div>
@@ -535,7 +535,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
               <div>
                 <h3 className="text-sm tracking-[0.2em] uppercase text-[#b88364] mb-4 border-b pb-2">🪂 Actividades</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {activities.map((item) => (
+                  {data.items.filter(i => i.type === "parapente" || i.type === "aladelta" || i.type === "hike").map((item) => (
                     <ItemCard key={item.id} item={item} onEdit={openEdit} formatPrice={formatPrice} />
                   ))}
                 </div>
@@ -545,7 +545,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
               <div>
                 <h3 className="text-sm tracking-[0.2em] uppercase text-[#b88364] mb-4 border-b pb-2">🏍️ Renta</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {rentals.map((item) => (
+                  {data.items.filter(i => i.type === "moto" || i.type === "bici").map((item) => (
                     <ItemCard key={item.id} item={item} onEdit={openEdit} formatPrice={formatPrice} />
                   ))}
                 </div>
