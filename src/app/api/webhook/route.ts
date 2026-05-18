@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { prisma } from "@/lib/prisma";
+import { sendConfirmationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -20,9 +21,26 @@ export async function POST(req: NextRequest) {
     if (payment.status === "approved") {
       const bookingId = payment.metadata?.booking_id || payment.external_reference;
       if (bookingId) {
-        await prisma.booking.update({
+        const updated = await prisma.booking.update({
           where: { id: bookingId },
           data: { status: "paid" },
+          include: { item: true },
+        });
+        // Send payment confirmation email
+        sendConfirmationEmail({
+          id: updated.id,
+          customerName: updated.customerName,
+          customerEmail: updated.customerEmail,
+          customerPhone: updated.customerPhone,
+          itemName: updated.item.name,
+          itemType: updated.item.type,
+          startDate: updated.startDate,
+          endDate: updated.endDate,
+          guests: updated.guests,
+          totalPrice: updated.totalPrice,
+          status: "paid",
+          paymentMethod: "card",
+          notes: updated.notes,
         });
       }
     }

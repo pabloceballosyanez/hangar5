@@ -27,3 +27,7 @@ services:
         sync: false
       - key: BANK_CARD
         sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false

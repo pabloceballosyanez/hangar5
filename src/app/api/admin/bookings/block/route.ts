@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isActivity } from "@/lib/types";
+import { sendConfirmationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -61,6 +62,24 @@ export async function POST(req: NextRequest) {
         status: "confirmed",
       },
     });
+
+    // Send email in background
+    sendConfirmationEmail({
+      id: booking.id,
+      customerName: booking.customerName,
+      customerEmail: booking.customerEmail,
+      customerPhone: booking.customerPhone,
+      itemName: item.name,
+      itemType: item.type,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+      guests: booking.guests,
+      totalPrice: booking.totalPrice,
+      status: "confirmed",
+      paymentMethod: null,
+      notes: booking.notes,
+    });
+
     return NextResponse.json(booking);
   } else {
     // Maintenance block

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { prisma } from "@/lib/prisma";
+import { sendConfirmationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   let bookingId: string | null = null;
@@ -33,12 +34,32 @@ export async function POST(req: NextRequest) {
   // Use the payment method from booking if not passed in
   const method = paymentMethod || booking.paymentMethod || "card";
 
+  // Helper: send confirmation email in background
+  const sendEmail = (status: string, method: string) => {
+    sendConfirmationEmail({
+      id: booking.id,
+      customerName: booking.customerName,
+      customerEmail: booking.customerEmail,
+      customerPhone: booking.customerPhone,
+      itemName: booking.item.name,
+      itemType: booking.item.type,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+      guests: booking.guests,
+      totalPrice: booking.totalPrice,
+      status,
+      paymentMethod: method,
+      notes: booking.notes,
+    });
+  };
+
   // Transferencia bancaria
   if (method === "transfer") {
     await prisma.booking.update({
       where: { id: bookingId },
       data: { status: "confirmed", paymentMethod: "transfer" },
     });
+    sendEmail("confirmed", "transfer");
     return NextResponse.json({
       mode: "transfer",
       confirmed: true,
@@ -52,6 +73,7 @@ export async function POST(req: NextRequest) {
       where: { id: bookingId },
       data: { status: "confirmed", paymentMethod: "cash" },
     });
+    sendEmail("confirmed", "cash");
     return NextResponse.json({
       mode: "cash",
       confirmed: true,
@@ -66,6 +88,7 @@ export async function POST(req: NextRequest) {
       where: { id: bookingId },
       data: { status: "confirmed", paymentMethod: "card" },
     });
+    sendEmail("confirmed", "card");
     return NextResponse.json({
       mode: "test",
       confirmed: true,
