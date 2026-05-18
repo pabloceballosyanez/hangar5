@@ -31,3 +31,5 @@ services:
         sync: false
       - key: EMAIL_PASS
         sync: false
+      - key: DIGEST_SECRET
+        sync: false
