@@ -34,9 +34,9 @@ export async function POST(req: NextRequest) {
   // Use the payment method from booking if not passed in
   const method = paymentMethod || booking.paymentMethod || "card";
 
-  // Helper: send confirmation email in background
-  const sendEmail = (status: string, method: string) => {
-    sendConfirmationEmail({
+  // Helper: send confirmation email (awaited so it doesn't get dropped)
+  const sendEmail = async (status: string, method: string) => {
+    await sendConfirmationEmail({
       id: booking.id,
       customerName: booking.customerName,
       customerEmail: booking.customerEmail,
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       where: { id: bookingId },
       data: { status: "confirmed", paymentMethod: "transfer" },
     });
-    sendEmail("confirmed", "transfer");
+    await sendEmail("confirmed", "transfer");
     return NextResponse.json({
       mode: "transfer",
       confirmed: true,
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       where: { id: bookingId },
       data: { status: "confirmed", paymentMethod: "cash" },
     });
-    sendEmail("confirmed", "cash");
+    await sendEmail("confirmed", "cash");
     return NextResponse.json({
       mode: "cash",
       confirmed: true,
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
       where: { id: bookingId },
       data: { status: "confirmed", paymentMethod: "card" },
     });
-    sendEmail("confirmed", "card");
+    await sendEmail("confirmed", "card");
     return NextResponse.json({
       mode: "test",
       confirmed: true,
