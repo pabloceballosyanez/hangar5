@@ -137,5 +137,12 @@ export async function POST(req: NextRequest) {
     data: { stripeSessionId: result.id!, paymentMethod: "card" },
   });
 
-  return NextResponse.json({ url: result.init_point! });
+  // Si hay MP_TEST_MODE activado, usar sandbox (permite pagar con tarjetas de prueba)
+  const resultAny = result as any;
+  const isTestMode = process.env.MP_TEST_MODE === "true";
+  const redirectUrl = isTestMode && resultAny.sandbox_init_point
+    ? resultAny.sandbox_init_point
+    : result.init_point!;
+
+  return NextResponse.json({ url: redirectUrl });
 }
