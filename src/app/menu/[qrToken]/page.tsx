@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import "./menu.css";
 
 // ─── Domain types (mirrors /api/restaurant/menu response) ─────────────────────
 
@@ -284,22 +285,22 @@ export default function MenuPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4">
-        <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Cargando menú…</p>
+      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-amber-100">Cargando menú…</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4 text-center px-4">
+      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4 text-center px-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <span className="text-5xl">😕</span>
-        <p className="font-semibold text-gray-800">No pudimos cargar el menú</p>
-        <p className="text-sm text-gray-500">{error}</p>
+        <p className="font-semibold text-amber-100">No pudimos cargar el menú</p>
+        <p className="text-sm text-amber-200/70">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="mt-2 px-6 py-3 bg-amber-500 text-white font-bold rounded-2xl min-h-[44px] active:scale-95 transition-transform"
+          className="mt-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-xl min-h-[44px] active:scale-95 transition-all shadow-lg"
         >
           Reintentar
         </button>
@@ -308,100 +309,118 @@ export default function MenuPage() {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Main render — escape the layout's padding with negative margins
+  // Main render
   // ─────────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="-mt-6 -mx-4">
-      {/* ── Header ── */}
-      <div className="bg-gradient-to-br from-amber-600 via-orange-500 to-amber-500 text-white px-4 pt-8 pb-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-black tracking-tight leading-tight">
-              🍽️ Hangar&nbsp;5
+    <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 min-h-screen">
+      {/* ── Hero Header ── */}
+      <div className="hero-section relative overflow-hidden">
+        {/* Background gradient simulando atardecer en montañas */}
+        <div className="absolute inset-0 h-72 bg-gradient-to-b from-orange-600/20 via-slate-800/40 to-transparent pointer-events-none" />
+        
+        <div className="relative z-10 px-4 pt-6 pb-12">
+          {/* Título principal */}
+          <div className="mb-8 animate-fadeIn">
+            <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight leading-tight mb-2">
+              HANGAR
+              <br />
+              <span className="text-amber-400">CINCO</span>
             </h1>
-            <p className="text-amber-100 text-sm mt-1">
-              {tableInfo
-                ? `Mesa ${tableInfo.tableNumber}${tableInfo.tableName ? ` · ${tableInfo.tableName}` : ""}${tableInfo.tableLocation ? ` · ${tableInfo.tableLocation}` : ""}`
-                : "Menú digital"}
+            <p className="text-lg text-amber-100/80 font-light italic max-w-md">
+              Donde la montaña se encuentra con la cocina
             </p>
+            {tableInfo && (
+              <p className="text-sm text-amber-200/60 mt-4">
+                Mesa {tableInfo.tableNumber}
+                {tableInfo.tableName && ` • ${tableInfo.tableName}`}
+                {tableInfo.tableLocation && ` • ${tableInfo.tableLocation}`}
+              </p>
+            )}
           </div>
 
+          {/* Carrito flotante en header */}
           {totalItems > 0 && (
-            <button
-              onClick={goCheckout}
-              aria-label={`Ver carrito con ${totalItems} artículos`}
-              className="relative flex-none bg-white text-amber-600 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-transform"
-            >
-              <span className="text-xl">🛒</span>
-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center leading-none">
-                {totalItems > 9 ? "9+" : totalItems}
-              </span>
-            </button>
+            <div className="flex justify-end animate-slideDown">
+              <button
+                onClick={goCheckout}
+                aria-label={`Ver carrito con ${totalItems} artículos`}
+                className="relative inline-flex items-center gap-2 bg-white/95 hover:bg-white text-slate-900 px-5 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-all backdrop-blur-sm"
+              >
+                <span className="text-xl">🛒</span>
+                <span className="text-sm font-semibold">
+                  {totalItems} {totalItems === 1 ? "artículo" : "artículos"}
+                </span>
+                <span className="text-amber-600 font-bold">{fmt(subtotal)}</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
 
-      {/* ── Category tabs — sticky ── */}
-      <div
-        ref={tabsRef}
-        className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm"
-      >
+      {/* ── Category pills — sticky ── */}
+      <div className="sticky top-0 z-40 bg-slate-800/80 backdrop-blur-lg border-b border-amber-400/10 shadow-lg">
         <div
           className="flex gap-2 overflow-x-auto px-4 py-3"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          ref={tabsRef}
         >
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex-none min-h-[36px] px-4 py-1.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${
+              className={`flex-none px-4 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap min-h-[40px] ${
                 activeCategory === cat.id
-                  ? "bg-amber-500 text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/40 scale-105"
+                  : "bg-slate-700/50 text-amber-100 hover:bg-slate-700 border border-amber-400/20"
               }`}
             >
-              {cat.kind === "DRINK" ? "🥤 " : "🍴 "}
+              {cat.kind === "DRINK" ? "🥤" : "🍴"}
+              {" "}
               {cat.name}
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── Items list ── */}
+      {/* ── Items grid ── */}
       <div
-        className="px-4 pt-4 space-y-3"
-        style={{ paddingBottom: totalItems > 0 ? "7rem" : "2rem" }}
+        className="px-4 pt-6"
+        style={{ paddingBottom: totalItems > 0 ? "8rem" : "3rem" }}
       >
         {activeItems.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <div className="text-5xl mb-3">🍽️</div>
-            <p className="font-medium">Sin platillos en esta categoría</p>
+          <div className="text-center py-20 text-amber-200/50">
+            <div className="text-6xl mb-4">🍽️</div>
+            <p className="font-semibold text-lg">Sin platillos en esta categoría</p>
           </div>
         ) : (
-          activeItems.map((item) => (
-            <MenuItemCard key={item.id} item={item} onAdd={() => openItem(item)} />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {activeItems.map((item, idx) => (
+              <div key={item.id} className={`animate-fadeInUp`} style={{ animationDelay: `${idx * 50}ms` }}>
+                <MenuItemCard item={item} onAdd={() => openItem(item)} />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
       {/* ── Floating checkout bar ── */}
       {totalItems > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-20 px-4 pb-6 pt-4 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pointer-events-none">
+        <div className="fixed bottom-0 left-0 right-0 z-30 px-4 pb-6 pt-4 bg-gradient-to-t from-slate-950 via-slate-900 to-transparent pointer-events-none">
           <button
             onClick={goCheckout}
-            className="pointer-events-auto w-full max-w-lg mx-auto flex items-center justify-between bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-bold py-4 px-5 rounded-2xl shadow-xl transition-all"
+            className="pointer-events-auto w-full max-w-lg mx-auto flex items-center justify-between bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-[0.98] text-slate-900 font-black py-4 px-5 rounded-xl shadow-2xl shadow-amber-500/30 transition-all"
           >
-            <span className="bg-amber-600/70 text-white text-sm px-2.5 py-1 rounded-lg font-semibold">
+            <span className="bg-slate-900/30 text-amber-100 text-sm px-3 py-1.5 rounded-lg font-bold">
               {totalItems} {totalItems === 1 ? "artículo" : "artículos"}
             </span>
-            <span className="text-base">Ver carrito</span>
-            <span className="text-base">{fmt(subtotal)}</span>
+            <span className="flex-1 text-center">Ver carrito</span>
+            <span className="font-mono text-lg">{fmt(subtotal)}</span>
           </button>
         </div>
       )}
 
-      {/* ── Item detail modal (bottom sheet) ── */}
+      {/* ── Item detail modal ── */}
       {selectedItem && (
         <ItemModal
           item={selectedItem}
@@ -419,34 +438,31 @@ export default function MenuPage() {
         />
       )}
 
-      {/* ── Mini cart drawer (bottom right) when modal is closed ── */}
+      {/* ── Mini cart pills ── */}
       {cart.length > 0 && !selectedItem && (
-        <div className="fixed bottom-24 right-4 z-10 flex flex-col gap-1 max-w-[calc(100vw-2rem)]">
-          {/* Cart items badges — shown as stacked pills */}
-          <div className="flex flex-col items-end gap-1 max-h-36 overflow-hidden">
-            {cart.slice(-3).map((item) => (
-              <div
-                key={item.cartId}
-                className="flex items-center gap-1.5 bg-white shadow-md rounded-xl px-3 py-1.5 text-xs"
-              >
-                <span className="font-semibold text-gray-700 max-w-[120px] truncate">
-                  {item.quantity}× {item.name}
-                </span>
-                <button
-                  onClick={() => removeFromCart(item.cartId)}
-                  className="text-gray-400 hover:text-red-500 ml-1 leading-none"
-                  aria-label={`Quitar ${item.name}`}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-            {cart.length > 3 && (
-              <span className="text-xs text-gray-400 pr-1">
-                +{cart.length - 3} más
+        <div className="fixed bottom-32 right-4 z-20 flex flex-col items-end gap-2 max-w-[calc(100vw-2rem)]">
+          {cart.slice(-3).map((item) => (
+            <div
+              key={item.cartId}
+              className="flex items-center gap-2 bg-slate-800/95 backdrop-blur-md border border-amber-400/30 shadow-lg rounded-lg px-3 py-2 text-xs animate-slideInRight"
+            >
+              <span className="font-semibold text-amber-100 max-w-[120px] truncate">
+                {item.quantity}× {item.name}
               </span>
-            )}
-          </div>
+              <button
+                onClick={() => removeFromCart(item.cartId)}
+                className="text-amber-400/60 hover:text-red-400 ml-1 leading-none font-bold text-lg"
+                aria-label={`Quitar ${item.name}`}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {cart.length > 3 && (
+            <span className="text-xs text-amber-200/50 pr-1">
+              +{cart.length - 3} más
+            </span>
+          )}
         </div>
       )}
     </div>
@@ -463,57 +479,67 @@ function MenuItemCard({
   onAdd: () => void;
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden flex active:scale-[0.98] transition-transform">
-      {/* Image */}
-      {item.imageUrl ? (
-        <div className="relative w-28 flex-none self-stretch">
+    <div
+      onClick={onAdd}
+      className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-amber-400/20 hover:border-amber-400/60 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:-translate-y-1 active:scale-[0.98]"
+    >
+      {/* Image/Placeholder */}
+      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800">
+        {item.imageUrl ? (
           <Image
             src={item.imageUrl}
             alt={item.name}
             fill
-            className="object-cover"
-            sizes="112px"
+            className="object-cover group-hover:scale-110 transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
-        </div>
-      ) : (
-        <div className="w-28 flex-none bg-amber-50 flex items-center justify-center text-4xl">
-          🥘
-        </div>
-      )}
+        ) : (
+          <div className="flex items-center justify-center h-full text-6xl opacity-50">
+            🥘
+          </div>
+        )}
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
+      </div>
 
-      {/* Info */}
-      <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
-        <div>
-          <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2">
-            {item.name}
-          </h3>
-          {item.description && (
-            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">
-              {item.description}
-            </p>
-          )}
+      {/* Content */}
+      <div className="p-5">
+        {/* Name */}
+        <h3 className="font-black text-white text-lg leading-tight mb-2 line-clamp-2">
+          {item.name}
+        </h3>
+
+        {/* Description */}
+        {item.description && (
+          <p className="text-sm text-amber-100/70 mb-4 line-clamp-2 leading-relaxed font-light">
+            {item.description}
+          </p>
+        )}
+
+        {/* Meta info */}
+        <div className="flex items-center justify-between mb-4 text-xs text-amber-200/60">
           {item.variants.length > 0 && (
-            <p className="text-xs text-amber-600 mt-0.5">
-              {item.variants.length} opciones
-            </p>
+            <span>{item.variants.length} opciones</span>
+          )}
+          {item.estimatedPrepMinutes > 0 && (
+            <span>~{item.estimatedPrepMinutes} min ⏱️</span>
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-2">
-          <div>
-            <span className="text-amber-600 font-black text-base">
-              {fmt(item.basePrice)}
+        {/* Price + Button */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="font-mono text-2xl font-black text-amber-400">
+            {fmt(item.basePrice).split(".")[0]}
+            <span className="text-xs text-amber-400/60 ml-0.5">
+              {fmt(item.basePrice).split(".")[1]}
             </span>
-            {item.estimatedPrepMinutes > 0 && (
-              <span className="text-xs text-gray-400 ml-1.5">
-                ~{item.estimatedPrepMinutes} min
-              </span>
-            )}
           </div>
           <button
-            onClick={onAdd}
-            aria-label={`Agregar ${item.name}`}
-            className="bg-amber-500 hover:bg-amber-600 active:scale-90 text-white font-black w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-transform text-lg leading-none"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd();
+            }}
+            className="bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-900 font-black w-12 h-12 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/40 active:scale-90 transition-all text-xl leading-none"
           >
             +
           </button>
@@ -555,94 +581,96 @@ function ItemModal({
   onAddToCart,
 }: ItemModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end">
+    <div className="fixed inset-0 z-50 flex flex-col justify-end animate-overlayFadeIn">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Sheet */}
-      <div className="relative bg-white rounded-t-3xl overflow-hidden max-h-[92dvh] flex flex-col shadow-2xl">
-        {/* Item image or bare header */}
+      <div className="relative bg-gradient-to-b from-slate-800 to-slate-900 rounded-t-3xl overflow-hidden max-h-[92dvh] flex flex-col shadow-2xl animate-slideUp border-t-2 border-amber-400/30">
+        {/* Hero image or header */}
         {item.imageUrl ? (
-          <div className="relative h-52 flex-none">
+          <div className="relative h-56 flex-none overflow-hidden group">
             <Image
               src={item.imageUrl}
               alt={item.name}
               fill
-              className="object-cover"
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
             <button
               onClick={onClose}
               aria-label="Cerrar"
-              className="absolute top-4 right-4 bg-white/90 w-9 h-9 rounded-full flex items-center justify-center text-gray-700 font-black text-lg shadow-md"
+              className="absolute top-5 right-5 bg-slate-900/80 hover:bg-slate-800 w-10 h-10 rounded-full flex items-center justify-center text-amber-400 font-black text-xl shadow-lg backdrop-blur-sm transition-all"
             >
-              ×
+              ✕
             </button>
           </div>
         ) : (
-          <div className="flex justify-end px-5 pt-4 pb-2">
+          <div className="flex justify-between items-center px-6 py-5 bg-gradient-to-r from-slate-800 to-slate-900 border-b border-amber-400/10">
+            <div className="text-4xl">🍽️</div>
             <button
               onClick={onClose}
               aria-label="Cerrar"
-              className="bg-gray-100 w-9 h-9 rounded-full flex items-center justify-center text-gray-600 font-black text-lg"
+              className="bg-slate-700/50 hover:bg-slate-600 w-10 h-10 rounded-full flex items-center justify-center text-amber-400 font-black text-lg transition-all"
             >
-              ×
+              ✕
             </button>
           </div>
         )}
 
         {/* Scrollable body */}
-        <div className="overflow-y-auto flex-1 px-5 py-4 space-y-5">
-          {/* Title + price */}
-          <div>
-            <h2 className="text-xl font-black text-gray-900 leading-tight">
+        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
+          {/* Title + description + price */}
+          <div className="border-b border-amber-400/10 pb-5">
+            <h2 className="text-3xl font-black text-white leading-tight mb-3">
               {item.name}
             </h2>
             {item.description && (
-              <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+              <p className="text-base text-amber-100/70 mb-4 leading-relaxed font-light">
                 {item.description}
               </p>
             )}
-            <p className="text-amber-600 font-black text-xl mt-2">
+            <div className="text-4xl font-black text-amber-400 font-mono">
               {fmt(item.basePrice)}
-            </p>
+            </div>
           </div>
 
           {/* Variants */}
           {item.variants.length > 0 && (
             <section>
-              <h3 className="font-bold text-gray-800 mb-2 text-sm uppercase tracking-wide">
-                Variante
+              <h3 className="font-black text-amber-400 mb-3 text-sm uppercase tracking-widest">
+                Elige una variante
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {item.variants.map((v) => (
                   <label
                     key={v.id}
-                    className={`flex items-center justify-between min-h-[48px] px-4 py-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-center justify-between min-h-[52px] px-4 py-3 rounded-lg border-2 cursor-pointer transition-all ${
                       selectedVariantId === v.id
-                        ? "border-amber-500 bg-amber-50 shadow-sm"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-amber-400 bg-amber-400/10 shadow-lg shadow-amber-400/20"
+                        : "border-slate-700 hover:border-amber-400/50 hover:bg-slate-700/40"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="item-variant"
-                        value={v.id}
-                        checked={selectedVariantId === v.id}
-                        onChange={() => onVariantChange(v.id)}
-                        className="accent-amber-500 w-4 h-4"
-                      />
-                      <span className="text-sm font-semibold text-gray-700">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                        selectedVariantId === v.id
+                          ? "border-amber-400 bg-amber-400"
+                          : "border-slate-500"
+                      }`}>
+                        {selectedVariantId === v.id && (
+                          <div className="w-2 h-2 rounded-full bg-slate-900" />
+                        )}
+                      </div>
+                      <span className="text-base font-semibold text-white">
                         {v.name}
                       </span>
                     </div>
                     {v.priceDelta !== 0 && (
-                      <span className="text-sm font-bold text-amber-600">
+                      <span className="text-base font-bold text-amber-400 font-mono">
                         {v.priceDelta > 0 ? "+" : ""}
                         {fmt(v.priceDelta)}
                       </span>
@@ -656,45 +684,50 @@ function ItemModal({
           {/* Modifier Groups */}
           {item.modifierGroups.map((group) => (
             <section key={group.id}>
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wide">
+              <div className="flex items-center gap-3 mb-3 flex-wrap">
+                <h3 className="font-black text-amber-400 text-sm uppercase tracking-widest">
                   {group.name}
                 </h3>
                 {group.isRequired && (
-                  <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-semibold">
-                    Requerido
+                  <span className="text-xs bg-red-500/20 text-red-300 px-2.5 py-1 rounded-full font-bold border border-red-500/30">
+                    Obligatorio
                   </span>
                 )}
                 {group.maxSelections > 1 && (
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-amber-200/60 font-semibold">
                     Máx {group.maxSelections}
                   </span>
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {group.modifiers.map((mod) => (
                   <label
                     key={mod.id}
-                    className={`flex items-center justify-between min-h-[48px] px-4 py-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-center justify-between min-h-[52px] px-4 py-3 rounded-lg border-2 cursor-pointer transition-all ${
                       selectedModIds.has(mod.id)
-                        ? "border-amber-500 bg-amber-50 shadow-sm"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-amber-400 bg-amber-400/10 shadow-lg shadow-amber-400/20"
+                        : "border-slate-700 hover:border-amber-400/50 hover:bg-slate-700/40"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={selectedModIds.has(mod.id)}
-                        onChange={() => onToggleMod(group, mod.id)}
-                        className="accent-amber-500 w-4 h-4"
-                      />
-                      <span className="text-sm font-semibold text-gray-700">
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                        selectedModIds.has(mod.id)
+                          ? "border-amber-400 bg-amber-400"
+                          : "border-slate-500"
+                      }`}>
+                        {selectedModIds.has(mod.id) && (
+                          <svg className="w-3 h-3 text-slate-900" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className="text-base font-semibold text-white">
                         {mod.name}
                       </span>
                     </div>
                     {mod.priceDelta !== 0 && (
-                      <span className="text-sm font-bold text-amber-600">
+                      <span className="text-base font-bold text-amber-400 font-mono">
                         +{fmt(mod.priceDelta)}
                       </span>
                     )}
@@ -706,49 +739,49 @@ function ItemModal({
 
           {/* Special instructions */}
           <section>
-            <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wide mb-2">
+            <h3 className="font-black text-amber-400 text-sm uppercase tracking-widest mb-3">
               Instrucciones especiales
             </h3>
             <textarea
               value={notes}
               onChange={(e) => onNotesChange(e.target.value)}
-              placeholder="Sin cilantro, extra picante, alergia a nueces…"
-              rows={2}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 resize-none"
+              placeholder="Sin cilantro, extra picante, sin sal…"
+              rows={3}
+              className="w-full bg-slate-700/40 border border-slate-600 text-white placeholder-slate-400 px-4 py-3 rounded-lg text-base focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 resize-none transition-all"
             />
           </section>
         </div>
 
         {/* Fixed footer */}
-        <div className="flex-none px-5 py-4 bg-white border-t border-gray-100 safe-bottom">
+        <div className="flex-none px-6 py-5 bg-gradient-to-t from-slate-950 to-slate-900 border-t border-amber-400/10 space-y-4">
           {/* Quantity selector */}
-          <div className="flex items-center justify-center gap-6 mb-4">
+          <div className="flex items-center justify-center gap-6">
             <button
               onClick={() => onQuantityChange(Math.max(1, quantity - 1))}
               aria-label="Reducir cantidad"
-              className="w-11 h-11 rounded-full bg-gray-100 text-gray-700 font-black text-2xl flex items-center justify-center active:scale-90 transition-transform"
+              className="w-12 h-12 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-amber-400 font-black text-2xl flex items-center justify-center active:scale-90 transition-all border border-slate-600 hover:border-amber-400/50"
             >
               −
             </button>
-            <span className="text-2xl font-black text-gray-900 w-8 text-center tabular-nums">
+            <span className="text-3xl font-black text-white w-12 text-center tabular-nums">
               {quantity}
             </span>
             <button
               onClick={() => onQuantityChange(quantity + 1)}
               aria-label="Aumentar cantidad"
-              className="w-11 h-11 rounded-full bg-amber-500 text-white font-black text-2xl flex items-center justify-center active:scale-90 transition-transform shadow-md"
+              className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-slate-900 font-black text-2xl flex items-center justify-center active:scale-90 transition-all shadow-lg shadow-amber-500/40"
             >
               +
             </button>
           </div>
 
-          {/* Add to cart */}
+          {/* Add to cart button */}
           <button
             onClick={onAddToCart}
-            className="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-between px-5 text-base min-h-[56px]"
+            className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-[0.98] text-slate-900 font-black py-4 rounded-lg shadow-xl shadow-amber-500/30 transition-all flex items-center justify-between px-5 text-base min-h-[56px]"
           >
             <span>Agregar al carrito</span>
-            <span>{fmt(totalPrice)}</span>
+            <span className="font-mono text-lg">{fmt(totalPrice)}</span>
           </button>
         </div>
       </div>
