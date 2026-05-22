@@ -6,15 +6,19 @@ datasource db {
   provider = "sqlite"
 }
 
+// ============================================================
+// === TURISMO DE AVENTURA (existente — no modificar) =========
+// ============================================================
+
 model Item {
   id          String    @id @default(cuid())
   name        String
   slug        String    @unique
-  type        String    // "cabana", "glamping", "moto", "bici"
+  type        String // "cabana", "glamping", "moto", "bici"
   description String?
-  price       Int       // price per night/day in MXN cents
-  capacity    String?   // e.g. "2 huéspedes / Cama Queen"
-  image       String?   // URL or placeholder
+  price       Int // price per night/day in MXN cents
+  capacity    String? // e.g. "2 huéspedes / Cama Queen"
+  image       String? // URL or placeholder
   featured    Boolean   @default(false)
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now())
@@ -23,23 +27,333 @@ model Item {
 }
 
 model Booking {
-  id          String    @id @default(cuid())
-  itemId      String
-  item        Item      @relation(fields: [itemId], references: [id])
-  customerName  String
-  customerEmail String
-  customerPhone String?
-  startDate   DateTime  // check-in / rental start
-  endDate     DateTime  // check-out / rental end
-  guests      Int       @default(1)
-  totalPrice  Int       // in MXN cents
-  status      String    @default("pending") // pending, paid, confirmed, cancelled
+  id              String   @id @default(cuid())
+  itemId          String
+  item            Item     @relation(fields: [itemId], references: [id])
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  startDate       DateTime // check-in / rental start
+  endDate         DateTime // check-out / rental end
+  guests          Int      @default(1)
+  totalPrice      Int // in MXN cents
+  status          String   @default("pending") // pending, paid, confirmed, cancelled
   stripeSessionId String?
-  paymentMethod String?   // "card", "transfer", "cash"
-  notes       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  paymentMethod   String? // "card", "transfer", "cash"
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([itemId, startDate, endDate])
   @@index([status])
+}
+
+// ============================================================
+// === CATÁLOGO ===============================================
+// ============================================================
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String // display name, e.g. "Entradas"
+  sortOrder Int        @default(0) // display order in menu
+  kind      String // "FOOD" | "DRINK"
+  isActive  Boolean    @default(true) // whether category is visible
+  imageUrl  String? // optional cover image URL
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  menuItems MenuItem[]
+}
+
+model MenuItem {
+  id                     String                  @id @default(cuid())
+  categoryId             String // FK → Category
+  category               Category                @relation(fields: [categoryId], references: [id])
+  name                   String // dish/drink name
+  description            String? // short description for menu
+  basePrice              Int // base price in MXN cents
+  imageUrl               String? // photo URL
+  isActive               Boolean                 @default(true) // visible on menu
+  prepStation            String // "KITCHEN" | "BAR" | "COLD_STATION"
+  estimatedPrepMinutes   Int                     @default(10) // expected prep time
+  sortOrder              Int                     @default(0) // display order within category
+  sku                    String? // optional internal SKU
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  variants               MenuItemVariant[]
+  menuItemModifierGroups MenuItemModifierGroup[]
+  recipe                 Recipe?
+  orderItems             OrderItem[]
+
+  @@index([categoryId, isActive])
+}
+
+model MenuItemVariant {
+  id         String      @id @default(cuid())
+  menuItemId String // FK → MenuItem
+  menuItem   MenuItem    @relation(fields: [menuItemId], references: [id])
+  name       String // e.g. "Grande", "Sin azúcar"
+  priceDelta Int         @default(0) // added to basePrice in MXN cents (can be negative)
+  isDefault  Boolean     @default(false) // pre-selected variant on POS
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+}
+
+model ModifierGroup {
+  id                     String                  @id @default(cuid())
+  name                   String // e.g. "Extras", "Término de carne"
+  minSelections          Int                     @default(0) // min required choices
+  maxSelections          Int                     @default(1) // max allowed choices
+  isRequired             Boolean                 @default(false) // must choose at least min
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  modifiers              Modifier[]
+  menuItemModifierGroups MenuItemModifierGroup[]
+}
+
+model Modifier {
+  id                 String              @id @default(cuid())
+  modifierGroupId    String // FK → ModifierGroup
+  modifierGroup      ModifierGroup       @relation(fields: [modifierGroupId], references: [id])
+  name               String // e.g. "Extra queso", "Término bien cocido"
+  priceDelta         Int                 @default(0) // added price in MXN cents
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  orderItemModifiers OrderItemModifier[]
+}
+
+/// Pivote N:N entre MenuItem y ModifierGroup
+model MenuItemModifierGroup {
+  id              String        @id @default(cuid())
+  menuItemId      String // FK → MenuItem
+  menuItem        MenuItem      @relation(fields: [menuItemId], references: [id])
+  modifierGroupId String // FK → ModifierGroup
+  modifierGroup   ModifierGroup @relation(fields: [modifierGroupId], references: [id])
+
+  @@unique([menuItemId, modifierGroupId])
+}
+
+// ============================================================
+// === RECETAS E INVENTARIO ===================================
+// ============================================================
+
+model Ingredient {
+  id             String          @id @default(cuid())
+  name           String // ingredient name, e.g. "Tomate cherry"
+  unit           String // "GRAM" | "ML" | "UNIT"
+  currentStock   Float           @default(0) // current on-hand quantity
+  minStock       Float           @default(0) // alert threshold
+  cost           Int             @default(0) // cost per unit in MXN cents
+  isActive       Boolean         @default(true) // whether still in use
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  recipeItems    RecipeItem[]
+  stockMovements StockMovement[]
+}
+
+model Recipe {
+  id            String       @id @default(cuid())
+  menuItemId    String       @unique // FK → MenuItem (1:1)
+  menuItem      MenuItem     @relation(fields: [menuItemId], references: [id])
+  yieldQuantity Float        @default(1) // how many portions this recipe makes
+  notes         String? // prep instructions / notes
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  recipeItems   RecipeItem[]
+}
+
+model RecipeItem {
+  id           String     @id @default(cuid())
+  recipeId     String // FK → Recipe
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+  ingredientId String // FK → Ingredient
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  quantity     Float // amount used per recipe yield
+
+  @@unique([recipeId, ingredientId])
+}
+
+model StockMovement {
+  id           String     @id @default(cuid())
+  ingredientId String // FK → Ingredient
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  delta        Float // positive = stock in, negative = stock out
+  reason       String // e.g. "PURCHASE", "WASTE", "PREP", "INVENTORY"
+  notes        String? // optional detail
+  createdAt    DateTime   @default(now())
+
+  @@index([ingredientId, createdAt])
+}
+
+// ============================================================
+// === SALA ===================================================
+// ============================================================
+
+model Table {
+  id        String         @id @default(cuid())
+  number    String         @unique // display identifier, e.g. "T1", "T5"
+  name      String? // optional friendly name, e.g. "Terraza Sur"
+  qrToken   String         @unique // unique token embedded in QR code
+  capacity  Int // max seated guests
+  location  String? // e.g. "Interior", "Terraza", "Bar"
+  isActive  Boolean        @default(true) // whether table is in service
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  sessions  TableSession[]
+}
+
+model TableSession {
+  id        String    @id @default(cuid())
+  tableId   String // FK → Table
+  table     Table     @relation(fields: [tableId], references: [id])
+  status    String    @default("OPEN") // "OPEN" | "CLOSED"
+  openedAt  DateTime  @default(now()) // when session started
+  closedAt  DateTime? // when session ended (null if still open)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  orders    Order[]
+}
+
+// ============================================================
+// === PEDIDOS ================================================
+// ============================================================
+
+model Order {
+  id             String             @id @default(cuid())
+  tableSessionId String // FK → TableSession
+  tableSession   TableSession       @relation(fields: [tableSessionId], references: [id])
+  customerName   String? // optional, for QR / delivery orders
+  customerEmail  String? // optional contact
+  customerPhone  String? // optional contact
+  source         String // "WAITER" | "QR" | "ADMIN"
+  status         String             @default("DRAFT") // "DRAFT"|"PLACED"|"IN_KITCHEN"|"READY"|"SERVED"|"PAID"|"CANCELLED"
+  subtotal       Int                @default(0) // sum of items before tax, in MXN cents
+  tax            Int                @default(0) // tax amount in MXN cents
+  total          Int                @default(0) // subtotal + tax in MXN cents
+  notes          String? // kitchen / general notes
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  orderItems     OrderItem[]
+  statusEvents   OrderStatusEvent[]
+  payment        Payment?
+
+  @@index([source, status, createdAt])
+}
+
+model OrderItem {
+  id                  String              @id @default(cuid())
+  orderId             String // FK → Order
+  order               Order               @relation(fields: [orderId], references: [id])
+  menuItemId          String // FK → MenuItem
+  menuItem            MenuItem            @relation(fields: [menuItemId], references: [id])
+  variantId           String? // FK → MenuItemVariant (optional)
+  variant             MenuItemVariant?    @relation(fields: [variantId], references: [id])
+  quantity            Int                 @default(1) // number of this item ordered
+  unitPrice           Int // price snapshot at order time, in MXN cents
+  specialInstructions String? // e.g. "sin cebolla"
+  status              String              @default("PENDING") // "PENDING"|"IN_PREP"|"READY"|"SERVED"|"CANCELLED"
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  modifiers           OrderItemModifier[]
+  statusEvents        OrderStatusEvent[]
+
+  @@index([orderId, status])
+}
+
+model OrderItemModifier {
+  id           String    @id @default(cuid())
+  orderItemId  String // FK → OrderItem
+  orderItem    OrderItem @relation(fields: [orderItemId], references: [id])
+  modifierId   String // FK → Modifier
+  modifier     Modifier  @relation(fields: [modifierId], references: [id])
+  modifierName String // snapshot of modifier name at order time
+  priceDelta   Int // snapshot of price delta at order time, in MXN cents
+}
+
+model OrderStatusEvent {
+  id          String     @id @default(cuid())
+  orderId     String // FK → Order
+  order       Order      @relation(fields: [orderId], references: [id])
+  orderItemId String? // FK → OrderItem (null = whole-order event)
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id])
+  fromStatus  String // previous status value
+  toStatus    String // new status value
+  timestamp   DateTime   @default(now()) // when the transition occurred
+
+  @@index([orderId, timestamp])
+}
+
+// ============================================================
+// === PAGOS ==================================================
+// ============================================================
+
+model Payment {
+  id             String    @id @default(cuid())
+  orderId        String    @unique // FK → Order (1:1)
+  order          Order     @relation(fields: [orderId], references: [id])
+  amount         Int // total charged in MXN cents
+  method         String // "MP" | "CASH" | "CARD" | "TRANSFER"
+  status         String    @default("PENDING") // "PENDING" | "COMPLETED" | "REFUNDED"
+  mpPaymentId    String? // MercadoPago payment ID
+  mpPreferenceId String? // MercadoPago preference ID
+  paidAt         DateTime? // when payment was confirmed
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([orderId, status])
+}
+
+// ============================================================
+// === STAFF Y RRHH ===========================================
+// ============================================================
+
+model Staff {
+  id         String       @id @default(cuid())
+  name       String // full name
+  role       String // "ADMIN"|"WAITER"|"COOK"|"BARTENDER"|"MANAGER"
+  phone      String? // optional contact phone
+  email      String? // optional contact email
+  hourlyRate Int          @default(0) // wage in MXN cents per hour
+  isActive   Boolean      @default(true) // whether currently employed
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  shifts     StaffShift[]
+  clocks     StaffClock[]
+}
+
+model StaffShift {
+  id        String   @id @default(cuid())
+  staffId   String // FK → Staff
+  staff     Staff    @relation(fields: [staffId], references: [id])
+  date      DateTime // shift date (date portion used)
+  startTime DateTime // shift start datetime
+  endTime   DateTime // shift end datetime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([staffId, date])
+}
+
+model StaffClock {
+  id        String   @id @default(cuid())
+  staffId   String // FK → Staff
+  staff     Staff    @relation(fields: [staffId], references: [id])
+  timestamp DateTime @default(now()) // clock in/out timestamp
+  type      String // "IN" | "OUT"
+
+  @@index([staffId, timestamp])
+}
+
+// ============================================================
+// === GASTOS FIJOS ===========================================
+// ============================================================
+
+model FixedExpense {
+  id          String   @id @default(cuid())
+  description String // "Renta", "Luz", "Gas", "Internet", etc.
+  amount      Int // monthly amount in MXN cents
+  category    String // "RENT"|"UTILITIES"|"SERVICES"|"OTHER"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
