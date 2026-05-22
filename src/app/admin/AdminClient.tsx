@@ -203,7 +203,10 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
           <div className="flex items-center gap-4 text-sm text-[#b88364]">
             <span>{data.bookings.length} reservas</span>
             <span>{data.items.length} items</span>
-            <a href="/api/admin/logout" className="ml-4 text-[10px] uppercase tracking-wider border border-[#b88364]/30 px-3 py-1 rounded hover:bg-[#b88364]/5 transition-colors">
+            <a href="/admin/restaurant" className="text-[10px] uppercase tracking-wider border border-[#e07a5f]/40 text-[#e07a5f] px-3 py-1 rounded hover:bg-[#e07a5f]/10 transition-colors font-medium">
+              🍽️ Restaurante
+            </a>
+            <a href="/api/admin/logout" className="ml-2 text-[10px] uppercase tracking-wider border border-[#b88364]/30 px-3 py-1 rounded hover:bg-[#b88364]/5 transition-colors">
               Salir
             </a>
           </div>
