@@ -7,10 +7,10 @@ export const dynamic = "force-dynamic";
  * GET /api/restaurant/session?qrToken=xxx
  *
  * Public endpoint: resolves a QR token to the corresponding table
- * and returns (or creates) an open TableSession for it.
+ * and returns (or creates) an open ServiceSession for it.
  *
  * Response:
- *   { tableId, tableNumber, tableName, tableLocation, tableSessionId }
+ *   { tableId, tableNumber, tableName, tableLocation, serviceSessionId }
  */
 export async function GET(req: NextRequest) {
   try {
@@ -32,14 +32,14 @@ export async function GET(req: NextRequest) {
     }
 
     // Find existing open session or create a new one
-    let session = await prisma.tableSession.findFirst({
+    let session = await prisma.serviceSession.findFirst({
       where: { tableId: table.id, status: "OPEN" },
       orderBy: { openedAt: "desc" },
     });
 
     if (!session) {
-      session = await prisma.tableSession.create({
-        data: { tableId: table.id, status: "OPEN" },
+      session = await prisma.serviceSession.create({
+        data: { tableId: table.id, status: "OPEN", type: "TABLE", label: table.name || ('Mesa ' + table.number) },
       });
     }
 
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
       tableNumber: table.number,
       tableName: table.name ?? null,
       tableLocation: table.location ?? null,
-      tableSessionId: session.id,
+      serviceSessionId: session.id,
     });
   } catch (err) {
     console.error("[GET /api/restaurant/session]", err);

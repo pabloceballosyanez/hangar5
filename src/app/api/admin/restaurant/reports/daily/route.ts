@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
     const taxCollected = await prisma.order.aggregate({
       where: {
         createdAt: { gte: start, lte: end },
-        payment: { status: "COMPLETED" },
+        payments: { some: { status: "COMPLETED" } },
       },
       _sum: { tax: true },
     });

@@ -26,13 +26,13 @@ export async function GET(req: NextRequest) {
     const status         = searchParams.get("status") as OrderStatus | null;
     const source         = searchParams.get("source") as OrderSource | null;
     const date           = searchParams.get("date"); // ISO date string YYYY-MM-DD
-    const tableSessionId = searchParams.get("tableSessionId");
+    const serviceSessionId = searchParams.get("serviceSessionId");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: Record<string, any> = {};
     if (status && (ORDER_STATUSES as readonly string[]).includes(status)) where.status = status;
     if (source && (ORDER_SOURCES as readonly string[]).includes(source)) where.source = source;
-    if (tableSessionId) where.tableSessionId = tableSessionId;
+    if (serviceSessionId) where.serviceSessionId = serviceSessionId;
     if (date) {
       const start = new Date(date);
       const end = new Date(date);
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
       where,
       orderBy: { createdAt: "desc" },
       include: {
-        tableSession: {
+        serviceSession: {
           include: { table: true },
         },
         orderItems: {
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
             modifiers: true,
           },
         },
-        payment: true,
+        payments: true,
       },
     });
 
@@ -75,7 +75,7 @@ const orderItemSchema = z.object({
 });
 
 const createOrderSchema = z.object({
-  tableSessionId: z.string().min(1),
+  serviceSessionId: z.string().min(1),
   source: z.enum(ORDER_SOURCES),
   customerName: z.string().optional().nullable(),
   customerEmail: z.string().email().optional().nullable(),
@@ -92,10 +92,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { tableSessionId, source, customerName, customerEmail, customerPhone, notes, items } = parsed.data;
+    const { serviceSessionId, source, customerName, customerEmail, customerPhone, notes, items } = parsed.data;
 
     // Validate session exists and is open
-    const session = await prisma.tableSession.findUnique({ where: { id: tableSessionId } });
+    const session = await prisma.serviceSession.findUnique({ where: { id: serviceSessionId } });
     if (!session) {
       return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
     }
@@ -151,7 +151,7 @@ export async function POST(req: NextRequest) {
     const order = await prisma.$transaction(async (tx) => {
       const created = await tx.order.create({
         data: {
-          tableSessionId,
+          serviceSessionId,
           source,
           customerName,
           customerEmail,
@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
             include: { menuItem: true, variant: true, modifiers: true },
           },
           statusEvents: true,
-          tableSession: { include: { table: true } },
+          serviceSession: { include: { table: true } },
         },
       });
     });

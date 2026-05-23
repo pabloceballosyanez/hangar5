@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { payment: true },
+      include: { payments: true },
     });
 
     if (!order) {
@@ -78,9 +78,9 @@ export async function POST(req: NextRequest) {
       }
 
       // Update or create Payment record
-      if (order.payment) {
+      if (order.payments[0]) {
         await tx.payment.update({
-          where: { id: order.payment.id },
+          where: { id: order.payments[0].id },
           data: {
             status: "COMPLETED",
             mpPaymentId: String(mpPayment.id),

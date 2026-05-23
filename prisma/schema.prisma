@@ -14,11 +14,11 @@ model Item {
   id          String    @id @default(cuid())
   name        String
   slug        String    @unique
-  type        String // "cabana", "glamping", "moto", "bici"
+  type        String
   description String?
-  price       Int // price per night/day in MXN cents
-  capacity    String? // e.g. "2 huéspedes / Cama Queen"
-  image       String? // URL or placeholder
+  price       Int
+  capacity    String?
+  image       String?
   featured    Boolean   @default(false)
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now())
@@ -33,13 +33,13 @@ model Booking {
   customerName    String
   customerEmail   String
   customerPhone   String?
-  startDate       DateTime // check-in / rental start
-  endDate         DateTime // check-out / rental end
+  startDate       DateTime
+  endDate         DateTime
   guests          Int      @default(1)
-  totalPrice      Int // in MXN cents
-  status          String   @default("pending") // pending, paid, confirmed, cancelled
+  totalPrice      Int
+  status          String   @default("pending")
   stripeSessionId String?
-  paymentMethod   String? // "card", "transfer", "cash"
+  paymentMethod   String?
   notes           String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -54,11 +54,11 @@ model Booking {
 
 model Category {
   id        String     @id @default(cuid())
-  name      String // display name, e.g. "Entradas"
-  sortOrder Int        @default(0) // display order in menu
-  kind      String // "FOOD" | "DRINK"
-  isActive  Boolean    @default(true) // whether category is visible
-  imageUrl  String? // optional cover image URL
+  name      String
+  sortOrder Int        @default(0)
+  kind      String
+  isActive  Boolean    @default(true)
+  imageUrl  String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   menuItems MenuItem[]
@@ -66,17 +66,17 @@ model Category {
 
 model MenuItem {
   id                     String                  @id @default(cuid())
-  categoryId             String // FK → Category
+  categoryId             String
   category               Category                @relation(fields: [categoryId], references: [id])
-  name                   String // dish/drink name
-  description            String? // short description for menu
-  basePrice              Int // base price in MXN cents
-  imageUrl               String? // photo URL
-  isActive               Boolean                 @default(true) // visible on menu
-  prepStation            String // "KITCHEN" | "BAR" | "COLD_STATION"
-  estimatedPrepMinutes   Int                     @default(10) // expected prep time
-  sortOrder              Int                     @default(0) // display order within category
-  sku                    String? // optional internal SKU
+  name                   String
+  description            String?
+  basePrice              Int
+  imageUrl               String?
+  isActive               Boolean                 @default(true)
+  prepStation            String
+  estimatedPrepMinutes   Int                     @default(10)
+  sortOrder              Int                     @default(0)
+  sku                    String?
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
   variants               MenuItemVariant[]
@@ -89,11 +89,11 @@ model MenuItem {
 
 model MenuItemVariant {
   id         String      @id @default(cuid())
-  menuItemId String // FK → MenuItem
+  menuItemId String
   menuItem   MenuItem    @relation(fields: [menuItemId], references: [id])
-  name       String // e.g. "Grande", "Sin azúcar"
-  priceDelta Int         @default(0) // added to basePrice in MXN cents (can be negative)
-  isDefault  Boolean     @default(false) // pre-selected variant on POS
+  name       String
+  priceDelta Int         @default(0)
+  isDefault  Boolean     @default(false)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   orderItems OrderItem[]
@@ -101,10 +101,10 @@ model MenuItemVariant {
 
 model ModifierGroup {
   id                     String                  @id @default(cuid())
-  name                   String // e.g. "Extras", "Término de carne"
-  minSelections          Int                     @default(0) // min required choices
-  maxSelections          Int                     @default(1) // max allowed choices
-  isRequired             Boolean                 @default(false) // must choose at least min
+  name                   String
+  minSelections          Int                     @default(0)
+  maxSelections          Int                     @default(1)
+  isRequired             Boolean                 @default(false)
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
   modifiers              Modifier[]
@@ -113,21 +113,20 @@ model ModifierGroup {
 
 model Modifier {
   id                 String              @id @default(cuid())
-  modifierGroupId    String // FK → ModifierGroup
+  modifierGroupId    String
   modifierGroup      ModifierGroup       @relation(fields: [modifierGroupId], references: [id])
-  name               String // e.g. "Extra queso", "Término bien cocido"
-  priceDelta         Int                 @default(0) // added price in MXN cents
+  name               String
+  priceDelta         Int                 @default(0)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   orderItemModifiers OrderItemModifier[]
 }
 
-/// Pivote N:N entre MenuItem y ModifierGroup
 model MenuItemModifierGroup {
   id              String        @id @default(cuid())
-  menuItemId      String // FK → MenuItem
+  menuItemId      String
   menuItem        MenuItem      @relation(fields: [menuItemId], references: [id])
-  modifierGroupId String // FK → ModifierGroup
+  modifierGroupId String
   modifierGroup   ModifierGroup @relation(fields: [modifierGroupId], references: [id])
 
   @@unique([menuItemId, modifierGroupId])
@@ -139,12 +138,12 @@ model MenuItemModifierGroup {
 
 model Ingredient {
   id             String          @id @default(cuid())
-  name           String // ingredient name, e.g. "Tomate cherry"
-  unit           String // "GRAM" | "ML" | "UNIT"
-  currentStock   Float           @default(0) // current on-hand quantity
-  minStock       Float           @default(0) // alert threshold
-  cost           Int             @default(0) // cost per unit in MXN cents
-  isActive       Boolean         @default(true) // whether still in use
+  name           String
+  unit           String
+  currentStock   Float           @default(0)
+  minStock       Float           @default(0)
+  cost           Int             @default(0)
+  isActive       Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   recipeItems    RecipeItem[]
@@ -153,10 +152,10 @@ model Ingredient {
 
 model Recipe {
   id            String       @id @default(cuid())
-  menuItemId    String       @unique // FK → MenuItem (1:1)
+  menuItemId    String       @unique
   menuItem      MenuItem     @relation(fields: [menuItemId], references: [id])
-  yieldQuantity Float        @default(1) // how many portions this recipe makes
-  notes         String? // prep instructions / notes
+  yieldQuantity Float        @default(1)
+  notes         String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   recipeItems   RecipeItem[]
@@ -164,54 +163,94 @@ model Recipe {
 
 model RecipeItem {
   id           String     @id @default(cuid())
-  recipeId     String // FK → Recipe
+  recipeId     String
   recipe       Recipe     @relation(fields: [recipeId], references: [id])
-  ingredientId String // FK → Ingredient
+  ingredientId String
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
-  quantity     Float // amount used per recipe yield
+  quantity     Float
 
   @@unique([recipeId, ingredientId])
 }
 
 model StockMovement {
   id           String     @id @default(cuid())
-  ingredientId String // FK → Ingredient
+  ingredientId String
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
-  delta        Float // positive = stock in, negative = stock out
-  reason       String // e.g. "PURCHASE", "WASTE", "PREP", "INVENTORY"
-  notes        String? // optional detail
+  delta        Float
+  reason       String
+  notes        String?
   createdAt    DateTime   @default(now())
 
   @@index([ingredientId, createdAt])
 }
 
 // ============================================================
-// === SALA ===================================================
+// === CLIENTES Y CUENTAS CORRIENTES ==========================
+// ============================================================
+
+model Customer {
+  id             String                 @id @default(cuid())
+  name           String
+  phone          String?
+  email          String?
+  notes          String?
+  isActive       Boolean                @default(true)
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  sessions       ServiceSession[]
+  ledgerEntries  CustomerLedgerEntry[]
+  payments       Payment[]
+}
+
+model CustomerLedgerEntry {
+  id               String          @id @default(cuid())
+  customerId       String
+  customer         Customer        @relation(fields: [customerId], references: [id])
+  amount           Int // signed: positive = customer owes us, negative = we owe customer. MXN cents.
+  type             String // "CHARGE" | "PAYMENT" | "REFUND" | "ADJUSTMENT"
+  serviceSessionId String?
+  serviceSession   ServiceSession? @relation(fields: [serviceSessionId], references: [id])
+  note             String?
+  createdAt        DateTime        @default(now())
+
+  @@index([customerId, createdAt])
+}
+
+// ============================================================
+// === SALA Y SESIONES ========================================
 // ============================================================
 
 model Table {
-  id        String         @id @default(cuid())
-  number    String         @unique // display identifier, e.g. "T1", "T5"
-  name      String? // optional friendly name, e.g. "Terraza Sur"
-  qrToken   String         @unique // unique token embedded in QR code
-  capacity  Int // max seated guests
-  location  String? // e.g. "Interior", "Terraza", "Bar"
-  isActive  Boolean        @default(true) // whether table is in service
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  sessions  TableSession[]
+  id        String           @id @default(cuid())
+  number    String           @unique
+  name      String?
+  qrToken   String           @unique
+  capacity  Int
+  location  String?
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  sessions  ServiceSession[]
 }
 
-model TableSession {
-  id        String    @id @default(cuid())
-  tableId   String // FK → Table
-  table     Table     @relation(fields: [tableId], references: [id])
-  status    String    @default("OPEN") // "OPEN" | "CLOSED"
-  openedAt  DateTime  @default(now()) // when session started
-  closedAt  DateTime? // when session ended (null if still open)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  orders    Order[]
+model ServiceSession {
+  id         String    @id @default(cuid())
+  type       String    @default("TABLE") // "TABLE" | "TAB" | "WALKIN"
+  label      String    // e.g. "Mesa 5", "Grupo Juan", "Barra-1"
+  tableId    String?   // FK → Table (null for TAB/WALKIN)
+  table      Table?    @relation(fields: [tableId], references: [id])
+  customerId String?   // FK → Customer (null for anonymous)
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  status     String    @default("OPEN") // "OPEN" | "CLOSED"
+  openedAt   DateTime  @default(now())
+  closedAt   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  orders     Order[]
+  payments   Payment[]
+  ledgerEntries CustomerLedgerEntry[]
+
+  @@index([status, type])
 }
 
 // ============================================================
@@ -219,39 +258,40 @@ model TableSession {
 // ============================================================
 
 model Order {
-  id             String             @id @default(cuid())
-  tableSessionId String // FK → TableSession
-  tableSession   TableSession       @relation(fields: [tableSessionId], references: [id])
-  customerName   String? // optional, for QR / delivery orders
-  customerEmail  String? // optional contact
-  customerPhone  String? // optional contact
-  source         String // "WAITER" | "QR" | "ADMIN"
-  status         String             @default("DRAFT") // "DRAFT"|"PLACED"|"IN_KITCHEN"|"READY"|"SERVED"|"PAID"|"CANCELLED"
-  subtotal       Int                @default(0) // sum of items before tax, in MXN cents
-  tax            Int                @default(0) // tax amount in MXN cents
-  total          Int                @default(0) // subtotal + tax in MXN cents
-  notes          String? // kitchen / general notes
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  orderItems     OrderItem[]
-  statusEvents   OrderStatusEvent[]
-  payment        Payment?
+  id                String             @id @default(cuid())
+  serviceSessionId  String
+  serviceSession    ServiceSession     @relation(fields: [serviceSessionId], references: [id])
+  customerName      String?
+  customerEmail     String?
+  customerPhone     String?
+  source            String
+  status            String             @default("DRAFT")
+  subtotal          Int                @default(0)
+  tax               Int                @default(0)
+  total             Int                @default(0)
+  notes             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  orderItems        OrderItem[]
+  statusEvents      OrderStatusEvent[]
+  payments          Payment[]
 
+  @@index([serviceSessionId, status, createdAt])
   @@index([source, status, createdAt])
 }
 
 model OrderItem {
   id                  String              @id @default(cuid())
-  orderId             String // FK → Order
+  orderId             String
   order               Order               @relation(fields: [orderId], references: [id])
-  menuItemId          String // FK → MenuItem
+  menuItemId          String
   menuItem            MenuItem            @relation(fields: [menuItemId], references: [id])
-  variantId           String? // FK → MenuItemVariant (optional)
+  variantId           String?
   variant             MenuItemVariant?    @relation(fields: [variantId], references: [id])
-  quantity            Int                 @default(1) // number of this item ordered
-  unitPrice           Int // price snapshot at order time, in MXN cents
-  specialInstructions String? // e.g. "sin cebolla"
-  status              String              @default("PENDING") // "PENDING"|"IN_PREP"|"READY"|"SERVED"|"CANCELLED"
+  quantity            Int                 @default(1)
+  unitPrice           Int
+  specialInstructions String?
+  status              String              @default("PENDING")
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   modifiers           OrderItemModifier[]
@@ -262,23 +302,23 @@ model OrderItem {
 
 model OrderItemModifier {
   id           String    @id @default(cuid())
-  orderItemId  String // FK → OrderItem
+  orderItemId  String
   orderItem    OrderItem @relation(fields: [orderItemId], references: [id])
-  modifierId   String // FK → Modifier
+  modifierId   String
   modifier     Modifier  @relation(fields: [modifierId], references: [id])
-  modifierName String // snapshot of modifier name at order time
-  priceDelta   Int // snapshot of price delta at order time, in MXN cents
+  modifierName String
+  priceDelta   Int
 }
 
 model OrderStatusEvent {
   id          String     @id @default(cuid())
-  orderId     String // FK → Order
+  orderId     String
   order       Order      @relation(fields: [orderId], references: [id])
-  orderItemId String? // FK → OrderItem (null = whole-order event)
+  orderItemId String?
   orderItem   OrderItem? @relation(fields: [orderItemId], references: [id])
-  fromStatus  String // previous status value
-  toStatus    String // new status value
-  timestamp   DateTime   @default(now()) // when the transition occurred
+  fromStatus  String
+  toStatus    String
+  timestamp   DateTime   @default(now())
 
   @@index([orderId, timestamp])
 }
@@ -288,19 +328,26 @@ model OrderStatusEvent {
 // ============================================================
 
 model Payment {
-  id             String    @id @default(cuid())
-  orderId        String    @unique // FK → Order (1:1)
-  order          Order     @relation(fields: [orderId], references: [id])
-  amount         Int // total charged in MXN cents
-  method         String // "MP" | "CASH" | "CARD" | "TRANSFER"
-  status         String    @default("PENDING") // "PENDING" | "COMPLETED" | "REFUNDED"
-  mpPaymentId    String? // MercadoPago payment ID
-  mpPreferenceId String? // MercadoPago preference ID
-  paidAt         DateTime? // when payment was confirmed
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id               String           @id @default(cuid())
+  orderId          String?          // FK → Order (null for ON_ACCOUNT payments)
+  order            Order?           @relation(fields: [orderId], references: [id])
+  serviceSessionId String?          // FK → ServiceSession (for session-level payments)
+  serviceSession   ServiceSession?  @relation(fields: [serviceSessionId], references: [id])
+  customerId       String?          // FK → Customer (for account payments)
+  customer         Customer?        @relation(fields: [customerId], references: [id])
+  amount           Int // total charged in MXN cents
+  method           String // "MP" | "CASH" | "CARD" | "TRANSFER"
+  status           String           @default("PENDING") // "PENDING" | "COMPLETED" | "REFUNDED"
+  note             String?
+  mpPaymentId      String?
+  mpPreferenceId   String?
+  paidAt           DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@index([orderId, status])
+  @@index([serviceSessionId])
+  @@index([customerId])
 }
 
 // ============================================================
@@ -309,12 +356,12 @@ model Payment {
 
 model Staff {
   id         String       @id @default(cuid())
-  name       String // full name
-  role       String // "ADMIN"|"WAITER"|"COOK"|"BARTENDER"|"MANAGER"
-  phone      String? // optional contact phone
-  email      String? // optional contact email
-  hourlyRate Int          @default(0) // wage in MXN cents per hour
-  isActive   Boolean      @default(true) // whether currently employed
+  name       String
+  role       String
+  phone      String?
+  email      String?
+  hourlyRate Int          @default(0)
+  isActive   Boolean      @default(true)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
   shifts     StaffShift[]
@@ -323,11 +370,11 @@ model Staff {
 
 model StaffShift {
   id        String   @id @default(cuid())
-  staffId   String // FK → Staff
+  staffId   String
   staff     Staff    @relation(fields: [staffId], references: [id])
-  date      DateTime // shift date (date portion used)
-  startTime DateTime // shift start datetime
-  endTime   DateTime // shift end datetime
+  date      DateTime
+  startTime DateTime
+  endTime   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -336,10 +383,10 @@ model StaffShift {
 
 model StaffClock {
   id        String   @id @default(cuid())
-  staffId   String // FK → Staff
+  staffId   String
   staff     Staff    @relation(fields: [staffId], references: [id])
-  timestamp DateTime @default(now()) // clock in/out timestamp
-  type      String // "IN" | "OUT"
+  timestamp DateTime @default(now())
+  type      String
 
   @@index([staffId, timestamp])
 }
@@ -350,9 +397,9 @@ model StaffClock {
 
 model FixedExpense {
   id          String   @id @default(cuid())
-  description String // "Renta", "Luz", "Gas", "Internet", etc.
-  amount      Int // monthly amount in MXN cents
-  category    String // "RENT"|"UTILITIES"|"SERVICES"|"OTHER"
+  description String
+  amount      Int
+  category    String
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

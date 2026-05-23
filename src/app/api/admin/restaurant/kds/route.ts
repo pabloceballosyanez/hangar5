@@ -12,7 +12,7 @@ export async function GET() {
       },
       orderBy: { createdAt: "asc" }, // FIFO
       include: {
-        tableSession: {
+        serviceSession: {
           include: { table: { select: { number: true, name: true, location: true } } },
         },
         orderItems: {
@@ -70,7 +70,7 @@ export async function GET() {
         (grouped[station] as unknown[]).push({
           orderId: order.id,
           orderStatus: order.status,
-          table: order.tableSession.table,
+          table: order.serviceSession.table,
           customerName: order.customerName,
           notes: order.notes,
           source: order.source,

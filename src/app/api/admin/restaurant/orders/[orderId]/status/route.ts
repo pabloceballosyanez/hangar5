@@ -67,13 +67,13 @@ export async function PUT(
         data: { status: newStatus },
         include: {
           orderItems: true,
-          payment: true,
-          tableSession: { include: { table: true } },
+          payments: true,
+          serviceSession: { include: { table: true } },
         },
       });
 
       // When PAID, create payment if not exists
-      if (newStatus === "PAID" && !updated.payment) {
+      if (newStatus === "PAID" && !updated.payments[0]) {
         await tx.payment.create({
           data: {
             orderId,

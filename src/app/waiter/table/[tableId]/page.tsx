@@ -33,7 +33,7 @@ interface Order {
   orderItems: OrderItem[];
 }
 
-interface TableSession {
+interface ServiceSession {
   id:       string;
   status:   string;
   openedAt: string;
@@ -184,7 +184,7 @@ function CuentaSheet({
   onClose,
   onPaid,
 }: {
-  session: TableSession;
+  session: ServiceSession;
   onClose: () => void;
   onPaid:  () => void;
 }) {
@@ -291,7 +291,7 @@ export default function WaiterTablePage() {
   const params   = useParams();
   const tableId  = params.tableId as string;
 
-  const [sessions,      setSessions]     = useState<TableSession[]>([]);
+  const [sessions,      setSessions]     = useState<ServiceSession[]>([]);
   const [tableNumber,   setTableNumber]  = useState('');
   const [loading,       setLoading]      = useState(true);
   const [opening,       setOpening]      = useState(false);

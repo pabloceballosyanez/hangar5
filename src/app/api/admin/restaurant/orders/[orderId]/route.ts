@@ -34,8 +34,8 @@ export async function GET(
           },
         },
         statusEvents: { orderBy: { timestamp: "desc" } },
-        payment: true,
-        tableSession: { include: { table: true } },
+        payments: true,
+        serviceSession: { include: { table: true } },
       },
     });
 
@@ -188,8 +188,8 @@ export async function PUT(
         include: {
           orderItems: { include: { menuItem: true, variant: true, modifiers: true } },
           statusEvents: { orderBy: { timestamp: "desc" } },
-          payment: true,
-          tableSession: { include: { table: true } },
+          payments: true,
+          serviceSession: { include: { table: true } },
         },
       });
     });

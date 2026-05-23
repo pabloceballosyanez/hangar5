@@ -69,7 +69,7 @@ export default async function OrdersPage({
     where: statusFilter ? { status: { in: statusFilter } } : {},
     orderBy: { createdAt: "desc" },
     include: {
-      tableSession: {
+      serviceSession: {
         include: { table: true },
       },
       orderItems: {
@@ -79,7 +79,7 @@ export default async function OrdersPage({
           modifiers: { select: { modifierName: true, priceDelta: true } },
         },
       },
-      payment: true,
+      payments: true,
     },
   });
 
@@ -159,11 +159,11 @@ export default async function OrdersPage({
                     <td className="py-3 px-4">
                       <div>
                         <span className="font-bold text-gray-900">
-                          {order.tableSession.table.number}
+                          {order.serviceSession.table?.number}
                         </span>
-                        {order.tableSession.table.name && (
+                        {order.serviceSession.table?.name && (
                           <span className="text-xs text-gray-400 ml-1">
-                            · {order.tableSession.table.name}
+                            · {order.serviceSession.table?.name}
                           </span>
                         )}
                       </div>

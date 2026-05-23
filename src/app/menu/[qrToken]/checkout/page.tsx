@@ -29,7 +29,7 @@ interface TableInfo {
   tableId: string;
   tableNumber: string;
   tableName: string | null;
-  tableSessionId: string;
+  serviceSessionId: string;
 }
 
 interface CustomerForm {
@@ -109,7 +109,7 @@ export default function CheckoutPage() {
 
     try {
       // Ensure we have a session; re-fetch if not cached
-      let sessionId = tableInfo?.tableSessionId ?? null;
+      let sessionId = tableInfo?.serviceSessionId ?? null;
       if (!sessionId) {
         const sessRes = await fetch(
           `/api/restaurant/session?qrToken=${encodeURIComponent(qrToken)}`,
@@ -117,7 +117,7 @@ export default function CheckoutPage() {
         );
         if (!sessRes.ok) throw new Error("No pudimos identificar tu mesa");
         const sessData = (await sessRes.json()) as TableInfo;
-        sessionId = sessData.tableSessionId;
+        sessionId = sessData.serviceSessionId;
         setTableInfo(sessData);
         try {
           localStorage.setItem("hangar5_session", JSON.stringify(sessData));
@@ -137,7 +137,7 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tableSessionId: sessionId,
+          serviceSessionId: sessionId,
           source: "QR",
           customerName: form.name.trim(),
           customerEmail: form.email.trim() || null,

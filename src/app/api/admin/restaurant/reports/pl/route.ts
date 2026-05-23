@@ -60,6 +60,7 @@ export async function GET(req: NextRequest) {
     for (const p of payments) {
       totalRevenue += p.amount;
       // Use the order's tax field as a reliable source
+      if (!p.order) continue;
       taxCollected += p.order.tax;
       for (const oi of p.order.orderItems) {
         const lineRev = oi.quantity * oi.unitPrice;
@@ -77,6 +78,7 @@ export async function GET(req: NextRequest) {
     const processedMenuItems = new Map<string, number>(); // menuItemId → totalQuantitySold
 
     for (const p of payments) {
+      if (!p.order) continue;
       for (const oi of p.order.orderItems) {
         const prev = processedMenuItems.get(oi.menuItemId) || 0;
         processedMenuItems.set(oi.menuItemId, prev + oi.quantity);

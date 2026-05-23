@@ -351,7 +351,7 @@ async function computeDailyReport(date: string): Promise<DailyReport> {
   });
 
   const taxAgg = await prisma.order.aggregate({
-    where: { createdAt: { gte: start, lte: end }, payment: { status: "COMPLETED" } },
+    where: { createdAt: { gte: start, lte: end }, payments: { some: { status: "COMPLETED" } } },
     _sum: { tax: true },
   });
 

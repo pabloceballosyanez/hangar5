@@ -86,6 +86,7 @@ async function computePLReport(monthParam: string): Promise<PLReport> {
 
   for (const p of payments) {
     totalRevenue += p.amount;
+    if (!p.order) continue;
     taxCollected += p.order.tax;
     for (const oi of p.order.orderItems) {
       const lineRev = oi.quantity * oi.unitPrice;
@@ -100,6 +101,7 @@ async function computePLReport(monthParam: string): Promise<PLReport> {
   // Ingredient cost (estimated from recipes)
   const processedMenuItems = new Map<string, number>();
   for (const p of payments) {
+    if (!p.order) continue;
     for (const oi of p.order.orderItems) {
       const prev = processedMenuItems.get(oi.menuItemId) || 0;
       processedMenuItems.set(oi.menuItemId, prev + oi.quantity);

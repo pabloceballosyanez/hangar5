@@ -115,8 +115,8 @@ export async function POST(
           orderItems: {
             include: { menuItem: true, variant: true, modifiers: true },
           },
-          payment: true,
-          tableSession: { include: { table: true } },
+          payments: true,
+          serviceSession: { include: { table: true } },
         },
       });
     });

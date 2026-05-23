@@ -102,7 +102,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Mesa no encontrada" }, { status: 404 });
     }
 
-    const openSession = await prisma.tableSession.findFirst({
+    const openSession = await prisma.serviceSession.findFirst({
       where: { tableId, status: "OPEN" },
     });
     if (openSession) {

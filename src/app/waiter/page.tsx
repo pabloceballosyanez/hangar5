@@ -11,7 +11,7 @@ interface OrderSummary {
   total:  number;
 }
 
-interface TableSession {
+interface ServiceSession {
   id:      string;
   status:  string;
   orders:  OrderSummary[];
@@ -23,7 +23,7 @@ interface Table {
   name:     string | null;
   capacity: number;
   location: string | null;
-  sessions: TableSession[];
+  sessions: ServiceSession[];
 }
 
 type TableStatus = 'free' | 'occupied' | 'waiting_payment';

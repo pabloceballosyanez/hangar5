@@ -44,7 +44,7 @@ export default async function RestaurantDashboardPage() {
           paidAt: { gte: todayStart, lt: todayEnd },
         },
       }),
-      prisma.tableSession.count({
+      prisma.serviceSession.count({
         where: { status: "OPEN" },
       }),
       prisma.staffClock.groupBy({
@@ -80,7 +80,7 @@ export default async function RestaurantDashboardPage() {
       createdAt: { gte: todayStart, lt: todayEnd },
     },
     include: {
-      tableSession: {
+      serviceSession: {
         include: {
           table: { select: { number: true, name: true } },
         },
@@ -239,7 +239,7 @@ export default async function RestaurantDashboardPage() {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="font-bold text-lg text-gray-400 shrink-0">
-                        {order.tableSession.table.number}
+                        {order.serviceSession.table?.number}
                       </span>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">

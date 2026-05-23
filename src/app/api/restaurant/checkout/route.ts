@@ -29,10 +29,10 @@ export async function POST(req: NextRequest) {
         orderItems: {
           include: { menuItem: true, variant: true, modifiers: true },
         },
-        tableSession: {
+        serviceSession: {
           include: { table: true },
         },
-        payment: true,
+        payments: true,
       },
     });
 
@@ -40,13 +40,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
     }
 
-    const qrToken = order.tableSession.table.qrToken;
+    const qrToken = order.serviceSession.table?.qrToken;
     const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
     // ── Test mode (no MP token configured) ──────────────────────────────────
     if (!process.env.MP_ACCESS_TOKEN) {
       // Upsert a PENDING payment record so the order has a payment entry
-      if (!order.payment) {
+      if (!order.payments || order.payments.length === 0) {
         await prisma.payment.create({
           data: {
             orderId: order.id,
@@ -115,9 +115,9 @@ export async function POST(req: NextRequest) {
     const initPoint = result.init_point!;
 
     // Upsert Payment record with preference ID
-    if (order.payment) {
+    if (order.payments[0]) {
       await prisma.payment.update({
-        where: { id: order.payment.id },
+        where: { id: order.payments[0].id },
         data: { mpPreferenceId: preferenceId },
       });
     } else {

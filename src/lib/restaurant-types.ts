@@ -80,8 +80,8 @@ export type StockReason = (typeof STOCK_REASONS)[number];
 // ──────────────────────────────────────────────────────────────
 // Table Session Status
 // ──────────────────────────────────────────────────────────────
-export const TABLE_SESSION_STATUSES = ['OPEN', 'CLOSED'] as const;
-export type TableSessionStatus = (typeof TABLE_SESSION_STATUSES)[number];
+export const SERVICE_SESSION_STATUSES = ['OPEN', 'CLOSED'] as const;
+export type ServiceSessionStatus = (typeof SERVICE_SESSION_STATUSES)[number];
 
 // ──────────────────────────────────────────────────────────────
 // Category Kind

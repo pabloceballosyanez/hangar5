@@ -11,7 +11,7 @@ export async function PUT(
   try {
     const { tableId, sessionId } = await params;
 
-    const session = await prisma.tableSession.findUnique({
+    const session = await prisma.serviceSession.findUnique({
       where: { id: sessionId },
       include: {
         orders: { select: { id: true, status: true } },
@@ -40,7 +40,7 @@ export async function PUT(
       );
     }
 
-    const updated = await prisma.tableSession.update({
+    const updated = await prisma.serviceSession.update({
       where: { id: sessionId },
       data: { status: "CLOSED", closedAt: new Date() },
       include: { table: true, orders: true },

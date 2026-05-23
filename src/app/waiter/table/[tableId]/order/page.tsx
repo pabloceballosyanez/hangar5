@@ -544,7 +544,7 @@ export default function WaiterOrderPage() {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tableSessionId: sessionId,
+          serviceSessionId: sessionId,
           source:         'WAITER',
           items: cart.map(item => ({
             menuItemId:          item.menuItemId,

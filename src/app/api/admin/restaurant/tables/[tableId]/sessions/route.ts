@@ -16,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: "Mesa no encontrada" }, { status: 404 });
     }
 
-    const sessions = await prisma.tableSession.findMany({
+    const sessions = await prisma.serviceSession.findMany({
       where: { tableId },
       orderBy: { openedAt: "desc" },
       include: {
@@ -51,7 +51,7 @@ export async function POST(
     }
 
     // Check for existing open session
-    const existing = await prisma.tableSession.findFirst({
+    const existing = await prisma.serviceSession.findFirst({
       where: { tableId, status: "OPEN" },
     });
     if (existing) {
@@ -61,8 +61,8 @@ export async function POST(
       );
     }
 
-    const session = await prisma.tableSession.create({
-      data: { tableId, status: "OPEN" },
+    const session = await prisma.serviceSession.create({
+      data: { tableId, status: "OPEN", type: "TABLE", label: table.name || ('Mesa ' + table.number) },
       include: { table: true },
     });
 

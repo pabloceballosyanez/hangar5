@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 const LOCATIONS = ['Interior', 'Terraza', 'Barra', 'Exterior'] as const;
 
-interface TableSession {
+interface ServiceSession {
   id: string;
   status: string;
   openedAt: string;
@@ -21,7 +21,7 @@ interface Table {
   capacity: number;
   location: string | null;
   isActive: boolean;
-  sessions: TableSession[];
+  sessions: ServiceSession[];
 }
 
 export default function EditTablePage() {
@@ -32,9 +32,9 @@ export default function EditTablePage() {
   const [number, setNumber] = useState('');
   const [name, setName] = useState('');
   const [capacity, setCapacity] = useState<number | ''>('');
-  const [location, setLocation] = useState(LOCATIONS[0]);
+  const [location, setLocation] = useState<string>(LOCATIONS[0]);
   const [isActive, setIsActive] = useState(true);
-  const [sessions, setSessions] = useState<TableSession[]>([]);
+  const [sessions, setSessions] = useState<ServiceSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);

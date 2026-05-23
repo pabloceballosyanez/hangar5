@@ -39,7 +39,7 @@ interface Order {
   total: number; // pesos
   customerName?: string | null;
   notes?: string | null;
-  tableSession: {
+  serviceSession: {
     table: {
       number: string;
       name?: string | null;
@@ -174,9 +174,9 @@ function PaymentContent() {
         <div>
           <h1 className="text-xl font-black text-gray-900">Pagar orden</h1>
           <p className="text-xs text-gray-500">
-            Mesa {order.tableSession.table.number}
-            {order.tableSession.table.name
-              ? ` · ${order.tableSession.table.name}`
+            Mesa {order.serviceSession.table?.number}
+            {order.serviceSession.table?.name
+              ? ` · ${order.serviceSession.table?.name}`
               : ""}
           </p>
         </div>
