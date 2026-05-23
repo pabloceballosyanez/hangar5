@@ -29,7 +29,7 @@ export default async function RestaurantDashboardPage() {
   const { start: todayStart, end: todayEnd } = getTodayBounds();
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
-  const [activeOrdersCount, dailySalesResult, occupiedTablesCount, staffPresentCount, totalMenuItems] =
+  const [activeOrdersCount, dailySalesResult, occupiedSessionsCount, staffPresentCount, totalMenuItems] =
     await Promise.all([
       prisma.order.count({
         where: {
@@ -37,11 +37,11 @@ export default async function RestaurantDashboardPage() {
           createdAt: { gte: todayStart, lt: todayEnd },
         },
       }),
-      prisma.payment.aggregate({
-        _sum: { amount: true },
+      prisma.order.aggregate({
+        _sum: { total: true },
         where: {
-          status: "COMPLETED",
-          paidAt: { gte: todayStart, lt: todayEnd },
+          status: "PAID",
+          createdAt: { gte: todayStart, lt: todayEnd },
         },
       }),
       prisma.serviceSession.count({
@@ -72,7 +72,7 @@ export default async function RestaurantDashboardPage() {
       }),
     ]);
 
-  const dailySales = dailySalesResult._sum.amount ?? 0;
+  const dailySales = dailySalesResult._sum.total ?? 0;
 
   // ─── Recent orders ──────────────────────────────────────────────────────────
   const recentOrders = await prisma.order.findMany({
@@ -180,20 +180,20 @@ export default async function RestaurantDashboardPage() {
           </div>
         </Link>
 
-        {/* Occupied tables */}
+        {/* Active sessions */}
         <Link
-          href="/admin/restaurant/tables"
+          href="/admin/restaurant/sessions"
           className="block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
         >
           <div className="p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">Mesas ocupadas</p>
+              <p className="text-sm font-medium text-gray-500">Tabs abiertos</p>
               <span className="w-2 h-2 rounded-full bg-amber-500" />
             </div>
             <p className="mt-2 text-3xl font-bold text-gray-900">
-              {occupiedTablesCount}/{totalTables}
+              {occupiedSessionsCount}
             </p>
-            <p className="mt-1 text-xs text-gray-400">ocupadas / total</p>
+            <p className="mt-1 text-xs text-gray-400">activos ahora</p>
           </div>
         </Link>
 
