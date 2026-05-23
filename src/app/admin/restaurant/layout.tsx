@@ -8,6 +8,7 @@ const sidebarLinks = [
   { href: '/admin/restaurant/menu-items', label: 'Menú' },
   { href: '/admin/restaurant/tables', label: 'Mesas' },
   { href: '/admin/restaurant/orders', label: 'Órdenes' },
+  { href: '/admin/restaurant/kds', label: '👨‍🍳 KDS Cocina' },
   { href: '/admin/restaurant/reports', label: 'Reportes' },
   { href: '/admin/restaurant/staff', label: 'Staff' },
 ];
