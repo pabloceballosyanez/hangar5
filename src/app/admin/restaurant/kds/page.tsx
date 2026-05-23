@@ -1,51 +1,13 @@
-import { apiUrl } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-type KdsModifier = {
-  modifierName: string;
-  priceDelta: number;
-};
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-type KdsOrderItem = {
-  id: string;
-  menuItemName: string;
-  variantName: string | null;
-  quantity: number;
-  unitPrice: number;
-  specialInstructions: string | null;
-  modifiers: KdsModifier[];
-  status: string;
-  prepStation: string;
-};
-
-type KdsOrder = {
-  id: string;
-  tableNumber: string;
-  tableName: string | null;
-  source: string;
-  status: string;
-  elapsed: number;
-  urgency: "low" | "medium" | "high";
-  items: KdsOrderItem[];
-};
-
-type KdsData = {
-  orders: KdsOrder[];
-  stations: string[];
-};
-
-async function fetchKdsData(): Promise<KdsData | null> {
-  try {
-    const res = await fetch(apiUrl("/api/admin/restaurant/kds"), {
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error("Error fetching KDS data:", err);
-    return null;
-  }
+function getUrgency(elapsedMinutes: number): "low" | "medium" | "high" {
+  if (elapsedMinutes >= 30) return "high";
+  if (elapsedMinutes >= 15) return "medium";
+  return "low";
 }
 
 const stationLabel: Record<string, string> = {
@@ -78,16 +40,81 @@ const urgencyBg: Record<string, string> = {
   high: "bg-red-500",
 };
 
-export default async function KDSPage() {
-  const data = await fetchKdsData();
+// ─── Server Component ─────────────────────────────────────────────────────────
 
-  const stationOrderMap: Record<string, KdsOrder[]> = {};
-  if (data) {
-    for (const station of data.stations) {
-      stationOrderMap[station] = data.orders.filter((o) =>
-        o.items.some((item) => item.prepStation === station)
-      );
+export default async function KDSPage() {
+  const now = Date.now();
+
+  const rawOrders = await prisma.order.findMany({
+    where: {
+      status: { in: ["PLACED", "IN_KITCHEN"] },
+    },
+    orderBy: { createdAt: "asc" }, // FIFO
+    include: {
+      tableSession: {
+        include: { table: { select: { number: true, name: true } } },
+      },
+      orderItems: {
+        where: {
+          status: { in: ["PENDING", "IN_PREP"] },
+        },
+        include: {
+          menuItem: {
+            select: { name: true, prepStation: true, estimatedPrepMinutes: true },
+          },
+          variant: { select: { name: true } },
+          modifiers: { select: { modifierName: true, priceDelta: true } },
+        },
+      },
+    },
+  });
+
+  // Build flat order list (only orders that have active items)
+  const orders = rawOrders
+    .filter((o) => o.orderItems.length > 0)
+    .map((o) => {
+      const elapsedMs = now - new Date(o.createdAt).getTime();
+      const elapsedMinutes = Math.floor(elapsedMs / 60000);
+      return {
+        id: o.id,
+        tableNumber: o.tableSession.table.number,
+        tableName: o.tableSession.table.name,
+        source: o.source,
+        status: o.status,
+        elapsed: elapsedMinutes,
+        urgency: getUrgency(elapsedMinutes),
+        items: o.orderItems.map((item) => ({
+          id: item.id,
+          menuItemName: item.menuItem.name,
+          variantName: item.variant?.name ?? null,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          specialInstructions: item.specialInstructions,
+          modifiers: item.modifiers.map((m) => ({
+            modifierName: m.modifierName,
+            priceDelta: m.priceDelta,
+          })),
+          status: item.status,
+          prepStation: item.menuItem.prepStation,
+        })),
+      };
+    });
+
+  // Collect unique stations
+  const stationSet = new Set<string>();
+  for (const order of orders) {
+    for (const item of order.items) {
+      stationSet.add(item.prepStation);
     }
+  }
+  const stations = Array.from(stationSet);
+
+  // Group orders by station
+  const stationOrderMap: Record<string, typeof orders> = {};
+  for (const station of stations) {
+    stationOrderMap[station] = orders.filter((o) =>
+      o.items.some((item) => item.prepStation === station)
+    );
   }
 
   return (
@@ -105,7 +132,7 @@ export default async function KDSPage() {
           </span>
         </div>
 
-        {!data || data.orders.length === 0 ? (
+        {orders.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-16 text-center">
             <span className="text-6xl block mb-4">✅</span>
             <p className="text-xl font-medium text-gray-600">No hay órdenes activas</p>
@@ -115,9 +142,9 @@ export default async function KDSPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {data.stations.map((station) => {
-              const orders = stationOrderMap[station] || [];
-              if (orders.length === 0) return null;
+            {stations.map((station) => {
+              const stationOrders = stationOrderMap[station] || [];
+              if (stationOrders.length === 0) return null;
 
               return (
                 <div key={station} className="space-y-3">
@@ -125,11 +152,11 @@ export default async function KDSPage() {
                     <span>{stationEmoji[station]}</span>
                     <span>{stationLabel[station] || station}</span>
                     <span className="text-sm font-normal text-gray-400">
-                      ({orders.length})
+                      ({stationOrders.length})
                     </span>
                   </h2>
 
-                  {orders.map((order) => (
+                  {stationOrders.map((order) => (
                     <div
                       key={order.id}
                       className={`rounded-xl border-2 p-4 ${

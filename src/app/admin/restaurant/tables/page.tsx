@@ -1,48 +1,24 @@
-import { apiUrl } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-type OrderBrief = {
-  id: string;
-  status: string;
-  total: number;
-};
-
-type TableSession = {
-  id: string;
-  status: string;
-  openedAt: string;
-  closedAt: string | null;
-  orders: OrderBrief[];
-};
-
-type Table = {
-  id: string;
-  number: string;
-  name: string | null;
-  qrToken: string;
-  capacity: number;
-  location: string | null;
-  isActive: boolean;
-  sessions: TableSession[];
-};
-
-async function fetchTables(): Promise<Table[]> {
-  try {
-    const res = await fetch(apiUrl("/api/admin/restaurant/tables"), {
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error("Error fetching tables:", err);
-    return [];
-  }
-}
-
 export default async function TablesPage() {
-  const tables = await fetchTables();
+  const tables = await prisma.table.findMany({
+    where: { isActive: true },
+    orderBy: { number: "asc" },
+    include: {
+      sessions: {
+        where: { status: "OPEN" },
+        take: 1,
+        include: {
+          orders: {
+            select: { id: true, status: true, total: true },
+          },
+        },
+      },
+    },
+  });
 
   return (
     <div className="space-y-6">

@@ -1,70 +1,10 @@
-import { apiUrl } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-// Types matching the API response
-type OrderItem = {
-  id: string;
-  quantity: number;
-  unitPrice: number;
-  specialInstructions: string | null;
-  status: string;
-  menuItem: { name: string; prepStation: string };
-  variant: { name: string } | null;
-  modifiers: { modifierName: string; priceDelta: number }[];
-};
-
-type Payment = {
-  amount: number;
-  method: string;
-  status: string;
-} | null;
-
-type TableInfo = {
-  number: string;
-  name: string | null;
-};
-
-type TableSession = {
-  id: string;
-  table: TableInfo;
-};
-
-type Order = {
-  id: string;
-  tableSession: TableSession;
-  customerName: string | null;
-  source: string;
-  status: string;
-  subtotal: number;
-  tax: number;
-  total: number;
-  notes: string | null;
-  createdAt: string;
-  orderItems: OrderItem[];
-  payment: Payment;
-};
-
-async function fetchOrders(status?: string): Promise<Order[]> {
-  try {
-    const params = new URLSearchParams();
-    if (status) params.set("status", status);
-    const qs = params.toString();
-    const res = await fetch(
-      apiUrl(`/api/admin/restaurant/orders${qs ? `?${qs}` : ""}`),
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error("Error fetching orders:", err);
-    return [];
-  }
-}
-
-function formatPrice(price: number): string {
-  return price.toLocaleString("es-MX", {
+function formatPrice(cents: number): string {
+  return (cents / 100).toLocaleString("es-MX", {
     style: "currency",
     currency: "MXN",
     minimumFractionDigits: 2,
@@ -97,6 +37,13 @@ const sourceLabel: Record<string, string> = {
   ADMIN: "Admin",
 };
 
+// Map tab key → Prisma status filter
+const TAB_STATUS_MAP: Record<string, string[]> = {
+  active: ["PLACED", "IN_KITCHEN", "READY", "SERVED"],
+  completed: ["PAID"],
+  cancelled: ["CANCELLED"],
+};
+
 const tabs = [
   { key: "", label: "Todas" },
   { key: "active", label: "Activas" },
@@ -116,7 +63,25 @@ export default async function OrdersPage({
       ? resolvedParams.status
       : "";
 
-  const orders = await fetchOrders(activeTab || undefined);
+  const statusFilter = TAB_STATUS_MAP[activeTab];
+
+  const orders = await prisma.order.findMany({
+    where: statusFilter ? { status: { in: statusFilter } } : {},
+    orderBy: { createdAt: "desc" },
+    include: {
+      tableSession: {
+        include: { table: true },
+      },
+      orderItems: {
+        include: {
+          menuItem: { select: { name: true, prepStation: true } },
+          variant: { select: { name: true } },
+          modifiers: { select: { modifierName: true, priceDelta: true } },
+        },
+      },
+      payment: true,
+    },
+  });
 
   return (
     <div className="space-y-6">

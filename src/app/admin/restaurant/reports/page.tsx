@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { apiUrl } from "@/lib/api";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -53,25 +52,7 @@ function sourceLabel(source: string): string {
 export default async function ReportsPage() {
   const today = new Date().toISOString().slice(0, 10);
 
-  let report: DailyReport | null = null;
-  let fetchError = "";
-
-  try {
-    // We call our own API route (server-to-server). In prod we'd use apiUrl.
-    const res = await fetch(apiUrl(`/api/admin/restaurant/reports/daily?date=${today}`));
-    if (!res.ok) {
-      fetchError = `API error: ${res.status}`;
-    } else {
-      report = await res.json();
-    }
-  } catch (e) {
-    fetchError = `Fetch failed: ${String(e)}`;
-  }
-
-  // If the API call failed, try to compute inline as fallback
-  if (!report) {
-    report = await computeDailyReport(today);
-  }
+  const report: DailyReport = await computeDailyReport(today);
 
   // Estimate margins for the card
   const estimatedTax = report.totalRevenue > 0 ? Math.round(report.totalRevenue * 0.16 / 1.16) : 0;

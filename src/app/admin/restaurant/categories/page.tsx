@@ -1,33 +1,15 @@
-import { apiUrl } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-type Category = {
-  id: string;
-  name: string;
-  kind: string;
-  sortOrder: number;
-  isActive: boolean;
-  imageUrl: string | null;
-  _count: { menuItems: number };
-};
-
-async function fetchCategories(): Promise<Category[]> {
-  try {
-    const res = await fetch(apiUrl("/api/admin/restaurant/categories"), {
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error("Error fetching categories:", err);
-    return [];
-  }
-}
-
 export default async function CategoriesPage() {
-  const categories = await fetchCategories();
+  const categories = await prisma.category.findMany({
+    orderBy: { sortOrder: "asc" },
+    include: {
+      _count: { select: { menuItems: true } },
+    },
+  });
 
   const kindLabel: Record<string, string> = {
     FOOD: "Comida",

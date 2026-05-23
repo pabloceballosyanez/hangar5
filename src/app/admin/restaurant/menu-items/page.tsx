@@ -1,68 +1,11 @@
-import { apiUrl } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import CategoryFilter from "./CategoryFilter";
 
 export const dynamic = "force-dynamic";
 
-type Variant = {
-  id: string;
-  name: string;
-  priceDelta: number;
-  isDefault: boolean;
-};
-
-type Category = {
-  id: string;
-  name: string;
-  kind: string;
-};
-
-type MenuItem = {
-  id: string;
-  name: string;
-  description: string | null;
-  basePrice: number;
-  imageUrl: string | null;
-  isActive: boolean;
-  prepStation: string;
-  sortOrder: number;
-  sku: string | null;
-  categoryId: string;
-  category: Category;
-  variants: Variant[];
-};
-
-async function fetchMenuItems(categoryId?: string): Promise<MenuItem[]> {
-  try {
-    const params = new URLSearchParams();
-    if (categoryId) params.set("categoryId", categoryId);
-    const qs = params.toString();
-    const res = await fetch(
-      apiUrl(`/api/admin/restaurant/menu-items${qs ? `?${qs}` : ""}`),
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error("Error fetching menu items:", err);
-    return [];
-  }
-}
-
-async function fetchCategories(): Promise<Category[]> {
-  try {
-    const res = await fetch(apiUrl("/api/admin/restaurant/categories"), {
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error("Error fetching categories:", err);
-    return [];
-  }
-}
-
 function formatPrice(price: number): string {
-  return price.toLocaleString("es-MX", {
+  return (price / 100).toLocaleString("es-MX", {
     style: "currency",
     currency: "MXN",
     minimumFractionDigits: 2,
@@ -81,11 +24,26 @@ export default async function MenuItemsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolvedParams = await searchParams;
-  const categoryFilter = typeof resolvedParams.categoryId === "string" ? resolvedParams.categoryId : undefined;
+  const categoryFilter =
+    typeof resolvedParams.categoryId === "string" && resolvedParams.categoryId
+      ? resolvedParams.categoryId
+      : undefined;
 
   const [items, categories] = await Promise.all([
-    fetchMenuItems(categoryFilter),
-    fetchCategories(),
+    prisma.menuItem.findMany({
+      where: {
+        isActive: true,
+        ...(categoryFilter ? { categoryId: categoryFilter } : {}),
+      },
+      include: {
+        category: true,
+        variants: true,
+      },
+      orderBy: [{ category: { sortOrder: "asc" } }, { sortOrder: "asc" }],
+    }),
+    prisma.category.findMany({
+      orderBy: { sortOrder: "asc" },
+    }),
   ]);
 
   return (
@@ -103,24 +61,7 @@ export default async function MenuItemsPage({
       {/* Filter */}
       <div className="flex items-center gap-3">
         <label className="text-sm font-medium text-gray-600">Filtrar por categoría:</label>
-        <select
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white"
-          defaultValue={categoryFilter || ""}
-          onChange={(e) => {
-            const val = e.target.value;
-            const url = val
-              ? `/admin/restaurant/menu-items?categoryId=${encodeURIComponent(val)}`
-              : "/admin/restaurant/menu-items";
-            window.location.href = url;
-          }}
-        >
-          <option value="">Todas</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+        <CategoryFilter categories={categories} currentCategoryId={categoryFilter} />
       </div>
 
       {items.length === 0 ? (
