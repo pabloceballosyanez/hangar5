@@ -4,124 +4,187 @@ import { PrismaClient } from "@prisma/client";
 const adapter = new PrismaBetterSqlite3({ url: "file:./prisma/dev.db" });
 const prisma = new PrismaClient({ adapter });
 
-/**
- * Seeding strategy:
- * source.unsplash.com (deprecated, 503) and the official Unsplash API
- * both require an API key or are unavailable. We use picsum.photos which
- * serves the SAME Unsplash photos (cached) via seed-based deterministic URLs.
- * Each item gets a unique beautiful photo for their menu card.
- */
+const UNSPLASH_ACCESS_KEY = "lyrpZlb-19TwOvl_IFgy1JnW2dgTgQwQWmOzZJ9YG5o";
 
-// Seed strings that capture the item's spirit
-const ITEM_SEEDS: Record<string, string> = {
-  // BEBIDAS NO ALCOHÓLICAS
-  "Café americano": "coffee-cinematic",
-  "Jugo de naranja": "orange-juice-fresh",
-  "Leche": "milk-glass-vintage",
-  "Chocolate": "hot-chocolate-cozy",
-  "Té": "tea-ceremony-elegant",
-  "Refresco": "craft-soda-bubbles",
-  "Agua mineral": "mineral-water-sparkling",
-
-  // BEBIDAS ALCOHÓLICAS
-  "Cerveza": "craft-beer-amber",
-  "Mojito": "mojito-cocktail-fresh",
-  "Paloma": "paloma-grapefruit-sunset",
-  "Whisky": "whiskey-moody-lighting",
-
-  // DESAYUNOS
-  "Fruta con granola": "granola-bowl-fruit",
-  "Chilaquiles verdes": "chilaquiles-mexican",
-  "Huevos al gusto": "eggs-breakfast-rustic",
-  "Smoothie Choco-Banana": "chocolate-smoothie",
-  "Smoothie Berry Antiox": "berry-smoothie-vibrant",
-  "Smoothie Verde Detox": "green-smoothie-fresh",
-
-  // ENTRADAS
-  "Guacamole": "guacamole-mexican",
-  "Aceitunas": "olives-mediterranean",
-  "Quesadillas": "quesadilla-mexican",
-  "Empanadas": "empanadas-golden",
-  "Verduritas": "vegetable-platter-colorful",
-
-  // ENSALADAS
-  "Tropical": "tropical-salad-mango",
-  "Capresse": "caprese-salad-italian",
-  "Mixta": "mixed-salad-garden",
-
-  // POSTRES
-  "Eccle": "eclair-chocolate-pastry",
-  "Panqué": "pancake-stack-syrup",
-  "Pizza de Nutella": "nutella-pizza-dessert",
-
-  // PIZZAS
-  "Margarita": "margherita-pizza-basil",
-  "Champiñones": "mushroom-pizza-rustic",
-  "Pepperoni": "pepperoni-pizza-classic",
-  "Vegetariana": "vegetarian-pizza-artisan",
-  "Tomate deshidratado": "sun-dried-tomato-pizza",
-  "Prosciutto": "prosciutto-pizza-arugula",
+const QUERIES: Record<string, string> = {
+  "Café americano": "artisan coffee pour over cinematic",
+  "Jugo de naranja": "fresh orange juice morning light",
+  "Leche": "fresh milk glass farm rustic",
+  "Chocolate": "hot chocolate artisan cozy",
+  "Té": "tea ceremony elegant warm",
+  "Refresco": "craft soda glass bubbles summer",
+  "Agua mineral": "sparkling mineral water ice",
+  "Cerveza": "craft beer amber golden hour",
+  "Mojito": "mojito cocktail mint fresh",
+  "Paloma": "paloma cocktail grapefruit pink",
+  "Whisky": "whiskey glass moody lighting cinematic",
+  "Fruta con granola": "granola bowl fruit colorful top view",
+  "Chilaquiles verdes": "chilaquiles mexican authentic green salsa",
+  "Huevos al gusto": "eggs breakfast rustic farm",
+  "Smoothie Choco-Banana": "chocolate banana smoothie dark",
+  "Smoothie Berry Antiox": "berry smoothie purple vibrant",
+  "Smoothie Verde Detox": "green smoothie fresh detox healthy",
+  "Guacamole": "guacamole mexican avocado stone table",
+  "Aceitunas": "olives mediterranean wood bowl",
+  "Quesadillas": "quesadilla mexican cheese pull",
+  "Empanadas": "empanadas argentinian golden baked",
+  "Verduritas": "vegetable platter colorful organic rustic",
+  "Tropical": "tropical salad mango colorful fresh",
+  "Capresse": "caprese salad italian basil mozzarella",
+  "Mixta": "mixed salad fresh garden greens",
+  "Eccle": "chocolate eclair pastry french gourmet",
+  "Panqué": "pancakes stack syrup golden breakfast",
+  "Pizza de Nutella": "nutella dessert pizza sweet chocolate",
+  "Margarita": "margherita pizza italian basil authentic",
+  "Champiñones": "mushroom pizza rustic wood fired",
+  "Pepperoni": "pepperoni pizza dramatic lighting cheese",
+  "Vegetariana": "vegetarian pizza colorful vegetables artisan",
+  "Tomate deshidratado": "sun dried tomato pizza gourmet italian",
+  "Prosciutto": "prosciutto pizza arugula premium italian",
 };
 
-function getSeed(name: string): string {
-  return ITEM_SEEDS[name] ?? name.toLowerCase().replace(/\s+/g, "-");
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function resolveImageUrl(name: string): Promise<string | null> {
-  const seed = getSeed(name);
-  const url = `https://picsum.photos/seed/${encodeURIComponent(seed)}/800/600`;
+interface UnsplashResult {
+  urls: { regular: string; small: string; raw: string };
+  alt_description: string | null;
+  user: { name: string; links: { html: string } };
+}
+
+async function searchUnsplash(query: string, itemName: string): Promise<{
+  imageUrl: string | null;
+  credit: string | null;
+}> {
+  const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
+    query
+  )}&client_id=${UNSPLASH_ACCESS_KEY}&per_page=1&orientation=landscape`;
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const response = await fetch(url, { redirect: "follow" });
-      if (response.ok) {
-        return response.url; // final URL from picsum CDN
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
+          "Accept-Version": "v1",
+        },
+      });
+
+      if (res.status === 403) {
+        const body = await res.text();
+        console.warn(`  ⚠️  403 Forbidden for "${itemName}": ${body.substring(0, 200)}`);
+        return { imageUrl: null, credit: null };
       }
-      console.warn(`  ⚠️  HTTP ${response.status} for "${name}", attempt ${attempt + 1}`);
+
+      if (res.status === 429) {
+        const retryAfter = parseInt(res.headers.get("Retry-After") || "60", 10);
+        console.warn(`  ⚠️  Rate limited! Waiting ${retryAfter}s...`);
+        await sleep(retryAfter * 1000);
+        continue;
+      }
+
+      if (!res.ok) {
+        console.warn(
+          `  ⚠️  HTTP ${res.status} for "${itemName}", attempt ${attempt + 1}`
+        );
+        if (attempt < 2) {
+          await sleep(2000);
+          continue;
+        }
+        return { imageUrl: null, credit: null };
+      }
+
+      const data = await res.json();
+      const results: UnsplashResult[] = data.results;
+
+      if (!results || results.length === 0) {
+        console.warn(`  ⚠️  No results for "${itemName}"`);
+        return { imageUrl: null, credit: null };
+      }
+
+      const photo = results[0];
+      // Use the regular URL and append attribution params
+      let imageUrl = photo.urls.regular;
+      // Ensure utm params for proper Unsplash attribution
+      const utmParams = `utm_source=Hangar5&utm_medium=referral`;
+      if (imageUrl.includes("?")) {
+        imageUrl += `&${utmParams}`;
+      } else {
+        imageUrl += `?${utmParams}`;
+      }
+
+      const credit = `Photo by ${photo.user.name} on Unsplash (${photo.user.links.html})`;
+
+      return { imageUrl, credit };
     } catch (err) {
-      console.warn(`  ⚠️  Fetch error for "${name}": ${err}, attempt ${attempt + 1}`);
+      console.warn(`  ⚠️  Fetch error for "${itemName}": ${err}, attempt ${attempt + 1}`);
+      if (attempt < 2) {
+        await sleep(2000);
+      }
     }
-    if (attempt < 2) await new Promise((r) => setTimeout(r, 1000));
   }
-  return null;
+
+  return { imageUrl: null, credit: null };
 }
 
 async function main() {
-  console.log("📸 Seeding menu item images from Unsplash (via Picsum)...\n");
-  console.log("  ℹ️  Picsum caches real Unsplash photos by seed\n");
-
+  // Idempotent check — skip if images already seeded
+  const alreadyDone = await prisma.menuItem.count({
+    where: { imageUrl: { not: null, contains: "images.unsplash.com" } }
+  });
+  if (alreadyDone >= 30) {
+    console.log(`⚠️ ${alreadyDone} items ya tienen fotos de Unsplash, saltando`);
+    return;
+  }
+  console.log("📸 Seeding real Unsplash food photos for Hangar 5 menu...\n");
   const items = await prisma.menuItem.findMany({
-    where: { imageUrl: null },
     select: { id: true, name: true },
     orderBy: [{ categoryId: "asc" }, { sortOrder: "asc" }],
   });
 
-  console.log(`  Found ${items.length} items without images\n`);
+  console.log(`  Found ${items.length} menu items\n`);
 
   let ok = 0;
   let fail = 0;
+  let cached = 0;
 
   for (const item of items) {
-    process.stdout.write(`  📷 ${item.name}... `);
-    const imageUrl = await resolveImageUrl(item.name);
+    const query = QUERIES[item.name];
+    if (!query) {
+      console.log(`  ❓ ${item.name} → no query defined, skipping`);
+      fail++;
+      continue;
+    }
+
+    process.stdout.write(`  📷 ${item.name.padEnd(28)} `);
+    const { imageUrl, credit } = await searchUnsplash(query, item.name);
 
     if (imageUrl) {
       await prisma.menuItem.update({
         where: { id: item.id },
         data: { imageUrl },
       });
-      console.log(`✅ saved`);
+      const shortUrl =
+        imageUrl.length > 60
+          ? imageUrl.substring(0, 57) + "..."
+          : imageUrl;
+      console.log(`✅`);
+      console.log(`     ${shortUrl}`);
+      console.log(`     📸 ${credit}`);
       ok++;
     } else {
-      console.log("❌ failed");
+      console.log(`❌`);
       fail++;
     }
 
-    // Be kind to the server
-    await new Promise((r) => setTimeout(r, 300));
+    // Wait 1.5s between requests to respect rate limit
+    if (ok + fail < items.length) {
+      await sleep(1500);
+    }
   }
 
-  console.log(`\n📊 Done: ${ok} images saved, ${fail} failed`);
+  console.log(`\n📊 Done: ${ok} images saved, ${fail} failed${cached > 0 ? `, ${cached} cached` : ""}`);
+  console.log(`\n🔗 Photographer credits are embedded in the URLs (utm_source=Hangar5&utm_medium=referral)`);
 }
 
 main()
