@@ -88,14 +88,14 @@ function OrderDetailSheet({ order, onClose }: { order: Order; onClose: () => voi
                 {item.modifiers.map(m => <p key={m.id} className="text-xs text-slate-500">+ {m.modifierName}</p>)}
                 {item.specialInstructions && <p className="text-xs text-amber-400/70 italic mt-0.5">"{item.specialInstructions}"</p>}
               </div>
-              <p className="text-white text-sm font-mono shrink-0">{fmt(item.unitPrice * item.quantity)}</p>
+              <p className="text-white text-sm font-mono shrink-0">{fmt(item.unitPrice * item.quantity / 100)}</p>
             </div>
           ))}
         </div>
         <div className="px-5 py-4 border-t border-slate-800 space-y-1">
-          <div className="flex justify-between text-sm text-slate-400"><span>Subtotal</span><span>{fmt(order.subtotal)}</span></div>
-          <div className="flex justify-between text-sm text-slate-400"><span>IVA (16%)</span><span>{fmt(order.tax)}</span></div>
-          <div className="flex justify-between font-bold text-white text-base pt-1 border-t border-slate-700"><span>Total</span><span className="text-amber-400">{fmt(order.total)}</span></div>
+          <div className="flex justify-between text-sm text-slate-400"><span>Subtotal</span><span>{fmt(order.subtotal / 100)}</span></div>
+          <div className="flex justify-between text-sm text-slate-400"><span>IVA (16%)</span><span>{fmt(order.tax / 100)}</span></div>
+          <div className="flex justify-between font-bold text-white text-base pt-1 border-t border-slate-700"><span>Total</span><span className="text-amber-400">{fmt(order.total / 100)}</span></div>
         </div>
       </div>
     </div>
