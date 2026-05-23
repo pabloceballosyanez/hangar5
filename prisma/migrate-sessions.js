@@ -130,5 +130,15 @@ db.exec(`
 // Drop old TableSession table so prisma db push doesn't complain
 db.exec('DROP TABLE IF EXISTS "TableSession";');
 
+// Fix old PENDING payments on PAID orders → mark as COMPLETED
+db.exec(`
+  UPDATE Payment 
+  SET status = 'COMPLETED', paidAt = COALESCE(paidAt, datetime('now'))
+  WHERE status = 'PENDING' 
+  AND orderId IN (SELECT id FROM "Order" WHERE status = 'PAID')
+`);
+const fixed = db.prepare('SELECT changes() as c').get();
+console.log('Fixed ' + fixed.c + ' pending payments → COMPLETED');
+
 console.log('✅ Migration complete');
 db.close();

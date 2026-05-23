@@ -79,7 +79,8 @@ export async function PUT(
             orderId,
             amount: order.total,
             method: "CASH",
-            status: "PENDING",
+            status: "COMPLETED",
+            paidAt: new Date(),
           },
         });
       }
