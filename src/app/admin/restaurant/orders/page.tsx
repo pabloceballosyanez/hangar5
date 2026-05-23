@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-function formatPrice(cents: number): string {
-  return (cents / 100).toLocaleString("es-MX", {
+function formatPrice(pesos: number): string {
+  return pesos.toLocaleString("es-MX", {
     style: "currency",
     currency: "MXN",
     minimumFractionDigits: 2,

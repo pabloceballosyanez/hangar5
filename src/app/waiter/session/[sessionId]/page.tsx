@@ -53,7 +53,7 @@ function OrderCard({ summary, onExpand }: {
         <p className={`text-sm font-semibold ${st.color}`}>{st.label}</p>
       </div>
       <div className="text-right">
-        <p className="text-white font-bold">{fmt(summary.total / 100)}</p>
+        <p className="text-white font-bold">{fmt(summary.total)}</p>
         <p className="text-xs text-slate-500 mt-0.5">Ver detalle ›</p>
       </div>
     </button>
@@ -93,9 +93,9 @@ function OrderDetailSheet({ order, onClose }: { order: Order; onClose: () => voi
           ))}
         </div>
         <div className="px-5 py-4 border-t border-slate-800 space-y-1">
-          <div className="flex justify-between text-sm text-slate-400"><span>Subtotal</span><span>{fmt(order.subtotal / 100)}</span></div>
-          <div className="flex justify-between text-sm text-slate-400"><span>IVA (16%)</span><span>{fmt(order.tax / 100)}</span></div>
-          <div className="flex justify-between font-bold text-white text-base pt-1 border-t border-slate-700"><span>Total</span><span className="text-amber-400">{fmt(order.total / 100)}</span></div>
+          <div className="flex justify-between text-sm text-slate-400"><span>Subtotal</span><span>{fmt(order.subtotal)}</span></div>
+          <div className="flex justify-between text-sm text-slate-400"><span>IVA (16%)</span><span>{fmt(order.tax)}</span></div>
+          <div className="flex justify-between font-bold text-white text-base pt-1 border-t border-slate-700"><span>Total</span><span className="text-amber-400">{fmt(order.total)}</span></div>
         </div>
       </div>
     </div>
@@ -147,13 +147,13 @@ function CuentaSheet({ session, onClose, onPaid }: { session: Session; onClose: 
             {activeOrders.map((o, i) => (
               <div key={o.id} className="flex justify-between text-sm">
                 <span className="text-slate-400">Orden {i + 1} — {STATUS_LABELS[o.status]?.label ?? o.status}</span>
-                <span className="text-white">{fmt(o.total / 100)}</span>
+                <span className="text-white">{fmt(o.total)}</span>
               </div>
             ))}
           </div>
           <div className="border-t border-slate-700 pt-3 flex justify-between">
             <span className="font-bold text-white text-lg">Total</span>
-            <span className="font-black text-amber-400 text-2xl font-mono">{fmt(grandTotal / 100)}</span>
+            <span className="font-black text-amber-400 text-2xl font-mono">{fmt(grandTotal)}</span>
           </div>
           {paid ? (
             <div className="mt-4 p-4 bg-emerald-950/50 border border-emerald-700/40 rounded-xl text-center">
@@ -278,7 +278,7 @@ export default function WaiterSessionPage() {
         </div>
         {grandTotal > 0 && (
           <button onClick={() => setShowCuenta(true)} className="text-sm bg-amber-500/20 border border-amber-500/30 text-amber-400 px-3 py-1.5 rounded-lg font-semibold">
-            ${(grandTotal / 100).toFixed(0)}
+            ${grandTotal.toFixed(0)}
           </button>
         )}
       </header>
@@ -311,7 +311,7 @@ export default function WaiterSessionPage() {
           {grandTotal > 0 && (
             <button onClick={() => setShowCuenta(true)}
               className="w-full min-h-[56px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
-              <span>💳</span><span>Ver cuenta · {fmt(grandTotal / 100)}</span>
+              <span>💳</span><span>Ver cuenta · {fmt(grandTotal)}</span>
             </button>
           )}
           <button onClick={closeSession} disabled={closing}
