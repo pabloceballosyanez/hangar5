@@ -261,20 +261,20 @@ export default async function Home() {
               </Link>
             </div>
 
-            {/* Decorativo */}
+            {/* Imágenes del menú */}
             <div className="relative">
               <div className="grid grid-cols-2 gap-4">
-                <div className="aspect-square bg-gradient-to-br from-[#b88364]/20 to-[#b88364]/5 rounded-lg flex items-center justify-center text-5xl">
-                  🍽️
+                <div className="aspect-square rounded-lg overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&fit=crop" alt="Pizza artesanal" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
-                <div className="aspect-square bg-gradient-to-br from-[#1b4235]/10 to-[#1b4235]/5 rounded-lg flex items-center justify-center text-5xl">
-                  🌶️
+                <div className="aspect-square rounded-lg overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&fit=crop" alt="Ensalada fresca" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
-                <div className="aspect-square bg-gradient-to-br from-[#1b4235]/10 to-[#1b4235]/5 rounded-lg flex items-center justify-center text-5xl">
-                  🥘
+                <div className="aspect-square rounded-lg overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1599789197514-47243cd790b1?w=400&fit=crop" alt="Chilaquiles" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
-                <div className="aspect-square bg-gradient-to-br from-[#b88364]/20 to-[#b88364]/5 rounded-lg flex items-center justify-center text-5xl">
-                  🍷
+                <div className="aspect-square rounded-lg overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1676105797000-327d83ac06ab?w=400&fit=crop" alt="Mojito" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
               </div>
             </div>
