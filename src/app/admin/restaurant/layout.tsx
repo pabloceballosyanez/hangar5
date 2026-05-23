@@ -38,6 +38,14 @@ export default function RestaurantLayout({
           >
             ← Volver al admin
           </Link>
+          <a
+            href="/waiter/login"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm bg-[#b88364] text-white px-3 py-1.5 rounded-lg hover:bg-[#a07550] transition-colors font-medium"
+          >
+            📱 Mesero
+          </a>
         </div>
       </header>
 
