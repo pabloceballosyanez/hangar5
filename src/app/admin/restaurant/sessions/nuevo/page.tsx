@@ -11,27 +11,17 @@ interface Customer {
   balance: number;
 }
 
-interface Table {
-  id: string;
-  number: string;
-  name: string | null;
-  location: string | null;
-  isActive: boolean;
-}
-
 export default function NuevoTabPage() {
   const router = useRouter();
 
   const [tabType, setTabType] = useState('TAB');
   const [label, setLabel] = useState('');
-  const [tableId, setTableId] = useState('');
   const [customerSearch, setCustomerSearch] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [tables, setTables] = useState<Table[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,10 +29,6 @@ export default function NuevoTabPage() {
     fetch('/api/admin/restaurant/customers')
       .then(r => r.json())
       .then(data => setCustomers(Array.isArray(data) ? data : []))
-      .catch(() => {});
-    fetch('/api/admin/restaurant/tables')
-      .then(r => r.json())
-      .then(data => setTables(Array.isArray(data) ? data : []))
       .catch(() => {});
   }, []);
 
@@ -53,7 +39,6 @@ export default function NuevoTabPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!label.trim()) { setError('La etiqueta es requerida'); return; }
-    if (tabType === 'TABLE' && !tableId) { setError('Selecciona una mesa'); return; }
 
     setSaving(true);
     setError(null);
@@ -64,7 +49,6 @@ export default function NuevoTabPage() {
         body: JSON.stringify({
           type: tabType,
           label: label.trim(),
-          tableId: tabType === 'TABLE' ? tableId : null,
           customerId: selectedCustomer?.id || null,
           customerName: selectedCustomer ? null : customerName.trim() || null,
           customerPhone: selectedCustomer ? null : customerPhone.trim() || null,
@@ -91,9 +75,8 @@ export default function NuevoTabPage() {
         {/* Type selector */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {[
-              { key: 'TABLE', label: '🪑 Mesa', desc: 'Con mesa física' },
               { key: 'TAB', label: '👤 Tab', desc: 'Persona con cuenta' },
               { key: 'WALKIN', label: '🚶 Walk-in', desc: 'Anónimo rápido' },
             ].map(t => (
@@ -121,30 +104,11 @@ export default function NuevoTabPage() {
             type="text"
             value={label}
             onChange={e => setLabel(e.target.value)}
-            placeholder={tabType === 'TABLE' ? 'Ej: Mesa terraza' : 'Ej: Grupo Juan'}
+            placeholder={'Ej: Juan P., Mesa terraza, Grupo verde'}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             required
           />
         </div>
-
-        {/* Table selector (only for TABLE type) */}
-        {tabType === 'TABLE' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mesa</label>
-            <select
-              value={tableId}
-              onChange={e => setTableId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              <option value="">Seleccionar mesa...</option>
-              {tables.filter(t => t.isActive).map(t => (
-                <option key={t.id} value={t.id}>
-                  {t.number} {t.name ? `· ${t.name}` : ''} {t.location ? `(${t.location})` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
 
         {/* Customer search */}
         <div>

@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 const sidebarLinks = [
   { href: '/admin/restaurant/categories', label: 'Categorías' },
   { href: '/admin/restaurant/menu-items', label: 'Menú' },
-  { href: '/admin/restaurant/tables', label: 'Mesas' },
   { href: '/admin/restaurant/sessions', label: 'Tabs' },
   { href: '/admin/restaurant/customers', label: 'Clientes' },
   { href: '/admin/restaurant/orders', label: 'Órdenes' },
