@@ -466,7 +466,6 @@ export default function WaiterOrderPage() {
         setCurrentSessionId(sessData.id);
         setTableNumber(sessData.label);
         if (menuData.length > 0) setActiveCategory(menuData[0].id);
-        if (menuData.length > 0) setActiveCategory(menuData[0].id);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Error desconocido');
       } finally {
@@ -532,7 +531,8 @@ export default function WaiterOrderPage() {
 
   // ── Send to kitchen ──
   const sendToKitchen = useCallback(async () => {
-    if (!currentSessionId || cart.length === 0) return;
+    if (!currentSessionId) { setToast({ msg: 'Error: sesión no cargada. Recarga la página.', type: 'error' }); return; }
+    if (cart.length === 0) return;
     setSending(true);
     try {
       // 1. Create the order (WAITER source → DRAFT)
