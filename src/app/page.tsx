@@ -8,6 +8,8 @@ function formatPrice(cents: number) {
   return (cents / 100).toLocaleString("es-MX");
 }
 
+import LandingNav from "@/components/LandingNav";
+
 export default async function Home() {
   const featured = await prisma.item.findMany({ where: { featured: true, active: true } });
   const cabanas = await prisma.item.findMany({ where: { type: "cabana", active: true } });
@@ -20,21 +22,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-[#faf7f5]">
-      {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 mix-blend-difference text-white">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          <Link href="/" className="text-lg font-semibold tracking-[0.3em] uppercase">Hangar 5</Link>
-          <div className="hidden md:flex gap-10 text-xs tracking-[0.2em] uppercase">
-            <a href="#cabanas" className="hover:opacity-70 transition-opacity">Cabañas</a>
-            <a href="#glampings" className="hover:opacity-70 transition-opacity">Glampings</a>
-            <a href="#actividades" className="hover:opacity-70 transition-opacity">Actividades</a>
-            <a href="#renta" className="hover:opacity-70 transition-opacity">Renta</a>
-            <a href="#restaurante" className="hover:opacity-70 transition-opacity">Restaurante</a>
-            <a href="#contacto" className="hover:opacity-70 transition-opacity">Contacto</a>
-          </div>
-          <Link href="/admin" className="text-xs tracking-[0.2em] uppercase opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
-        </div>
-      </nav>
+      <LandingNav />
 
       {/* Hero */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
