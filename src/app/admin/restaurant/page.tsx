@@ -86,7 +86,6 @@ export default async function RestaurantDashboardPage() {
         },
       },
       orderItems: {
-        take: 3,
         include: {
           menuItem: { select: { name: true } },
         },
@@ -104,7 +103,6 @@ export default async function RestaurantDashboardPage() {
     include: {
       sessions: {
         where: { status: "OPEN" },
-        take: 1,
         include: {
           orders: { select: { id: true, status: true, total: true } },
         },
