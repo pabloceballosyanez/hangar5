@@ -195,7 +195,7 @@ export default function KDSPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">🍽️ KDS — Cocina</h1>
         <span className="text-xs text-gray-400">
-          Auto-refresh cada 10s · {lastRefresh.toLocaleTimeString('es-MX')}
+          Auto-refresh cada 10s · {typeof window !== 'undefined' ? lastRefresh.toLocaleTimeString('es-MX') : '---'}
         </span>
       </div>
 
