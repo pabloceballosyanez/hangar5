@@ -271,10 +271,10 @@ export default async function Home() {
                   <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&fit=crop" alt="Ensalada fresca" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1599789197514-47243cd790b1?w=400&fit=crop" alt="Chilaquiles" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="https://images.unsplash.com/photo-1599789197514-47270cd526b4?w=400&fit=crop" alt="Chilaquiles" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1676105797000-327d83ac06ab?w=400&fit=crop" alt="Mojito" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="https://images.unsplash.com/photo-1676105797000-323c37de780c?w=400&fit=crop" alt="Mojito" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
               </div>
             </div>
