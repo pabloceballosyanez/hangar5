@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/prisma";
-import Link from "next/link";
+'use client';
 
-export const dynamic = "force-dynamic";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 function formatPrice(cents: number): string {
   return (cents / 100).toLocaleString("es-MX", {
@@ -37,13 +37,6 @@ const sourceLabel: Record<string, string> = {
   ADMIN: "Admin",
 };
 
-// Map tab key → Prisma status filter
-const TAB_STATUS_MAP: Record<string, string[]> = {
-  active: ["PLACED", "IN_KITCHEN", "READY", "SERVED"],
-  completed: ["PAID"],
-  cancelled: ["CANCELLED"],
-};
-
 const tabs = [
   { key: "", label: "Todas" },
   { key: "active", label: "Activas" },
@@ -51,81 +44,112 @@ const tabs = [
   { key: "cancelled", label: "Canceladas" },
 ] as const;
 
-export default async function OrdersPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const resolvedParams = await searchParams;
-  const activeTab =
-    typeof resolvedParams.status === "string" &&
-    ["active", "completed", "cancelled"].includes(resolvedParams.status)
-      ? resolvedParams.status
-      : "";
+// API filters map to status arrays for client-side filtering
+const TAB_FILTER: Record<string, string[]> = {
+  active: ["PLACED", "IN_KITCHEN", "READY", "SERVED"],
+  completed: ["PAID"],
+  cancelled: ["CANCELLED"],
+};
 
-  const statusFilter = TAB_STATUS_MAP[activeTab];
+interface OrderItem {
+  id: string;
+  quantity: number;
+  menuItem: { name: string; prepStation: string };
+  variant: { name: string } | null;
+  modifiers: { modifierName: string; priceDelta: number }[];
+  specialInstructions: string | null;
+}
 
-  const orders = await prisma.order.findMany({
-    where: statusFilter ? { status: { in: statusFilter } } : {},
-    orderBy: { createdAt: "desc" },
-    include: {
-      serviceSession: {
-        include: { table: true },
-      },
-      orderItems: {
-        include: {
-          menuItem: { select: { name: true, prepStation: true } },
-          variant: { select: { name: true } },
-          modifiers: { select: { modifierName: true, priceDelta: true } },
-        },
-      },
-      payments: true,
-    },
-  });
+interface Order {
+  id: string;
+  serviceSession: { table: { number: string; name: string | null } | null };
+  customerName: string | null;
+  source: string;
+  status: string;
+  total: number;
+  subtotal: number;
+  tax: number;
+  createdAt: string;
+  orderItems: OrderItem[];
+}
+
+export default function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [activeTab, setActiveTab] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchOrders() {
+      try {
+        const res = await fetch("/api/admin/restaurant/orders");
+        if (!res.ok || cancelled) return;
+        let data: Order[] = await res.json();
+        if (!cancelled) {
+          // Client-side filter
+          const statusFilter = TAB_FILTER[activeTab];
+          if (statusFilter) {
+            data = data.filter(o => statusFilter.includes(o.status));
+          }
+          setOrders(data);
+        }
+      } catch {
+        // keep old data on error
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    setLoading(true);
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 30000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [activeTab]);
+
+  const emptyMessage = activeTab === "active"
+    ? "No hay órdenes activas en este momento."
+    : activeTab === "completed"
+    ? "No hay órdenes completadas."
+    : activeTab === "cancelled"
+    ? "No hay órdenes canceladas."
+    : "Aún no se han registrado órdenes.";
 
   return (
     <div className="space-y-6">
-      <head>
-        <meta httpEquiv="refresh" content="30" />
-      </head>
-
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Órdenes</h1>
-        <span className="text-xs text-gray-400">Auto-refresh cada 30s</span>
+        <span className="text-xs text-gray-400">
+          Actualización automática cada 30s
+        </span>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-gray-200">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key;
-          const href = tab.key
-            ? `/admin/restaurant/orders?status=${tab.key}`
-            : "/admin/restaurant/orders";
-          return (
-            <Link
-              key={tab.key}
-              href={href}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                isActive
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === tab.key
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Orders */}
-      {orders.length === 0 ? (
+      {loading ? (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
+          <p className="text-gray-400 text-sm">Cargando órdenes...</p>
+        </div>
+      ) : orders.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
           <p className="text-gray-400 text-lg">No hay órdenes</p>
-          <p className="text-gray-400 text-sm mt-1">
-            {activeTab === "active"
-              ? "No hay órdenes activas en este momento."
-              : "Aún no se han registrado órdenes."}
-          </p>
+          <p className="text-gray-400 text-sm mt-1">{emptyMessage}</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -159,11 +183,11 @@ export default async function OrdersPage({
                     <td className="py-3 px-4">
                       <div>
                         <span className="font-bold text-gray-900">
-                          {order.serviceSession.table?.number}
+                          {order.serviceSession?.table?.number || "—"}
                         </span>
-                        {order.serviceSession.table?.name && (
+                        {order.serviceSession?.table?.name && (
                           <span className="text-xs text-gray-400 ml-1">
-                            · {order.serviceSession.table?.name}
+                            · {order.serviceSession.table.name}
                           </span>
                         )}
                       </div>
@@ -186,7 +210,7 @@ export default async function OrdersPage({
                             {item.variant && (
                               <span className="text-gray-500"> ({item.variant.name})</span>
                             )}
-                            {item.modifiers.length > 0 && (
+                            {item.modifiers && item.modifiers.length > 0 && (
                               <span className="text-gray-400">
                                 {" "}
                                 · {item.modifiers.map((m) => m.modifierName).join(", ")}
