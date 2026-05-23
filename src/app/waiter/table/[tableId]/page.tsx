@@ -159,15 +159,57 @@ function OrderDetailSheet({
 
 // ── Cuenta sheet ──────────────────────────────────────────────────────────────
 
+const STATUS_PATH_TO_PAID = ['DRAFT', 'PLACED', 'IN_KITCHEN', 'READY', 'SERVED', 'PAID'];
+
+async function advanceOrderToPaid(orderId: string, currentStatus: string): Promise<void> {
+  const startIdx = STATUS_PATH_TO_PAID.indexOf(currentStatus);
+  if (startIdx === -1 || currentStatus === 'PAID' || currentStatus === 'CANCELLED') return;
+  for (let i = startIdx + 1; i < STATUS_PATH_TO_PAID.length; i++) {
+    const nextStatus = STATUS_PATH_TO_PAID[i];
+    const res = await fetch(`/api/admin/restaurant/orders/${orderId}/status`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ status: nextStatus }),
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error((d as { error?: string }).error ?? `Error al actualizar orden a ${nextStatus}`);
+    }
+    if (nextStatus === 'PAID') break;
+  }
+}
+
 function CuentaSheet({
   session,
   onClose,
+  onPaid,
 }: {
   session: TableSession;
   onClose: () => void;
+  onPaid:  () => void;
 }) {
+  const [paying,   setPaying]   = useState(false);
+  const [paid,     setPaid]     = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+
   const activeOrders = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
   const grandTotal   = activeOrders.reduce((s, o) => s + o.total, 0);
+
+  const handlePay = async (_method: 'CASH' | 'CARD') => {
+    setPaying(true);
+    setPayError(null);
+    try {
+      for (const order of activeOrders) {
+        await advanceOrderToPaid(order.id, order.status);
+      }
+      setPaid(true);
+      onPaid();
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : 'Error al procesar pago');
+    } finally {
+      setPaying(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
@@ -190,9 +232,46 @@ function CuentaSheet({
             <span className="font-bold text-white text-lg">Total</span>
             <span className="font-black text-amber-400 text-2xl font-mono">{fmt(grandTotal / 100)}</span>
           </div>
-          <p className="text-xs text-slate-500 mt-3 text-center">
-            Procesa el pago en el sistema de caja
-          </p>
+
+          {paid ? (
+            <div className="mt-4 p-4 bg-emerald-950/50 border border-emerald-700/40 rounded-xl text-center">
+              <p className="text-emerald-400 font-bold text-lg">✅ Cobrado</p>
+              <p className="text-xs text-emerald-600 mt-1">Pago procesado exitosamente</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-xs text-slate-500 mt-3 mb-3 text-center">
+                Selecciona método de pago
+              </p>
+              {payError && (
+                <p className="text-sm text-red-400 text-center mb-3">{payError}</p>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => handlePay('CASH')}
+                  disabled={paying || activeOrders.length === 0}
+                  className="min-h-[60px] bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+                >
+                  <span className="text-2xl">💵</span>
+                  <span className="text-sm">Efectivo</span>
+                </button>
+                <button
+                  onClick={() => handlePay('CARD')}
+                  disabled={paying || activeOrders.length === 0}
+                  className="min-h-[60px] bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+                >
+                  <span className="text-2xl">💳</span>
+                  <span className="text-sm">Tarjeta</span>
+                </button>
+              </div>
+              {paying && (
+                <p className="text-center text-sm text-slate-400 mt-3 animate-pulse">
+                  Procesando pago…
+                </p>
+              )}
+            </>
+          )}
+
           <button
             onClick={onClose}
             className="w-full mt-4 py-4 bg-slate-800 text-white rounded-xl font-semibold active:scale-95 transition-all"
@@ -445,7 +524,7 @@ export default function WaiterTablePage() {
 
       {/* Cuenta sheet */}
       {showCuenta && openSession_ && (
-        <CuentaSheet session={openSession_} onClose={() => setShowCuenta(false)} />
+        <CuentaSheet session={openSession_} onClose={() => setShowCuenta(false)} onPaid={loadData} />
       )}
     </div>
   );
