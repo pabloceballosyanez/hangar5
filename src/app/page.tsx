@@ -29,6 +29,7 @@ export default async function Home() {
             <a href="#glampings" className="hover:opacity-70 transition-opacity">Glampings</a>
             <a href="#actividades" className="hover:opacity-70 transition-opacity">Actividades</a>
             <a href="#renta" className="hover:opacity-70 transition-opacity">Renta</a>
+            <a href="#restaurante" className="hover:opacity-70 transition-opacity">Restaurante</a>
             <a href="#contacto" className="hover:opacity-70 transition-opacity">Contacto</a>
           </div>
           <Link href="/admin" className="text-xs tracking-[0.2em] uppercase opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
@@ -231,6 +232,51 @@ export default async function Home() {
                   </p>
                 </Link>
               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Restaurante */}
+      <section id="restaurante" className="py-32 bg-gradient-to-b from-[#faf7f5] to-[#f5f2ef]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            {/* Contenido */}
+            <div>
+              <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Gastronomía</p>
+              <h2 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em] mb-6">
+                Nuestro Restaurante
+              </h2>
+              <p className="text-lg text-[#5c3d2e] leading-relaxed mb-8">
+                Cocina artesanal con vistas a la montaña. Menú fresco con ingredientes locales, preparado con dedicación. Desde entradas hasta postres, una experiencia culinaria completa en el corazón de El Peñón.
+              </p>
+              <Link
+                href="/restaurante"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-[#b88364] hover:bg-[#a07550] text-white rounded-lg text-sm tracking-widest uppercase transition-all duration-300 font-semibold"
+              >
+                Explorar Menú
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </div>
+
+            {/* Decorativo */}
+            <div className="relative">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="aspect-square bg-gradient-to-br from-[#b88364]/20 to-[#b88364]/5 rounded-lg flex items-center justify-center text-5xl">
+                  🍽️
+                </div>
+                <div className="aspect-square bg-gradient-to-br from-[#1b4235]/10 to-[#1b4235]/5 rounded-lg flex items-center justify-center text-5xl">
+                  🌶️
+                </div>
+                <div className="aspect-square bg-gradient-to-br from-[#1b4235]/10 to-[#1b4235]/5 rounded-lg flex items-center justify-center text-5xl">
+                  🥘
+                </div>
+                <div className="aspect-square bg-gradient-to-br from-[#b88364]/20 to-[#b88364]/5 rounded-lg flex items-center justify-center text-5xl">
+                  🍷
+                </div>
+              </div>
             </div>
           </div>
         </div>

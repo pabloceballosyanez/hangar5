@@ -23,14 +23,16 @@ function serializeOrder(order: Record<string, unknown>) {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const status = searchParams.get("status") as OrderStatus | null;
-    const source = searchParams.get("source") as OrderSource | null;
-    const date = searchParams.get("date"); // ISO date string YYYY-MM-DD
+    const status         = searchParams.get("status") as OrderStatus | null;
+    const source         = searchParams.get("source") as OrderSource | null;
+    const date           = searchParams.get("date"); // ISO date string YYYY-MM-DD
+    const tableSessionId = searchParams.get("tableSessionId");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: Record<string, any> = {};
     if (status && (ORDER_STATUSES as readonly string[]).includes(status)) where.status = status;
     if (source && (ORDER_SOURCES as readonly string[]).includes(source)) where.source = source;
+    if (tableSessionId) where.tableSessionId = tableSessionId;
     if (date) {
       const start = new Date(date);
       const end = new Date(date);
