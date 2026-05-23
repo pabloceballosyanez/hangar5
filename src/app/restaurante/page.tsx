@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 
 interface MenuItemVariant {
   id: string;
@@ -25,8 +24,6 @@ interface Category {
   menuItems: MenuItem[];
   sortOrder: number;
 }
-
-interface RestaurantPageProps {}
 
 function formatPrice(cents: number) {
   const pesos = Math.round(cents / 100);
@@ -63,10 +60,10 @@ export default function RestaurantePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-[#fefae0] to-[#f5e6d3] flex items-center justify-center">
+      <main className="min-h-screen bg-[#faf7f5] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c1663b] mx-auto mb-4"></div>
-          <p className="text-[#6b6b6b]">Cargando menú...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b88364] mx-auto mb-4" />
+          <p className="text-[#5c3d2e]">Cargando menú...</p>
         </div>
       </main>
     );
@@ -74,19 +71,19 @@ export default function RestaurantePage() {
 
   if (categories.length === 0) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-[#fefae0] to-[#f5e6d3]">
+      <main className="min-h-screen bg-[#faf7f5]">
         <section className="pt-32 pb-24 px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-serif text-[#2d2d2d] mb-4">
+            <h1 className="text-5xl md:text-6xl font-serif text-[#1b4235] mb-4">
               Hangar Cinco
             </h1>
-            <h2 className="text-2xl md:text-3xl font-serif text-[#c1663b] italic mb-6">
+            <h2 className="text-2xl md:text-3xl font-serif text-[#b88364] italic mb-6">
               Cocina de Montaña
             </h2>
-            <p className="text-lg text-[#6b6b6b] font-light tracking-wide mb-8">
+            <p className="text-lg text-[#5c3d2e] font-light tracking-wide mb-8">
               El menú está siendo actualizado. Por favor, intenta de nuevo más tarde.
             </p>
-            <Link href="/" className="inline-block px-8 py-3 bg-[#c1663b] hover:bg-[#a8542e] text-white rounded-lg font-medium tracking-wider uppercase transition-all duration-300">
+            <Link href="/" className="inline-block px-8 py-3 bg-[#b88364] hover:bg-[#a07550] text-white rounded-lg font-semibold tracking-widest uppercase transition-all duration-300">
               Volver al inicio
             </Link>
           </div>
@@ -96,15 +93,15 @@ export default function RestaurantePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#fefae0] to-[#f5e6d3]">
+    <main className="min-h-screen bg-[#faf7f5]">
       {/* Navigation Sticky */}
-      <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-stone-200/50 shadow-sm">
+      <nav className="fixed top-0 w-full z-40 bg-[#faf7f5]/90 backdrop-blur-sm border-b border-[#b88364]/10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-[#2d2d2d] font-serif text-lg tracking-wide">
+            <Link href="/" className="text-[#1b4235] font-serif text-lg tracking-wide">
               Hangar Cinco
             </Link>
-            <div className="hidden md:flex gap-1 overflow-x-auto pb-0">
+            <div className="hidden md:flex gap-2 overflow-x-auto pb-0 flex-wrap justify-center flex-1 mx-8">
               {categories.map((cat, idx) => (
                 <button
                   key={cat.id}
@@ -112,16 +109,19 @@ export default function RestaurantePage() {
                     setActiveCategory(idx);
                     document.getElementById(`category-${cat.id}`)?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="px-4 py-2 text-sm font-medium tracking-wide rounded-lg transition-all duration-300 whitespace-nowrap"
+                  className="px-4 py-2 text-xs font-medium tracking-[0.15em] uppercase whitespace-nowrap transition-all duration-300 rounded-lg"
                   style={{
-                    color: activeCategory === idx ? '#c1663b' : '#6b6b6b',
-                    backgroundColor: activeCategory === idx ? '#f5e6d3' : 'transparent',
+                    color: activeCategory === idx ? '#b88364' : '#5c3d2e',
+                    backgroundColor: activeCategory === idx ? '#b88364/10' : 'transparent',
                   }}
                 >
                   {cat.name}
                 </button>
               ))}
             </div>
+            <Link href="/" className="text-xs tracking-[0.2em] uppercase text-[#5c3d2e] hover:text-[#b88364] transition-colors">
+              Inicio
+            </Link>
           </div>
         </div>
       </nav>
@@ -135,17 +135,16 @@ export default function RestaurantePage() {
             backgroundPosition: 'center',
           }}
         />
-        {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
           <h1 className="text-5xl md:text-7xl font-serif text-white mb-4 tracking-tight leading-tight">
             Hangar Cinco
           </h1>
-          <p className="text-xl md:text-2xl font-serif text-[#ffd699] italic mb-2">
+          <p className="text-xl md:text-2xl font-serif text-white/80 italic mb-2">
             Cocina de Montaña
           </p>
-          <p className="text-lg text-white/90 font-light tracking-wide max-w-2xl">
+          <p className="text-lg text-white/70 font-light tracking-wider max-w-2xl">
             Sabores artesanales al pie del Peñón
           </p>
         </div>
@@ -161,10 +160,11 @@ export default function RestaurantePage() {
           >
             {/* Category Header */}
             <div className="mb-16">
-              <h2 className="text-4xl md:text-5xl font-serif text-[#2d2d2d] tracking-tight mb-6 text-center">
+              <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4 text-center">Menú</p>
+              <h2 className="text-4xl md:text-5xl font-serif text-[#1b4235] tracking-tight mb-6 text-center">
                 {category.name}
               </h2>
-              <div className="h-px w-24 bg-gradient-to-r from-[#c1663b] to-[#d4a853] mx-auto" />
+              <div className="h-px w-24 bg-[#b88364]/30 mx-auto" />
             </div>
 
             {/* Items Grid */}
@@ -177,10 +177,10 @@ export default function RestaurantePage() {
                   return (
                     <div
                       key={item.id}
-                      className="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-lg shadow-stone-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-stone-200/70 hover:-translate-y-1"
+                      className="group flex flex-col bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-[#b88364]/10 hover:border-[#b88364]/30"
                     >
                       {/* Image Container */}
-                      <div className="relative w-full bg-gradient-to-b from-[#f5e6d3] to-[#e8d9c6] aspect-[4/3] overflow-hidden">
+                      <div className="relative w-full bg-[#f5f2ef] aspect-[4/3] overflow-hidden">
                         {hasImage ? (
                           <img
                             src={item.imageUrl}
@@ -190,9 +190,8 @@ export default function RestaurantePage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <div className="text-center">
-                              <div className="text-6xl mb-2">🍽️</div>
-                              <p className="text-sm text-[#6b6b6b]">Imagen no disponible</p>
+                            <div className="text-center text-[#a07550]">
+                              <div className="text-4xl mb-2">-</div>
                             </div>
                           </div>
                         )}
@@ -202,11 +201,11 @@ export default function RestaurantePage() {
                       <div className="flex-1 p-6 flex flex-col">
                         {/* Name & Description */}
                         <div className="mb-4">
-                          <h3 className="text-xl font-serif text-[#2d2d2d] mb-2 group-hover:text-[#c1663b] transition-colors duration-300">
+                          <h3 className="text-lg font-serif text-[#1b4235] mb-2 group-hover:text-[#b88364] transition-colors duration-300">
                             {item.name}
                           </h3>
                           {item.description && (
-                            <p className="text-sm text-[#6b6b6b] leading-relaxed line-clamp-2">
+                            <p className="text-sm text-[#5c3d2e]/70 leading-relaxed line-clamp-2">
                               {item.description}
                             </p>
                           )}
@@ -218,13 +217,13 @@ export default function RestaurantePage() {
                             {item.variants.slice(0, 2).map((variant) => (
                               <span
                                 key={variant.id}
-                                className="inline-block px-3 py-1 bg-[#f5e6d3] text-[#c1663b] text-xs font-medium rounded-full"
+                                className="inline-block px-3 py-1 bg-[#b88364]/10 text-[#b88364] text-xs font-medium rounded-full"
                               >
                                 {variant.name}
                               </span>
                             ))}
                             {item.variants.length > 2 && (
-                              <span className="inline-block px-3 py-1 bg-[#f5e6d3] text-[#c1663b] text-xs font-medium rounded-full">
+                              <span className="inline-block px-3 py-1 bg-[#b88364]/10 text-[#b88364] text-xs font-medium rounded-full">
                                 +{item.variants.length - 2} más
                               </span>
                             )}
@@ -235,12 +234,12 @@ export default function RestaurantePage() {
                         <div className="flex-1" />
 
                         {/* Price */}
-                        <div className="pt-4 border-t border-stone-200/50">
+                        <div className="pt-4 border-t border-[#b88364]/10">
                           <div className="flex items-baseline justify-between">
-                            <span className="text-3xl font-serif text-[#d4a853]">
+                            <span className="text-2xl font-serif text-[#b88364]">
                               ${formatPrice(item.basePrice)}
                             </span>
-                            <span className="text-xs text-[#6b6b6b] tracking-wider">MXN</span>
+                            <span className="text-xs text-[#5c3d2e]/60 tracking-wider uppercase">MXN</span>
                           </div>
                         </div>
                       </div>
@@ -250,7 +249,7 @@ export default function RestaurantePage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-[#6b6b6b] tracking-widest uppercase text-sm">
+                <p className="text-[#5c3d2e]/60 tracking-widest uppercase text-sm">
                   No hay items disponibles en esta categoría
                 </p>
               </div>
@@ -260,29 +259,29 @@ export default function RestaurantePage() {
       </div>
 
       {/* CTA Section */}
-      <section className="py-24 px-6 bg-white/50 backdrop-blur-sm border-t border-stone-200/50">
+      <section className="py-24 px-6 bg-[#f5f2ef] border-t border-[#b88364]/10">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-serif text-[#2d2d2d] mb-6">
+          <h2 className="text-3xl md:text-4xl font-serif text-[#1b4235] mb-6">
             Realiza tu Orden
           </h2>
-          <p className="text-lg text-[#6b6b6b] mb-8 font-light tracking-wide">
+          <p className="text-lg text-[#5c3d2e] mb-8 font-light tracking-wide">
             Escanea el código QR en tu mesa para acceder al menú interactivo y realizar tu pedido en tiempo real.
           </p>
-          <div className="w-48 h-48 mx-auto rounded-2xl p-6 bg-white shadow-lg shadow-stone-200/50 border border-stone-200/50">
-            <div className="w-full h-full bg-gradient-to-br from-[#f5e6d3] to-[#e8d9c6] rounded-xl flex items-center justify-center">
-              <span className="text-[#6b6b6b] text-sm tracking-wider font-light">QR Code</span>
+          <div className="w-48 h-48 mx-auto rounded-lg p-6 bg-white shadow-sm border border-[#b88364]/10">
+            <div className="w-full h-full bg-[#f5f2ef] rounded-lg flex items-center justify-center">
+              <span className="text-[#a07550] text-sm tracking-wider font-light">QR Code</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-stone-200/50 bg-gradient-to-b from-[#fefae0]/50 to-transparent text-center">
+      <footer className="py-12 px-6 border-t border-[#b88364]/10 bg-[#faf7f5] text-center">
         <div className="max-w-7xl mx-auto">
-          <p className="text-sm text-[#2d2d2d] tracking-wide mb-4 font-serif">
+          <p className="text-sm text-[#1b4235] tracking-wide mb-4 font-serif">
             Hangar Cinco — El Peñón, Temascaltepec
           </p>
-          <p className="text-xs text-[#6b6b6b] font-light">
+          <p className="text-xs text-[#5c3d2e]/60 font-light">
             © {new Date().getFullYear()} Todos los derechos reservados
           </p>
         </div>
