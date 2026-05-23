@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Restaurante | Hangar Cinco',
+  title: 'Restaurante | Hangar 5',
   description: 'Cocina artesanal con vistas a la montaña en El Peñón, Temascaltepec',
 };
 
