@@ -74,8 +74,8 @@ export default function RestaurantePage() {
       <main className="min-h-screen bg-[#faf7f5]">
         <section className="pt-32 pb-24 px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-serif text-[#1b4235] mb-4">
-              Hangar Cinco
+            <h1 className="text-5xl md:text-6xl font-serif text-[#1b4235] mb-4 tracking-[-0.02em] leading-[0.85]">
+              Hangar <span className="italic">5</span>
             </h1>
             <h2 className="text-2xl md:text-3xl font-serif text-[#b88364] italic mb-6">
               Cocina de Montaña
@@ -98,8 +98,8 @@ export default function RestaurantePage() {
       <nav className="fixed top-0 w-full z-40 bg-[#faf7f5]/90 backdrop-blur-sm border-b border-[#b88364]/10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-[#1b4235] font-serif text-lg tracking-wide">
-              Hangar Cinco
+            <Link href="/" className="text-lg font-semibold tracking-[0.3em] uppercase text-[#1b4235]">
+              Hangar 5
             </Link>
             <div className="hidden md:flex gap-2 overflow-x-auto pb-0 flex-wrap justify-center flex-1 mx-8">
               {categories.map((cat, idx) => (
@@ -138,8 +138,8 @@ export default function RestaurantePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-          <h1 className="text-5xl md:text-7xl font-serif text-white mb-4 tracking-tight leading-tight">
-            Hangar Cinco
+          <h1 className="text-5xl md:text-7xl font-serif text-white mb-4 tracking-[-0.02em] leading-[0.85]">
+            Hangar <span className="italic">5</span>
           </h1>
           <p className="text-xl md:text-2xl font-serif text-white/80 italic mb-2">
             Cocina de Montaña
@@ -279,7 +279,7 @@ export default function RestaurantePage() {
       <footer className="py-12 px-6 border-t border-[#b88364]/10 bg-[#faf7f5] text-center">
         <div className="max-w-7xl mx-auto">
           <p className="text-sm text-[#1b4235] tracking-wide mb-4 font-serif">
-            Hangar Cinco — El Peñón, Temascaltepec
+            Hangar 5 — El Peñón, Temascaltepec
           </p>
           <p className="text-xs text-[#5c3d2e]/60 font-light">
             © {new Date().getFullYear()} Todos los derechos reservados
