@@ -11,10 +11,14 @@ export default async function AdminPage() {
   if (cookieStore.get("hangar5_admin_session")?.value !== "true") {
     redirect("/admin/login");
   }
+  // Get bookings from 6 months ago to cover dashboard stats + chart
+  const now = new Date();
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
   const bookings = await prisma.booking.findMany({
+    where: { startDate: { gte: sixMonthsAgo } },
     include: { item: true },
     orderBy: { createdAt: "desc" },
-    take: 100,
+    take: 500,
   });
 
   const items = await prisma.item.findMany({ orderBy: [{ type: "asc" }, { name: "asc" }] });
