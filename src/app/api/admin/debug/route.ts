@@ -9,53 +9,68 @@ export async function GET() {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const allBookings = await prisma.booking.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { item: { select: { name: true, type: true } } },
-  });
-
   const now = new Date();
-  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
-  const bookingsWithFilter = await prisma.booking.findMany({
-    where: { startDate: { gte: sixMonthsAgo } },
+  // All payments
+  const allPayments = await prisma.payment.findMany({
+    orderBy: { paidAt: "desc" },
+    include: { order: { select: { id: true, status: true, total: true } } },
+    take: 50,
+  });
+
+  const completedPayments = await prisma.payment.findMany({
+    where: { status: "COMPLETED" },
+    orderBy: { paidAt: "desc" },
+    take: 50,
+  });
+
+  // Month range for May 2026
+  const start = new Date(2026, 4, 1); // May 1
+  const end = new Date(2026, 5, 1);   // Jun 1
+
+  const monthPayments = await prisma.payment.findMany({
+    where: { status: "COMPLETED", paidAt: { gte: start, lt: end } },
+    orderBy: { paidAt: "desc" },
+    take: 50,
+  });
+
+  // All orders
+  const allOrders = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
-    take: 500,
+    take: 20,
   });
-
-  const thisMonth = now.getMonth();
-  const thisYear = now.getFullYear();
-
-  const monthBookings = allBookings.filter(b => {
-    const d = new Date(b.startDate);
-    return b.status !== "cancelled" && b.status !== "maintenance" &&
-      d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-  });
-
-  const byDate: Record<string, number> = {};
-  for (const b of allBookings) {
-    const d = b.startDate.toISOString().slice(0, 10);
-    byDate[d] = (byDate[d] || 0) + 1;
-  }
 
   return Response.json({
     serverTime: now.toString(),
-    serverMonth: thisMonth,
-    serverYear: thisYear,
-    sixMonthsAgo: sixMonthsAgo.toISOString(),
-    totalBookingsAllTime: allBookings.length,
-    totalWithDateFilter: bookingsWithFilter.length,
-    monthBookingsCount: monthBookings.length,
-    monthRevenue: monthBookings.reduce((s, b) => s + b.totalPrice, 0),
-    bookingsByDate: byDate,
-    last20: allBookings.slice(0, 20).map(b => ({
-      id: b.id.slice(-6),
-      status: b.status,
-      startDate: b.startDate.toISOString(),
-      totalPrice: b.totalPrice,
-      itemName: b.item.name,
-      itemType: b.item.type,
-      createdAt: b.createdAt.toISOString(),
+    allPayments: allPayments.map(p => ({
+      id: p.id.slice(-6),
+      status: p.status,
+      amount: p.amount,
+      method: p.method,
+      paidAt: p.paidAt?.toISOString(),
+      orderId: p.orderId?.slice(-6),
+      orderStatus: p.order?.status,
     })),
+    completedPayments: completedPayments.map(p => ({
+      id: p.id.slice(-6),
+      amount: p.amount,
+      paidAt: p.paidAt?.toISOString(),
+    })),
+    monthRange: { start: start.toISOString(), end: end.toISOString() },
+    monthPaymentsCount: monthPayments.length,
+    monthPaymentsTotal: monthPayments.reduce((s, p) => s + p.amount, 0),
+    monthPayments: monthPayments.map(p => ({
+      id: p.id.slice(-6),
+      amount: p.amount,
+      paidAt: p.paidAt?.toISOString(),
+    })),
+    allOrders: allOrders.map(o => ({
+      id: o.id.slice(-6),
+      status: o.status,
+      total: o.total,
+      createdAt: o.createdAt.toISOString(),
+    })),
+    totalOrders: await prisma.order.count(),
+    totalPayments: await prisma.payment.count(),
   });
 }
