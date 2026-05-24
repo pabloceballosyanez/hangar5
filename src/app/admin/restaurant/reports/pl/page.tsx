@@ -57,11 +57,37 @@ function monthRange(monthParam: string): { start: Date; end: Date } {
 async function computePLReport(monthParam: string): Promise<PLReport> {
   const { start, end } = monthRange(monthParam);
 
-  // Revenue: completed payments in month
+  // Auto-backfill: fix old PENDING payments linked to PAID orders
+  try {
+    const pendingToFix = await prisma.payment.findMany({
+      where: { status: "PENDING", order: { status: "PAID" } },
+      select: { id: true, orderId: true },
+    });
+    if (pendingToFix.length > 0) {
+      const ordersToFix = await prisma.order.findMany({
+        where: { id: { in: pendingToFix.map(p => p.orderId!).filter(Boolean) } },
+        select: { id: true, updatedAt: true },
+      });
+      const orderDateMap = new Map(ordersToFix.map(o => [o.id, o.updatedAt]));
+      for (const p of pendingToFix) {
+        await prisma.payment.update({
+          where: { id: p.id },
+          data: {
+            status: "COMPLETED",
+            paidAt: orderDateMap.get(p.orderId!) ?? new Date(),
+          },
+        });
+      }
+    }
+  } catch (_) { /* ignore backfill errors */ }
+
+  // Revenue: completed payments + pending payments for PAID orders (backfill compat)
   const payments = await prisma.payment.findMany({
     where: {
-      status: "COMPLETED",
-      paidAt: { gte: start, lt: end },
+      OR: [
+        { status: "COMPLETED", paidAt: { gte: start, lt: end } },
+        { status: "PENDING", order: { status: "PAID", updatedAt: { gte: start, lt: end } } },
+      ],
     },
     include: {
       order: {
