@@ -12,13 +12,6 @@ interface LedgerEntry {
   createdAt: string;
 }
 
-interface Order {
-  id: string;
-  total: number;
-  status: string;
-  createdAt?: string;
-}
-
 interface Session {
   id: string;
   label: string;
@@ -46,6 +39,7 @@ function formatPrice(p: number) { return `$${p.toFixed(2)}`; }
 function fmtTime(iso: string) { return new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }); }
 
 const typeLabels: Record<string, string> = { CHARGE: 'Cargo', PAYMENT: 'Pago', REFUND: 'Reembolso', ADJUSTMENT: 'Ajuste' };
+const methodLabels: Record<string, string> = { CASH: '💵 Efectivo', CARD: '💳 Tarjeta', TRANSFER: '🏦 Transferencia', MP: '📱 Mercado Pago' };
 
 export default function CustomerDetailPage() {
   const router = useRouter();
@@ -58,9 +52,13 @@ export default function CustomerDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Payment state
-  const [payingSessionId, setPayingSessionId] = useState<string | null>(null);
+  const [showPayForm, setShowPayForm] = useState(false);
+  const [payAmount, setPayAmount] = useState('');
+  const [payMethod, setPayMethod] = useState('CASH');
+  const [payNote, setPayNote] = useState('');
+  const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
-  const [paidSessionIds, setPaidSessionIds] = useState<Set<string>>(new Set());
+  const [paySuccess, setPaySuccess] = useState(false);
 
   // Edit state
   const [editName, setEditName] = useState('');
@@ -76,6 +74,8 @@ export default function CustomerDetailPage() {
     setEditPhone(data.phone || '');
     setEditEmail(data.email || '');
     setEditNotes(data.notes || '');
+    // Default payment amount to full balance
+    setPayAmount(data.balance > 0 ? data.balance.toFixed(2) : '');
   };
 
   useEffect(() => {
@@ -101,34 +101,39 @@ export default function CustomerDetailPage() {
     }
   }
 
-  async function handlePaySession(sessionId: string) {
-    if (!customer) return;
-    setPayingSessionId(sessionId);
+  async function handlePay(e: React.FormEvent) {
+    e.preventDefault();
+    const amount = parseFloat(payAmount);
+    if (!amount || amount <= 0) {
+      setPayError('Ingresa un monto válido');
+      return;
+    }
+    if (!customer || amount > customer.balance) {
+      setPayError(`El monto no puede exceder el saldo pendiente (${formatPrice(customer?.balance || 0)})`);
+      return;
+    }
+    setPaying(true);
     setPayError(null);
+    setPaySuccess(false);
     try {
-      // Get full order details for this session
-      const sessionRes = await fetch(`/api/admin/restaurant/sessions/${sessionId}`);
-      if (!sessionRes.ok) throw new Error('Error al obtener sesión');
-      const session = await sessionRes.json();
-
-      const activeOrders = session.orders.filter((o: { status: string }) => !['PAID', 'CANCELLED'].includes(o.status));
-      const grandTotal = activeOrders.reduce((sum: number, o: { total: number }) => sum + o.total, 0);
-
-      // Close the session with the total as payment
-      await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
-        method: 'PUT',
+      const res = await fetch(`/api/admin/restaurant/customers/${customerId}/payments`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          payments: [{ method: 'CASH', amount: grandTotal }],
-        }),
+        body: JSON.stringify({ amount, method: payMethod, note: payNote.trim() || null }),
       });
-
-      setPaidSessionIds(prev => new Set(prev).add(sessionId));
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || 'Error al registrar pago');
+      }
+      setPaySuccess(true);
+      setShowPayForm(false);
+      setPayNote('');
       await loadCustomer();
+      setTimeout(() => setPaySuccess(false), 4000);
     } catch (e) {
-      setPayError(e instanceof Error ? e.message : 'Error al cobrar');
+      setPayError(e instanceof Error ? e.message : 'Error');
     } finally {
-      setPayingSessionId(null);
+      setPaying(false);
     }
   }
 
@@ -160,42 +165,124 @@ export default function CustomerDetailPage() {
         <h1 className="text-2xl font-bold text-gray-900 mt-2">{customer.name}</h1>
       </div>
 
-      {/* ─── Open Sessions (Cobrar) ─── */}
+      {/* ─── Cobrar deuda (siempre que tenga saldo pendiente) ─── */}
+      {customer.balance > 0 && (
+        <div className="bg-red-50 rounded-xl border border-red-200 p-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-red-900">💳 Deuda pendiente</h2>
+              <p className="text-sm text-red-600 mt-0.5">
+                Este cliente debe <span className="font-bold">{formatPrice(customer.balance)}</span>
+              </p>
+            </div>
+            {!showPayForm ? (
+              <button
+                onClick={() => { setShowPayForm(true); setPayAmount(customer.balance.toFixed(2)); setPayError(null); }}
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-500 active:scale-95 text-white text-sm font-bold rounded-lg transition-all shadow-sm"
+              >
+                💵 Registrar pago
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowPayForm(false)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium rounded-lg transition-all"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+
+          {/* Payment form */}
+          {showPayForm && (
+            <form onSubmit={handlePay} className="mt-4 bg-white rounded-lg border border-red-200 p-4 space-y-3">
+              {payError && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{payError}</p>}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Monto a cobrar</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium">$</span>
+                    <input
+                      type="number"
+                      value={payAmount}
+                      onChange={e => setPayAmount(e.target.value)}
+                      step="0.01"
+                      min="0.01"
+                      max={customer.balance}
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                      required
+                      autoFocus
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPayAmount(customer.balance.toFixed(2))}
+                    className="text-xs text-red-500 hover:text-red-700 mt-1"
+                  >
+                    Cobrar total: {formatPrice(customer.balance)}
+                  </button>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Método de pago</label>
+                  <select
+                    value={payMethod}
+                    onChange={e => setPayMethod(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                  >
+                    {Object.entries(methodLabels).map(([k, v]) => (
+                      <option key={k} value={k}>{v}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Nota (opcional)</label>
+                <input
+                  type="text"
+                  value={payNote}
+                  onChange={e => setPayNote(e.target.value)}
+                  placeholder="Ej: Pago en efectivo mesa 5"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={paying}
+                className="w-full py-2.5 bg-green-600 hover:bg-green-500 active:scale-95 text-white text-sm font-bold rounded-lg transition-all disabled:opacity-50"
+              >
+                {paying ? 'Registrando...' : `✅ Confirmar pago de ${formatPrice(parseFloat(payAmount) || 0)}`}
+              </button>
+            </form>
+          )}
+        </div>
+      )}
+
+      {/* ─── Success toast ─── */}
+      {paySuccess && (
+        <div className="bg-green-50 rounded-xl border border-green-200 p-4 flex items-center gap-3">
+          <span className="text-xl">✅</span>
+          <div>
+            <p className="font-semibold text-green-900">¡Pago registrado!</p>
+            <p className="text-sm text-green-700">El saldo del cliente se ha actualizado.</p>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Open Sessions (info) ─── */}
       {openSessions.length > 0 && (
-        <div className="bg-amber-50 rounded-xl border border-amber-200 p-5">
-          <h2 className="text-lg font-semibold text-amber-900 mb-3">
+        <div className="bg-blue-50 rounded-xl border border-blue-200 p-5">
+          <h2 className="text-lg font-semibold text-blue-900 mb-3">
             🧾 Sesiones abiertas ({openSessions.length})
           </h2>
-          {payError && (
-            <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg mb-3">{payError}</p>
-          )}
-          <div className="space-y-3">
+          <div className="space-y-2">
             {openSessions.map(s => {
-              const activeOrders = s.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
-              const total = activeOrders.reduce((sum, o) => sum + o.total, 0);
-              const isPaid = paidSessionIds.has(s.id);
+              const ordersTotal = s.orders.reduce((sum, o) => sum + o.total, 0);
               return (
-                <div key={s.id} className="flex items-center justify-between bg-white rounded-lg p-4 border border-amber-200">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">{s.label}</p>
-                    <p className="text-xs text-gray-400">
-                      Abierta {fmtTime(s.openedAt)} · {activeOrders.length} orden{activeOrders.length !== 1 ? 'es' : ''} activa{activeOrders.length !== 1 ? 's' : ''}
-                    </p>
+                <div key={s.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-blue-200">
+                  <div>
+                    <p className="font-medium text-gray-800 text-sm">{s.label}</p>
+                    <p className="text-xs text-gray-400">Abierta {fmtTime(s.openedAt)} · {s.orders.length} órdenes</p>
                   </div>
-                  <div className="flex items-center gap-4 shrink-0">
-                    <span className="text-lg font-bold text-amber-700">{formatPrice(total)}</span>
-                    {isPaid ? (
-                      <span className="px-3 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-lg">✅ Cobrado</span>
-                    ) : (
-                      <button
-                        onClick={() => handlePaySession(s.id)}
-                        disabled={payingSessionId === s.id || activeOrders.length === 0}
-                        className="px-4 py-2 bg-amber-500 hover:bg-amber-400 active:scale-95 text-white text-sm font-bold rounded-lg transition-all disabled:opacity-50 shadow-sm"
-                      >
-                        {payingSessionId === s.id ? 'Cobrando...' : '💵 Cobrar'}
-                      </button>
-                    )}
-                  </div>
+                  <span className="text-sm font-bold text-blue-700">{formatPrice(ordersTotal)}</span>
                 </div>
               );
             })}
@@ -279,21 +366,26 @@ export default function CustomerDetailPage() {
               <p className="text-gray-400 text-sm">Sin sesiones</p>
             ) : (
               <div className="space-y-2">
-                {closedSessions.slice(0, 10).map(s => {
+                {[...openSessions, ...closedSessions].slice(0, 15).map(s => {
                   const ordersTotal = s.orders.reduce((sum, o) => sum + o.total, 0);
                   const paidTotal = s.payments.reduce((sum, p) => sum + p.amount, 0);
                   return (
                     <div key={s.id} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
                       <div>
-                        <p className="text-sm font-medium text-gray-800">{s.label}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-gray-800">{s.label}</p>
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${s.status === 'OPEN' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+                            {s.status === 'OPEN' ? 'Abierta' : 'Cerrada'}
+                          </span>
+                        </div>
                         <p className="text-xs text-gray-400">
-                          {new Date(s.openedAt).toLocaleDateString('es-MX')} · {s.orders.length} órdenes
+                          {new Date(s.openedAt).toLocaleDateString('es-MX')} · {s.orders.length} órdenes · {formatPrice(ordersTotal)}
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className={`text-sm font-medium ${paidTotal >= ordersTotal ? 'text-green-600' : 'text-red-600'}`}>
-                          {formatPrice(paidTotal)}
-                        </span>
+                        {paidTotal > 0 && (
+                          <span className="text-xs font-medium text-green-600">Pagado {formatPrice(paidTotal)}</span>
+                        )}
                         {s.closedAt && (
                           <p className="text-xs text-gray-400">{new Date(s.closedAt).toLocaleDateString('es-MX')}</p>
                         )}
