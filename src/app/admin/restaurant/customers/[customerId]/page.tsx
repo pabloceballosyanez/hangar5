@@ -12,6 +12,13 @@ interface LedgerEntry {
   createdAt: string;
 }
 
+interface Order {
+  id: string;
+  total: number;
+  status: string;
+  createdAt?: string;
+}
+
 interface Session {
   id: string;
   label: string;
@@ -36,6 +43,7 @@ interface Customer {
 }
 
 function formatPrice(p: number) { return `$${p.toFixed(2)}`; }
+function fmtTime(iso: string) { return new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }); }
 
 const typeLabels: Record<string, string> = { CHARGE: 'Cargo', PAYMENT: 'Pago', REFUND: 'Reembolso', ADJUSTMENT: 'Ajuste' };
 
@@ -49,24 +57,29 @@ export default function CustomerDetailPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Payment state
+  const [payingSessionId, setPayingSessionId] = useState<string | null>(null);
+  const [payError, setPayError] = useState<string | null>(null);
+  const [paidSessionIds, setPaidSessionIds] = useState<Set<string>>(new Set());
+
   // Edit state
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editNotes, setEditNotes] = useState('');
 
+  const loadCustomer = async () => {
+    const res = await fetch(`/api/admin/restaurant/customers/${customerId}`);
+    const data = await res.json();
+    setCustomer(data);
+    setEditName(data.name || '');
+    setEditPhone(data.phone || '');
+    setEditEmail(data.email || '');
+    setEditNotes(data.notes || '');
+  };
+
   useEffect(() => {
-    fetch(`/api/admin/restaurant/customers/${customerId}`)
-      .then(r => r.json())
-      .then(data => {
-        setCustomer(data);
-        setEditName(data.name || '');
-        setEditPhone(data.phone || '');
-        setEditEmail(data.email || '');
-        setEditNotes(data.notes || '');
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    loadCustomer().then(() => setLoading(false)).catch(() => setLoading(false));
   }, [customerId]);
 
   async function handleSave(e: React.FormEvent) {
@@ -88,6 +101,37 @@ export default function CustomerDetailPage() {
     }
   }
 
+  async function handlePaySession(sessionId: string) {
+    if (!customer) return;
+    setPayingSessionId(sessionId);
+    setPayError(null);
+    try {
+      // Get full order details for this session
+      const sessionRes = await fetch(`/api/admin/restaurant/sessions/${sessionId}`);
+      if (!sessionRes.ok) throw new Error('Error al obtener sesión');
+      const session = await sessionRes.json();
+
+      const activeOrders = session.orders.filter((o: { status: string }) => !['PAID', 'CANCELLED'].includes(o.status));
+      const grandTotal = activeOrders.reduce((sum: number, o: { total: number }) => sum + o.total, 0);
+
+      // Close the session with the total as payment
+      await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payments: [{ method: 'CASH', amount: grandTotal }],
+        }),
+      });
+
+      setPaidSessionIds(prev => new Set(prev).add(sessionId));
+      await loadCustomer();
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : 'Error al cobrar');
+    } finally {
+      setPayingSessionId(null);
+    }
+  }
+
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
@@ -106,12 +150,58 @@ export default function CustomerDetailPage() {
     );
   }
 
+  const openSessions = customer.sessions.filter(s => s.status === 'OPEN');
+  const closedSessions = customer.sessions.filter(s => s.status !== 'OPEN');
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="mb-6">
         <Link href="/admin/restaurant/customers" className="text-sm text-gray-500 hover:text-gray-700">← Volver a clientes</Link>
         <h1 className="text-2xl font-bold text-gray-900 mt-2">{customer.name}</h1>
       </div>
+
+      {/* ─── Open Sessions (Cobrar) ─── */}
+      {openSessions.length > 0 && (
+        <div className="bg-amber-50 rounded-xl border border-amber-200 p-5">
+          <h2 className="text-lg font-semibold text-amber-900 mb-3">
+            🧾 Sesiones abiertas ({openSessions.length})
+          </h2>
+          {payError && (
+            <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg mb-3">{payError}</p>
+          )}
+          <div className="space-y-3">
+            {openSessions.map(s => {
+              const activeOrders = s.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
+              const total = activeOrders.reduce((sum, o) => sum + o.total, 0);
+              const isPaid = paidSessionIds.has(s.id);
+              return (
+                <div key={s.id} className="flex items-center justify-between bg-white rounded-lg p-4 border border-amber-200">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900">{s.label}</p>
+                    <p className="text-xs text-gray-400">
+                      Abierta {fmtTime(s.openedAt)} · {activeOrders.length} orden{activeOrders.length !== 1 ? 'es' : ''} activa{activeOrders.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <span className="text-lg font-bold text-amber-700">{formatPrice(total)}</span>
+                    {isPaid ? (
+                      <span className="px-3 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-lg">✅ Cobrado</span>
+                    ) : (
+                      <button
+                        onClick={() => handlePaySession(s.id)}
+                        disabled={payingSessionId === s.id || activeOrders.length === 0}
+                        className="px-4 py-2 bg-amber-500 hover:bg-amber-400 active:scale-95 text-white text-sm font-bold rounded-lg transition-all disabled:opacity-50 shadow-sm"
+                      >
+                        {payingSessionId === s.id ? 'Cobrando...' : '💵 Cobrar'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Edit form + Balance */}
@@ -153,7 +243,7 @@ export default function CustomerDetailPage() {
           </div>
         </div>
 
-        {/* Ledger + Sessions */}
+        {/* Ledger + Sessions history */}
         <div className="lg:col-span-2 space-y-4">
           {/* Ledger */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
@@ -185,11 +275,11 @@ export default function CustomerDetailPage() {
           {/* Sessions history */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Historial de sesiones</h2>
-            {customer.sessions.length === 0 ? (
+            {closedSessions.length === 0 && openSessions.length === 0 ? (
               <p className="text-gray-400 text-sm">Sin sesiones</p>
             ) : (
               <div className="space-y-2">
-                {customer.sessions.slice(0, 10).map(s => {
+                {closedSessions.slice(0, 10).map(s => {
                   const ordersTotal = s.orders.reduce((sum, o) => sum + o.total, 0);
                   const paidTotal = s.payments.reduce((sum, p) => sum + p.amount, 0);
                   return (
@@ -201,11 +291,11 @@ export default function CustomerDetailPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className={`text-sm font-medium ${s.status === 'OPEN' ? 'text-amber-600' : paidTotal >= ordersTotal ? 'text-green-600' : 'text-red-600'}`}>
-                          {s.status === 'OPEN' ? 'Abierta' : formatPrice(paidTotal)}
+                        <span className={`text-sm font-medium ${paidTotal >= ordersTotal ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatPrice(paidTotal)}
                         </span>
-                        {s.status === 'CLOSED' && (
-                          <p className="text-xs text-gray-400">{s.closedAt ? new Date(s.closedAt).toLocaleDateString('es-MX') : ''}</p>
+                        {s.closedAt && (
+                          <p className="text-xs text-gray-400">{new Date(s.closedAt).toLocaleDateString('es-MX')}</p>
                         )}
                       </div>
                     </div>

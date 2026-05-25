@@ -192,7 +192,7 @@ export default function WaiterNuevoTabPage() {
                       <button
                         key={c.id}
                         type="button"
-                        onClick={() => { setSelectedCustomer(c); setCustomerSearch(''); setShowDropdown(false); }}
+                        onClick={() => { setSelectedCustomer(c); setCustomerSearch(''); setShowDropdown(false); setLabel(c.name); }}
                         className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-700/50 transition-colors border-b border-slate-700/50 last:border-0"
                       >
                         <span className="text-lg shrink-0">👤</span>
