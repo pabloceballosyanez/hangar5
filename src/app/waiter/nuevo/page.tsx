@@ -79,11 +79,12 @@ export default function WaiterNuevoTabPage() {
         tableId: tabType === 'TABLE' ? tableId : null,
       };
       if (tabType === 'TAB') {
-        if (selectedCustomer) {
-          body.customerId = selectedCustomer.id;
-        } else if (customerSearch.trim()) {
-          body.customerName = customerSearch.trim();
+        if (!selectedCustomer) {
+          setError('Selecciona un cliente de la lista');
+          setSaving(false);
+          return;
         }
+        body.customerId = selectedCustomer.id;
       }
       const res = await fetch('/api/admin/restaurant/sessions', {
         method: 'POST',
@@ -209,7 +210,7 @@ export default function WaiterNuevoTabPage() {
                   <div className="absolute z-30 left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-2xl p-4">
                     <p className="text-sm text-slate-400 text-center mb-2">Ningún cliente encontrado</p>
                     <p className="text-xs text-slate-500 text-center">
-                      Se creará un cliente nuevo con el nombre: <span className="text-amber-400 font-medium">"{customerSearch.trim()}"</span>
+                      Pide al administrador que registre al cliente primero
                     </p>
                   </div>
                 )}

@@ -64,8 +64,6 @@ const createSessionSchema = z.object({
   label: z.string().min(1, "La etiqueta es requerida"),
   tableId: z.string().optional().nullable(),
   customerId: z.string().optional().nullable(),
-  customerName: z.string().optional().nullable(),
-  customerPhone: z.string().optional().nullable(),
 });
 
 export async function POST(req: NextRequest) {
@@ -76,7 +74,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { type, label, tableId, customerId, customerName, customerPhone } = parsed.data;
+    const { type, label, tableId, customerId } = parsed.data;
 
     // If tableId provided, check it exists and open a table session
     if (type === "TABLE" && tableId) {
@@ -89,22 +87,6 @@ export async function POST(req: NextRequest) {
           { status: 409 }
         );
       }
-    }
-
-    // Handle customer: find existing or create
-    let finalCustomerId: string | null = customerId || null;
-    if (!finalCustomerId && customerName) {
-      // Try to find by phone first
-      let cust = null;
-      if (customerPhone) {
-        cust = await prisma.customer.findFirst({ where: { phone: customerPhone } });
-      }
-      if (!cust) {
-        cust = await prisma.customer.create({
-          data: { name: customerName.trim(), phone: customerPhone?.trim() || null },
-        });
-      }
-      finalCustomerId = cust.id;
     }
 
     const session = await prisma.serviceSession.create({
