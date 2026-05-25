@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const where: Record<string, unknown> = { isActive: true };
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
+        { name: { contains: search } },
         { phone: { contains: search } },
       ];
     }
