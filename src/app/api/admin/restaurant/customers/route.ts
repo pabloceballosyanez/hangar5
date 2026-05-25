@@ -15,10 +15,19 @@ function serialize(c: Record<string, unknown>) {
 }
 
 // ─── GET: list customers with balances ───────────────────────────────────────
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get("search")?.trim();
+    const where: Record<string, unknown> = { isActive: true };
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { phone: { contains: search } },
+      ];
+    }
     const customers = await prisma.customer.findMany({
-      where: { isActive: true },
+      where,
       orderBy: { name: "asc" },
       include: {
         ledgerEntries: {
