@@ -50,7 +50,7 @@ function sourceLabel(source: string): string {
 // ─── Server Component ───────────────────────────────────────────────────────
 
 export default async function ReportsPage() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
 
   const report: DailyReport = await computeDailyReport(today);
 

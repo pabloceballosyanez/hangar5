@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const dateParam = searchParams.get("date");
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
     const date = dateParam || today;
     const { start, end } = toDateRange(date);
 
