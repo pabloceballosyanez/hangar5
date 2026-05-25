@@ -72,17 +72,28 @@ export async function PUT(
         },
       });
 
-      // When PAID, create payment if not exists
-      if (newStatus === "PAID" && !updated.payments[0]) {
-        await tx.payment.create({
-          data: {
-            orderId,
-            amount: order.total,
-            method: "CASH",
-            status: "COMPLETED",
-            paidAt: new Date(),
-          },
-        });
+      // When PAID, complete any pending payment or create CASH one
+      if (newStatus === "PAID") {
+        const pendingPayment = updated.payments.find((p) => p.status === "PENDING");
+        if (pendingPayment) {
+          await tx.payment.update({
+            where: { id: pendingPayment.id },
+            data: {
+              status: "COMPLETED",
+              paidAt: new Date(),
+            },
+          });
+        } else if (!updated.payments[0]) {
+          await tx.payment.create({
+            data: {
+              orderId,
+              amount: order.total,
+              method: "CASH",
+              status: "COMPLETED",
+              paidAt: new Date(),
+            },
+          });
+        }
       }
 
       return { order: updated, statusEvent };
