@@ -14,9 +14,10 @@ function formatPesos(cents: number): string {
 }
 
 function getTodayBounds() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const end = new Date(start.getTime() + 86400000);
+  // Use Mexico City timezone (CST = UTC-6), not server local time
+  const dateStr = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
+  const start = new Date(dateStr + "T00:00:00.000-06:00");
+  const end = new Date(dateStr + "T23:59:59.999-06:00");
   return { start, end };
 }
 
