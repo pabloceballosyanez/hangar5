@@ -82,3 +82,33 @@ export async function PUT(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Error" }, { status: 500 });
   }
 }
+
+// ─── DELETE: eliminar cliente y sus registros asociados ─────────────────────
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  try {
+    const { customerId } = await params;
+
+    const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+    if (!customer) return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
+
+    // 1. Delete payments linked to this customer
+    await prisma.payment.deleteMany({ where: { customerId } });
+
+    // 2. Delete ledger entries
+    await prisma.customerLedgerEntry.deleteMany({ where: { customerId } });
+
+    // 3. Unlink sessions (set customerId to null so session history stays)
+    await prisma.serviceSession.updateMany({
+      where: { customerId },
+      data: { customerId: null },
+    });
+
+    // 4. Delete the customer
+    await prisma.customer.delete({ where: { id: customerId } });
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("[DELETE /api/admin/restaurant/customers/[customerId]]", err);
+    return NextResponse.json({ error: "Error al eliminar" }, { status: 500 });
+  }
+}

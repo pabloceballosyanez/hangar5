@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 
 interface Customer {
@@ -16,13 +16,32 @@ interface Customer {
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadCustomers = useCallback(() => {
     fetch('/api/admin/restaurant/customers')
       .then(r => r.json())
       .then(data => { setCustomers(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => { loadCustomers(); }, [loadCustomers]);
+
+  async function handleDelete(customerId: string, name: string, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!confirm(`¿Eliminar a ${name}? Se borrarán sus pagos y movimientos contables. Las sesiones se conservarán sin cliente asignado.`)) return;
+    setDeleting(customerId);
+    try {
+      const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al eliminar');
+      setCustomers(prev => prev.filter(c => c.id !== customerId));
+    } catch {
+      alert('No se pudo eliminar el cliente');
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -51,45 +70,55 @@ export default function CustomersPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {customers.map(c => (
-            <Link
-              key={c.id}
-              href={`/admin/restaurant/customers/${c.id}`}
-              className="block bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow group"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                    {c.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{c.name}</p>
-                    {c.phone && <p className="text-xs text-gray-400">{c.phone}</p>}
+            <div key={c.id} className="relative group">
+              <Link
+                href={`/admin/restaurant/customers/${c.id}`}
+                className="block bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                      {c.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{c.name}</p>
+                      {c.phone && <p className="text-xs text-gray-400">{c.phone}</p>}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Visitas</span>
-                  <span className="font-medium text-gray-700">{c._count.sessions}</span>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Visitas</span>
+                    <span className="font-medium text-gray-700">{c._count.sessions}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Saldo</span>
+                    <span className={`font-bold ${c.balance > 0 ? 'text-red-600' : c.balance < 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                      {c.balance > 0 ? `Debe $${c.balance.toFixed(2)}` : c.balance < 0 ? `Crédito $${Math.abs(c.balance).toFixed(2)}` : '$0.00'}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Saldo</span>
-                  <span className={`font-bold ${c.balance > 0 ? 'text-red-600' : c.balance < 0 ? 'text-green-600' : 'text-gray-400'}`}>
-                    {c.balance > 0 ? `Debe $${c.balance.toFixed(2)}` : c.balance < 0 ? `Crédito $${Math.abs(c.balance).toFixed(2)}` : '$0.00'}
+
+                <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    {c.isActive ? 'Activo' : 'Inactivo'}
+                  </span>
+                  <span className="text-gray-300 group-hover:text-gray-400 transition-colors text-sm">
+                    Ver →
                   </span>
                 </div>
-              </div>
-
-              <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                  {c.isActive ? 'Activo' : 'Inactivo'}
-                </span>
-                <span className="text-gray-300 group-hover:text-gray-400 transition-colors text-sm">
-                  Ver →
-                </span>
-              </div>
-            </Link>
+              </Link>
+              {/* Delete button — outside the Link to stop propagation */}
+              <button
+                onClick={(e) => handleDelete(c.id, c.name, e)}
+                disabled={deleting === c.id}
+                className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300 opacity-0 group-hover:opacity-100 transition-all text-xs disabled:opacity-50 shadow-sm"
+                title="Eliminar cliente"
+              >
+                {deleting === c.id ? '⋯' : '✕'}
+              </button>
+            </div>
           ))}
         </div>
       )}

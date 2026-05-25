@@ -59,6 +59,7 @@ export default function CustomerDetailPage() {
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
   const [paySuccess, setPaySuccess] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Edit state
   const [editName, setEditName] = useState('');
@@ -162,7 +163,27 @@ export default function CustomerDetailPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="mb-6">
         <Link href="/admin/restaurant/customers" className="text-sm text-gray-500 hover:text-gray-700">← Volver a clientes</Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">{customer.name}</h1>
+        <div className="flex items-center justify-between mt-2">
+          <h1 className="text-2xl font-bold text-gray-900">{customer.name}</h1>
+          <button
+            onClick={async () => {
+              if (!confirm(`¿Eliminar a ${customer.name}? Se borrarán sus pagos y movimientos contables.`)) return;
+              setDeleting(true);
+              try {
+                const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Error');
+                router.push('/admin/restaurant/customers');
+              } catch {
+                alert('No se pudo eliminar');
+                setDeleting(false);
+              }
+            }}
+            disabled={deleting}
+            className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+          >
+            {deleting ? 'Eliminando...' : '🗑 Eliminar'}
+          </button>
+        </div>
       </div>
 
       {/* ─── Cobrar deuda (siempre que tenga saldo pendiente) ─── */}
