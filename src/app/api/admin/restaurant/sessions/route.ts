@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
         type,
         label: label.trim(),
         tableId: tableId || null,
-        customerId: finalCustomerId,
+        customerId: customerId || null,
       },
       include: {
         table: { select: { number: true, name: true } },
