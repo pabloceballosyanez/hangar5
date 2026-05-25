@@ -29,7 +29,7 @@ export default async function RestaurantDashboardPage() {
   const { start: todayStart, end: todayEnd } = getTodayBounds();
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
-  const [activeOrdersCount, dailySalesResult, occupiedSessionsCount, staffPresentCount, totalMenuItems] =
+  const [activeOrdersCount, dailyPaymentsResult, occupiedSessionsCount, staffPresentCount, totalMenuItems] =
     await Promise.all([
       prisma.order.count({
         where: {
@@ -37,11 +37,11 @@ export default async function RestaurantDashboardPage() {
           createdAt: { gte: todayStart, lt: todayEnd },
         },
       }),
-      prisma.order.aggregate({
-        _sum: { total: true },
+      prisma.payment.aggregate({
+        _sum: { amount: true },
         where: {
-          status: "PAID",
-          createdAt: { gte: todayStart, lt: todayEnd },
+          status: "COMPLETED",
+          paidAt: { gte: todayStart, lt: todayEnd },
         },
       }),
       prisma.serviceSession.count({
@@ -72,7 +72,7 @@ export default async function RestaurantDashboardPage() {
       }),
     ]);
 
-  const dailySales = dailySalesResult._sum.total ?? 0;
+  const dailySales = dailyPaymentsResult._sum.amount ?? 0;
 
   // ─── Recent orders ──────────────────────────────────────────────────────────
   const recentOrders = await prisma.order.findMany({
