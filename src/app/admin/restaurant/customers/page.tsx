@@ -27,17 +27,18 @@ export default function CustomersPage() {
 
   useEffect(() => { loadCustomers(); }, [loadCustomers]);
 
-  async function handleDelete(customerId: string, name: string, e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!confirm(`¿Eliminar a ${name}? Se borrarán sus pagos y movimientos contables. Las sesiones se conservarán sin cliente asignado.`)) return;
+  async function handleDelete(customerId: string, name: string) {
+    if (!confirm(`¿Eliminar a ${name}? Se borrarán sus pagos y movimientos contables.`)) return;
     setDeleting(customerId);
     try {
       const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Error al eliminar');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error || 'Error del servidor');
+      }
       setCustomers(prev => prev.filter(c => c.id !== customerId));
-    } catch {
-      alert('No se pudo eliminar el cliente');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'No se pudo eliminar el cliente');
     } finally {
       setDeleting(null);
     }
@@ -70,10 +71,10 @@ export default function CustomersPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {customers.map(c => (
-            <div key={c.id} className="relative group">
+            <div key={c.id} className="relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
               <Link
                 href={`/admin/restaurant/customers/${c.id}`}
-                className="block bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow"
+                className="block p-5"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
@@ -109,11 +110,12 @@ export default function CustomersPage() {
                   </span>
                 </div>
               </Link>
-              {/* Delete button — outside the Link to stop propagation */}
+              {/* Delete button always visible, outside Link */}
               <button
-                onClick={(e) => handleDelete(c.id, c.name, e)}
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(c.id, c.name); }}
                 disabled={deleting === c.id}
-                className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300 opacity-0 group-hover:opacity-100 transition-all text-xs disabled:opacity-50 shadow-sm"
+                className="absolute top-3 right-3 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300 hover:bg-red-50 transition-all text-xs disabled:opacity-50 shadow-sm"
                 title="Eliminar cliente"
               >
                 {deleting === c.id ? '⋯' : '✕'}
