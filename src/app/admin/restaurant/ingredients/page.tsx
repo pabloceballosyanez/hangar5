@@ -137,12 +137,20 @@ export default function IngredientsPage() {
             {activeIngredients.length} ingredientes activos
           </p>
         </div>
-        <button
-          onClick={() => { resetForm(); setShowForm(true); }}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          + Nuevo ingrediente
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/restaurant/inventory/scan"
+            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1.5"
+          >
+            📸 Escanear recibo
+          </Link>
+          <button
+            onClick={() => { resetForm(); setShowForm(true); }}
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            + Nuevo ingrediente
+          </button>
+        </div>
       </div>
 
       {/* Form */}
