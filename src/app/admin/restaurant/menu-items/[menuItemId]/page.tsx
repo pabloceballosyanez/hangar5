@@ -64,7 +64,7 @@ interface ModifierGroup {
   minSelections: number;
   maxSelections: number;
   isRequired: boolean;
-  modifiers: { name: string }[];
+  modifiers: { name: string; priceDelta?: number }[];
   menuItemModifierGroups?: unknown[];
 }
 
@@ -555,13 +555,13 @@ export default function EditMenuItemPage() {
                   <Link href="/admin/restaurant/modifier-groups" className="text-blue-600 underline">Crear grupos</Link>
                 </p>
               ) : (
-                <div className="space-y-1.5 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                <div className="space-y-1.5 max-h-80 overflow-y-auto border border-gray-200 rounded-lg p-2">
                   {modifierGroups.map((mg) => {
                     const isSelected = selectedModifierGroupIds.includes(mg.id);
                     return (
                       <label
                         key={mg.id}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                        className={`flex items-start gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
                           isSelected ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50 border border-transparent'
                         }`}
                       >
@@ -573,16 +573,26 @@ export default function EditMenuItemPage() {
                               prev.includes(mg.id) ? prev.filter((id) => id !== mg.id) : [...prev, mg.id]
                             );
                           }}
-                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{mg.name}</p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-sm font-medium text-gray-900">{mg.name}</p>
+                          <p className="text-xs text-gray-400 mb-1">
                             {mg.modifiers?.length || 0} opciones
                             {mg.isRequired && ' · Obligatorio'}
                             {mg.minSelections > 0 && ` · Mín ${mg.minSelections}`}
                             {mg.maxSelections > 1 && ` · Máx ${mg.maxSelections}`}
                           </p>
+                          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                            {(mg.modifiers || []).map((mod, i) => (
+                              <span key={i} className="text-xs text-gray-500">
+                                • {mod.name}
+                                {mod.priceDelta !== undefined && mod.priceDelta !== 0 && (
+                                  <span className="text-gray-400"> (+${mod.priceDelta.toFixed(2)})</span>
+                                )}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       </label>
                     );
