@@ -34,6 +34,30 @@ interface MenuItem {
   menuItemModifierGroups?: { modifierGroup: { id: string; name: string; modifiers: { name: string }[] } }[];
 }
 
+interface Ingredient {
+  id: string;
+  name: string;
+  unit: string;
+  cost: number;
+  isActive: boolean;
+}
+
+interface RecipeItem {
+  id?: string;
+  ingredientId: string;
+  ingredientName?: string;
+  ingredientUnit?: string;
+  ingredientCost?: number;
+  quantity: number;
+}
+
+interface Recipe {
+  id?: string;
+  yieldQuantity: number;
+  notes: string | null;
+  recipeItems: RecipeItem[];
+}
+
 interface ModifierGroup {
   id: string;
   name: string;
@@ -67,6 +91,15 @@ export default function EditMenuItemPage() {
   const [isActive, setIsActive] = useState(true);
   const [variants, setVariants] = useState<Variant[]>([]);
 
+  // Recipe state
+  const [hasRecipe, setHasRecipe] = useState(false);
+  const [recipeYield, setRecipeYield] = useState<number | ''>(1);
+  const [recipeNotes, setRecipeNotes] = useState('');
+  const [recipeItems, setRecipeItems] = useState<RecipeItem[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [addIngredientId, setAddIngredientId] = useState('');
+  const [addIngredientQty, setAddIngredientQty] = useState('');
+
   // UI state
   const [categories, setCategories] = useState<Category[]>([]);
   const [modifierGroups, setModifierGroups] = useState<ModifierGroup[]>([]);
@@ -79,18 +112,21 @@ export default function EditMenuItemPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [itemRes, catRes, mgRes] = await Promise.all([
+        const [itemRes, catRes, mgRes, ingRes] = await Promise.all([
           fetch(`/api/admin/restaurant/menu-items/${menuItemId}`),
           fetch('/api/admin/restaurant/categories'),
           fetch('/api/admin/restaurant/modifier-groups'),
+          fetch('/api/admin/restaurant/ingredients'),
         ]);
 
         if (!itemRes.ok) throw new Error('Item no encontrado');
         const item: MenuItem = await itemRes.json();
         const cats: Category[] = await catRes.json();
         const mgs: ModifierGroup[] = await mgRes.json();
+        const ings: Ingredient[] = await ingRes.json();
         setCategories(cats);
         setModifierGroups(Array.isArray(mgs) ? mgs : []);
+        setIngredients(Array.isArray(ings) ? ings.filter((i: Ingredient) => i.isActive) : []);
 
         setName(item.name);
         setCategoryId(item.categoryId);
@@ -104,6 +140,25 @@ export default function EditMenuItemPage() {
         setVariants(item.variants || []);
         const existingIds = (item.menuItemModifierGroups || []).map((mg) => mg.modifierGroup.id);
         setSelectedModifierGroupIds(existingIds);
+
+        // Recipe
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const itemAny = item as any;
+        if (itemAny.recipe) {
+          setHasRecipe(true);
+          setRecipeYield(itemAny.recipe.yieldQuantity || 1);
+          setRecipeNotes(itemAny.recipe.notes || '');
+          setRecipeItems(
+            (itemAny.recipe.recipeItems || []).map((ri: any) => ({
+              id: ri.id,
+              ingredientId: ri.ingredientId || ri.ingredient?.id,
+              ingredientName: ri.ingredient?.name || ri.ingredientName,
+              ingredientUnit: ri.ingredient?.unit || ri.ingredientUnit,
+              ingredientCost: ri.ingredient?.cost ?? ri.ingredientCost,
+              quantity: ri.quantity,
+            }))
+          );
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Error al cargar');
       } finally {
@@ -126,6 +181,53 @@ export default function EditMenuItemPage() {
   function removeVariant(idx: number) {
     setVariants(variants.filter((_, i) => i !== idx));
   }
+
+  // ─── Recipe helpers ──────────────────────────────────────────────────────
+  function addRecipeItem() {
+    if (!addIngredientId || !addIngredientQty) return;
+    const qty = parseFloat(addIngredientQty);
+    if (isNaN(qty) || qty <= 0) return;
+    const ing = ingredients.find((i) => i.id === addIngredientId);
+    if (!ing) return;
+    setRecipeItems((prev) => [
+      ...prev,
+      { ingredientId: ing.id, ingredientName: ing.name, ingredientUnit: ing.unit, ingredientCost: ing.cost, quantity: qty },
+    ]);
+    setAddIngredientId('');
+    setAddIngredientQty('');
+  }
+
+  function removeRecipeItem(idx: number) {
+    setRecipeItems((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  function handleToggleRecipe() {
+    if (hasRecipe && recipeItems.length > 0) {
+      if (!confirm('¿Desactivar receta? Se eliminarán todos los ingredientes asociados.')) return;
+    }
+    setHasRecipe(!hasRecipe);
+    if (hasRecipe) {
+      // Turning off — reset recipe state
+      setRecipeYield(1);
+      setRecipeNotes('');
+      setRecipeItems([]);
+    }
+  }
+
+  // ─── Recipe cost calculations ────────────────────────────────────────────
+  const recipeTotalCost = recipeItems.reduce(
+    (sum, ri) => sum + (ri.ingredientCost || 0) * ri.quantity,
+    0
+  );
+  const yieldQty = Number(recipeYield) || 1;
+  const costPerPortion = recipeTotalCost / yieldQty;
+  const basePrice = Number(basePricePesos) || 0;
+  const margin = basePrice - costPerPortion;
+  const marginPct = basePrice > 0 ? (margin / basePrice) * 100 : 0;
+
+  // Get available ingredients (not already in recipe)
+  const usedIngredientIds = new Set(recipeItems.map((ri) => ri.ingredientId));
+  const availableIngredients = ingredients.filter((ing) => !usedIngredientIds.has(ing.id));
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -164,6 +266,16 @@ export default function EditMenuItemPage() {
             isDefault: v.isDefault,
           })),
         modifierGroupIds: selectedModifierGroupIds,
+        recipe: hasRecipe
+          ? {
+              yieldQuantity: Number(recipeYield) || 1,
+              notes: recipeNotes.trim() || null,
+              recipeItems: recipeItems.map((ri) => ({
+                ingredientId: ri.ingredientId,
+                quantity: ri.quantity,
+              })),
+            }
+          : null,
       };
 
       const res = await fetch(`/api/admin/restaurant/menu-items/${menuItemId}`, {
@@ -223,7 +335,7 @@ export default function EditMenuItemPage() {
 
   return (
     <div className="flex flex-col items-center py-8 px-4">
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-3xl">
         <div className="mb-6">
           <Link href="/admin/restaurant/menu-items" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
             ← Volver al menú
@@ -475,6 +587,181 @@ export default function EditMenuItemPage() {
                       </label>
                     );
                   })}
+                </div>
+              )}
+            </div>
+
+            {/* ── Recipe Toggle + Section ── */}
+            <div className="border-t border-gray-200 pt-5">
+              <div className="flex items-center gap-3 mb-1">
+                <input
+                  type="checkbox"
+                  id="hasRecipe"
+                  checked={hasRecipe}
+                  onChange={handleToggleRecipe}
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                />
+                <label htmlFor="hasRecipe" className="text-sm font-semibold text-gray-800">
+                  Tiene receta
+                </label>
+              </div>
+              <p className="text-xs text-gray-400 ml-7 mb-3">
+                Actívala para calcular el costo de ingredientes y margen del platillo
+              </p>
+
+              {hasRecipe && (
+                <div className="ml-7 space-y-4 animate-fadeIn">
+                  {/* Yield + Notes */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Rendimiento (porciones)</label>
+                      <input
+                        type="number"
+                        value={recipeYield}
+                        onChange={(e) => setRecipeYield(e.target.value === '' ? '' : Number(e.target.value))}
+                        min={0.5}
+                        step={0.5}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Notas</label>
+                      <input
+                        type="text"
+                        value={recipeNotes}
+                        onChange={(e) => setRecipeNotes(e.target.value)}
+                        placeholder="Instrucciones, tips..."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Add ingredient */}
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs font-medium text-gray-700 mb-2">+ Agregar ingrediente</p>
+                    <div className="flex gap-2">
+                      <select
+                        value={addIngredientId}
+                        onChange={(e) => setAddIngredientId(e.target.value)}
+                        className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                      >
+                        <option value="">Seleccionar...</option>
+                        {availableIngredients.map((ing) => (
+                          <option key={ing.id} value={ing.id}>
+                            {ing.name} ({ing.unit})
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="number"
+                        value={addIngredientQty}
+                        onChange={(e) => setAddIngredientQty(e.target.value)}
+                        placeholder="Cant."
+                        step="0.01"
+                        min="0.01"
+                        className="w-20 px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={addRecipeItem}
+                        disabled={!addIngredientId || !addIngredientQty}
+                        className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                      >
+                        Agregar
+                      </button>
+                    </div>
+                    {availableIngredients.length === 0 && ingredients.length > 0 && (
+                      <p className="text-xs text-amber-600 mt-2">Todos los ingredientes ya están en la receta.</p>
+                    )}
+                    {ingredients.length === 0 && (
+                      <p className="text-xs text-gray-400 mt-2">
+                        No hay ingredientes.{' '}
+                        <Link href="/admin/restaurant/ingredients" className="text-blue-600 underline">
+                          Crear ingredientes
+                        </Link>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Ingredients table */}
+                  {recipeItems.length > 0 && (
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-gray-50 border-b border-gray-200">
+                            <th className="text-left py-2 px-3 font-medium text-gray-500">Ingrediente</th>
+                            <th className="text-center py-2 px-3 font-medium text-gray-500 w-16">Cant.</th>
+                            <th className="text-right py-2 px-3 font-medium text-gray-500 w-20">Costo unit.</th>
+                            <th className="text-right py-2 px-3 font-medium text-gray-500 w-20">Subtotal</th>
+                            <th className="w-8"></th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {recipeItems.map((ri, idx) => {
+                            const subtotal = (ri.ingredientCost || 0) * ri.quantity;
+                            return (
+                              <tr key={idx} className="hover:bg-gray-50">
+                                <td className="py-2 px-3 text-gray-900">{ri.ingredientName}</td>
+                                <td className="py-2 px-3 text-center text-gray-600">
+                                  {ri.quantity} {ri.ingredientUnit}
+                                </td>
+                                <td className="py-2 px-3 text-right text-gray-600">
+                                  ${(ri.ingredientCost || 0).toFixed(2)}
+                                </td>
+                                <td className="py-2 px-3 text-right font-medium text-gray-900">
+                                  ${subtotal.toFixed(2)}
+                                </td>
+                                <td className="py-2 px-1 text-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => removeRecipeItem(idx)}
+                                    className="text-red-400 hover:text-red-600 text-xs"
+                                  >
+                                    ✕
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot>
+                          <tr className="bg-gray-50 border-t border-gray-200">
+                            <td colSpan={3} className="py-2 px-3 text-right text-xs font-medium text-gray-500">
+                              Costo total:
+                            </td>
+                            <td className="py-2 px-3 text-right text-xs font-bold text-gray-900">
+                              ${recipeTotalCost.toFixed(2)}
+                            </td>
+                            <td></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Margin cards */}
+                  {recipeItems.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="bg-gray-50 rounded-lg p-3 text-center">
+                        <p className="text-xs text-gray-500">Costo / porción</p>
+                        <p className={`text-sm font-bold ${costPerPortion > 0 ? 'text-amber-600' : 'text-gray-400'}`}>
+                          ${costPerPortion.toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3 text-center">
+                        <p className="text-xs text-gray-500">Margen</p>
+                        <p className={`text-sm font-bold ${margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          ${margin.toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3 text-center">
+                        <p className="text-xs text-gray-500">% Rentabilidad</p>
+                        <p className={`text-sm font-bold ${marginPct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {marginPct.toFixed(0)}%
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

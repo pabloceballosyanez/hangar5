@@ -38,6 +38,7 @@ export default async function MenuItemsPage({
       include: {
         category: true,
         variants: true,
+        recipe: { select: { id: true } },
       },
       orderBy: [{ category: { sortOrder: "asc" } }, { sortOrder: "asc" }],
     }),
@@ -115,7 +116,12 @@ export default async function MenuItemsPage({
                           />
                         )}
                         <div>
-                          <p className="font-medium text-gray-900">{item.name}</p>
+                          <p className="font-medium text-gray-900">
+                            {item.name}
+                            {item.recipe && (
+                              <span className="ml-1.5 text-amber-500 text-xs" title="Tiene receta">📖</span>
+                            )}
+                          </p>
                           {item.description && (
                             <p className="text-xs text-gray-400 line-clamp-1">
                               {item.description}

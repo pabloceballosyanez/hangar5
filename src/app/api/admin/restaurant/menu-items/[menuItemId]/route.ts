@@ -9,6 +9,7 @@ type Params = { params: Promise<{ menuItemId: string }> };
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function serializeItem(item: Record<string, unknown>) {
+  const recipe = item.recipe as Record<string, unknown> | null | undefined;
   return {
     ...item,
     basePrice: typeof item.basePrice === "number" ? item.basePrice / 100 : item.basePrice,
@@ -18,6 +19,24 @@ function serializeItem(item: Record<string, unknown>) {
           priceDelta: typeof v.priceDelta === "number" ? v.priceDelta / 100 : v.priceDelta,
         }))
       : undefined,
+    recipe: recipe
+      ? {
+          ...recipe,
+          recipeItems: Array.isArray(recipe.recipeItems)
+            ? (recipe.recipeItems as Record<string, unknown>[]).map((ri) => ({
+                ...ri,
+                ingredient: ri.ingredient
+                  ? {
+                      ...(ri.ingredient as Record<string, unknown>),
+                      cost: typeof (ri.ingredient as Record<string, unknown>).cost === "number"
+                        ? (ri.ingredient as Record<string, unknown>).cost as number / 100
+                        : (ri.ingredient as Record<string, unknown>).cost,
+                    }
+                  : undefined,
+              }))
+            : [],
+        }
+      : null,
   };
 }
 
@@ -34,6 +53,13 @@ export async function GET(_req: NextRequest, { params }: Params) {
           include: {
             modifierGroup: {
               include: { modifiers: true },
+            },
+          },
+        },
+        recipe: {
+          include: {
+            recipeItems: {
+              include: { ingredient: true },
             },
           },
         },
@@ -58,6 +84,17 @@ const variantSchema = z.object({
   isDefault: z.boolean().default(false),
 });
 
+const recipeItemSchema = z.object({
+  ingredientId: z.string().min(1),
+  quantity: z.number().positive(),
+});
+
+const recipeSchema = z.object({
+  yieldQuantity: z.number().positive().default(1),
+  notes: z.string().optional().nullable(),
+  recipeItems: z.array(recipeItemSchema).default([]),
+});
+
 const updateMenuItemSchema = z.object({
   categoryId: z.string().optional(),
   name: z.string().min(1).optional(),
@@ -71,6 +108,7 @@ const updateMenuItemSchema = z.object({
   sku: z.string().optional().nullable(),
   variants: z.array(variantSchema).optional(),
   modifierGroupIds: z.array(z.string()).optional(),
+  recipe: recipeSchema.optional().nullable(),
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {
@@ -87,7 +125,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Item no encontrado" }, { status: 404 });
     }
 
-    const { variants, modifierGroupIds, ...itemData } = parsed.data;
+    const { variants, modifierGroupIds, recipe, ...itemData } = parsed.data;
 
     const item = await prisma.$transaction(async (tx) => {
       const updated = await tx.menuItem.update({
@@ -118,6 +156,30 @@ export async function PUT(req: NextRequest, { params }: Params) {
         }
       }
 
+      // Handle recipe: null = delete, object = upsert
+      if (recipe === null) {
+        await tx.recipeItem.deleteMany({ where: { recipe: { menuItemId } } });
+        await tx.recipe.deleteMany({ where: { menuItemId } });
+      } else if (recipe) {
+        const { recipeItems, ...recipeData } = recipe;
+        const upsertedRecipe = await tx.recipe.upsert({
+          where: { menuItemId },
+          create: { ...recipeData, menuItemId },
+          update: recipeData,
+        });
+        // Replace recipeItems
+        await tx.recipeItem.deleteMany({ where: { recipeId: upsertedRecipe.id } });
+        if (recipeItems.length > 0) {
+          await tx.recipeItem.createMany({
+            data: recipeItems.map((ri) => ({
+              recipeId: upsertedRecipe.id,
+              ingredientId: ri.ingredientId,
+              quantity: ri.quantity,
+            })),
+          });
+        }
+      }
+
       return tx.menuItem.findUnique({
         where: { id: updated.id },
         include: {
@@ -126,6 +188,13 @@ export async function PUT(req: NextRequest, { params }: Params) {
           menuItemModifierGroups: {
             include: {
               modifierGroup: { include: { modifiers: true } },
+            },
+          },
+          recipe: {
+            include: {
+              recipeItems: {
+                include: { ingredient: true },
+              },
             },
           },
         },

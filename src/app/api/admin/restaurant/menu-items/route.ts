@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
       include: {
         category: true,
         variants: { orderBy: { isDefault: "desc" } },
+        recipe: { select: { id: true } },
       },
       orderBy: [{ categoryId: "asc" }, { sortOrder: "asc" }],
     });

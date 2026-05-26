@@ -14,7 +14,6 @@ const sidebarLinks = [
   { href: '/admin/restaurant/orders', label: 'Órdenes', icon: '📦' },
   { href: '/kds', label: 'KDS Cocina', icon: '👨‍🍳' },
   { href: '/admin/restaurant/ingredients', label: 'Inventario', icon: '🧂' },
-  { href: '/admin/restaurant/recipes', label: 'Recetas', icon: '📖' },
   { href: '/admin/restaurant/fixed-expenses', label: 'Gastos Fijos', icon: '💰' },
   { href: '/admin/restaurant/reports', label: 'Reportes', icon: '📊' },
   { href: '/admin/restaurant/staff', label: 'Staff', icon: '👤' },
@@ -188,6 +187,13 @@ export default function RestaurantLayout({
         }
         .animate-slide-in-left {
           animation: slide-in-left 0.2s ease-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.25s ease-out;
         }
       `}</style>
     </div>
