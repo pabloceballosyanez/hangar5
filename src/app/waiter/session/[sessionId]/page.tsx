@@ -46,11 +46,18 @@ function OrderCard({ summary, onExpand }: {
   onExpand: (id: string) => void;
 }) {
   const st = STATUS_LABELS[summary.status] ?? { label: summary.status, color: 'text-slate-400' };
+  const isReady = summary.status === 'READY';
   return (
-    <button onClick={() => onExpand(summary.id)} className="w-full flex items-center justify-between p-4 bg-slate-800/60 hover:bg-slate-800 rounded-xl border border-slate-700/50 transition-all active:scale-[0.98] text-left">
+    <button onClick={() => onExpand(summary.id)} className={`w-full flex items-center justify-between p-4 rounded-xl transition-all active:scale-[0.98] text-left ${
+      isReady
+        ? 'bg-emerald-950/60 border-2 border-emerald-500/50 hover:bg-emerald-950 animate-pulse'
+        : 'bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50'
+    }`}>
       <div>
         <p className="text-xs text-slate-500 mb-0.5">{fmtTime(summary.createdAt)}</p>
-        <p className={`text-sm font-semibold ${st.color}`}>{st.label}</p>
+        <p className={`text-sm font-semibold ${st.color}`}>
+          {isReady && <span className="mr-1">🍽</span>}{st.label}
+        </p>
       </div>
       <div className="text-right">
         <p className="text-white font-bold">{fmt(summary.total)}</p>

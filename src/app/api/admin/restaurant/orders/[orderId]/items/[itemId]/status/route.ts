@@ -48,7 +48,7 @@ export async function PUT(
         },
       });
 
-      // Check if all items are READY or CANCELLED → update order to READY
+      // Check order-level status transitions
       const allItems = await tx.orderItem.findMany({
         where: { orderId },
         select: { id: true, status: true },
@@ -59,17 +59,37 @@ export async function PUT(
       );
       const anyReady = allItems.some((i) => i.status === "READY");
 
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        select: { status: true },
+      });
+
+      // Auto-advance PLACED → IN_KITCHEN when first item is marked ready
+      if (order?.status === "PLACED" && anyReady) {
+        await tx.orderStatusEvent.create({
+          data: {
+            orderId,
+            fromStatus: "PLACED",
+            toStatus: "IN_KITCHEN",
+          },
+        });
+        await tx.order.update({
+          where: { id: orderId },
+          data: { status: "IN_KITCHEN" },
+        });
+      }
+
+      // Auto-advance to READY when all items are done
       if (allDoneOrCancelled && anyReady) {
-        const order = await tx.order.findUnique({
+        const updatedOrder = await tx.order.findUnique({
           where: { id: orderId },
           select: { status: true },
         });
-        // Only auto-advance if order is in IN_KITCHEN state
-        if (order?.status === "IN_KITCHEN") {
+        if (updatedOrder?.status === "IN_KITCHEN" || updatedOrder?.status === "PLACED") {
           await tx.orderStatusEvent.create({
             data: {
               orderId,
-              fromStatus: "IN_KITCHEN",
+              fromStatus: updatedOrder.status,
               toStatus: "READY",
             },
           });

@@ -16,16 +16,18 @@ interface Session {
 
 const typeIcon: Record<string, string> = { TABLE: '🪑', TAB: '👤', WALKIN: '🚶' };
 
-function getSessionUrgency(session: Session): 'normal' | 'served' | 'empty' {
+function getSessionUrgency(session: Session): 'normal' | 'ready' | 'served' | 'empty' {
   const active = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
   if (active.length === 0) return 'empty';
   if (active.some(o => o.status === 'SERVED')) return 'served';
+  if (active.some(o => o.status === 'READY')) return 'ready';
   return 'normal';
 }
 
 const URGENCY_CONFIG: Record<string, { bg: string; border: string; badge: string; label: string }> = {
   empty:   { bg: 'bg-emerald-950/60', border: 'border-emerald-500/40', badge: 'bg-emerald-600', label: 'Vacío' },
   normal:  { bg: 'bg-orange-950/60',  border: 'border-orange-500/40',  badge: 'bg-orange-600',  label: 'Activo' },
+  ready:   { bg: 'bg-green-950/60',   border: 'border-green-500/40',   badge: 'bg-green-600',   label: '¡Listo!' },
   served:  { bg: 'bg-red-950/60',     border: 'border-red-500/40',     badge: 'bg-red-600',     label: 'Cobrar' },
 };
 
@@ -142,11 +144,18 @@ export default function WaiterHomePage() {
                 <span className={`inline-block text-xs px-2 py-0.5 rounded-full text-white font-medium ${cfg.badge}`}>
                   {cfg.label}
                 </span>
-                {activeOrders.length > 0 && (
-                  <p className="text-xs text-amber-400 font-semibold">
-                    {activeOrders.length} ord · ${(total / 100).toFixed(0)}
-                  </p>
-                )}
+                <div className="text-right">
+                  {activeOrders.length > 0 && (
+                    <p className="text-xs text-amber-400 font-semibold">
+                      {activeOrders.length} ord · ${(total / 100).toFixed(0)}
+                    </p>
+                  )}
+                  {urgency === 'ready' && (
+                    <p className="text-xs text-green-400 font-bold animate-pulse">
+                      🍽 {activeOrders.filter(o => o.status === 'READY').length} listo{activeOrders.filter(o => o.status === 'READY').length !== 1 ? 's' : ''}
+                    </p>
+                  )}
+                </div>
               </div>
             </button>
           );
