@@ -19,7 +19,11 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search")?.trim();
-    const where: Record<string, unknown> = { isActive: true };
+    const includeInactive = searchParams.get("includeInactive") === "true";
+    const where: Record<string, unknown> = {};
+    // Search always filters active only (used by waiter app)
+    // includeInactive shows all for admin view
+    if (search || !includeInactive) where.isActive = true;
     if (search) {
       where.OR = [
         { name: { contains: search } },

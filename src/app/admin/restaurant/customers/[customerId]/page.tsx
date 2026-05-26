@@ -167,21 +167,31 @@ export default function CustomerDetailPage() {
           <h1 className="text-2xl font-bold text-gray-900">{customer.name}</h1>
           <button
             onClick={async () => {
-              if (!confirm(`¿Eliminar a ${customer.name}? Los ingresos registrados se conservan. Se borrarán sus movimientos contables.`)) return;
+              const action = customer.isActive ? 'desactivar' : 'reactivar';
+              if (!confirm(`¿${action === 'desactivar' ? 'Desactivar' : 'Reactivar'} a ${customer.name}? ${customer.isActive ? 'No aparecerá en búsquedas pero su historial se conserva.' : 'Volverá a estar disponible.'}`)) return;
               setDeleting(true);
               try {
-                const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, { method: 'DELETE' });
+                const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ isActive: !customer.isActive }),
+                });
                 if (!res.ok) throw new Error('Error');
-                router.push('/admin/restaurant/customers');
+                setCustomer({ ...customer, isActive: !customer.isActive });
               } catch {
-                alert('No se pudo eliminar');
+                alert('No se pudo completar');
+              } finally {
                 setDeleting(false);
               }
             }}
             disabled={deleting}
-            className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg border disabled:opacity-50 transition-colors ${
+              customer.isActive
+                ? 'text-red-600 border-red-200 hover:bg-red-50'
+                : 'text-green-600 border-green-200 hover:bg-green-50'
+            }`}
           >
-            {deleting ? 'Eliminando...' : '🗑 Eliminar'}
+            {deleting ? '⋯' : customer.isActive ? '✕ Desactivar' : '↻ Reactivar'}
           </button>
         </div>
       </div>

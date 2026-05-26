@@ -16,10 +16,10 @@ interface Customer {
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
 
   const loadCustomers = useCallback(() => {
-    fetch('/api/admin/restaurant/customers')
+    fetch('/api/admin/restaurant/customers?includeInactive=true')
       .then(r => r.json())
       .then(data => { setCustomers(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -27,20 +27,22 @@ export default function CustomersPage() {
 
   useEffect(() => { loadCustomers(); }, [loadCustomers]);
 
-  async function handleDelete(customerId: string, name: string) {
-    if (!confirm(`¿Eliminar a ${name}? Los ingresos registrados se conservan. Se borrarán sus movimientos contables.`)) return;
-    setDeleting(customerId);
+  async function handleToggleActive(customerId: string, name: string, currentlyActive: boolean) {
+    const action = currentlyActive ? 'desactivar' : 'reactivar';
+    if (!confirm(`¿${action === 'desactivar' ? 'Desactivar' : 'Reactivar'} a ${name}? ${currentlyActive ? 'No aparecerá en búsquedas del mesero pero su historial se conserva.' : 'Volverá a estar disponible en búsquedas.'}`)) return;
+    setToggling(customerId);
     try {
-      const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as { error?: string }).error || 'Error del servidor');
-      }
-      setCustomers(prev => prev.filter(c => c.id !== customerId));
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'No se pudo eliminar el cliente');
+      const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !currentlyActive }),
+      });
+      if (!res.ok) throw new Error('Error');
+      setCustomers(prev => prev.map(c => c.id === customerId ? { ...c, isActive: !currentlyActive } : c));
+    } catch {
+      alert('No se pudo completar la acción');
     } finally {
-      setDeleting(null);
+      setToggling(null);
     }
   }
 
@@ -71,18 +73,18 @@ export default function CustomersPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {customers.map(c => (
-            <div key={c.id} className="relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div key={c.id} className={`relative rounded-xl shadow-sm border hover:shadow-md transition-shadow ${c.isActive ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-200 opacity-75'}`}>
               <Link
                 href={`/admin/restaurant/customers/${c.id}`}
                 className="block p-5"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg ${c.isActive ? 'bg-gradient-to-br from-blue-500 to-purple-600' : 'bg-gradient-to-br from-gray-400 to-gray-500'}`}>
                       {c.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{c.name}</p>
+                      <p className={`font-semibold transition-colors ${c.isActive ? 'text-gray-900' : 'text-gray-500'}`}>{c.name}</p>
                       {c.phone && <p className="text-xs text-gray-400">{c.phone}</p>}
                     </div>
                   </div>
@@ -102,7 +104,7 @@ export default function CustomersPage() {
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'}`}>
                     {c.isActive ? 'Activo' : 'Inactivo'}
                   </span>
                   <span className="text-gray-300 group-hover:text-gray-400 transition-colors text-sm">
@@ -110,15 +112,19 @@ export default function CustomersPage() {
                   </span>
                 </div>
               </Link>
-              {/* Delete button always visible, outside Link */}
+              {/* Toggle active/inactive button */}
               <button
                 type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(c.id, c.name); }}
-                disabled={deleting === c.id}
-                className="absolute top-3 right-3 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300 hover:bg-red-50 transition-all text-xs disabled:opacity-50 shadow-sm"
-                title="Eliminar cliente"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggleActive(c.id, c.name, c.isActive); }}
+                disabled={toggling === c.id}
+                className={`absolute top-3 right-3 z-10 px-2 py-1 text-xs font-medium rounded-lg border transition-all disabled:opacity-50 shadow-sm ${
+                  c.isActive
+                    ? 'bg-white border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300 hover:bg-red-50'
+                    : 'bg-white border-gray-200 text-gray-400 hover:text-green-500 hover:border-green-300 hover:bg-green-50'
+                }`}
+                title={c.isActive ? 'Desactivar cliente' : 'Reactivar cliente'}
               >
-                {deleting === c.id ? '⋯' : '✕'}
+                {toggling === c.id ? '⋯' : c.isActive ? '✕ Desactivar' : '↻ Reactivar'}
               </button>
             </div>
           ))}

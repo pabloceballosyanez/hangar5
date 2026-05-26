@@ -83,7 +83,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   }
 }
 
-// ─── DELETE: eliminar cliente y sus registros asociados ─────────────────────
+// ─── DELETE: desactivar cliente (soft-delete) ────────────────────────────────
 export async function DELETE(_req: NextRequest, { params }: Params) {
   try {
     const { customerId } = await params;
@@ -91,27 +91,15 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     const customer = await prisma.customer.findUnique({ where: { id: customerId } });
     if (!customer) return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
 
-    // 1. Unlink payments (keep income records, just remove customer reference)
-    await prisma.payment.updateMany({
-      where: { customerId },
-      data: { customerId: null },
+    // Soft-delete: solo desactivar, todo el historial contable se preserva
+    await prisma.customer.update({
+      where: { id: customerId },
+      data: { isActive: false },
     });
-
-    // 2. Delete ledger entries
-    await prisma.customerLedgerEntry.deleteMany({ where: { customerId } });
-
-    // 3. Unlink sessions (set customerId to null so session history stays)
-    await prisma.serviceSession.updateMany({
-      where: { customerId },
-      data: { customerId: null },
-    });
-
-    // 4. Delete the customer
-    await prisma.customer.delete({ where: { id: customerId } });
 
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[DELETE /api/admin/restaurant/customers/[customerId]]", err);
-    return NextResponse.json({ error: "Error al eliminar" }, { status: 500 });
+    return NextResponse.json({ error: "Error al desactivar" }, { status: 500 });
   }
 }
