@@ -78,7 +78,12 @@ export default function WaiterNuevoTabPage() {
         label: label.trim(),
         tableId: tabType === 'TABLE' ? tableId : null,
       };
-      if (tabType === 'TAB' && selectedCustomer) {
+      if (tabType === 'TAB') {
+        if (!selectedCustomer) {
+          setError('Selecciona un cliente de la lista');
+          setSaving(false);
+          return;
+        }
         body.customerId = selectedCustomer.id;
       }
       const res = await fetch('/api/admin/restaurant/sessions', {
@@ -114,7 +119,7 @@ export default function WaiterNuevoTabPage() {
           <div className="grid grid-cols-3 gap-2">
             {[
               { key: 'TABLE', label: '🪑 Mesa', desc: 'Física' },
-              { key: 'TAB', label: '👤 Persona', desc: 'Con nombre' },
+              { key: 'TAB', label: '👤 Cliente', desc: 'Registrado' },
               { key: 'WALKIN', label: '🚶 Walk-in', desc: 'Anónimo' },
             ].map(t => (
               <button key={t.key} type="button" onClick={() => { setTabType(t.key); setSelectedCustomer(null); setCustomerSearch(''); }}
@@ -213,7 +218,7 @@ export default function WaiterNuevoTabPage() {
             )}
             {/* Hint when empty */}
             {!selectedCustomer && !customerSearch && (
-              <p className="text-xs text-slate-600 mt-1.5">Busca clientes por nombre o teléfono (opcional)</p>
+              <p className="text-xs text-slate-600 mt-1.5">Busca por nombre o teléfono</p>
             )}
           </div>
         )}

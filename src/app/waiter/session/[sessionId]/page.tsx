@@ -37,7 +37,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 function fmt(p: number) { return `$${p.toFixed(2)}`; }
 function fmtTime(iso: string) { return new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }); }
 
-const typeLabel: Record<string, string> = { TABLE: 'Mesa', TAB: 'Tab', WALKIN: 'Walk-in' };
+const typeLabel: Record<string, string> = { TABLE: 'Mesa', TAB: 'Cliente', WALKIN: 'Walk-in' };
 
 // ── Order card ────────────────────────────────────────────────────────────────
 
