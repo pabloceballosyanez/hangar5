@@ -91,8 +91,11 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     const customer = await prisma.customer.findUnique({ where: { id: customerId } });
     if (!customer) return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
 
-    // 1. Delete payments linked to this customer
-    await prisma.payment.deleteMany({ where: { customerId } });
+    // 1. Unlink payments (keep income records, just remove customer reference)
+    await prisma.payment.updateMany({
+      where: { customerId },
+      data: { customerId: null },
+    });
 
     // 2. Delete ledger entries
     await prisma.customerLedgerEntry.deleteMany({ where: { customerId } });

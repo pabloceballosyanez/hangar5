@@ -28,7 +28,7 @@ export default function CustomersPage() {
   useEffect(() => { loadCustomers(); }, [loadCustomers]);
 
   async function handleDelete(customerId: string, name: string) {
-    if (!confirm(`¿Eliminar a ${name}? Se borrarán sus pagos y movimientos contables.`)) return;
+    if (!confirm(`¿Eliminar a ${name}? Los ingresos registrados se conservan. Se borrarán sus movimientos contables.`)) return;
     setDeleting(customerId);
     try {
       const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, { method: 'DELETE' });

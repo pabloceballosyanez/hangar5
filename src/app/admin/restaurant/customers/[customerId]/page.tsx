@@ -167,7 +167,7 @@ export default function CustomerDetailPage() {
           <h1 className="text-2xl font-bold text-gray-900">{customer.name}</h1>
           <button
             onClick={async () => {
-              if (!confirm(`¿Eliminar a ${customer.name}? Se borrarán sus pagos y movimientos contables.`)) return;
+              if (!confirm(`¿Eliminar a ${customer.name}? Los ingresos registrados se conservan. Se borrarán sus movimientos contables.`)) return;
               setDeleting(true);
               try {
                 const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, { method: 'DELETE' });
