@@ -78,12 +78,7 @@ export default function WaiterNuevoTabPage() {
         label: label.trim(),
         tableId: tabType === 'TABLE' ? tableId : null,
       };
-      if (tabType === 'TAB') {
-        if (!selectedCustomer) {
-          setError('Selecciona un cliente de la lista');
-          setSaving(false);
-          return;
-        }
+      if (tabType === 'TAB' && selectedCustomer) {
         body.customerId = selectedCustomer.id;
       }
       const res = await fetch('/api/admin/restaurant/sessions', {
@@ -218,7 +213,7 @@ export default function WaiterNuevoTabPage() {
             )}
             {/* Hint when empty */}
             {!selectedCustomer && !customerSearch && (
-              <p className="text-xs text-slate-600 mt-1.5">Escribe para buscar clientes existentes o crear uno nuevo</p>
+              <p className="text-xs text-slate-600 mt-1.5">Busca clientes por nombre o teléfono (opcional)</p>
             )}
           </div>
         )}

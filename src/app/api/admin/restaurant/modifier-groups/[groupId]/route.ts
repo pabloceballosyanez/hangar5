@@ -78,8 +78,13 @@ export async function PUT(req: NextRequest, { params }: Params) {
   }
 }
 
-// ─── DELETE: eliminate group and its modifiers ────────────────────────────────
-export async function DELETE(_req: NextRequest, { params }: Params) {
+// ─── POST: add a single modifier to an existing group ─────────────────────────
+const addModifierSchema = z.object({
+  name: z.string().min(1),
+  priceDelta: z.number().default(0),
+});
+
+export async function POST(req: NextRequest, { params }: Params) {
   try {
     const { groupId } = await params;
 
@@ -88,18 +93,86 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Grupo no encontrado" }, { status: 404 });
     }
 
+    const body = await req.json();
+    const parsed = addModifierSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    }
+
+    // priceDelta arrives in pesos; convert to cents
+    const priceDeltaCents = Math.round(parsed.data.priceDelta * 100);
+
+    const group = await prisma.$transaction(async (tx) => {
+      await tx.modifier.create({
+        data: {
+          name: parsed.data.name,
+          priceDelta: priceDeltaCents,
+          modifierGroupId: groupId,
+        },
+      });
+
+      return tx.modifierGroup.findUnique({
+        where: { id: groupId },
+        include: { modifiers: true },
+      });
+    });
+
+    return NextResponse.json(
+      serializeGroup(group as unknown as Record<string, unknown>),
+      { status: 201 }
+    );
+  } catch (err) {
+    console.error("[POST /api/admin/restaurant/modifier-groups/[groupId]]", err);
+    return NextResponse.json({ error: "Error al agregar modificador" }, { status: 500 });
+  }
+}
+
+// ─── DELETE: eliminate group OR a single modifier ─────────────────────────────
+export async function DELETE(req: NextRequest, { params }: Params) {
+  try {
+    const { groupId } = await params;
+
+    const existing = await prisma.modifierGroup.findUnique({ where: { id: groupId } });
+    if (!existing) {
+      return NextResponse.json({ error: "Grupo no encontrado" }, { status: 404 });
+    }
+
+    // Check for modifierId in body — if present, delete just that modifier
+    let modifierId: string | undefined;
+    try {
+      const body = await req.json();
+      modifierId = body?.modifierId;
+    } catch {
+      // No body — delete the entire group
+    }
+
+    if (modifierId) {
+      // Delete a single modifier
+      const modifier = await prisma.modifier.findUnique({ where: { id: modifierId } });
+      if (!modifier || modifier.modifierGroupId !== groupId) {
+        return NextResponse.json({ error: "Modificador no encontrado en este grupo" }, { status: 404 });
+      }
+
+      await prisma.modifier.delete({ where: { id: modifierId } });
+
+      const group = await prisma.modifierGroup.findUnique({
+        where: { id: groupId },
+        include: { modifiers: true },
+      });
+
+      return NextResponse.json(serializeGroup(group as unknown as Record<string, unknown>));
+    }
+
+    // Delete entire group
     await prisma.$transaction(async (tx) => {
-      // Remove N:N associations
       await tx.menuItemModifierGroup.deleteMany({ where: { modifierGroupId: groupId } });
-      // Remove modifiers
       await tx.modifier.deleteMany({ where: { modifierGroupId: groupId } });
-      // Remove group
       await tx.modifierGroup.delete({ where: { id: groupId } });
     });
 
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("[DELETE /api/admin/restaurant/modifier-groups/[groupId]]", err);
-    return NextResponse.json({ error: "Error al eliminar grupo" }, { status: 500 });
+    return NextResponse.json({ error: "Error al eliminar" }, { status: 500 });
   }
 }

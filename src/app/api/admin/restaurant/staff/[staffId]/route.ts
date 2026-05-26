@@ -14,7 +14,13 @@ function serialize(s: Record<string, unknown>) {
 export async function GET(_req: NextRequest, { params }: Params) {
   try {
     const { staffId } = await params;
-    const staff = await prisma.staff.findUnique({ where: { id: staffId } });
+    const staff = await prisma.staff.findUnique({
+      where: { id: staffId },
+      include: {
+        shifts: { orderBy: { startTime: "desc" }, take: 30 },
+        clocks: { orderBy: { timestamp: "desc" }, take: 30 },
+      },
+    });
     if (!staff) {
       return NextResponse.json({ error: "Staff no encontrado" }, { status: 404 });
     }

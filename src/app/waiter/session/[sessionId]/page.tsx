@@ -233,25 +233,17 @@ export default function WaiterSessionPage() {
   const closeSession = async () => {
     setClosing(true);
     try {
-      const res = await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
+      // Advance all active orders to PAID first (creates order-level payments)
+      const activeOrders = session?.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status)) || [];
+      for (const o of activeOrders) {
+        try { await advanceOrderToPaid(o.id, o.status); } catch { /* ignore */ }
+      }
+      // Close session (payments already recorded per order, pass empty array)
+      await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payments: [] }),
       });
-      // Even if close fails (needs payment), try the legacy close via table sessions
-      if (!res.ok) {
-        // Try to advance all orders to PAID and mark session closed via status
-        const activeOrders = session?.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status)) || [];
-        for (const o of activeOrders) {
-          try { await advanceOrderToPaid(o.id, o.status); } catch { /* ignore */ }
-        }
-        // Try closing again
-        await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ payments: [{ method: 'CASH', amount: 0 }] }),
-        });
-      }
       router.push('/waiter');
     } catch { /* ignore */ } finally { setClosing(false); }
   };

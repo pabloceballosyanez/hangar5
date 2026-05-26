@@ -57,8 +57,8 @@ export async function GET(_req: NextRequest, { params }: Params) {
 const closeSessionSchema = z.object({
   payments: z.array(z.object({
     method: z.enum(["CASH", "CARD", "TRANSFER"]),
-    amount: z.number().positive(),
-  })),
+    amount: z.number().min(0),
+  })).optional().default([]),
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {
@@ -82,13 +82,15 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const totalPaid = parsed.data.payments.reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
 
     const result = await prisma.$transaction(async (tx) => {
-      // Create payment records
+      // Create payment records (skip $0 payments)
       for (const p of parsed.data.payments) {
+        const cents = Math.round(p.amount * 100);
+        if (cents <= 0) continue;
         await tx.payment.create({
           data: {
             serviceSessionId: sessionId,
             customerId: session.customerId,
-            amount: Math.round(p.amount * 100),
+            amount: cents,
             method: p.method,
             status: "COMPLETED",
             paidAt: new Date(),
