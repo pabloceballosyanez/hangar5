@@ -30,7 +30,7 @@ export default async function RestaurantDashboardPage() {
   const { start: todayStart, end: todayEnd } = getTodayBounds();
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
-  const [activeOrdersCount, dailyPaymentsResult, occupiedSessionsCount, staffPresentCount, totalMenuItems] =
+  const [activeOrdersCount, dailyPaymentsResult, occupiedSessionsCount, staffPresentCount, totalMenuItems, lowStockIngredients] =
     await Promise.all([
       prisma.order.count({
         where: {
@@ -70,6 +70,11 @@ export default async function RestaurantDashboardPage() {
       }),
       prisma.menuItem.count({
         where: { isActive: true },
+      }),
+      prisma.ingredient.findMany({
+        where: { isActive: true, currentStock: { lte: prisma.ingredient.fields.minStock } },
+        select: { id: true, name: true, currentStock: true, minStock: true, unit: true },
+        take: 5,
       }),
     ]);
 
@@ -212,7 +217,43 @@ export default async function RestaurantDashboardPage() {
             <p className="mt-1 text-xs text-gray-400">en turno</p>
           </div>
         </Link>
+        {/* Menu items */}
+        <Link
+          href="/admin/restaurant/menu-items"
+          className="block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+        >
+          <div className="p-5">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-gray-500">Items del menú</p>
+              <span className="w-2 h-2 rounded-full bg-cyan-500" />
+            </div>
+            <p className="mt-2 text-3xl font-bold text-gray-900">{totalMenuItems}</p>
+            <p className="mt-1 text-xs text-gray-400">activos</p>
+          </div>
+        </Link>
       </div>
+
+      {/* Low stock alert */}
+      {lowStockIngredients.length > 0 && (
+        <Link
+          href="/admin/restaurant/ingredients"
+          className="block bg-red-50 border border-red-200 rounded-xl p-4 hover:bg-red-100 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-lg">⚠️</span>
+            <p className="text-sm font-semibold text-red-700">
+              Stock bajo — {lowStockIngredients.length} ingrediente(s) necesitan reposición
+            </p>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {lowStockIngredients.map((ing) => (
+              <span key={ing.id} className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full font-medium">
+                {ing.name}: {ing.currentStock}/{ing.minStock} {ing.unit}
+              </span>
+            ))}
+          </div>
+        </Link>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ─── Recent orders ─── */}

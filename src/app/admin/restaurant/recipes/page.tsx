@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 
 interface RecipeSummary {
   id: string;
@@ -319,8 +320,8 @@ export default function RecipesPage() {
                     <td className="py-3 px-4 text-right text-gray-600">{recipe.yieldQuantity} porc.</td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => openDetail(recipe.id)}
-                          className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors">Ver</button>
+                        <Link href={`/admin/restaurant/recipes/${recipe.id}`}
+                          className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors">Ver</Link>
                         <button onClick={() => handleDelete(recipe.id, recipe.menuItemName)}
                           className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">Eliminar</button>
                       </div>

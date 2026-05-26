@@ -31,6 +31,17 @@ interface MenuItem {
   sortOrder: number;
   sku: string | null;
   variants: Variant[];
+  menuItemModifierGroups?: { modifierGroup: { id: string; name: string; modifiers: { name: string }[] } }[];
+}
+
+interface ModifierGroup {
+  id: string;
+  name: string;
+  minSelections: number;
+  maxSelections: number;
+  isRequired: boolean;
+  modifiers: { name: string }[];
+  menuItemModifierGroups?: unknown[];
 }
 
 const PREP_STATIONS = [
@@ -58,6 +69,8 @@ export default function EditMenuItemPage() {
 
   // UI state
   const [categories, setCategories] = useState<Category[]>([]);
+  const [modifierGroups, setModifierGroups] = useState<ModifierGroup[]>([]);
+  const [selectedModifierGroupIds, setSelectedModifierGroupIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -66,15 +79,18 @@ export default function EditMenuItemPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [itemRes, catRes] = await Promise.all([
+        const [itemRes, catRes, mgRes] = await Promise.all([
           fetch(`/api/admin/restaurant/menu-items/${menuItemId}`),
           fetch('/api/admin/restaurant/categories'),
+          fetch('/api/admin/restaurant/modifier-groups'),
         ]);
 
         if (!itemRes.ok) throw new Error('Item no encontrado');
         const item: MenuItem = await itemRes.json();
         const cats: Category[] = await catRes.json();
+        const mgs: ModifierGroup[] = await mgRes.json();
         setCategories(cats);
+        setModifierGroups(Array.isArray(mgs) ? mgs : []);
 
         setName(item.name);
         setCategoryId(item.categoryId);
@@ -86,6 +102,8 @@ export default function EditMenuItemPage() {
         setSortOrder(item.sortOrder);
         setIsActive(item.isActive);
         setVariants(item.variants || []);
+        const existingIds = (item.menuItemModifierGroups || []).map((mg) => mg.modifierGroup.id);
+        setSelectedModifierGroupIds(existingIds);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Error al cargar');
       } finally {
@@ -145,6 +163,7 @@ export default function EditMenuItemPage() {
             priceDelta: Math.round(v.priceDelta * 100),
             isDefault: v.isDefault,
           })),
+        modifierGroupIds: selectedModifierGroupIds,
       };
 
       const res = await fetch(`/api/admin/restaurant/menu-items/${menuItemId}`, {
@@ -409,6 +428,56 @@ export default function EditMenuItemPage() {
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
             )}
+
+            {/* ── Modifier Groups ── */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-700">Modificadores</label>
+                <Link href="/admin/restaurant/modifier-groups" className="text-xs text-blue-600 hover:text-blue-800">
+                  Gestionar grupos →
+                </Link>
+              </div>
+              {modifierGroups.length === 0 ? (
+                <p className="text-xs text-gray-400">
+                  No hay grupos de modificadores.{' '}
+                  <Link href="/admin/restaurant/modifier-groups" className="text-blue-600 underline">Crear grupos</Link>
+                </p>
+              ) : (
+                <div className="space-y-1.5 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                  {modifierGroups.map((mg) => {
+                    const isSelected = selectedModifierGroupIds.includes(mg.id);
+                    return (
+                      <label
+                        key={mg.id}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                          isSelected ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50 border border-transparent'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {
+                            setSelectedModifierGroupIds((prev) =>
+                              prev.includes(mg.id) ? prev.filter((id) => id !== mg.id) : [...prev, mg.id]
+                            );
+                          }}
+                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">{mg.name}</p>
+                          <p className="text-xs text-gray-400">
+                            {mg.modifiers?.length || 0} opciones
+                            {mg.isRequired && ' · Obligatorio'}
+                            {mg.minSelections > 0 && ` · Mín ${mg.minSelections}`}
+                            {mg.maxSelections > 1 && ` · Máx ${mg.maxSelections}`}
+                          </p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
             {/* Actions */}
             <div className="flex gap-3 pt-2">

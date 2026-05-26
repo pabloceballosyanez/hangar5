@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 
 interface Ingredient {
   id: string;
@@ -232,7 +233,7 @@ export default function IngredientsPage() {
                           <tr key={ing.id} className={`hover:bg-gray-50 ${isLowStock ? 'bg-red-50' : ''}`}>
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-gray-900">{ing.name}</span>
+                                <Link href={`/admin/restaurant/ingredients/${ing.id}`} className="font-medium text-gray-900 hover:text-blue-600 transition-colors">{ing.name}</Link>
                                 {isLowStock && (
                                   <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">
                                     Bajo
