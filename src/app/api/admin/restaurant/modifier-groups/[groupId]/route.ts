@@ -20,6 +20,24 @@ function serializeGroup(group: Record<string, unknown>) {
   };
 }
 
+// ─── GET: single modifier group with its modifiers ──────────────────────────
+export async function GET(_req: NextRequest, { params }: Params) {
+  try {
+    const { groupId } = await params;
+    const group = await prisma.modifierGroup.findUnique({
+      where: { id: groupId },
+      include: { modifiers: true },
+    });
+    if (!group) {
+      return NextResponse.json({ error: "Grupo no encontrado" }, { status: 404 });
+    }
+    return NextResponse.json(serializeGroup(group as unknown as Record<string, unknown>));
+  } catch (err) {
+    console.error("[GET /api/admin/restaurant/modifier-groups/[groupId]]", err);
+    return NextResponse.json({ error: "Error al obtener grupo" }, { status: 500 });
+  }
+}
+
 // ─── PUT: update group + modifiers (delete/recreate) ─────────────────────────
 const modifierSchema = z.object({
   name: z.string().min(1),
