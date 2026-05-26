@@ -149,7 +149,7 @@ Responde SOLO con un JSON válido, sin markdown, sin explicaciones:
         price: item.precio,
         matchedIngredientId: matched?.id || null,
         matchedIngredientName: matched?.name || null,
-        confidence: (matched ? "HIGH" : "LOW") as const,
+        confidence: (matched ? "HIGH" : "LOW") as ScannedItem["confidence"],
       };
     });
 
@@ -213,7 +213,7 @@ async function scanWithOpenAI(
       price: item.precio,
       matchedIngredientId: matched?.id || null,
       matchedIngredientName: matched?.name || null,
-      confidence: (matched ? "HIGH" : "LOW") as const,
+      confidence: (matched ? "HIGH" : "LOW") as ScannedItem["confidence"],
     };
   });
 
