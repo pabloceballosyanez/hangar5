@@ -274,7 +274,7 @@ export async function POST(req: NextRequest) {
     // ... more recipes (abbreviated for brevity — key ones are in)
 
     // ── Tables ──
-    const tables = [
+    const tableData = [
       { number: "T1", name: "Interior 1", capacity: 4, location: "Interior", qrToken: "t1" },
       { number: "T2", name: "Interior 2", capacity: 4, location: "Interior", qrToken: "t2" },
       { number: "T3", name: "Interior 3", capacity: 4, location: "Interior", qrToken: "t3" },
@@ -284,10 +284,10 @@ export async function POST(req: NextRequest) {
       { number: "T7", name: "Barra 1",    capacity: 2, location: "Barra",    qrToken: "t7" },
       { number: "T8", name: "Barra 2",    capacity: 2, location: "Barra",    qrToken: "t8" },
     ];
-    for (const t of tables) await prisma.table.create({ data: t as any });
+    for (const t of tableData) await prisma.table.create({ data: t as any });
 
     // ── Items (Hotel + Activities) ──
-    const items = [
+    const hotelItems = [
       { name: "Media Luna", slug: "media-luna", type: "cabana", description: "Vista privilegiada de la montaña.", price: 180000, capacity: "3 huéspedes", featured: true },
       { name: "Casa del Árbol", slug: "casa-del-arbol", type: "cabana", description: "Nuestra cabaña más emblemática.", price: 250000, capacity: "2 huéspedes · Cama Queen", featured: true },
       { name: "Cabaña 1", slug: "cabana-1", type: "cabana", description: "Cabaña con vista panorámica.", price: 280000, capacity: "3 huéspedes", featured: false },
@@ -305,7 +305,7 @@ export async function POST(req: NextRequest) {
       { name: "Renta de Bicicleta", slug: "renta-bicicleta", type: "bici", description: "Doble suspensión.", price: 80000, capacity: "1 persona", featured: false },
       { name: "Pensión de Moto", slug: "pension-moto", type: "moto", description: "Enduro 300cc.", price: 150000, capacity: "1 persona", featured: false },
     ];
-    for (const item of items) await prisma.item.create({ data: item as any });
+    for (const item of hotelItems) await prisma.item.create({ data: item as any });
 
     const counts = {
       categories: await prisma.category.count(),
