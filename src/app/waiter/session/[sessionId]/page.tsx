@@ -34,7 +34,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   PAID: { label: 'Pagada', color: 'text-slate-500' },
   CANCELLED: { label: 'Cancelada', color: 'text-red-500' },
 };
-function fmt(p: number) { return `$${(p * 1.16).toFixed(2)}`; }
+function fmt(p: number) { return `$${p.toFixed(2)}`; }
 function fmtTime(iso: string) { return new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }); }
 
 const typeLabel: Record<string, string> = { TABLE: 'Mesa', TAB: 'Cliente', WALKIN: 'Walk-in' };

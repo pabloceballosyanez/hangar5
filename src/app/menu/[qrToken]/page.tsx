@@ -87,8 +87,7 @@ interface CartItem {
 // ─── Utils ────────────────────────────────────────────────────────────────────
 
 function fmt(pesos: number) {
-  // IVA incluido (Mexico standard for customer display)
-  return `$${(pesos * 1.16).toFixed(2)}`;
+  return `$${pesos.toFixed(2)}`;
 }
 
 function itemLineTotal(item: CartItem) {

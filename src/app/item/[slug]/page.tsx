@@ -7,7 +7,7 @@ import { getItemImages } from "@/lib/images";
 import { getTypeLabel, isActivity, isRental } from "@/lib/types";
 import { notFound } from "next/navigation";
 
-function formatPrice(cents: number) { return ((cents * 1.16) / 100).toLocaleString("es-MX"); }
+function formatPrice(cents: number) { return (cents / 100).toLocaleString("es-MX"); }
 
 export default async function ItemPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

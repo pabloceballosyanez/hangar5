@@ -143,8 +143,9 @@ export async function POST(req: NextRequest) {
       return { ...item, unitPrice, itemModifiers };
     });
 
-    const tax = Math.round(subtotal * TAX_RATE);
-    const total = subtotal + tax;
+    // Prices already include IVA (Mexico standard). Tax is desglosado.
+    const tax = Math.round(subtotal - subtotal / 1.16);
+    const total = subtotal;
 
     const initialStatus = source === "QR" ? "PLACED" : "DRAFT";
 

@@ -156,8 +156,9 @@ export async function PUT(
           }
         }
 
-        const tax = Math.round(subtotal * TAX_RATE);
-        const total = subtotal + tax;
+        // Prices already include IVA. Tax is desglosado.
+        const tax = Math.round(subtotal - subtotal / 1.16);
+        const total = subtotal;
 
         await tx.order.update({
           where: { id: orderId },

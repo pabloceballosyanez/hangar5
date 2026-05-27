@@ -53,7 +53,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 function fmt(pesos: number) {
-  return `$${(pesos * 1.16).toFixed(2)}`;
+  return `$${pesos.toFixed(2)}`;
 }
 
 function fmtTime(iso: string) {

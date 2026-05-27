@@ -105,8 +105,9 @@ export async function POST(
       }
 
       const newSubtotal = order.subtotal + additionalSubtotal;
-      const newTax = Math.round(newSubtotal * TAX_RATE);
-      const newTotal = newSubtotal + newTax;
+      // Prices already include IVA. Tax is desglosado.
+      const newTax = Math.round(newSubtotal - newSubtotal / 1.16);
+      const newTotal = newSubtotal;
 
       return tx.order.update({
         where: { id: orderId },
