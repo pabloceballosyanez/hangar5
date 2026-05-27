@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 // Protected by admin session cookie
 export async function POST(req: NextRequest) {
   const adminSession = req.cookies.get("hangar5_admin_session")?.value;
-  if (!adminSession || adminSession !== process.env.ADMIN_PASSWORD) {
+  if (!adminSession || adminSession !== "true") {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
