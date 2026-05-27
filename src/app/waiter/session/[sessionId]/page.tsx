@@ -243,21 +243,40 @@ export default function WaiterSessionPage() {
   };
 
   const closeSession = async () => {
+    if (!session) return;
+
+    // Block closing walk-in/table without paying first
+    const isCustomer = session.type === 'TAB' && session.customer;
+    if (!isCustomer) {
+      const unpaid = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
+      if (unpaid.length > 0) {
+        setError('Hay órdenes sin pagar. Usa "Pagar" antes de cerrar la sesión.');
+        return;
+      }
+    }
+
     setClosing(true);
+    setError(null);
     try {
       // Advance all active orders to PAID first (creates order-level payments)
-      const activeOrders = session?.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status)) || [];
+      const activeOrders = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status)) || [];
       for (const o of activeOrders) {
         try { await advanceOrderToPaid(o.id, o.status); } catch { /* ignore */ }
       }
       // Close session (payments already recorded per order, pass empty array)
-      await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
+      const res = await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payments: [] }),
       });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error((d as { error?: string }).error || 'Error al cerrar sesión');
+      }
       router.push('/waiter');
-    } catch { /* ignore */ } finally { setClosing(false); }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al cerrar');
+    } finally { setClosing(false); }
   };
 
   if (loading) {

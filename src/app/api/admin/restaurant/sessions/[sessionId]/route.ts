@@ -81,6 +81,15 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const totalOwed = session.orders.reduce((sum, o) => sum + o.total, 0);
     const totalPaid = parsed.data.payments.reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
 
+    // Block closing walk-in/table sessions with unpaid orders
+    const isCustomer = session.customerId && session.type === "TAB";
+    if (!isCustomer && totalPaid < totalOwed) {
+      return NextResponse.json(
+        { error: "Esta sesión requiere pago completo antes de cerrar. Solo clientes registrados pueden quedar con saldo pendiente." },
+        { status: 409 }
+      );
+    }
+
     const result = await prisma.$transaction(async (tx) => {
       // Create payment records (skip $0 payments)
       for (const p of parsed.data.payments) {
