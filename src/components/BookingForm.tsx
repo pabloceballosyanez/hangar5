@@ -6,6 +6,7 @@ import { isRental, isActivity } from "@/lib/types";
 
 interface BookingFormProps {
   item: { id: string; slug: string; name: string; price: number; type: string };
+  hasMpToken?: boolean;
 }
 
 function formatPrice(cents: number) { return (cents / 100).toLocaleString("es-MX"); }
@@ -16,7 +17,7 @@ const PAYMENT_METHODS = [
   { id: "cash", label: "💵 Efectivo al llegar", desc: "Paga cuando estés aquí" },
 ];
 
-export function BookingForm({ item }: BookingFormProps) {
+export function BookingForm({ item, hasMpToken }: BookingFormProps) {
   const router = useRouter();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -31,7 +32,7 @@ export function BookingForm({ item }: BookingFormProps) {
   const [error, setError] = useState("");
   const [bookingComplete, setBookingComplete] = useState(false);
 
-  const isTestMode = paymentMethod === "card" && !(typeof window !== "undefined" && window.__NEXT_DATA__?.props?.pageProps?.hasMpToken);
+  const isTestMode = paymentMethod === "card" && !hasMpToken;
 
   const isRent = isRental(item.type);
   const isAct = isActivity(item.type);
@@ -238,8 +239,8 @@ export function BookingForm({ item }: BookingFormProps) {
             </div>
           </div>
 
-          {/* Modo prueba badge (when paying with card and no MP token) */}
-          {paymentMethod === "card" && (
+          {/* Modo prueba badge (only when MP is not configured) */}
+          {isTestMode && (
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
               <p className="text-xs uppercase tracking-wider text-amber-700 font-medium">🧪 MODO PRUEBA</p>
               <p className="text-[11px] text-amber-600/70 mt-1">No hay pasarela configurada. La reserva se confirmará sin cobro real.</p>

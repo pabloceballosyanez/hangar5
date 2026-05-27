@@ -93,7 +93,7 @@ export default async function ItemPage({ params }: { params: Promise<{ slug: str
             <p className="text-[#5c3d2e] text-sm">{isAct ? "Elige la fecha y número de participantes" : "Selecciona tus fechas y completa el formulario"}</p>
           </div>
           <div className="bg-white border border-black/5 rounded-lg p-8 shadow-sm">
-            <BookingForm item={item} />
+            <BookingForm item={item} hasMpToken={!!process.env.MP_ACCESS_TOKEN} />
           </div>
         </div>
       </div>
