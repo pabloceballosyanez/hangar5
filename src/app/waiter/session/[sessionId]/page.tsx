@@ -114,8 +114,20 @@ function OrderDetailSheet({ order, onClose }: { order: Order; onClose: () => voi
 const STATUS_PATH_TO_PAID = ['DRAFT', 'PLACED', 'IN_KITCHEN', 'READY', 'SERVED', 'PAID'];
 
 async function advanceOrderToPaid(orderId: string, currentStatus: string): Promise<void> {
-  const startIdx = STATUS_PATH_TO_PAID.indexOf(currentStatus);
-  if (startIdx === -1 || currentStatus === 'PAID' || currentStatus === 'CANCELLED') return;
+  // Fetch real status from server first (avoid stale session data)
+  let realStatus = currentStatus;
+  try {
+    const fresh = await fetch(`/api/admin/restaurant/orders/${orderId}`);
+    if (fresh.ok) {
+      const data = await fresh.json();
+      if (data?.status && data.status !== currentStatus) {
+        realStatus = data.status as string;
+      }
+    }
+  } catch { /* use stale status as fallback */ }
+
+  const startIdx = STATUS_PATH_TO_PAID.indexOf(realStatus);
+  if (startIdx === -1 || realStatus === 'PAID' || realStatus === 'CANCELLED') return;
   for (let i = startIdx + 1; i < STATUS_PATH_TO_PAID.length; i++) {
     const res = await fetch(`/api/admin/restaurant/orders/${orderId}/status`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
