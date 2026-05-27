@@ -71,7 +71,7 @@ interface CartItem {
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
 function fmt(pesos: number) {
-  return `$${pesos.toFixed(2)}`;
+  return `$${(pesos * 1.16).toFixed(2)}`;
 }
 
 function cartLineTotal(item: CartItem) {

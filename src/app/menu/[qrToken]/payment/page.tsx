@@ -51,7 +51,7 @@ interface Order {
 // ─── Utils ────────────────────────────────────────────────────────────────────
 
 function fmt(n: number) {
-  return `$${n.toFixed(2)}`;
+  return `$${(n * 1.16).toFixed(2)}`;
 }
 
 // unitPrice from API is in centavos; modifiers.priceDelta also centavos

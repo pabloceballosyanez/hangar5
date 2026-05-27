@@ -9,7 +9,7 @@ interface BookingFormProps {
   hasMpToken?: boolean;
 }
 
-function formatPrice(cents: number) { return (cents / 100).toLocaleString("es-MX"); }
+function formatPrice(cents: number) { return ((cents * 1.16) / 100).toLocaleString("es-MX"); }
 
 const PAYMENT_METHODS = [
   { id: "card", label: "💳 Tarjeta de crédito/débito", desc: "Paga con Mercado Pago" },

@@ -44,7 +44,7 @@ interface CustomerForm {
 const TAX = 0.16;
 
 function fmt(n: number) {
-  return `$${n.toFixed(2)}`;
+  return `$${(n * 1.16).toFixed(2)}`;
 }
 
 function lineTotal(item: CartItem) {
