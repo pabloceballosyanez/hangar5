@@ -32,6 +32,41 @@ const paymentLabels: Record<string, string> = {
   cash: "💵 Efectivo",
 };
 
+function DryRunButton() {
+  const [state, setState] = useState<'idle' | 'confirm' | 'running' | 'done'>('idle');
+
+  const handleWipe = async () => {
+    setState('running');
+    const res = await fetch('/api/admin/wipe', { method: 'POST' });
+    if (res.ok) {
+      setState('done');
+      setTimeout(() => window.location.reload(), 2000);
+    } else {
+      alert('Error al reiniciar. Revisá la consola.');
+      setState('idle');
+    }
+  };
+
+  if (state === 'done') return <span className="text-xs text-green-600 font-medium">✅ Listo — recargando...</span>;
+  if (state === 'running') return <span className="text-xs text-amber-600 font-medium">⏳ Reiniciando...</span>;
+
+  return (
+    <>
+      {state === 'confirm' ? (
+        <span className="flex items-center gap-2">
+          <span className="text-xs text-red-600 font-medium">¿Seguro? Se borrarán reservas, órdenes y sesiones.</span>
+          <button onClick={handleWipe} className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Sí, reiniciar</button>
+          <button onClick={() => setState('idle')} className="text-xs px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Cancelar</button>
+        </span>
+      ) : (
+        <button onClick={() => setState('confirm')} className="text-xs uppercase tracking-wider bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded hover:bg-red-100 transition-colors font-medium">
+          🧹 Preparar Dry Run
+        </button>
+      )}
+    </>
+  );
+}
+
 export default function AdminClient({ bookings, items, cabanas, activities, rentals }: {
   bookings: Booking[];
   items: Item[];
@@ -223,6 +258,9 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
           <button onClick={() => setTab("items")} className={`px-6 py-3 text-sm uppercase tracking-wider transition-colors ${tab === "items" ? "text-[#1b4235] border-b-2 border-[#1b4235] font-medium" : "text-[#b88364] hover:text-[#1b4235]"}`}>
             🏷️ Items
           </button>
+          <div className="ml-auto">
+            <DryRunButton />
+          </div>
         </div>
 
         {/* ===== TAB: DASHBOARD ===== */}
