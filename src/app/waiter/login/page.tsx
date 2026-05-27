@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 
 const STAFF = [
   { id: 'carlos', name: 'Carlos', emoji: '🧑‍🍳', pin: '1234', role: 'Mesero' },
-  { id: 'luis',   name: 'Luis',   emoji: '👨‍🍽️',  pin: '5678', role: 'Mesero' },
+  { id: 'luis',   name: 'Luis',   emoji: '👨‍🍽️', pin: '5678', role: 'Mesero' },
+  { id: 'maria',  name: 'María',  emoji: '👩‍🍳', pin: '9012', role: 'Cocinera' },
 ];
 
 export default function WaiterLoginPage() {
