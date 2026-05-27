@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
         notes: reason || "Reserva creada desde el panel admin",
         status: "confirmed",
       },
+      include: { item: true },
     });
 
     // Send email in background
@@ -95,6 +96,7 @@ export async function POST(req: NextRequest) {
         notes: reason || "Bloqueado por mantenimiento",
         status: "maintenance",
       },
+      include: { item: true },
     });
     return NextResponse.json(booking);
   }
