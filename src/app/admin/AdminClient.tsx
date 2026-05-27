@@ -34,8 +34,10 @@ const paymentLabels: Record<string, string> = {
 
 function DryRunButton() {
   const [state, setState] = useState<'idle' | 'confirm' | 'running' | 'done'>('idle');
+  const [confirmText, setConfirmText] = useState('');
 
   const handleWipe = async () => {
+    if (confirmText !== 'REINICIAR') return;
     setState('running');
     const res = await fetch('/api/admin/wipe', { method: 'POST' });
     if (res.ok) {
@@ -54,9 +56,25 @@ function DryRunButton() {
     <>
       {state === 'confirm' ? (
         <span className="flex items-center gap-2">
-          <span className="text-xs text-red-600 font-medium">¿Seguro? Se borrarán reservas, órdenes y sesiones.</span>
-          <button onClick={handleWipe} className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Sí, reiniciar</button>
-          <button onClick={() => setState('idle')} className="text-xs px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Cancelar</button>
+          <span className="text-xs text-red-600 font-medium whitespace-nowrap">⚠️ Escribe REINICIAR:</span>
+          <input
+            type="text"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value.toUpperCase())}
+            placeholder="REINICIAR"
+            className="w-28 px-2 py-1 text-xs border border-red-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
+            autoFocus
+          />
+          <button
+            onClick={handleWipe}
+            disabled={confirmText !== 'REINICIAR'}
+            className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            Ejecutar
+          </button>
+          <button onClick={() => { setState('idle'); setConfirmText(''); }} className="text-xs px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+            Cancelar
+          </button>
         </span>
       ) : (
         <button onClick={() => setState('confirm')} className="text-xs uppercase tracking-wider bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded hover:bg-red-100 transition-colors font-medium">
