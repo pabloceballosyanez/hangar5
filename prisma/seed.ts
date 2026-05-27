@@ -553,6 +553,28 @@ async function seedProducts() {
   console.log(`  ✅ ${count} productos`);
 }
 
+async function seedTables() {
+  console.log("\n🪑 Mesas...");
+  const tables = [
+    { number: "T1", name: "Interior 1", capacity: 4, location: "Interior", qrToken: "t1" },
+    { number: "T2", name: "Interior 2", capacity: 4, location: "Interior", qrToken: "t2" },
+    { number: "T3", name: "Interior 3", capacity: 4, location: "Interior", qrToken: "t3" },
+    { number: "T4", name: "Interior 4", capacity: 4, location: "Interior", qrToken: "t4" },
+    { number: "T5", name: "Terraza 1",  capacity: 4, location: "Terraza",  qrToken: "t5" },
+    { number: "T6", name: "Terraza 2",  capacity: 4, location: "Terraza",  qrToken: "t6" },
+    { number: "T7", name: "Barra 1",    capacity: 2, location: "Barra",    qrToken: "t7" },
+    { number: "T8", name: "Barra 2",    capacity: 2, location: "Barra",    qrToken: "t8" },
+  ];
+  for (const t of tables) {
+    await prisma.table.upsert({
+      where: { number: t.number },
+      update: t,
+      create: t,
+    });
+  }
+  console.log(`  ✅ ${tables.length} mesas`);
+}
+
 async function seedHotelAndActivities() {
   console.log("\n🏨 Hotel y Actividades...");
   let count = 0;
@@ -578,6 +600,7 @@ async function main() {
   await clearAll();
   await seedCategories();
   await seedIngredients();
+  await seedTables();
   await seedRecipes();
   await seedProducts();
   await seedHotelAndActivities();
@@ -589,6 +612,7 @@ async function main() {
     menuItems: await prisma.menuItem.count(),
     recipes: await prisma.recipe.count(),
     items: await prisma.item.count(),
+    tables: await prisma.table.count(),
   };
 
   console.log("\n" + "═".repeat(50));
@@ -598,6 +622,7 @@ async function main() {
   console.log(`  🍽️ ${totals.menuItems} ítems de menú`);
   console.log(`  📖 ${totals.recipes} recetas`);
   console.log(`  🏨 ${totals.items} items de hotel/actividades`);
+  console.log(`  🪑 ${totals.tables} mesas`);
   console.log("\n💡 Para el dry run: todo en stock 0. Creen StockMovement IN para simular compras.");
   console.log("💡 Precios en DB ya incluyen IVA (México standard).");
 }
