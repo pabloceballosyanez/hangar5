@@ -24,16 +24,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Imagen requerida" }, { status: 400 });
     }
 
-    // Load existing ingredients for matching
     const ingredients = await prisma.ingredient.findMany({
       where: { isActive: true },
       select: { id: true, name: true, unit: true, cost: true },
     });
 
-    // Build the prompt for the vision model
-    const ingredientsList = ingredients
-      .map((i) => `  - ${i.name} (${i.unit})`)
-      .join("\n");
+    const ingredientsList = ingredients.map((i) => `  - ${i.name} (${i.unit})`).join("\n");
 
     const prompt = `Analiza esta foto de un recibo de compras para un restaurante en México.
 
@@ -68,23 +64,31 @@ Responde SOLO con un JSON válido, sin markdown, sin explicaciones:
   ]
 }`;
 
-    // Call DeepSeek Vision API
-    const deepseekResponse = await fetch("https://api.deepseek.com/v1/chat/completions", {
+    const openAIKey = process.env.OPENAI_API_KEY;
+
+    if (!openAIKey) {
+      return NextResponse.json(
+        {
+          error:
+            "Configura OPENAI_API_KEY en las variables de entorno de Render. DeepSeek no soporta análisis de imágenes.",
+        },
+        { status: 502 }
+      );
+    }
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY || ""}`,
+        Authorization: `Bearer ${openAIKey}`,
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "user",
             content: [
-              {
-                type: "image_url",
-                image_url: { url: `data:image/jpeg;base64,${imageBase64}` },
-              },
+              { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
               { type: "text", text: prompt },
             ],
           },
@@ -94,64 +98,42 @@ Responde SOLO con un JSON válido, sin markdown, sin explicaciones:
       }),
     });
 
-    if (!deepseekResponse.ok) {
-      const errText = await deepseekResponse.text();
-      console.error("[scan-receipt] DeepSeek API error:", deepseekResponse.status, errText.slice(0, 200));
-
-      // Fallback: try OpenAI if configured
-      if (process.env.OPENAI_API_KEY) {
-        return await scanWithOpenAI(imageBase64, prompt, ingredients);
-      }
-
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("[scan-receipt] OpenAI error:", response.status, errText.slice(0, 300));
       return NextResponse.json(
-        { error: `Error al procesar la imagen. Verifica que DEEPSEEK_API_KEY esté configurada.` },
+        { error: `Error al procesar la imagen. Verifica que OPENAI_API_KEY sea válida.` },
         { status: 502 }
       );
     }
 
-    const data = await deepseekResponse.json();
+    const data = await response.json();
     const rawContent = data.choices?.[0]?.message?.content || "";
-
-    // Parse the AI response
     const parsed = parseAIResponse(rawContent);
 
-    // Enrich with ingredient matches
-    const enriched = parsed.items.map((item: { nombre: string; cantidad: number; unidad: string; precio: number; matchedIngredientName?: string }) => {
-      const matched = item.matchedIngredientName
-        ? ingredients.find((i) => i.name.toLowerCase() === item.matchedIngredientName!.toLowerCase())
-        : null;
+    const enriched = parsed.items.map(
+      (item: { nombre: string; cantidad: number; unidad: string; precio: number; matchedIngredientName?: string }) => {
+        const matched = item.matchedIngredientName
+          ? ingredients.find((i) => i.name.toLowerCase() === item.matchedIngredientName!.toLowerCase()) ||
+            ingredients.find(
+              (i) =>
+                i.name.toLowerCase().includes(item.matchedIngredientName!.toLowerCase()) ||
+                item.matchedIngredientName!.toLowerCase().includes(i.name.toLowerCase())
+            )
+          : null;
 
-      if (!matched && item.matchedIngredientName) {
-        // Fuzzy match
-        const fuzzy = ingredients.find((i) =>
-          i.name.toLowerCase().includes(item.matchedIngredientName!.toLowerCase()) ||
-          item.matchedIngredientName!.toLowerCase().includes(i.name.toLowerCase())
-        );
-        if (fuzzy) {
-          return {
-            rawText: item.nombre,
-            name: fuzzy.name,
-            quantity: item.cantidad,
-            unit: fuzzy.unit,
-            price: item.precio,
-            matchedIngredientId: fuzzy.id,
-            matchedIngredientName: fuzzy.name,
-            confidence: "MEDIUM" as const,
-          };
-        }
+        return {
+          rawText: item.nombre,
+          name: matched ? matched.name : item.nombre,
+          quantity: item.cantidad,
+          unit: matched ? matched.unit : item.unidad,
+          price: item.precio,
+          matchedIngredientId: matched?.id || null,
+          matchedIngredientName: matched?.name || null,
+          confidence: (matched ? "HIGH" : "LOW") as ScannedItem["confidence"],
+        };
       }
-
-      return {
-        rawText: item.nombre,
-        name: matched ? matched.name : item.nombre,
-        quantity: item.cantidad,
-        unit: matched ? matched.unit : item.unidad,
-        price: item.precio,
-        matchedIngredientId: matched?.id || null,
-        matchedIngredientName: matched?.name || null,
-        confidence: (matched ? "HIGH" : "LOW") as ScannedItem["confidence"],
-      };
-    });
+    );
 
     return NextResponse.json({ items: enriched });
   } catch (err) {
@@ -160,78 +142,15 @@ Responde SOLO con un JSON válido, sin markdown, sin explicaciones:
   }
 }
 
-// ─── OpenAI fallback ───────────────────────────────────────────────────────
-
-async function scanWithOpenAI(
-  imageBase64: string,
-  prompt: string,
-  ingredients: { id: string; name: string; unit: string; cost: number }[]
-) {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
-            { type: "text", text: prompt },
-          ],
-        },
-      ],
-      temperature: 0.1,
-      max_tokens: 2000,
-    }),
-  });
-
-  if (!response.ok) {
-    return NextResponse.json(
-      { error: "Error al procesar la imagen con el servicio de IA" },
-      { status: 502 }
-    );
-  }
-
-  const data = await response.json();
-  const rawContent = data.choices?.[0]?.message?.content || "";
-  const parsed = parseAIResponse(rawContent);
-
-  const enriched = parsed.items.map((item: { nombre: string; cantidad: number; unidad: string; precio: number; matchedIngredientName?: string }) => {
-    const matched = item.matchedIngredientName
-      ? ingredients.find((i) => i.name.toLowerCase() === item.matchedIngredientName!.toLowerCase())
-      : null;
-
-    return {
-      rawText: item.nombre,
-      name: matched ? matched.name : item.nombre,
-      quantity: item.cantidad,
-      unit: matched ? matched.unit : item.unidad,
-      price: item.precio,
-      matchedIngredientId: matched?.id || null,
-      matchedIngredientName: matched?.name || null,
-      confidence: (matched ? "HIGH" : "LOW") as ScannedItem["confidence"],
-    };
-  });
-
-  return NextResponse.json({ items: enriched });
-}
-
 // ─── Parse AI response ─────────────────────────────────────────────────────
 
-function parseAIResponse(content: string): { items: { nombre: string; cantidad: number; unidad: string; precio: number; matchedIngredientName?: string }[] } {
+function parseAIResponse(content: string): {
+  items: { nombre: string; cantidad: number; unidad: string; precio: number; matchedIngredientName?: string }[];
+} {
   try {
-    // Try direct JSON parse
-    const cleaned = content
-      .replace(/```json\s*/g, "")
-      .replace(/```\s*/g, "")
-      .trim();
+    const cleaned = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
     return JSON.parse(cleaned);
   } catch {
-    // Try to extract JSON from text
     const match = content.match(/\{[\s\S]*"items"[\s\S]*\}/);
     if (match) {
       try {
