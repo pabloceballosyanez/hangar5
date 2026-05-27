@@ -77,15 +77,16 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (!session) return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
     if (session.status === "CLOSED") return NextResponse.json({ error: "Sesión ya cerrada" }, { status: 409 });
 
-    // Calculate total from orders
-    const totalOwed = session.orders.reduce((sum, o) => sum + o.total, 0);
+    // Only count unpaid orders (ignore already PAID/CANCELLED orders that have their own payments)
+    const unpaidOrders = session.orders.filter(o => o.status !== "PAID" && o.status !== "CANCELLED");
+    const totalOwed = unpaidOrders.reduce((sum, o) => sum + o.total, 0);
     const totalPaid = parsed.data.payments.reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
 
     // Block closing walk-in/table sessions with unpaid orders
     const isCustomer = session.customerId && session.type === "TAB";
     if (!isCustomer && totalPaid < totalOwed) {
       return NextResponse.json(
-        { error: "Esta sesión requiere pago completo antes de cerrar. Solo clientes registrados pueden quedar con saldo pendiente." },
+        { error: "Hay órdenes sin pagar. Usa 'Pagar' antes de cerrar la sesión." },
         { status: 409 }
       );
     }
