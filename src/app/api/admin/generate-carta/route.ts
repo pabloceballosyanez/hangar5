@@ -54,17 +54,21 @@ export async function POST(req: NextRequest) {
     // no body or invalid JSON → use defaults
   }
 
-  const size = "1024x1792"; // portrait poster
+  const size = "1024x1024"; // faster generation
 
   const results: { name: string; url: string | null; error?: string }[] = [];
 
   for (const style of styles) {
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 55000);
       const res = await fetch("https://api.openai.com/v1/images/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${openAIKey}` },
         body: JSON.stringify({ model: "gpt-image-2", prompt: style.prompt, n: 1, size, quality: "high" }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const data = await res.json();
       if (data.data?.[0]?.url) {
         results.push({ name: style.name, url: data.data[0].url });
