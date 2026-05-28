@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 const REPLICATE_TOKEN = process.env.REPLICATE_API_TOKEN || "";
-const MODEL = "black-forest-labs/flux-schnell";
+const MODEL = "stability-ai/sdxl";
 
 async function generateImage(prompt: string): Promise<string | null> {
   // Create prediction
@@ -18,9 +18,8 @@ async function generateImage(prompt: string): Promise<string | null> {
       input: {
         prompt,
         num_outputs: 1,
-        aspect_ratio: "1:1",
-        output_format: "jpg",
-        output_quality: 80,
+        width: 1024,
+        height: 1024,
       },
     }),
   });
