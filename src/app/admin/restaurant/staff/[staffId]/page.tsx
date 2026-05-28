@@ -5,20 +5,26 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
 const ROLES = [
-  { value: 'ADMIN', label: 'Admin' },
-  { value: 'WAITER', label: 'Mesero' },
-  { value: 'COOK', label: 'Cocinero' },
-  { value: 'BARTENDER', label: 'Bartender' },
-  { value: 'MANAGER', label: 'Gerente' },
+  { value: 'SUPER_ADMIN', label: '👑 Super Admin' },
+  { value: 'GERENTE', label: '💼 Gerente' },
+  { value: 'GERENTE_TURNO', label: '🕐 Gerente Turno' },
+  { value: 'MESERO', label: '🤵 Mesero' },
+  { value: 'COCINERO', label: '👨‍🍳 Cocinero' },
+  { value: 'BAR', label: '🍸 Bartender' },
+  { value: 'RECEPCION', label: '🛎️ Recepción' },
+  { value: 'CAJA', label: '💰 Caja' },
 ] as const;
 
 const roleLabel: Record<string, string> = Object.fromEntries(ROLES.map(r => [r.value, r.label]));
 const roleColor: Record<string, string> = {
-  ADMIN: 'bg-purple-100 text-purple-700',
-  WAITER: 'bg-blue-100 text-blue-700',
-  COOK: 'bg-orange-100 text-orange-700',
-  BARTENDER: 'bg-emerald-100 text-emerald-700',
-  MANAGER: 'bg-gray-100 text-gray-700',
+  SUPER_ADMIN: 'bg-purple-100 text-purple-700',
+  GERENTE: 'bg-blue-100 text-blue-700',
+  GERENTE_TURNO: 'bg-indigo-100 text-indigo-700',
+  MESERO: 'bg-green-100 text-green-700',
+  COCINERO: 'bg-orange-100 text-orange-700',
+  BAR: 'bg-emerald-100 text-emerald-700',
+  RECEPCION: 'bg-yellow-100 text-yellow-700',
+  CAJA: 'bg-gray-100 text-gray-700',
 };
 
 interface StaffShift {
@@ -70,7 +76,8 @@ export default function StaffDetailPage() {
 
   // Edit state
   const [editName, setEditName] = useState('');
-  const [editRole, setEditRole] = useState('WAITER');
+  const [editRole, setEditRole] = useState('MESERO');
+  const [editPin, setEditPin] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editRate, setEditRate] = useState<number | ''>(50);
@@ -97,6 +104,7 @@ export default function StaffDetailPage() {
       setStaff(data);
       setEditName(data.name);
       setEditRole(data.role);
+      setEditPin(data.pin || '');
       setEditPhone(data.phone || '');
       setEditEmail(data.email || '');
       setEditRate(data.hourlyRate);
@@ -128,6 +136,7 @@ export default function StaffDetailPage() {
         body: JSON.stringify({
           name: editName.trim(),
           role: editRole,
+          pin: editPin.trim() || '0000',
           phone: editPhone.trim() || null,
           email: editEmail.trim() || null,
           hourlyRate: editRate === '' ? 0 : Number(editRate),
@@ -242,9 +251,14 @@ export default function StaffDetailPage() {
             <input type="text" value={editName} onChange={e => setEditName(e.target.value)} required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
           </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">PIN (4 dígitos)</label>
+            <input type="text" value={editPin} onChange={e => setEditPin(e.target.value.replace(/\D/g,'').slice(0,4))}
+              maxLength={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-[0.5em] text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="0000" />
+          </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Rol</label>
               <select value={editRole} onChange={e => setEditRole(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
                 {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -274,11 +288,23 @@ export default function StaffDetailPage() {
               className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
             <label htmlFor="editActive" className="text-sm text-gray-700">Activo</label>
           </div>
+          <div className="flex gap-3 pt-2">
           <button type="submit" disabled={saving}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
-        </form>
+          <button type="button" onClick={async () => {
+            if (!confirm('¿Eliminar a ' + editName + ' permanentemente?')) return;
+            try {
+              const res = await fetch('/api/admin/restaurant/staff/' + staffId, { method: 'DELETE' });
+              if (!res.ok) throw new Error('Error al eliminar');
+              router.push('/admin/restaurant/staff');
+            } catch { alert('No se pudo eliminar'); }
+          }}
+            className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700">
+            🗑 Eliminar
+          </button>
+          </div></form>
       )}
 
       {/* Shifts Tab */}
