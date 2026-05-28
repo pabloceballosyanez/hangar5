@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 async function generateImage(prompt: string): Promise<string | null> {
-  const key = proces…OKEN;
+  const key = process.env.OPENAI_API_KEY;
   if (!key) return null;
   const res = await fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const openAIKey = proces…OKEN;
+  const openAIKey = process.env.OPENAI_API_KEY;
   if (!openAIKey) {
     return NextResponse.json({ error: "OPENAI_API_KEY no configurada" }, { status: 502 });
   }
