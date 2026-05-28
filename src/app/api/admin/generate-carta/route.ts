@@ -60,15 +60,11 @@ export async function POST(req: NextRequest) {
 
   for (const style of styles) {
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 55000);
       const res = await fetch("https://api.openai.com/v1/images/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${openAIKey}` },
-        body: JSON.stringify({ model: "gpt-image-2", prompt: style.prompt, n: 1, size, quality: "high" }),
-        signal: controller.signal,
+        body: JSON.stringify({ model: "gpt-image-2", prompt: style.prompt, n: 1, size: "1024x1024", quality: "standard" }),
       });
-      clearTimeout(timeout);
       const data = await res.json();
       if (data.data?.[0]?.url) {
         results.push({ name: style.name, url: data.data[0].url });
