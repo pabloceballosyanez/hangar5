@@ -9,288 +9,324 @@ const HTML = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hangar 5 — Carta</title>
 <style>
-  @page { size: letter; margin: 0.4in; }
+  @page { size: letter; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  
   body {
-    font-family: 'Georgia', 'Times New Roman', 'Cormorant Garamond', serif;
-    color: #1b4235;
-    background: #faf7f5;
+    font-family: 'Helvetica Neue', 'Inter', 'SF Pro Display', sans-serif;
+    background: #fcfcfc;
+    color: #111;
     max-width: 8.5in;
     margin: 0 auto;
-    padding: 0.35in 0.4in;
-    font-size: 9pt;
-    line-height: 1.5;
+    font-size: 7.5pt;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow-x: hidden;
   }
   
-  /* Decorative top border */
+  /* Dot pattern background */
   body::before {
     content: '';
-    display: block;
-    height: 4px;
-    background: linear-gradient(90deg, transparent 0%, #b88364 20%, #1b4235 50%, #b88364 80%, transparent 100%);
-    margin-bottom: 20px;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: radial-gradient(circle, #ddd 0.5px, transparent 0.5px);
+    background-size: 12px 12px;
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
   }
   
-  .header {
-    text-align: center;
-    margin-bottom: 22px;
+  .page {
+    position: relative;
+    z-index: 1;
+    padding: 0.35in 0.3in 0.3in;
   }
-  .header .logo {
-    font-size: 32pt;
-    letter-spacing: 0.2em;
+  
+  /* Geometric line header */
+  .geo-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #222;
+  }
+  .geo-header .lines {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+  }
+  .geo-header .lines span {
+    display: block;
+    height: 0.5px;
+    background: #222;
+  }
+  .geo-header .lines span:nth-child(1) { width: 100%; }
+  .geo-header .lines span:nth-child(2) { width: 80%; }
+  .geo-header .lines span:nth-child(3) { width: 60%; }
+  .geo-header .lines span:nth-child(4) { width: 40%; }
+  .geo-header .lines span:nth-child(5) { width: 20%; }
+  
+  .geo-header .title-block {
+    text-align: right;
+    white-space: nowrap;
+  }
+  .geo-header .title-block .brand {
+    font-size: 18pt;
+    font-weight: 700;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #1b4235;
-    font-weight: normal;
-    margin-bottom: 2px;
     line-height: 1;
   }
-  .header .line {
-    font-size: 7pt;
+  .geo-header .title-block .sub {
+    font-size: 5.5pt;
+    text-transform: uppercase;
     letter-spacing: 0.35em;
+    color: #555;
+    margin-top: 2px;
+  }
+  
+  /* Main grid layout */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px 16px;
+  }
+  
+  .grid-section { break-inside: avoid; }
+  .grid-section.full { grid-column: 1 / -1; }
+  .grid-section.span2 { grid-column: span 2; }
+  
+  .section-head {
+    font-size: 5pt;
     text-transform: uppercase;
-    color: #b88364;
-  }
-  .header .place {
-    font-size: 6.5pt;
-    font-style: italic;
-    color: #5c3d2e;
-    margin-top: 4px;
-  }
-  
-  .divider {
-    text-align: center;
-    color: #b88364;
-    font-size: 7pt;
-    letter-spacing: 0.4em;
-    margin: 10px 0;
-    opacity: 0.5;
-  }
-  
-  .section {
-    margin-bottom: 10px;
-    break-inside: avoid;
-  }
-  .section-title {
-    font-size: 7.5pt;
     letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: #b88364;
-    border-bottom: 1px solid #e0d6cf;
-    padding-bottom: 3px;
-    margin-bottom: 5px;
+    color: #888;
+    border-bottom: 0.5px solid #ccc;
+    padding-bottom: 2px;
+    margin-bottom: 4px;
   }
   
-  .two-col { 
-    display: flex; 
-    gap: 24px; 
-  }
-  .col { flex: 1; }
-  
-  .item {
+  .menu-item {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    padding: 1.5px 0;
-    font-size: 8pt;
+    padding: 1px 0;
   }
-  .item .name { font-weight: normal; }
-  .item .price { 
-    color: #b88364;
-    font-weight: normal;
+  .menu-item .name { 
+    font-weight: 400;
+    color: #111;
+  }
+  .menu-item .dots {
+    flex: 1;
+    border-bottom: 1px dotted #ccc;
+    margin: 0 6px;
+    height: 0;
+    align-self: flex-end;
+    margin-bottom: 3px;
+  }
+  .menu-item .price {
+    font-weight: 400;
+    color: #444;
     white-space: nowrap;
-    margin-left: 10px;
-    font-size: 8pt;
   }
-  .item .note {
-    font-size: 6.5pt;
-    color: #8a7a6e;
-    font-style: italic;
-    padding-left: 20px;
-    padding-bottom: 2px;
-    display: block;
+  .menu-item .variant {
+    font-size: 6pt;
+    color: #888;
+    padding-left: 0;
   }
   
-  .footer {
-    text-align: center;
-    font-size: 6pt;
-    color: #b88364;
-    border-top: 1px solid #e0d6cf;
-    padding-top: 8px;
-    margin-top: 12px;
-    letter-spacing: 0.12em;
+  .note {
+    font-size: 5.5pt;
+    color: #999;
+    font-style: italic;
+    padding: 0 0 1px 0;
   }
-
-  .ornament {
-    text-align: center;
-    color: #b88364;
-    font-size: 8pt;
-    letter-spacing: 0.3em;
-    margin: 8px 0;
-    opacity: 0.4;
+  
+  /* Bottom geometric */
+  .geo-footer {
+    margin-top: 8px;
+    padding-top: 4px;
+    border-top: 1px solid #222;
+    display: flex;
+    justify-content: space-between;
+    font-size: 5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: #888;
+  }
+  
+  /* Concentric circles decoration top-right */
+  .circles {
+    position: absolute;
+    top: 0.2in;
+    right: 0.15in;
+    opacity: 0.08;
+  }
+  .circles svg { width: 120px; height: 120px; }
+  
+  /* Diagonal lines decoration bottom-left */
+  .diagonals {
+    position: absolute;
+    bottom: 0.15in;
+    left: 0.2in;
+    opacity: 0.06;
   }
 </style>
 </head>
 <body>
+<div class="page">
+  <div class="circles">
+    <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="55" fill="none" stroke="#000" stroke-width="0.5"/><circle cx="60" cy="60" r="40" fill="none" stroke="#000" stroke-width="0.5"/><circle cx="60" cy="60" r="25" fill="none" stroke="#000" stroke-width="0.5"/><circle cx="60" cy="60" r="10" fill="none" stroke="#000" stroke-width="0.5"/></svg>
+  </div>
+  <div class="diagonals">
+    <svg width="80" height="80"><line x1="0" y1="80" x2="80" y2="0" stroke="#000" stroke-width="0.3"/><line x1="0" y1="60" x2="60" y2="0" stroke="#000" stroke-width="0.3"/><line x1="0" y1="40" x2="40" y2="0" stroke="#000" stroke-width="0.3"/><line x1="0" y1="20" x2="20" y2="0" stroke="#000" stroke-width="0.3"/></svg>
+  </div>
 
-<div class="header">
-  <div class="logo">Hangar 5</div>
-  <div class="line">Cocina de Montaña</div>
-  <div class="place">Peñón del Marqués &middot; Sabores con altura</div>
-</div>
-
-<div class="two-col">
-  <div class="col">
-    <div class="section">
-      <div class="section-title">Cafetería</div>
-      <div class="item"><span class="name">Café</span><span class="price">$30</span></div>
-      <div class="item"><span class="name">Café Americano</span><span class="price">$50</span></div>
-      <div class="item"><span class="name">Espresso</span><span class="price">$50</span></div>
-      <div class="item"><span class="name">Latte</span><span class="price">$60</span></div>
+  <div class="geo-header">
+    <div class="lines">
+      <span></span><span></span><span></span><span></span><span></span>
     </div>
-    
-    <div class="divider">&middot; &middot; &middot;</div>
-    
-    <div class="section">
-      <div class="section-title">Sin Alcohol</div>
-      <div class="item"><span class="name">Agua de Fruta</span><span class="price">$10</span></div>
-      <div class="item"><span class="name">Smoothie Berry</span><span class="price">$60</span></div>
-      <div class="item"><span class="name">Smoothie ChocoBanana</span><span class="price">$60</span></div>
-      <div class="item"><span class="name">Piña Colada</span><span class="price">$100</span></div>
-      <div class="item"><span class="name">Coca Cola</span><span class="price">$30</span></div>
-      <div class="item"><span class="note">Light &middot; Zero disponibles</span></div>
-      <div class="item"><span class="name">Agua Mineral</span><span class="price">$30</span></div>
-      <div class="item"><span class="name">Botella de Agua 1L</span><span class="price">$30</span></div>
-      <div class="item"><span class="name">Botella de Agua 500ml</span><span class="price">$15</span></div>
-      <div class="item"><span class="name">Jugo de Naranja</span><span class="price">$35</span></div>
-      <div class="item"><span class="name">Suero &middot; Clamato</span><span class="price">$35 / $40</span></div>
-      <div class="item"><span class="name">Té Infusión</span><span class="price">$30</span></div>
+    <div class="title-block">
+      <div class="brand">Hangar 5</div>
+      <div class="sub">Cocina de Montaña &middot; Peñón del Marqués</div>
     </div>
   </div>
   
-  <div class="col">
-    <div class="section">
-      <div class="section-title">Con Alcohol</div>
-      <div class="item"><span class="name">Copa de Vino</span><span class="price">$100</span></div>
-      <div class="item"><span class="name">Mezcalina</span><span class="price">$90</span></div>
-      <div class="item"><span class="name">Piña Colada</span><span class="price">$150</span></div>
-      <div class="item"><span class="name">Margarita</span><span class="price">$130</span></div>
-      <div class="item"><span class="name">Mojito</span><span class="price">$150</span></div>
-      <div class="item"><span class="name">Paloma Tequila</span><span class="price">$130</span></div>
-      <div class="item"><span class="name">Carajillo</span><span class="price">$150</span></div>
-      
-      <div style="margin-top:6px;"></div>
-      <div class="item"><span class="name">Cerveza</span><span class="price">$35</span></div>
-      <div class="item"><span class="note">Victoria &middot; Corona Clara &middot; Corona Oscura</span></div>
-      <div class="item"><span class="note">Chelada $40 &middot; Michelada $50</span></div>
-      
-      <div style="margin-top:4px;"></div>
-      <div class="item"><span class="name">Shot Tequila</span><span class="price">$100</span></div>
-      <div class="item"><span class="name">Shot Mezcal</span><span class="price">$100</span></div>
-      <div class="item"><span class="name">Whisky</span><span class="price">$100</span></div>
-      <div class="item"><span class="name">Whisky Soda</span><span class="price">$130</span></div>
-      <div class="item"><span class="name">Botella de Vino</span><span class="price">$550</span></div>
+  <div class="menu-grid">
+    <div class="grid-section">
+      <div class="section-head">Cafetería</div>
+      <div class="menu-item"><span class="name">Café</span><span class="dots"></span><span class="price">30</span></div>
+      <div class="menu-item"><span class="name">Americano</span><span class="dots"></span><span class="price">50</span></div>
+      <div class="menu-item"><span class="name">Espresso</span><span class="dots"></span><span class="price">50</span></div>
+      <div class="menu-item"><span class="name">Latte</span><span class="dots"></span><span class="price">60</span></div>
     </div>
     
-    <div class="divider">&middot; &middot; &middot;</div>
+    <div class="grid-section">
+      <div class="section-head">Sin Alcohol</div>
+      <div class="menu-item"><span class="name">Agua de Fruta</span><span class="dots"></span><span class="price">10</span></div>
+      <div class="menu-item"><span class="name">Smoothie Berry</span><span class="dots"></span><span class="price">60</span></div>
+      <div class="menu-item"><span class="name">Smoothie ChocoBanana</span><span class="dots"></span><span class="price">60</span></div>
+      <div class="menu-item"><span class="name">Piña Colada</span><span class="dots"></span><span class="price">100</span></div>
+      <div class="menu-item"><span class="name">Coca Cola</span><span class="dots"></span><span class="price">30</span></div>
+      <div class="note">Light &middot; Zero disponibles</div>
+      <div class="menu-item"><span class="name">Agua Mineral</span><span class="dots"></span><span class="price">30</span></div>
+      <div class="menu-item"><span class="name">Agua 1L</span><span class="dots"></span><span class="price">30</span></div>
+      <div class="menu-item"><span class="name">Agua 500ml</span><span class="dots"></span><span class="price">15</span></div>
+      <div class="menu-item"><span class="name">Jugo Naranja</span><span class="dots"></span><span class="price">35</span></div>
+      <div class="menu-item"><span class="name">Suero</span><span class="dots"></span><span class="price">35</span></div>
+      <div class="menu-item"><span class="name">Clamato</span><span class="dots"></span><span class="price">40</span></div>
+      <div class="menu-item"><span class="name">Té Infusión</span><span class="dots"></span><span class="price">30</span></div>
+    </div>
     
-    <div class="section">
-      <div class="section-title">Cafetería</div>
-      <div class="item"><span class="name">Panqué del día</span><span class="price">$40</span></div>
-      <div class="item"><span class="name">Sándwich Artesanal</span><span class="price">$70</span></div>
+    <div class="grid-section">
+      <div class="section-head">Con Alcohol</div>
+      <div class="menu-item"><span class="name">Copa Vino</span><span class="dots"></span><span class="price">100</span></div>
+      <div class="menu-item"><span class="name">Mezcalina</span><span class="dots"></span><span class="price">90</span></div>
+      <div class="menu-item"><span class="name">Piña Colada</span><span class="dots"></span><span class="price">150</span></div>
+      <div class="menu-item"><span class="name">Margarita</span><span class="dots"></span><span class="price">130</span></div>
+      <div class="menu-item"><span class="name">Mojito</span><span class="dots"></span><span class="price">150</span></div>
+      <div class="menu-item"><span class="name">Paloma Tequila</span><span class="dots"></span><span class="price">130</span></div>
+      <div class="menu-item"><span class="name">Carajillo</span><span class="dots"></span><span class="price">150</span></div>
+      <div class="menu-item"><span class="name">Cerveza</span><span class="dots"></span><span class="price">35</span></div>
+      <div class="note">Chelada 40 &middot; Michelada 50</div>
+      <div class="menu-item"><span class="name">Shot Tequila</span><span class="dots"></span><span class="price">100</span></div>
+      <div class="menu-item"><span class="name">Shot Mezcal</span><span class="dots"></span><span class="price">100</span></div>
+      <div class="menu-item"><span class="name">Whisky</span><span class="dots"></span><span class="price">100</span></div>
+      <div class="menu-item"><span class="name">Whisky Soda</span><span class="dots"></span><span class="price">130</span></div>
+      <div class="menu-item"><span class="name">Botella Vino</span><span class="dots"></span><span class="price">550</span></div>
+    </div>
+    
+    <!-- Desayunos full width -->
+    <div class="grid-section full">
+      <div class="section-head">Desayunos &middot; Todo el día</div>
+      <div style="display:flex;gap:20px;">
+        <div style="flex:1">
+          <div class="menu-item"><span class="name">Chilaquiles</span><span class="dots"></span><span class="price">70</span></div>
+          <div class="note">Salsa verde o roja &middot; Con pollo 90</div>
+          <div class="menu-item"><span class="name">Huevos a la Mexicana</span><span class="dots"></span><span class="price">70</span></div>
+          <div class="menu-item"><span class="name">Huevos Rancheros</span><span class="dots"></span><span class="price">70</span></div>
+        </div>
+        <div style="flex:1">
+          <div class="menu-item"><span class="name">Huevo Champiñones</span><span class="dots"></span><span class="price">70</span></div>
+          <div class="menu-item"><span class="name">Huevos con Jamón</span><span class="dots"></span><span class="price">80</span></div>
+          <div class="menu-item"><span class="name">Fruta de Temporada</span><span class="dots"></span><span class="price">65</span></div>
+          <div class="note">Miel de abeja y chile piquín</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Entradas + Ensaladas full -->
+    <div class="grid-section full">
+      <div class="section-head">Entradas &amp; Ensaladas</div>
+      <div style="display:flex;gap:20px;">
+        <div style="flex:1">
+          <div class="menu-item"><span class="name">Guacamole</span><span class="dots"></span><span class="price">110</span></div>
+          <div class="menu-item"><span class="name">Aceitunas</span><span class="dots"></span><span class="price">75</span></div>
+          <div class="menu-item"><span class="name">Quesadillas</span><span class="dots"></span><span class="price">25</span></div>
+          <div class="menu-item"><span class="name">Empanadas</span><span class="dots"></span><span class="price">35</span></div>
+          <div class="menu-item"><span class="name">Flautas</span><span class="dots"></span><span class="price">40</span></div>
+          <div class="menu-item"><span class="name">Verduras Preparadas</span><span class="dots"></span><span class="price">75</span></div>
+        </div>
+        <div style="flex:1">
+          <div class="menu-item"><span class="name">Ensalada Caprese</span><span class="dots"></span><span class="price">130</span></div>
+          <div class="note">Mozzarella fresca, albahaca, jitomate</div>
+          <div class="menu-item"><span class="name">Ensalada Tropical</span><span class="dots"></span><span class="price">130</span></div>
+          <div class="note">Mango, fresa, aguacate, nuez</div>
+          <div class="menu-item"><span class="name">Ensalada Mixta</span><span class="dots"></span><span class="price">90</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Parrilla + Horno -->
+    <div class="grid-section">
+      <div class="section-head">Parrilla</div>
+      <div class="menu-item"><span class="name">Hamburguesa Wagyu</span><span class="dots"></span><span class="price">250</span></div>
+      <div class="note">200g carne premium, pan artesanal</div>
+      <div class="menu-item"><span class="name">Taco</span><span class="dots"></span><span class="price">30</span></div>
+      <div class="note">Pollo deshebrado, cilantro, salsa</div>
+    </div>
+    
+    <div class="grid-section span2">
+      <div class="section-head">Horno de Leña</div>
+      <div style="display:flex;gap:16px;">
+        <div style="flex:1">
+          <div class="menu-item"><span class="name">Margarita</span><span class="dots"></span><span class="price">200</span></div>
+          <div class="menu-item"><span class="name">Pepperoni</span><span class="dots"></span><span class="price">240</span></div>
+          <div class="menu-item"><span class="name">Prosciutto</span><span class="dots"></span><span class="price">240</span></div>
+        </div>
+        <div style="flex:1">
+          <div class="menu-item"><span class="name">Champiñones</span><span class="dots"></span><span class="price">220</span></div>
+          <div class="menu-item"><span class="name">Tomate Deshidratado</span><span class="dots"></span><span class="price">240</span></div>
+          <div class="menu-item"><span class="name">Vegetariana</span><span class="dots"></span><span class="price">240</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Postres + Cafetería -->
+    <div class="grid-section">
+      <div class="section-head">Postres</div>
+      <div class="menu-item"><span class="name">Flan Napolitano</span><span class="dots"></span><span class="price">40</span></div>
+      <div class="menu-item"><span class="name">Panqué Plátano</span><span class="dots"></span><span class="price">40</span></div>
+      <div class="menu-item"><span class="name">Panqué Queso</span><span class="dots"></span><span class="price">40</span></div>
+      <div class="menu-item"><span class="name">Pay de Queso</span><span class="dots"></span><span class="price">40</span></div>
+      <div class="menu-item"><span class="name">Pizza Nutella</span><span class="dots"></span><span class="price">200</span></div>
+    </div>
+    
+    <div class="grid-section">
+      <div class="section-head">Cafetería</div>
+      <div class="menu-item"><span class="name">Panqué del día</span><span class="dots"></span><span class="price">40</span></div>
+      <div class="menu-item"><span class="name">Sándwich</span><span class="dots"></span><span class="price">70</span></div>
     </div>
   </div>
-</div>
-
-<div class="ornament">&mdash; &loz; &mdash;</div>
-
-<div class="section">
-  <div class="section-title">Desayunos &middot; Todo el día</div>
-  <div class="two-col">
-    <div class="col">
-      <div class="item"><span class="name">Chilaquiles</span><span class="price">$70</span></div>
-      <div class="item"><span class="note">Salsa verde o roja &middot; Con pollo $90</span></div>
-      <div class="item"><span class="name">Huevos a la Mexicana</span><span class="price">$70</span></div>
-      <div class="item"><span class="name">Huevos Rancheros</span><span class="price">$70</span></div>
-    </div>
-    <div class="col">
-      <div class="item"><span class="name">Huevo con Champiñones</span><span class="price">$70</span></div>
-      <div class="item"><span class="name">Huevos con Jamón</span><span class="price">$80</span></div>
-      <div class="item"><span class="name">Fruta de Temporada</span><span class="price">$65</span></div>
-      <div class="item"><span class="note">Con miel de abeja y chile piquín</span></div>
-    </div>
+  
+  <div class="geo-footer">
+    <span>Hangar 5 &middot; Peñón del Marqués</span>
+    <span>Precios MXN &middot; IVA incluido</span>
   </div>
 </div>
-
-<div class="ornament">&mdash; &loz; &mdash;</div>
-
-<div class="section">
-  <div class="section-title">Entradas &amp; Ensaladas</div>
-  <div class="two-col">
-    <div class="col">
-      <div class="item"><span class="name">Guacamole</span><span class="price">$110</span></div>
-      <div class="item"><span class="note">Aguacate, jitomate, cilantro, chile serrano</span></div>
-      <div class="item"><span class="name">Aceitunas Preparadas</span><span class="price">$75</span></div>
-      <div class="item"><span class="name">Quesadillas</span><span class="price">$25</span></div>
-      <div class="item"><span class="name">Empanadas</span><span class="price">$35</span></div>
-      <div class="item"><span class="name">Flautas</span><span class="price">$40</span></div>
-      <div class="item"><span class="name">Verduras Preparadas</span><span class="price">$75</span></div>
-    </div>
-    <div class="col">
-      <div class="item"><span class="name">Ensalada Caprese</span><span class="price">$130</span></div>
-      <div class="item"><span class="note">Mozzarella fresca, albahaca, jitomate</span></div>
-      <div class="item"><span class="name">Ensalada Tropical</span><span class="price">$130</span></div>
-      <div class="item"><span class="note">Mango, fresa, aguacate, nuez</span></div>
-      <div class="item"><span class="name">Ensalada Mixta</span><span class="price">$90</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="ornament">&mdash; &loz; &mdash;</div>
-
-<div class="two-col">
-  <div class="col">
-    <div class="section">
-      <div class="section-title">Parrilla</div>
-      <div class="item"><span class="name">Hamburguesa de Wagyu</span><span class="price">$250</span></div>
-      <div class="item"><span class="note">200g de carne premium, pan artesanal</span></div>
-      <div class="item"><span class="name">Taco</span><span class="price">$30</span></div>
-      <div class="item"><span class="note">Pollo deshebrado, cilantro, salsa</span></div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="section">
-      <div class="section-title">Horno de Leña</div>
-      <div class="item"><span class="name">Pizza Margarita</span><span class="price">$200</span></div>
-      <div class="item"><span class="name">Pizza Pepperoni</span><span class="price">$240</span></div>
-      <div class="item"><span class="name">Pizza Prosciutto</span><span class="price">$240</span></div>
-      <div class="item"><span class="name">Pizza Champiñones</span><span class="price">$220</span></div>
-      <div class="item"><span class="name">Pizza Tomate Deshidratado</span><span class="price">$240</span></div>
-      <div class="item"><span class="name">Pizza Vegetariana</span><span class="price">$240</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="ornament">&mdash; &loz; &mdash;</div>
-
-<div class="section">
-  <div class="section-title">Postres</div>
-  <div class="two-col">
-    <div class="col">
-      <div class="item"><span class="name">Flan Napolitano</span><span class="price">$40</span></div>
-      <div class="item"><span class="name">Panqué de Plátano</span><span class="price">$40</span></div>
-    </div>
-    <div class="col">
-      <div class="item"><span class="name">Panqué de Queso</span><span class="price">$40</span></div>
-      <div class="item"><span class="name">Pay de Queso</span><span class="price">$40</span></div>
-      <div class="item"><span class="name">Pizza Nutella &amp; Plátano</span><span class="price">$200</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="footer">
-  Hangar 5 &middot; Peñón del Marqués &middot; Precios en MXN &middot; IVA incluido
-</div>
-
 </body>
 </html>`;
 
