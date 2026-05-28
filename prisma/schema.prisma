@@ -151,14 +151,18 @@ model Ingredient {
 }
 
 model Recipe {
-  id            String       @id @default(cuid())
-  menuItemId    String       @unique
-  menuItem      MenuItem     @relation(fields: [menuItemId], references: [id])
-  yieldQuantity Float        @default(1)
-  notes         String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  recipeItems   RecipeItem[]
+  id             String       @id @default(cuid())
+  menuItemId     String?      @unique
+  menuItem       MenuItem?    @relation(fields: [menuItemId], references: [id])
+  parentRecipeId String?
+  parentRecipe   Recipe?      @relation("RecipeExtensions", fields: [parentRecipeId], references: [id])
+  childRecipes   Recipe[]     @relation("RecipeExtensions")
+  isTemplate     Boolean      @default(false)
+  yieldQuantity  Float        @default(1)
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  recipeItems    RecipeItem[]
 }
 
 model RecipeItem {
