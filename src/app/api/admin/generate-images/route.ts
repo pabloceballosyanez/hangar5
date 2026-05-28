@@ -9,7 +9,7 @@ async function generateImage(prompt: string): Promise<string | null> {
   const res = await fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model: "gpt-image-1-mini", prompt, n: 1, size: "1024x1024", response_format: "b64_json" }),
+    body: JSON.stringify({ model: "dall-e-3", prompt, n: 1, size: "1024x1024", response_format: "b64_json" }),
   });
   if (!res.ok) { const err = await res.text(); console.error("[openai]", res.status, err.slice(0, 200)); return null; }
   const data = await res.json();
