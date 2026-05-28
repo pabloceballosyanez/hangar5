@@ -35,11 +35,10 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${openAIKey}`,
         },
         body: JSON.stringify({
-          model: "dall-e-2",
+          model: "gpt-image-1-mini",
           prompt,
           n: 1,
-          size: "512x512",
-          quality: "standard",
+          size: "1024x1024",
           response_format: "b64_json",
         }),
       });
