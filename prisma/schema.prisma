@@ -358,10 +358,22 @@ model Payment {
 // === STAFF Y RRHH ===========================================
 // ============================================================
 
+enum StaffRole {
+  SUPER_ADMIN
+  GERENTE
+  GERENTE_TURNO
+  MESERO
+  COCINERO
+  BAR
+  RECEPCION
+  CAJA
+}
+
 model Staff {
   id         String       @id @default(cuid())
   name       String
-  role       String
+  role       StaffRole     @default(MESERO)
+  pin        String?
   phone      String?
   email      String?
   hourlyRate Int          @default(0)

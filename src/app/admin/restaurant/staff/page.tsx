@@ -9,19 +9,25 @@ export default async function StaffPage() {
   });
 
   const roleLabel: Record<string, string> = {
-    ADMIN: "Admin",
-    WAITER: "Mesero",
-    COOK: "Cocinero",
-    BARTENDER: "Bartender",
-    MANAGER: "Gerente",
+    SUPER_ADMIN: "👑 Admin",
+    GERENTE: "💼 Gerente",
+    GERENTE_TURNO: "🕐 Gte Turno",
+    MESERO: "🤵 Mesero",
+    COCINERO: "👨‍🍳 Cocinero",
+    BAR: "🍸 Bar",
+    RECEPCION: "🛎️ Recepción",
+    CAJA: "💰 Caja",
   };
 
   const roleColor: Record<string, string> = {
-    ADMIN: "bg-purple-100 text-purple-700",
-    WAITER: "bg-blue-100 text-blue-700",
-    COOK: "bg-orange-100 text-orange-700",
-    BARTENDER: "bg-emerald-100 text-emerald-700",
-    MANAGER: "bg-gray-100 text-gray-700",
+    SUPER_ADMIN: "bg-purple-100 text-purple-700",
+    GERENTE: "bg-blue-100 text-blue-700",
+    GERENTE_TURNO: "bg-indigo-100 text-indigo-700",
+    MESERO: "bg-green-100 text-green-700",
+    COCINERO: "bg-orange-100 text-orange-700",
+    BAR: "bg-emerald-100 text-emerald-700",
+    RECEPCION: "bg-yellow-100 text-yellow-700",
+    CAJA: "bg-gray-100 text-gray-700",
   };
 
   return (

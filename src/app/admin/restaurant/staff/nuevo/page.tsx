@@ -5,17 +5,21 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const ROLES = [
-  { value: 'ADMIN', label: 'Admin' },
-  { value: 'WAITER', label: 'Mesero' },
-  { value: 'COOK', label: 'Cocinero' },
-  { value: 'BARTENDER', label: 'Bartender' },
-  { value: 'MANAGER', label: 'Gerente' },
+  { value: 'SUPER_ADMIN', label: '👑 Super Admin' },
+  { value: 'GERENTE', label: '💼 Gerente' },
+  { value: 'GERENTE_TURNO', label: '🕐 Gerente Turno' },
+  { value: 'MESERO', label: '🤵 Mesero' },
+  { value: 'COCINERO', label: '👨‍🍳 Cocinero' },
+  { value: 'BAR', label: '🍸 Bartender' },
+  { value: 'RECEPCION', label: '🛎️ Recepción' },
+  { value: 'CAJA', label: '💰 Caja' },
 ] as const;
 
 export default function NuevoStaffPage() {
   const router = useRouter();
   const [name, setName] = useState('');
-  const [role, setRole] = useState('WAITER');
+  const [role, setRole] = useState('MESERO');
+  const [pin, setPin] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [hourlyRate, setHourlyRate] = useState<number | ''>(50);
@@ -33,6 +37,7 @@ export default function NuevoStaffPage() {
         body: JSON.stringify({
           name: name.trim(),
           role,
+          pin: pin.trim() || '0000',
           phone: phone.trim() || null,
           email: email.trim() || null,
           hourlyRate: hourlyRate === '' ? 0 : Number(hourlyRate),
@@ -66,6 +71,18 @@ export default function NuevoStaffPage() {
             required
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             placeholder="Ej: Ana López"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">PIN (4 dígitos)</label>
+          <input
+            type="text"
+            value={pin}
+            onChange={e => setPin(e.target.value.replace(/\D/g,'').slice(0,4))}
+            maxLength={4}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none tracking-[0.5em] text-center text-lg"
+            placeholder="0000"
           />
         </div>
 
