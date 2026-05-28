@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const STYLES = [
+const DEFAULT_STYLES = [
   {
     name: "topografico",
     prompt: `Professional restaurant menu design for "HANGAR 5 - Cocina de Montaña" in Mexico. 
@@ -44,14 +44,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "OPENAI_API_KEY no configurada" }, { status: 502 });
   }
 
+  let styles = DEFAULT_STYLES;
+  try {
+    const body = await req.json();
+    if (body.styles && Array.isArray(body.styles)) {
+      styles = body.styles;
+    }
+  } catch {
+    // no body or invalid JSON → use defaults
+  }
+
+  const size = "1024x1792"; // portrait poster
+
   const results: { name: string; b64: string | null; error?: string }[] = [];
 
-  for (const style of STYLES) {
+  for (const style of styles) {
     try {
       const res = await fetch("https://api.openai.com/v1/images/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${openAIKey}` },
-        body: JSON.stringify({ model: "dall-e-3", prompt: style.prompt, n: 1, size: "1024x1792", response_format: "b64_json" }),
+        body: JSON.stringify({ model: "dall-e-3", prompt: style.prompt, n: 1, size, response_format: "b64_json" }),
       });
       const data = await res.json();
       if (data.data?.[0]?.b64_json) {
