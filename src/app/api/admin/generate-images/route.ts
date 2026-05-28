@@ -3,53 +3,17 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-const REPLICATE_TOKEN = process.env.REPLICATE_API_TOKEN || "";
-const MODEL = "stability-ai/sdxl";
-
 async function generateImage(prompt: string): Promise<string | null> {
-  // Create prediction
-  const res = await fetch("https://api.replicate.com/v1/models/" + MODEL + "/predictions", {
+  const key = proces…OKEN;
+  if (!key) return null;
+  const res = await fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
-    headers: {
-      "Authorization": `Token ${REPLICATE_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      input: {
-        prompt,
-        num_outputs: 1,
-        width: 1024,
-        height: 1024,
-      },
-    }),
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    body: JSON.stringify({ model: "gpt-image-1-mini", prompt, n: 1, size: "1024x1024", response_format: "b64_json" }),
   });
-
-  if (!res.ok) {
-    const err = await res.text();
-    console.error("[replicate] create error:", res.status, err.slice(0, 200));
-    return null;
-  }
-
-  const prediction = await res.json();
-  const id = prediction.id;
-
-  // Poll for result (max 30 seconds)
-  for (let i = 0; i < 15; i++) {
-    await new Promise((r) => setTimeout(r, 2000));
-    const pollRes = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
-      headers: { Authorization: `Token ${REPLICATE_TOKEN}` },
-    });
-    if (!pollRes.ok) continue;
-    const data = await pollRes.json();
-    if (data.status === "succeeded") {
-      return data.output?.[0] || data.output;
-    }
-    if (data.status === "failed") {
-      console.error("[replicate] failed:", data.error);
-      return null;
-    }
-  }
-  return null;
+  if (!res.ok) { const err = await res.text(); console.error("[openai]", res.status, err.slice(0, 200)); return null; }
+  const data = await res.json();
+  return data.data?.[0]?.b64_json || null;
 }
 
 export async function POST(req: NextRequest) {
@@ -58,8 +22,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  if (!REPLICATE_TOKEN) {
-    return NextResponse.json({ error: "REPLICATE_API_TOKEN no configurada. Agregala en Render env vars." }, { status: 502 });
+  const openAIKey = proces…OKEN;
+  if (!openAIKey) {
+    return NextResponse.json({ error: "OPENAI_API_KEY no configurada" }, { status: 502 });
   }
 
   const menuItems = await prisma.menuItem.findMany({
@@ -72,30 +37,14 @@ export async function POST(req: NextRequest) {
 
   for (const item of menuItems) {
     const catName = item.category?.name || "";
-    const prompt = `Professional food photography, close-up overhead shot of "${item.name}", ${catName}, authentic Mexican restaurant style, warm natural lighting, shallow depth of field, appetizing, rustic ceramic plate, wooden table background, high resolution, commercial photography`;
+    const prompt = `Professional food photography, close-up overhead shot of "${item.name}", ${catName}, authentic Mexican restaurant style, warm natural lighting, shallow depth of field, appetizing, rustic ceramic plate, wooden table background`;
 
     try {
-      const imageUrl = await generateImage(prompt);
-      if (!imageUrl) {
-        results.push(`⚠️ ${item.name}: no se pudo generar`);
-        continue;
-      }
+      const b64 = await generateImage(prompt);
+      if (!b64) { results.push(`⚠️ ${item.name}`); continue; }
 
-      // Download and convert to base64 for permanent storage
-      const imgRes = await fetch(imageUrl);
-      if (!imgRes.ok) {
-        results.push(`⚠️ ${item.name}: error descargando`);
-        continue;
-      }
-      const buffer = Buffer.from(await imgRes.arrayBuffer());
-      const base64 = buffer.toString("base64");
-      const dataUrl = `data:image/jpeg;base64,${base64}`;
-
-      await prisma.menuItem.update({
-        where: { id: item.id },
-        data: { imageUrl: dataUrl },
-      });
-
+      const dataUrl = `data:image/png;base64,${b64}`;
+      await prisma.menuItem.update({ where: { id: item.id }, data: { imageUrl: dataUrl } });
       updated++;
       results.push(`✅ ${item.name}`);
     } catch (e) {
@@ -104,10 +53,8 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({
-    success: true,
-    updated,
-    total: menuItems.length,
-    message: `${updated}/${menuItems.length} imágenes generadas con Flux (Replicate)`,
+    success: true, updated, total: menuItems.length,
+    message: `${updated}/${menuItems.length} imágenes generadas con GPT Image`,
     details: results.slice(-10),
   });
 }
