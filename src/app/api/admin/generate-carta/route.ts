@@ -56,23 +56,23 @@ export async function POST(req: NextRequest) {
 
   const size = "1024x1792"; // portrait poster
 
-  const results: { name: string; b64: string | null; error?: string }[] = [];
+  const results: { name: string; url: string | null; error?: string }[] = [];
 
   for (const style of styles) {
     try {
       const res = await fetch("https://api.openai.com/v1/images/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${openAIKey}` },
-        body: JSON.stringify({ model: "dall-e-3", prompt: style.prompt, n: 1, size, response_format: "b64_json" }),
+        body: JSON.stringify({ model: "dall-e-3", prompt: style.prompt, n: 1, size }),
       });
       const data = await res.json();
-      if (data.data?.[0]?.b64_json) {
-        results.push({ name: style.name, b64: data.data[0].b64_json });
+      if (data.data?.[0]?.url) {
+        results.push({ name: style.name, url: data.data[0].url });
       } else {
-        results.push({ name: style.name, b64: null, error: data.error?.message || "unknown" });
+        results.push({ name: style.name, url: null, error: data.error?.message || "unknown" });
       }
     } catch (e) {
-      results.push({ name: style.name, b64: null, error: String(e).slice(0, 100) });
+      results.push({ name: style.name, url: null, error: String(e).slice(0, 100) });
     }
   }
 
