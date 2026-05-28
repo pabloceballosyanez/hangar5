@@ -229,7 +229,7 @@ export default function WaiterSessionPage() {
   }, [sessionId]);
 
   useEffect(() => {
-    if (!sessionStorage.getItem('waiterName')) { router.replace('/waiter/login'); return; }
+    fetch('/api/auth/login').then(r => { if (!r.ok) router.replace('/login'); });
     loadSession();
   }, [router, loadSession]);
 

@@ -78,9 +78,9 @@ export default function WaiterHomePage() {
   }, [loadSessions]);
 
   const handleLogout = () => {
-    sessionStorage.removeItem('waiterId');
-    sessionStorage.removeItem('waiterName');
-    router.push('/waiter/login');
+    
+    
+    fetch('/api/auth/login',{method:'DELETE'}).then(()=>router.push('/login'));
   };
 
   if (loading) {
