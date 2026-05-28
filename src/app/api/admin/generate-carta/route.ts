@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     // no body or invalid JSON → use defaults
   }
 
-  const size = "1024x1024"; // faster generation
+  const size = "1024x1792"; // poster portrait
 
   const results: { name: string; url: string | null; error?: string }[] = [];
 
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       const res = await fetch("https://api.openai.com/v1/images/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${openAIKey}` },
-        body: JSON.stringify({ model: "gpt-image-2", prompt: style.prompt, n: 1, size: "1024x1024", quality: "standard" }),
+        body: JSON.stringify({ model: "gpt-image-2", prompt: style.prompt, n: 1, size: "1024x1024", quality: "high" }),
       });
       const data = await res.json();
       if (data.data?.[0]?.url) {
