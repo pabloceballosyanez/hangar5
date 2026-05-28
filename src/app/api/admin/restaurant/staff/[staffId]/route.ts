@@ -34,7 +34,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 // ─── PUT: update staff ───────────────────────────────────────────────────────
 const updateStaffSchema = z.object({
   name: z.string().min(1).optional(),
-  role: z.enum(["ADMIN", "WAITER", "COOK", "BARTENDER", "MANAGER"]).optional(),
+  role: z.enum(["SUPER_ADMIN", "GERENTE", "GERENTE_TURNO", "MESERO", "COCINERO", "BAR", "RECEPCION", "CAJA"]).optional(),
   phone: z.string().optional().nullable(),
   email: z.string().email().optional().nullable().or(z.literal("")),
   hourlyRate: z.number().nonnegative().optional(),

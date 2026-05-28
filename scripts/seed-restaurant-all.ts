@@ -223,9 +223,9 @@ async function main() {
     // ─── A5. STAFF ──────────────────────────────
     await tx.staff.createMany({
       data: [
-        { name: "Carlos", role: "WAITER", hourlyRate: 5000 },
-        { name: "María", role: "COOK", hourlyRate: 7000 },
-        { name: "Luis", role: "BARTENDER", hourlyRate: 5500 },
+        { name: "Carlos", role: "MESERO", hourlyRate: 5000 },
+        { name: "María", role: "COCINERO", hourlyRate: 7000 },
+        { name: "Luis", role: "BAR", hourlyRate: 5500 },
       ],
     });
     console.log(`  ✅ Staff created`);
