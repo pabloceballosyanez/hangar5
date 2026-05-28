@@ -14,8 +14,8 @@ const HTML = `<!DOCTYPE html>
   
   body {
     font-family: 'Helvetica Neue', 'Inter', 'SF Pro Display', sans-serif;
-    background: #fcfcfc;
-    color: #111;
+    background: #0a0a0a;
+    color: #f0ebe3;
     max-width: 8.5in;
     margin: 0 auto;
     font-size: 7.5pt;
@@ -25,14 +25,26 @@ const HTML = `<!DOCTYPE html>
     overflow-x: hidden;
   }
   
-  /* Dot pattern background */
+  /* Epic adventure background */
   body::before {
     content: '';
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-image: radial-gradient(circle, #ddd 0.5px, transparent 0.5px);
-    background-size: 12px 12px;
-    opacity: 0.5;
+    background-image: url('/img/cartas/carta-epico-cinematografico.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.35;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  /* Dark overlay for readability */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.75) 100%);
     z-index: 0;
     pointer-events: none;
   }
@@ -50,7 +62,7 @@ const HTML = `<!DOCTYPE html>
     gap: 16px;
     margin-bottom: 8px;
     padding-bottom: 6px;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid rgba(240,235,227,0.25);
   }
   .geo-header .lines {
     display: flex;
@@ -61,7 +73,7 @@ const HTML = `<!DOCTYPE html>
   .geo-header .lines span {
     display: block;
     height: 0.5px;
-    background: #222;
+    background: rgba(240,235,227,0.5);
   }
   .geo-header .lines span:nth-child(1) { width: 100%; }
   .geo-header .lines span:nth-child(2) { width: 80%; }
@@ -79,12 +91,14 @@ const HTML = `<!DOCTYPE html>
     letter-spacing: 0.15em;
     text-transform: uppercase;
     line-height: 1;
+    color: #f0ebe3;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
   }
   .geo-header .title-block .sub {
     font-size: 5.5pt;
     text-transform: uppercase;
     letter-spacing: 0.35em;
-    color: #555;
+    color: rgba(240,235,227,0.7);
     margin-top: 2px;
   }
   
@@ -103,8 +117,8 @@ const HTML = `<!DOCTYPE html>
     font-size: 5pt;
     text-transform: uppercase;
     letter-spacing: 0.3em;
-    color: #888;
-    border-bottom: 0.5px solid #ccc;
+    color: rgba(240,235,227,0.6);
+    border-bottom: 0.5px solid rgba(240,235,227,0.15);
     padding-bottom: 2px;
     margin-bottom: 4px;
   }
@@ -117,11 +131,11 @@ const HTML = `<!DOCTYPE html>
   }
   .menu-item .name { 
     font-weight: 400;
-    color: #111;
+    color: #f0ebe3;
   }
   .menu-item .dots {
     flex: 1;
-    border-bottom: 1px dotted #ccc;
+    border-bottom: 1px dotted rgba(240,235,227,0.2);
     margin: 0 6px;
     height: 0;
     align-self: flex-end;
@@ -129,18 +143,18 @@ const HTML = `<!DOCTYPE html>
   }
   .menu-item .price {
     font-weight: 400;
-    color: #444;
+    color: rgba(240,235,227,0.75);
     white-space: nowrap;
   }
   .menu-item .variant {
     font-size: 6pt;
-    color: #888;
+    color: rgba(240,235,227,0.45);
     padding-left: 0;
   }
   
   .note {
     font-size: 5.5pt;
-    color: #999;
+    color: rgba(240,235,227,0.45);
     font-style: italic;
     padding: 0 0 1px 0;
   }
@@ -149,13 +163,13 @@ const HTML = `<!DOCTYPE html>
   .geo-footer {
     margin-top: 8px;
     padding-top: 4px;
-    border-top: 1px solid #222;
+    border-top: 1px solid rgba(240,235,227,0.25);
     display: flex;
     justify-content: space-between;
     font-size: 5pt;
     text-transform: uppercase;
     letter-spacing: 0.25em;
-    color: #888;
+    color: rgba(240,235,227,0.45);
   }
   
   /* Concentric circles decoration top-right */
