@@ -57,10 +57,18 @@ export default function WaiterHomePage() {
   }, []);
 
   useEffect(() => {
-    const name = sessionStorage.getItem('waiterName');
-    if (!name) { router.replace('/waiter/login'); return; }
-    setWaiterName(name);
-    loadSessions();
+    // Leer sesión del login principal por PIN
+    fetch('/api/auth/login')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data?.staff || data.staff.role !== 'MESERO') {
+          router.replace('/login');
+          return;
+        }
+        setWaiterName(data.staff.name);
+        loadSessions();
+      })
+      .catch(() => router.replace('/login'));
   }, [router, loadSessions]);
 
   // Auto-refresh every 30s
