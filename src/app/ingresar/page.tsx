@@ -232,6 +232,13 @@ function LoginContent() {
       >
         Continuar como invitado →
       </Link>
+
+      <Link
+        href="/login"
+        className="mt-2 text-xs text-gray-500 hover:text-gray-400 transition-colors"
+      >
+        ¿Trabajas aquí? Acceso empleados
+      </Link>
     </div>
   );
 }

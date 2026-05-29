@@ -192,6 +192,16 @@ export default function LoginPage() {
             </div>
           </div>
         )}
+
+        {/* Link to customer login */}
+        <div className="mt-8 text-center">
+          <a
+            href="/ingresar"
+            className="text-[#b88364]/50 hover:text-[#b88364] text-xs transition-colors"
+          >
+            ¿Eres cliente? Ingresa aquí →
+          </a>
+        </div>
       </div>
     </main>
   );
