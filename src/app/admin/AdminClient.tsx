@@ -262,6 +262,9 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
             <a href="/recetario" className="text-[10px] uppercase tracking-wider border border-[#b88364]/40 text-[#b88364] px-3 py-1 rounded hover:bg-[#b88364]/10 transition-colors font-medium">
               📋 Recetario
             </a>
+            <a href="/admin/ayuda" className="text-[10px] uppercase tracking-wider border border-[#b88364]/30 text-[#b88364]/60 px-3 py-1 rounded hover:bg-[#b88364]/5 transition-colors">
+              📖 Ayuda
+            </a>
             <a href="/api/admin/logout" className="ml-2 text-[10px] uppercase tracking-wider border border-[#b88364]/30 px-3 py-1 rounded hover:bg-[#b88364]/5 transition-colors">
               Salir
             </a>

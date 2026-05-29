@@ -18,6 +18,7 @@ const sidebarLinks = [
   { href: '/admin/restaurant/fixed-expenses', label: 'Gastos Fijos', icon: '💰' },
   { href: '/admin/restaurant/reports', label: 'Reportes', icon: '📊' },
   { href: '/admin/restaurant/staff', label: 'Staff', icon: '👤' },
+  { href: '/admin/ayuda', label: 'Ayuda', icon: '📖' },
 ];
 
 export default function RestaurantLayout({
