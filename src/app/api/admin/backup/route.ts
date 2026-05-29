@@ -3,39 +3,29 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-// GET — download production database backup (admin auth required)
-export async function GET(req: NextRequest) {
-  const adminSession = req.cookies.get("hangar5_admin_session")?.value;
-  if (!adminSession || adminSession !== "true") {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+// GET /api/admin/backup — exporta toda la data como JSON
+export async function GET() {
+  try {
+    const [categories, menuItems, ingredients, recipes, staff, tables] = await Promise.all([
+      prisma.category.findMany({ include: { menuItems: { include: { variants: true } } } }),
+      prisma.menuItem.findMany(),
+      prisma.ingredient.findMany(),
+      prisma.recipe.findMany({ include: { recipeItems: true } }),
+      prisma.staff.findMany({ select: { id: true, name: true, role: true, pin: true, isActive: true } }),
+      prisma.table.findMany(),
+    ]);
+
+    return NextResponse.json({
+      version: "v1.0-beta",
+      exportedAt: new Date().toISOString(),
+      categories,
+      menuItems,
+      ingredients,
+      recipes,
+      staff,
+      tables,
+    });
+  } catch (err) {
+    return NextResponse.json({ error: "Error" }, { status: 500 });
   }
-
-  // Export all tables as JSON backup
-  const backup: Record<string, unknown[]> = {};
-
-  const modelNames = [
-    "item", "category", "menuItem", "menuItemVariant", "ingredient",
-    "recipe", "recipeItem", "stockMovement", "table",
-    "modifierGroup", "modifier", "menuItemModifierGroup",
-    "booking", "serviceSession", "order", "orderItem", "payment",
-    "customer", "customerLedgerEntry", "staff", "staffShift", "staffClock",
-    "fixedExpense",
-  ];
-
-  for (const name of modelNames) {
-    try {
-      const data = await (prisma as any)[name].findMany();
-      backup[name] = data;
-    } catch { backup[name] = []; }
-  }
-
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  const json = JSON.stringify({ exportedAt: timestamp, data: backup }, null, 2);
-
-  return new NextResponse(json, {
-    headers: {
-      "Content-Type": "application/json",
-      "Content-Disposition": `attachment; filename="hangar5-backup-${timestamp}.json"`,
-    },
-  });
 }
