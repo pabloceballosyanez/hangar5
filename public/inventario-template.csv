@@ -1,0 +1,62 @@
+name,unit,currentStock,minStock,cost
+Harina,kg,25,5,35
+Agua,l,50,10,5
+Levadura,g,500,100,0.5
+Queso Mozzarella,kg,10,2,180
+Salsa de Tomate,l,8,2,45
+Albahaca,g,200,50,0.8
+Pepperoni,kg,5,1,220
+Jamon,kg,3,1,150
+Piña,pz,8,2,25
+Huevo,pz,60,12,3.5
+Tortilla de Maiz,pz,200,50,1.5
+Frijoles Refritos,kg,5,1,55
+Crema,l,3,0.5,65
+Queso Fresco,kg,4,1,120
+Cebolla,kg,5,1,20
+Cilantro,g,300,50,0.3
+Aguacate,pz,30,5,15
+Limon,pz,50,10,2
+Aceite,l,5,1,40
+Sal,kg,2,0.5,10
+Pimienta,g,100,20,0.4
+Ajo,kg,1,0.2,60
+Pollo,kg,8,2,95
+Carne de Res,kg,10,2,180
+Pan Brioche,pz,24,6,18
+Queso Cheddar,kg,3,1,200
+Tocino,kg,2,0.5,160
+Lechuga,pz,12,3,15
+Jitomate,kg,6,2,30
+Pepino,kg,3,1,25
+Zanahoria,kg,3,1,20
+Mango,pz,15,4,18
+Fresa,kg,2,0.5,80
+Nuez,kg,1,0.3,250
+Miel,l,1,0.3,90
+Chile Piquin,g,100,20,0.5
+Chile Serrano,kg,1,0.2,35
+Chocolate,kg,2,0.5,150
+Nutella,kg,2,0.5,200
+Platano,pz,20,5,6
+Cafe Molido,kg,3,0.5,180
+Leche,l,10,2,22
+Azucar,kg,5,1,25
+Hielo,kg,20,5,5
+Coca Cola 335ml,pz,48,12,17
+Coca Cola Light 335ml,pz,48,12,17
+Coca Cola Zero 335ml,pz,48,12,17
+Agua Mineral,pz,48,12,10
+Jugo de Naranja,l,5,1,30
+Clamato,l,3,1,40
+Te en Sobres,pz,30,10,3
+Cerveza Victoria,pz,48,12,18
+Cerveza Corona Clara,pz,48,12,20
+Cerveza Corona Oscura,pz,48,12,20
+Tequila,l,2,0.5,350
+Mezcal,l,2,0.5,400
+Vino Tinto,bot,12,3,180
+Vino Blanco,bot,12,3,180
+Whisky,l,1,0.3,500
+Licor 43,l,1,0.3,300
+Ron,l,1,0.3,250
