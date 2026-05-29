@@ -40,14 +40,13 @@ export async function POST(req: NextRequest) {
         data: { status: "IN_KITCHEN" },
       });
 
-      // Create cash payment record
+      // Create pending cash payment (staff confirms later)
       await tx.payment.create({
         data: {
           orderId,
           amount: order.total,
           method: "CASH",
-          status: "COMPLETED",
-          paidAt: new Date(),
+          status: "PENDING",
         },
       });
     });

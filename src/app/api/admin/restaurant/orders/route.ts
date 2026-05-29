@@ -172,24 +172,13 @@ export async function POST(req: NextRequest) {
 
     const { serviceSessionId, source, customerName, customerEmail, customerPhone, notes, items } = parsed.data;
 
-    // Validate session exists and is open
-    const svcSession = await prisma.serviceSession.findUnique({ where: { id: serviceSessionId } });
-    if (!svcSession) {
-      return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
-    }
-    if (svcSession.status !== "OPEN") {
-      return NextResponse.json({ error: "La sesión no está abierta" }, { status: 409 });
-    }
-
     // ── Resolve customer: logged-in session > email match > new customer ──
     const custSession = getCustomerSession(req);
-    let customerId: string | null = svcSession.customerId ?? null;
+    let customerId: string | null = null;
 
     if (custSession) {
-      // Customer is logged in — use their account
       customerId = custSession.customerId;
     } else if (customerEmail) {
-      // Not logged in but provided email — find or create Customer
       const existing = await prisma.customer.findUnique({ where: { email: customerEmail } });
       if (existing) {
         customerId = existing.id;
@@ -201,12 +190,50 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Link customer to session if not already linked
-    if (customerId && svcSession.customerId !== customerId) {
-      await prisma.serviceSession.update({
+    // ── Resolve session ──────────────────────────────────────────────────────
+    let sessionId: string;
+    let sessionTableId: string | null = null;
+
+    if (source === "QR") {
+      // QR orders get their own session (don't mix with waiter tabs)
+      const parentSession = await prisma.serviceSession.findUnique({
         where: { id: serviceSessionId },
-        data: { customerId },
+        include: { table: true },
       });
+      if (!parentSession) {
+        return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
+      }
+      sessionTableId = parentSession.tableId ?? null;
+
+      const newSession = await prisma.serviceSession.create({
+        data: {
+          type: "QR",
+          label: `QR ${parentSession.table?.name || parentSession.table?.number || "auto"}`,
+          tableId: sessionTableId,
+          customerId,
+          status: "OPEN",
+        },
+      });
+      sessionId = newSession.id;
+    } else {
+      // Waiter/Admin use the existing session
+      const svcSession = await prisma.serviceSession.findUnique({ where: { id: serviceSessionId } });
+      if (!svcSession) {
+        return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
+      }
+      if (svcSession.status !== "OPEN") {
+        return NextResponse.json({ error: "La sesión no está abierta" }, { status: 409 });
+      }
+
+      customerId = customerId ?? svcSession.customerId ?? null;
+      if (customerId && svcSession.customerId !== customerId) {
+        await prisma.serviceSession.update({
+          where: { id: serviceSessionId },
+          data: { customerId },
+        });
+      }
+      sessionId = serviceSessionId;
+      sessionTableId = svcSession.tableId ?? null;
     }
 
     // Prefetch all menuItems and modifiers needed
@@ -258,7 +285,7 @@ export async function POST(req: NextRequest) {
     const order = await prisma.$transaction(async (tx) => {
       const created = await tx.order.create({
         data: {
-          serviceSessionId,
+          serviceSessionId: sessionId,
           source,
           customerName,
           customerEmail,
@@ -303,6 +330,19 @@ export async function POST(req: NextRequest) {
           toStatus: initialStatus,
         },
       });
+
+      // Customer ledger: record the debt
+      if (customerId && total > 0) {
+        await tx.customerLedgerEntry.create({
+          data: {
+            customerId,
+            amount: total,
+            type: "CHARGE",
+            serviceSessionId: sessionId,
+            note: `Orden #${created.id.slice(-8)}`,
+          },
+        });
+      }
 
       // Descontar inventario
       await deductInventory(tx, itemsWithPrices.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity })));

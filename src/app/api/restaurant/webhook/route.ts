@@ -78,24 +78,40 @@ export async function POST(req: NextRequest) {
       }
 
       // Update or create Payment record
-      if (order.payments[0]) {
-        await tx.payment.update({
-          where: { id: order.payments[0].id },
+      const payment =
+        order.payments[0]
+          ? await tx.payment.update({
+              where: { id: order.payments[0].id },
+              data: {
+                status: "COMPLETED",
+                mpPaymentId: String(mpPayment.id),
+                paidAt: new Date(),
+              },
+            })
+          : await tx.payment.create({
+              data: {
+                orderId: order.id,
+                amount: order.total,
+                method: "MP",
+                status: "COMPLETED",
+                mpPaymentId: String(mpPayment.id),
+                paidAt: new Date(),
+              },
+            });
+
+      // Record payment in customer ledger
+      const svcSession = await tx.serviceSession.findUnique({
+        where: { id: order.serviceSessionId },
+        select: { customerId: true },
+      });
+      if (svcSession?.customerId) {
+        await tx.customerLedgerEntry.create({
           data: {
-            status: "COMPLETED",
-            mpPaymentId: String(mpPayment.id),
-            paidAt: new Date(),
-          },
-        });
-      } else {
-        await tx.payment.create({
-          data: {
-            orderId: order.id,
-            amount: order.total,
-            method: "MP",
-            status: "COMPLETED",
-            mpPaymentId: String(mpPayment.id),
-            paidAt: new Date(),
+            customerId: svcSession.customerId,
+            amount: -order.total,
+            type: "PAYMENT",
+            serviceSessionId: order.serviceSessionId,
+            note: `Pago MP #${String(mpPayment.id).slice(-8)}`,
           },
         });
       }
