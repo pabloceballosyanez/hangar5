@@ -41,8 +41,6 @@ interface CustomerForm {
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
 
-const TAX = 0.16;
-
 function fmt(n: number) {
   return `$${n.toFixed(2)}`;
 }
@@ -101,8 +99,7 @@ export default function CheckoutPage() {
   }, []);
 
   const subtotal = cart.reduce((s, i) => s + lineTotal(i), 0);
-  const tax = subtotal * TAX;
-  const total = subtotal + tax;
+  const total = subtotal;
 
   const removeItem = (cartId: string) => {
     const updated = cart.filter((i) => i.cartId !== cartId);
@@ -251,9 +248,9 @@ export default function CheckoutPage() {
           <span>Subtotal</span>
           <span>{fmt(subtotal)}</span>
         </div>
-        <div className="flex justify-between text-sm text-gray-600">
-          <span>IVA (16%)</span>
-          <span>{fmt(tax)}</span>
+        <div className="flex justify-between text-sm text-gray-400">
+          <span>IVA</span>
+          <span>Incluido</span>
         </div>
         <div className="flex justify-between font-black text-gray-900 text-base border-t border-gray-100 pt-2 mt-2">
           <span>Total</span>
