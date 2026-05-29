@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const TAX_RATE = 0.16; // 16% IVA
+const TAX_RATE = 0.16;
 
 function serializeOrder(order: Record<string, unknown>) {
   const fields = ["subtotal", "tax", "total"] as const;
@@ -17,6 +17,83 @@ function serializeOrder(order: Record<string, unknown>) {
     if (typeof result[f] === "number") result[f] = (result[f] as number) / 100;
   }
   return result;
+}
+
+/** Descuenta inventario para una orden dentro de una transacción */
+async function deductInventory(
+  tx: any,
+  items: { menuItemId: string; quantity: number }[]
+) {
+  for (const item of items) {
+    // 1. Buscar receta del platillo
+    const recipe = await tx.recipe.findUnique({
+      where: { menuItemId: item.menuItemId },
+      include: { recipeItems: { include: { ingredient: true } } },
+    });
+
+    if (recipe && recipe.recipeItems.length > 0) {
+      // Tiene receta: descontar cada ingrediente
+      for (const ri of recipe.recipeItems) {
+        const decrement = ri.quantity * item.quantity;
+        await tx.ingredient.update({
+          where: { id: ri.ingredientId },
+          data: { currentStock: { decrement } },
+        });
+        // Registrar movimiento de stock
+        await tx.stockMovement.create({
+          data: {
+            ingredientId: ri.ingredientId,
+            delta: -decrement,
+            reason: `Venta: ${item.quantity}x`,
+          },
+        });
+      }
+      // También heredar de receta padre si existe
+      if (recipe.parentRecipeId) {
+        const parent = await tx.recipe.findUnique({
+          where: { id: recipe.parentRecipeId },
+          include: { recipeItems: { include: { ingredient: true } } },
+        });
+        if (parent) {
+          for (const ri of parent.recipeItems) {
+            const decrement = ri.quantity * item.quantity;
+            await tx.ingredient.update({
+              where: { id: ri.ingredientId },
+              data: { currentStock: { decrement } },
+            });
+            await tx.stockMovement.create({
+              data: {
+                ingredientId: ri.ingredientId,
+                delta: -decrement,
+                reason: `Venta (base): ${item.quantity}x`,
+              },
+            });
+          }
+        }
+      }
+    } else {
+      // Sin receta: buscar ingrediente con mismo nombre que el platillo
+      const menuItem = await tx.menuItem.findUnique({ where: { id: item.menuItemId } });
+      if (menuItem) {
+        const ingredient = await tx.ingredient.findFirst({
+          where: { name: menuItem.name },
+        });
+        if (ingredient) {
+          await tx.ingredient.update({
+            where: { id: ingredient.id },
+            data: { currentStock: { decrement: item.quantity } },
+          });
+          await tx.stockMovement.create({
+            data: {
+              ingredientId: ingredient.id,
+              delta: -item.quantity,
+              reason: `Venta directa: ${item.quantity}x ${menuItem.name}`,
+            },
+          });
+        }
+      }
+    }
+  }
 }
 
 // ─── GET: all orders with filters ────────────────────────────────────────────
@@ -197,6 +274,9 @@ export async function POST(req: NextRequest) {
           toStatus: initialStatus,
         },
       });
+
+      // Descontar inventario
+      await deductInventory(tx, itemsWithPrices.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity })));
 
       return tx.order.findUnique({
         where: { id: created.id },
