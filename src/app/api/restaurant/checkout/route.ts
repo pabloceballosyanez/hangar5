@@ -96,14 +96,10 @@ export async function POST(req: NextRequest) {
     const result = await preferenceApi.create({
       body: {
         items: mpItems,
-        payer:
-          order.customerEmail
+        payer: order.customerEmail
             ? {
                 name: order.customerName ?? undefined,
                 email: order.customerEmail,
-                phone: order.customerPhone
-                  ? { number: order.customerPhone }
-                  : undefined,
               }
             : undefined,
         back_urls: {
