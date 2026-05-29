@@ -264,9 +264,9 @@ function PaymentContent() {
           <span>Subtotal</span>
           <span>{fmt(order.subtotal)}</span>
         </div>
-        <div className="flex justify-between text-sm text-gray-600">
-          <span>IVA (16%)</span>
-          <span>{fmt(order.tax)}</span>
+        <div className="flex justify-between text-sm text-gray-400">
+          <span>IVA</span>
+          <span>Incluido</span>
         </div>
         <div className="flex justify-between font-black text-gray-900 text-lg border-t border-gray-100 pt-2 mt-2">
           <span>Total</span>
