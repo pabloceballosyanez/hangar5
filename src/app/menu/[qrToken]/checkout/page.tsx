@@ -167,8 +167,17 @@ export default function CheckoutPage() {
       });
 
       if (!orderRes.ok) {
-        const body = (await orderRes.json()) as { error?: string };
-        throw new Error(body.error ?? "Error al crear la orden");
+        const body = await orderRes.json();
+        // Zod flatten returns { fieldErrors, formErrors }
+        const msg =
+          typeof body.error === "string"
+            ? body.error
+            : body.error?.fieldErrors
+              ? Object.entries(body.error.fieldErrors)
+                  .map(([k, v]) => `${k}: ${(Array.isArray(v) ? v : []).join(", ")}`)
+                  .join("; ")
+              : JSON.stringify(body.error ?? body);
+        throw new Error(msg || "Error al crear la orden");
       }
 
       const order = (await orderRes.json()) as { id: string };
