@@ -56,7 +56,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 // ─── PUT: update recipe ──────────────────────────────────────────────────────
 const updateRecipeSchema = z.object({
   yieldQuantity: z.number().min(0).optional(),
-  notes: z.string().optional(),
+  notes: z.string().optional().nullable(),
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {
