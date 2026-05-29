@@ -71,6 +71,7 @@ interface Order {
   tax: number;
   createdAt: string;
   orderItems: OrderItem[];
+  payments: { method: string; status: string }[];
 }
 
 export default function OrdersPage() {
@@ -172,6 +173,9 @@ export default function OrdersPage() {
                   <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
                     Status
                   </th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                    Pago
+                  </th>
                   <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
                     Hora
                   </th>
@@ -236,6 +240,20 @@ export default function OrdersPage() {
                       >
                         {statusLabel[order.status] || order.status}
                       </span>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      {order.payments && order.payments.length > 0 ? (
+                        <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full border ${
+                          order.payments[0].status === "COMPLETED"
+                            ? "bg-green-100 text-green-700 border-green-300"
+                            : "bg-yellow-100 text-yellow-700 border-yellow-300"
+                        }`}>
+                          {order.payments[0].method === "CASH" ? "💵 Efectivo" : order.payments[0].method === "MP" ? "💳 Tarjeta" : order.payments[0].method}
+                          {order.payments[0].status === "COMPLETED" ? " ✓" : " ⏳"}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-right text-xs text-gray-400 whitespace-nowrap">
                       {new Date(order.createdAt).toLocaleTimeString("es-MX", {

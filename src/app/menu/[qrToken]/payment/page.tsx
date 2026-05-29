@@ -76,6 +76,7 @@ function PaymentContent() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const [payingCash, setPayingCash] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -131,6 +132,31 @@ function PaymentContent() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error desconocido");
       setPaying(false);
+    }
+  };
+
+  const handlePayCash = async () => {
+    if (!orderId) return;
+    setPayingCash(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/restaurant/checkout/cash", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+
+      if (!res.ok) {
+        const body = (await res.json()) as { error?: string };
+        throw new Error(body.error ?? "Error al procesar pago en efectivo");
+      }
+
+      const { redirectUrl } = (await res.json()) as { success: boolean; redirectUrl: string };
+      window.location.href = redirectUrl;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error desconocido");
+      setPayingCash(false);
     }
   };
 
@@ -262,28 +288,51 @@ function PaymentContent() {
         </div>
       )}
 
-      {/* ── Pay button ── */}
-      <button
-        onClick={handlePay}
-        disabled={paying}
-        className="w-full bg-[#009ee3] hover:bg-[#0083c6] disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
-      >
-        {paying ? (
-          <>
-            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            <span>Redirigiendo a MP…</span>
-          </>
-        ) : (
-          <>
-            <span>💳</span>
-            <span>Pagar con Mercado Pago</span>
-            <span className="ml-auto font-black">{fmt(order.total)}</span>
-          </>
-        )}
-      </button>
+      {/* ── Pay buttons ── */}
+      <div className="space-y-3">
+        {/* Card payment */}
+        <button
+          onClick={handlePay}
+          disabled={paying || payingCash}
+          className="w-full bg-[#009ee3] hover:bg-[#0083c6] disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
+        >
+          {paying ? (
+            <>
+              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Redirigiendo a MP…</span>
+            </>
+          ) : (
+            <>
+              <span>💳</span>
+              <span>Pagar con tarjeta</span>
+              <span className="ml-auto font-black">{fmt(order.total)}</span>
+            </>
+          )}
+        </button>
+
+        {/* Cash payment */}
+        <button
+          onClick={handlePayCash}
+          disabled={payingCash || paying}
+          className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
+        >
+          {payingCash ? (
+            <>
+              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Procesando…</span>
+            </>
+          ) : (
+            <>
+              <span>💵</span>
+              <span>Pagar en efectivo</span>
+              <span className="ml-auto font-black">{fmt(order.total)}</span>
+            </>
+          )}
+        </button>
+      </div>
 
       <p className="text-center text-xs text-gray-400">
-        Serás redirigido a Mercado Pago para completar el pago de forma segura.
+        Con tarjeta: serás redirigido a Mercado Pago. Con efectivo: pagas directo al mesero.
       </p>
     </div>
   );

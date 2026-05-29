@@ -54,6 +54,9 @@ interface KDSOrder {
   tableName: string | null;
   source: string;
   status: string;
+  customerName: string | null;
+  paymentMethod: string | null;
+  paymentStatus: string | null;
   elapsed: number;
   urgency: 'low' | 'medium' | 'high';
   items: KDSItem[];
@@ -88,6 +91,9 @@ export default function KDSPage() {
             tableName: ((o.table as Record<string, unknown>)?.name as string) || null,
             source: o.source as string,
             status: o.orderStatus as string,
+            customerName: (o.customerName as string) || null,
+            paymentMethod: (o.paymentMethod as string) || null,
+            paymentStatus: (o.paymentStatus as string) || null,
             elapsed: elapsedMinutes,
             urgency: getUrgency(elapsedMinutes),
             items: items.map((item) => ({
@@ -202,14 +208,28 @@ export default function KDSPage() {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
-                      <div className="flex items-center gap-2">
-                        <span className="text-3xl font-black text-white">
-                          {order.tableNumber}
-                        </span>
-                        {order.tableName && (
-                          <span className="text-xs text-gray-400">
-                            {order.tableName}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-3xl font-black text-white">
+                            {order.tableNumber}
                           </span>
+                          {order.tableName && (
+                            <span className="text-xs text-gray-400">
+                              {order.tableName}
+                            </span>
+                          )}
+                          {order.source === "QR" && (
+                            <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded font-bold">📱</span>
+                          )}
+                        </div>
+                        {order.customerName && (
+                          <p className="text-xs text-gray-300 mt-0.5">👤 {order.customerName}</p>
+                        )}
+                        {order.paymentMethod && (
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {order.paymentMethod === "CASH" ? "💵 Efectivo" : order.paymentMethod === "MP" ? "💳 Tarjeta" : order.paymentMethod}
+                            {order.paymentStatus === "COMPLETED" ? " ✅" : order.paymentStatus === "PENDING" ? " ⏳" : ""}
+                          </p>
                         )}
                       </div>
                       <div className="flex items-center gap-3">

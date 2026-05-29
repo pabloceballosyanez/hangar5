@@ -35,6 +35,9 @@ export async function GET() {
             },
           },
         },
+        payments: {
+          select: { method: true, status: true },
+        },
       },
     });
 
@@ -74,6 +77,8 @@ export async function GET() {
           customerName: order.customerName,
           notes: order.notes,
           source: order.source,
+          paymentMethod: order.payments[0]?.method || null,
+          paymentStatus: order.payments[0]?.status || null,
           createdAt: order.createdAt,
           elapsedSeconds: Math.round((now - new Date(order.createdAt).getTime()) / 1000),
           items,

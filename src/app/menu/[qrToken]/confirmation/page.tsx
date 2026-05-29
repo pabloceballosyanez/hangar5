@@ -35,6 +35,17 @@ function getStatusConfig(status: string | undefined): StatusConfig {
         titleClass: "text-green-800",
         subtitleClass: "text-green-600",
       };
+    case "cash":
+      return {
+        emoji: "💵",
+        title: "¡Pedido confirmado!",
+        subtitle:
+          "Pagas en efectivo al mesero. Tu orden ya está en preparación.",
+        bgClass: "bg-green-50",
+        borderClass: "border-green-200",
+        titleClass: "text-green-800",
+        subtitleClass: "text-green-600",
+      };
     case "pending":
       return {
         emoji: "⏳",
@@ -106,16 +117,16 @@ export default async function ConfirmationPage({
         </div>
       )}
 
-      {/* Steps (only for approved) */}
-      {status === "approved" && (
+      {/* Steps (for approved/cash) */}
+      {(status === "approved" || status === "cash") && (
         <div className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 space-y-3">
           <p className="text-sm font-bold text-gray-700 text-left">
             ¿Qué sigue?
           </p>
           <ol className="space-y-2 text-left">
             {[
-              { icon: "👨‍🍳", text: "Tu orden entra a cocina" },
-              { icon: "🔔", text: "Te avisamos cuando esté lista" },
+              { icon: "👨🍳", text: "Tu orden entra a cocina" },
+              { icon: "⏱️", text: "Tiempo estimado: ~15-25 min" },
               { icon: "🍽️", text: "El mesero lleva tu orden a la mesa" },
             ].map(({ icon, text }, i) => (
               <li key={i} className="flex items-center gap-3">
@@ -126,6 +137,13 @@ export default async function ConfirmationPage({
               </li>
             ))}
           </ol>
+          {status === "cash" && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mt-2">
+              <p className="text-xs text-amber-700">
+                💵 No olvides pagar en efectivo al mesero cuando te entreguen tu orden.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
