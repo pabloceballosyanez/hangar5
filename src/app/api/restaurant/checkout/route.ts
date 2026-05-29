@@ -43,6 +43,11 @@ export async function POST(req: NextRequest) {
     const qrToken = order.serviceSession.table?.qrToken;
     const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
+    if (!qrToken) {
+      console.error("[MP] No qrToken for order:", orderId);
+      return NextResponse.json({ error: "Mesa no encontrada para esta orden" }, { status: 400 });
+    }
+
     // ── Test mode (no MP token configured) ──────────────────────────────────
     if (!process.env.MP_ACCESS_TOKEN) {
       // Upsert a PENDING payment record so the order has a payment entry
@@ -87,6 +92,7 @@ export async function POST(req: NextRequest) {
       };
     });
 
+    console.log("[MP] Creating preference for order:", orderId, "items:", JSON.stringify(mpItems));
     const result = await preferenceApi.create({
       body: {
         items: mpItems,
@@ -110,6 +116,7 @@ export async function POST(req: NextRequest) {
         external_reference: orderId,
       },
     });
+    console.log("[MP] Preference created:", result.id, "initPoint:", result.init_point);
 
     const preferenceId = result.id!;
     const initPoint = result.init_point!;
@@ -134,7 +141,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ preferenceId, initPoint });
   } catch (err) {
-    console.error("[POST /api/restaurant/checkout]", err);
+    console.error("[POST /api/restaurant/checkout] MP error:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
     return NextResponse.json(
       { error: "Error al crear preferencia de pago" },
       { status: 500 }
