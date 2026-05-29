@@ -118,6 +118,7 @@ export default function MenuPage() {
 
   // ── Cart ──
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [customerName, setCustomerName] = useState<string | null>(null);
 
   // ── Modal ──
   const [selectedItem, setSelectedItem] = useState<MenuItemData | null>(null);
@@ -140,6 +141,16 @@ export default function MenuPage() {
       localStorage.setItem("hangar5_cart", JSON.stringify(cart));
     } catch { /* ignore */ }
   }, [cart]);
+
+  // ── Check if logged in ──
+  useEffect(() => {
+    fetch("/api/auth/customer/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.customer) setCustomerName(data.customer.name);
+      })
+      .catch(() => {});
+  }, []);
 
   // ── Fetch menu + session ──
   useEffect(() => {
@@ -320,6 +331,28 @@ export default function MenuPage() {
         <div className="absolute inset-0 h-72 bg-gradient-to-b from-orange-600/20 via-slate-800/40 to-transparent pointer-events-none" />
         
         <div className="relative z-10 px-4 pt-6 pb-12">
+          {/* User profile link */}
+          <div className="flex justify-end mb-2">
+            {customerName ? (
+              <a
+                href="/cuenta"
+                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm border border-amber-400/20 transition-all"
+              >
+                <span className="w-6 h-6 rounded-full bg-amber-400/30 flex items-center justify-center text-xs">
+                  {customerName.charAt(0).toUpperCase()}
+                </span>
+                {customerName}
+              </a>
+            ) : (
+              <a
+                href={`/login?redirect=/menu/${qrToken}`}
+                className="inline-flex items-center gap-1 text-amber-200/60 hover:text-amber-300 text-sm transition-colors"
+              >
+                👤 Ingresar
+              </a>
+            )}
+          </div>
+
           {/* Título principal */}
           <div className="mb-8 animate-fadeIn">
             <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight leading-tight mb-2">

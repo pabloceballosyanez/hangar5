@@ -69,6 +69,7 @@ export default function CheckoutPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   // Hydrate from localStorage
   useEffect(() => {
@@ -79,6 +80,24 @@ export default function CheckoutPage() {
       const rawSession = localStorage.getItem("hangar5_session");
       if (rawSession) setTableInfo(JSON.parse(rawSession) as TableInfo);
     } catch { /* ignore */ }
+  }, []);
+
+  // Detect logged-in customer and pre-fill
+  useEffect(() => {
+    fetch("/api/auth/customer/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.customer) {
+          setLoggedIn(true);
+          setForm((prev) => ({
+            ...prev,
+            name: data.customer.name || prev.name,
+            email: data.customer.email || prev.email,
+            phone: data.customer.phone || prev.phone,
+          }));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const subtotal = cart.reduce((s, i) => s + lineTotal(i), 0);
@@ -232,6 +251,17 @@ export default function CheckoutPage() {
           <span className="text-amber-600">{fmt(total)}</span>
         </div>
       </section>
+
+      {/* ── Logged in banner ── */}
+      {loggedIn && (
+        <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+          <span className="text-xl">👋</span>
+          <div>
+            <p className="text-sm font-bold text-green-800">¡Hola de nuevo, {form.name}!</p>
+            <p className="text-xs text-green-600">Tu orden se guardará en tu historial.</p>
+          </div>
+        </div>
+      )}
 
       {/* ── Customer info ── */}
       <section>

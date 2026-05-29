@@ -196,7 +196,8 @@ model Customer {
   id             String                 @id @default(cuid())
   name           String
   phone          String?
-  email          String?
+  email          String?                @unique
+  password       String?
   notes          String?
   isActive       Boolean                @default(true)
   createdAt      DateTime               @default(now())

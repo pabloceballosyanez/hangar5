@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { getCustomerSession } from "@/lib/auth";
 import type { OrderStatus, OrderSource } from "@/lib/restaurant-types";
 import { ORDER_STATUSES, ORDER_SOURCES } from "@/lib/restaurant-types";
 
@@ -172,12 +173,40 @@ export async function POST(req: NextRequest) {
     const { serviceSessionId, source, customerName, customerEmail, customerPhone, notes, items } = parsed.data;
 
     // Validate session exists and is open
-    const session = await prisma.serviceSession.findUnique({ where: { id: serviceSessionId } });
-    if (!session) {
+    const svcSession = await prisma.serviceSession.findUnique({ where: { id: serviceSessionId } });
+    if (!svcSession) {
       return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
     }
-    if (session.status !== "OPEN") {
+    if (svcSession.status !== "OPEN") {
       return NextResponse.json({ error: "La sesión no está abierta" }, { status: 409 });
+    }
+
+    // ── Resolve customer: logged-in session > email match > new customer ──
+    const custSession = getCustomerSession(req);
+    let customerId: string | null = svcSession.customerId ?? null;
+
+    if (custSession) {
+      // Customer is logged in — use their account
+      customerId = custSession.customerId;
+    } else if (customerEmail) {
+      // Not logged in but provided email — find or create Customer
+      const existing = await prisma.customer.findUnique({ where: { email: customerEmail } });
+      if (existing) {
+        customerId = existing.id;
+      } else {
+        const created = await prisma.customer.create({
+          data: { name: customerName || customerEmail, email: customerEmail, phone: customerPhone ?? null },
+        });
+        customerId = created.id;
+      }
+    }
+
+    // Link customer to session if not already linked
+    if (customerId && svcSession.customerId !== customerId) {
+      await prisma.serviceSession.update({
+        where: { id: serviceSessionId },
+        data: { customerId },
+      });
     }
 
     // Prefetch all menuItems and modifiers needed
