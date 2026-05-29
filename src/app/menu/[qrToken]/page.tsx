@@ -345,7 +345,7 @@ export default function MenuPage() {
               </a>
             ) : (
               <a
-                href={`/login?redirect=/menu/${qrToken}`}
+                href={`/ingresar?redirect=/menu/${qrToken}`}
                 className="inline-flex items-center gap-1 text-amber-200/60 hover:text-amber-300 text-sm transition-colors"
               >
                 👤 Ingresar

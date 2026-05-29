@@ -61,7 +61,7 @@ export default function CuentaPage() {
         const meRes = await fetch("/api/auth/customer/me");
         const meData = await meRes.json();
         if (!meData.customer) {
-          router.push("/login?redirect=/cuenta");
+          router.push("/ingresar?redirect=/cuenta");
           return;
         }
         setProfile(meData.customer);
