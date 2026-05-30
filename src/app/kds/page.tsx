@@ -209,21 +209,35 @@ export default function KDSPage() {
                   >
                     <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-3xl font-black text-white">
-                            {order.tableNumber}
-                          </span>
-                          {order.tableName && (
-                            <span className="text-xs text-gray-400">
-                              {order.tableName}
-                            </span>
-                          )}
-                          {order.source === "QR" && (
-                            <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded font-bold">📱</span>
-                          )}
-                        </div>
-                        {order.customerName && (
-                          <p className="text-xs text-gray-300 mt-0.5">👤 {order.customerName}</p>
+                        {order.source === "QR" && order.customerName ? (
+                          <>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl font-black text-white">
+                                👤 {order.customerName}
+                              </span>
+                              <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded font-bold">📱</span>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              📍 Mesa {order.tableNumber}
+                              {order.tableName ? ` · ${order.tableName}` : ""}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-2">
+                              <span className="text-3xl font-black text-white">
+                                {order.tableNumber}
+                              </span>
+                              {order.tableName && (
+                                <span className="text-xs text-gray-400">
+                                  {order.tableName}
+                                </span>
+                              )}
+                            </div>
+                            {order.customerName && (
+                              <p className="text-xs text-gray-300 mt-0.5">👤 {order.customerName}</p>
+                            )}
+                          </>
                         )}
                         {order.paymentMethod && (
                           <p className="text-xs text-gray-400 mt-0.5">

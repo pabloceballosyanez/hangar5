@@ -192,10 +192,10 @@ export async function POST(req: NextRequest) {
 
     // ── Resolve session ──────────────────────────────────────────────────────
     let sessionId: string;
-    let sessionTableId: string | null = null;
+    let sessionDeliveryNote: string | null = null;
 
     if (source === "QR") {
-      // QR orders get their own session (don't mix with waiter tabs)
+      // QR orders are CUSTOMER tabs, not table sessions
       const parentSession = await prisma.serviceSession.findUnique({
         where: { id: serviceSessionId },
         include: { table: true },
@@ -203,18 +203,23 @@ export async function POST(req: NextRequest) {
       if (!parentSession) {
         return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
       }
-      sessionTableId = parentSession.tableId ?? null;
+
+      const tableInfo = parentSession.table;
+      const deliveryLabel = tableInfo
+        ? `📍 ${tableInfo.name || ("Mesa " + tableInfo.number)}${tableInfo.location ? " · " + tableInfo.location : ""}`
+        : "📍 QR";
 
       const newSession = await prisma.serviceSession.create({
         data: {
           type: "QR",
-          label: `QR ${parentSession.table?.name || parentSession.table?.number || "auto"}`,
-          tableId: sessionTableId,
+          label: customerName || "Cliente QR",
           customerId,
           status: "OPEN",
         },
       });
       sessionId = newSession.id;
+      // Store delivery location on the order (not session)
+      sessionDeliveryNote = deliveryLabel;
     } else {
       // Waiter/Admin use the existing session
       const svcSession = await prisma.serviceSession.findUnique({ where: { id: serviceSessionId } });
@@ -233,7 +238,6 @@ export async function POST(req: NextRequest) {
         });
       }
       sessionId = serviceSessionId;
-      sessionTableId = svcSession.tableId ?? null;
     }
 
     // Prefetch all menuItems and modifiers needed
@@ -290,7 +294,7 @@ export async function POST(req: NextRequest) {
           customerName,
           customerEmail,
           customerPhone,
-          notes,
+          notes: sessionDeliveryNote ? (notes ? `${notes} | ${sessionDeliveryNote}` : sessionDeliveryNote) : (notes || null),
           status: initialStatus,
           subtotal,
           tax,
