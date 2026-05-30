@@ -19,6 +19,7 @@ interface OrderItem {
   menuItem:            { name: string };
   variant:             { name: string } | null;
   modifiers:           OrderItemModifier[];
+  status:              string;
 }
 
 interface Order {
@@ -37,7 +38,10 @@ interface ServiceSession {
   id:       string;
   status:   string;
   openedAt: string;
-  orders:   { id: string; status: string; total: number; createdAt: string }[];
+  orders:   {
+    id: string; status: string; total: number; createdAt: string;
+    orderItems?: { id: string; status: string }[];
+  }[];
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -62,22 +66,41 @@ function fmtTime(iso: string) {
 
 // ── Order card ────────────────────────────────────────────────────────────────
 
-function OrderCard({ summary, onExpand }: {
-  summary: { id: string; status: string; total: number; createdAt: string };
+function OrderCard({ order, onExpand }: {
+  order: Order;
   onExpand: (id: string) => void;
 }) {
-  const st = STATUS_LABELS[summary.status] ?? { label: summary.status, color: 'text-slate-400' };
+  const st = STATUS_LABELS[order.status] ?? { label: order.status, color: 'text-slate-400' };
+  const items = order.orderItems || [];
+  const readyItems = items.filter(i => i.status === 'READY').length;
+  const pendingItems = items.filter(i => i.status !== 'READY' && i.status !== 'SERVED' && i.status !== 'CANCELLED').length;
+  const isAllReady = items.length > 0 && pendingItems === 0 && readyItems > 0;
+  const isPartial = readyItems > 0 && pendingItems > 0;
+  
+  let borderStyle = 'bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50';
+  if (isAllReady) borderStyle = 'bg-emerald-950/60 border-2 border-emerald-500/50 hover:bg-emerald-950 animate-pulse';
+  else if (isPartial) borderStyle = 'bg-amber-950/50 border-2 border-amber-500/40 hover:bg-amber-950';
+  
   return (
     <button
-      onClick={() => onExpand(summary.id)}
-      className="w-full flex items-center justify-between p-4 bg-slate-800/60 hover:bg-slate-800 rounded-xl border border-slate-700/50 transition-all active:scale-[0.98] text-left"
+      onClick={() => onExpand(order.id)}
+      className={`w-full flex items-center justify-between p-4 rounded-xl transition-all active:scale-[0.98] text-left ${borderStyle}`}
     >
       <div>
-        <p className="text-xs text-slate-500 mb-0.5">{fmtTime(summary.createdAt)}</p>
-        <p className={`text-sm font-semibold ${st.color}`}>{st.label}</p>
+        <p className="text-xs text-slate-500 mb-0.5">{fmtTime(order.createdAt)}</p>
+        <p className={`text-sm font-semibold ${st.color}`}>
+          {isAllReady && <span className="mr-1">🍽</span>}
+          {isPartial && <span className="mr-1">🍹</span>}
+          {st.label}
+        </p>
       </div>
       <div className="text-right">
-        <p className="text-white font-bold">{fmt(summary.total / 100)}</p>
+        <p className="text-white font-bold">{fmt(order.total / 100)}</p>
+        {readyItems > 0 && (
+          <p className={`text-xs mt-0.5 ${isAllReady ? 'text-green-400 font-bold' : 'text-amber-400'}`}>
+            {readyItems}/{items.length} listos
+          </p>
+        )}
         <p className="text-xs text-slate-500 mt-0.5">Ver detalle ›</p>
       </div>
     </button>
@@ -89,68 +112,100 @@ function OrderCard({ summary, onExpand }: {
 function OrderDetailSheet({
   order,
   onClose,
+  onDeliver,
 }: {
   order: Order;
   onClose: () => void;
+  onDeliver?: () => void;
 }) {
   const st = STATUS_LABELS[order.status] ?? { label: order.status, color: 'text-slate-400' };
+  const items = order.orderItems || [];
+  const readyItems = items.filter(i => i.status === 'READY');
+  const inPrepItems = items.filter(i => i.status !== 'READY' && i.status !== 'SERVED' && i.status !== 'CANCELLED');
+  const servedItems = items.filter(i => i.status === 'SERVED');
+  
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-slate-900 rounded-t-3xl max-h-[85dvh] flex flex-col border-t-2 border-amber-400/20 shadow-2xl">
-        {/* Handle */}
-        <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 bg-slate-700 rounded-full" />
-        </div>
+        <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 bg-slate-700 rounded-full" /></div>
 
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800">
           <div>
             <p className="font-bold text-white text-base">Orden #{order.id.slice(-6).toUpperCase()}</p>
             <p className={`text-sm ${st.color}`}>{st.label} · {fmtTime(order.createdAt)}</p>
           </div>
-          <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white transition-colors">
-            ✕
-          </button>
+          <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white transition-colors">✕</button>
         </div>
 
-        {/* Items */}
-        <div className="overflow-y-auto flex-1 px-5 py-4 space-y-3">
-          {order.orderItems.map((item) => (
-            <div key={item.id} className="flex gap-3">
-              <div className="w-8 h-8 bg-amber-400/10 border border-amber-400/20 rounded-lg flex items-center justify-center text-amber-400 font-bold text-sm shrink-0">
-                {item.quantity}×
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm leading-tight">
-                  {item.menuItem.name}
-                  {item.variant && <span className="text-slate-400"> · {item.variant.name}</span>}
-                </p>
-                {item.modifiers.map((m) => (
-                  <p key={m.id} className="text-xs text-slate-500">+ {m.modifierName}</p>
+        <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+          {readyItems.length > 0 && (
+            <div>
+              <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">✅ Listo para entregar ({readyItems.length})</p>
+              <div className="space-y-2">
+                {readyItems.map(item => (
+                  <div key={item.id} className="flex gap-3 bg-emerald-950/40 border border-emerald-500/20 rounded-lg p-3">
+                    <div className="w-8 h-8 bg-emerald-400/20 border border-emerald-400/30 rounded-lg flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">{item.quantity}×</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-medium text-sm leading-tight">
+                        {item.menuItem.name}
+                        {item.variant && <span className="text-slate-400"> · {item.variant.name}</span>}
+                      </p>
+                      {item.modifiers.map(m => <p key={m.id} className="text-xs text-slate-500">+ {m.modifierName}</p>)}
+                    </div>
+                    <p className="text-white text-sm font-mono shrink-0">{fmt(item.unitPrice * item.quantity)}</p>
+                  </div>
                 ))}
-                {item.specialInstructions && (
-                  <p className="text-xs text-amber-400/70 italic mt-0.5">"{item.specialInstructions}"</p>
-                )}
               </div>
-              <p className="text-white text-sm font-mono shrink-0">
-                {fmt(item.unitPrice * item.quantity)}
-              </p>
+              {onDeliver && (
+                <button onClick={onDeliver} className="mt-2 w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg active:scale-[0.98] transition-all">
+                  ✅ Entregar {readyItems.length} ítem{readyItems.length !== 1 ? 'es' : ''}
+                </button>
+              )}
             </div>
-          ))}
+          )}
+          {inPrepItems.length > 0 && (
+            <div>
+              <p className="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-2">⏳ En preparación ({inPrepItems.length})</p>
+              <div className="space-y-2">
+                {inPrepItems.map(item => (
+                  <div key={item.id} className="flex gap-3 bg-slate-800/60 border border-slate-700/50 rounded-lg p-3">
+                    <div className="w-8 h-8 bg-amber-400/10 border border-amber-400/20 rounded-lg flex items-center justify-center text-amber-400 font-bold text-sm shrink-0">{item.quantity}×</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-medium text-sm leading-tight">
+                        {item.menuItem.name}
+                        {item.variant && <span className="text-slate-400"> · {item.variant.name}</span>}
+                      </p>
+                      {item.modifiers.map(m => <p key={m.id} className="text-xs text-slate-500">+ {m.modifierName}</p>)}
+                      {item.specialInstructions && <p className="text-xs text-amber-400/70 italic mt-0.5">"{item.specialInstructions}"</p>}
+                    </div>
+                    <p className="text-white text-sm font-mono shrink-0">{fmt(item.unitPrice * item.quantity)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {servedItems.length > 0 && (
+            <div>
+              <p className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">🍽️ Ya entregado ({servedItems.length})</p>
+              <div className="space-y-2 opacity-60">
+                {servedItems.map(item => (
+                  <div key={item.id} className="flex gap-3 bg-slate-800/40 border border-slate-700/30 rounded-lg p-3">
+                    <div className="w-8 h-8 bg-slate-700/40 rounded-lg flex items-center justify-center text-slate-400 font-bold text-sm shrink-0">{item.quantity}×</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-slate-400 font-medium text-sm leading-tight">{item.menuItem.name}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Totals */}
         <div className="px-5 py-4 border-t border-slate-800 space-y-1">
-          <div className="flex justify-between text-sm text-slate-400">
-            <span>Subtotal</span><span>{fmt(order.subtotal)}</span>
-          </div>
-          <div className="flex justify-between text-sm text-slate-400">
-            <span>IVA (16%)</span><span>{fmt(order.tax)}</span>
-          </div>
-          <div className="flex justify-between font-bold text-white text-base pt-1 border-t border-slate-700">
-            <span>Total</span><span className="text-amber-400">{fmt(order.total)}</span>
-          </div>
+          <div className="flex justify-between text-sm text-slate-400"><span>Subtotal</span><span>{fmt(order.subtotal)}</span></div>
+          <div className="flex justify-between text-sm text-slate-400"><span>IVA (16%)</span><span>{fmt(order.tax)}</span></div>
+          <div className="flex justify-between font-bold text-white text-base pt-1 border-t border-slate-700"><span>Total</span><span className="text-amber-400">{fmt(order.total)}</span></div>
         </div>
       </div>
     </div>
@@ -313,6 +368,7 @@ export default function WaiterTablePage() {
   const [loadingOrder,  setLoadingOrder] = useState<string | null>(null);
   const [showCuenta,    setShowCuenta]   = useState(false);
   const [closeError,    setCloseError]   = useState<string | null>(null);
+  const [delivering,    setDelivering]   = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -389,6 +445,26 @@ export default function WaiterTablePage() {
     } catch { /* ignore */ } finally {
       setLoadingOrder(null);
     }
+  };
+
+  const deliverReadyItems = async (orderId: string) => {
+    setDelivering(true);
+    try {
+      const fres = await fetch(`/api/admin/restaurant/orders/${orderId}`);
+      if (!fres.ok) throw new Error('Error al obtener orden');
+      const order = await fres.json() as Order;
+      const readyIds = (order.orderItems || []).filter((i: OrderItem) => i.status === 'READY').map((i: OrderItem) => i.id);
+      for (const itemId of readyIds) {
+        await fetch(`/api/admin/restaurant/orders/${orderId}/items/${itemId}/status`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'SERVED' }),
+        });
+      }
+      await loadData();
+      setExpandOrder(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al entregar');
+    } finally { setDelivering(false); }
   };
 
   // ── Loading ──
@@ -481,7 +557,7 @@ export default function WaiterTablePage() {
                         <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
                       </div>
                     )}
-                    <OrderCard summary={o} onExpand={expandOrderDetail} />
+                    <OrderCard order={o as unknown as Order} onExpand={expandOrderDetail} />
                   </div>
                 ))}
               </div>
@@ -528,7 +604,7 @@ export default function WaiterTablePage() {
 
       {/* Order detail sheet */}
       {expandOrder && (
-        <OrderDetailSheet order={expandOrder} onClose={() => setExpandOrder(null)} />
+        <OrderDetailSheet order={expandOrder} onClose={() => setExpandOrder(null)} onDeliver={() => deliverReadyItems(expandOrder.id)} />
       )}
 
       {/* Cuenta sheet */}

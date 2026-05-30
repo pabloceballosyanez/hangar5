@@ -11,6 +11,7 @@ interface OrderItemModifier {
 interface OrderItem {
   id: string; quantity: number; unitPrice: number; specialInstructions: string | null;
   menuItem: { name: string }; variant: { name: string } | null; modifiers: OrderItemModifier[];
+  status: string;
 }
 interface Order {
   id: string; status: string; source: string; subtotal: number; tax: number; total: number;
@@ -20,7 +21,7 @@ interface Session {
   id: string; type: string; label: string; status: string; openedAt: string;
   table: { number: string; name: string | null } | null;
   customer: { id: string; name: string } | null;
-  orders: { id: string; status: string; total: number; createdAt: string }[];
+  orders: Order[];
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -34,6 +35,14 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   PAID: { label: 'Pagada', color: 'text-slate-500' },
   CANCELLED: { label: 'Cancelada', color: 'text-red-500' },
 };
+
+const ITEM_STATUS_LABELS: Record<string, { label: string; color: string; icon: string }> = {
+  PENDING:  { label: 'Pendiente',  color: 'text-slate-400',  icon: '⏳' },
+  IN_PREP:  { label: 'En prep',    color: 'text-yellow-400', icon: '👨‍🍳' },
+  READY:    { label: 'Listo',      color: 'text-emerald-400',icon: '✅' },
+  SERVED:   { label: 'Entregado',  color: 'text-purple-400', icon: '🍽️' },
+  CANCELLED:{ label: 'Cancelado',  color: 'text-red-500',    icon: '❌' },
+};
 function fmt(p: number) { return `$${p.toFixed(2)}`; }
 function fmtTime(iso: string) { return new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }); }
 
@@ -41,26 +50,38 @@ const typeLabel: Record<string, string> = { TABLE: 'Mesa', TAB: 'Cliente', WALKI
 
 // ── Order card ────────────────────────────────────────────────────────────────
 
-function OrderCard({ summary, onExpand }: {
-  summary: { id: string; status: string; total: number; createdAt: string };
+function OrderCard({ order, onExpand }: {
+  order: Order;
   onExpand: (id: string) => void;
 }) {
-  const st = STATUS_LABELS[summary.status] ?? { label: summary.status, color: 'text-slate-400' };
-  const isReady = summary.status === 'READY';
+  const st = STATUS_LABELS[order.status] ?? { label: order.status, color: 'text-slate-400' };
+  const items = order.orderItems || [];
+  const readyItems = items.filter(i => i.status === 'READY').length;
+  const pendingItems = items.filter(i => i.status !== 'READY' && i.status !== 'SERVED' && i.status !== 'CANCELLED').length;
+  const isAllReady = items.length > 0 && pendingItems === 0 && readyItems > 0;
+  const isPartial = readyItems > 0 && pendingItems > 0;
+  
+  let borderStyle = 'bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50';
+  if (isAllReady) borderStyle = 'bg-emerald-950/60 border-2 border-emerald-500/50 hover:bg-emerald-950 animate-pulse';
+  else if (isPartial) borderStyle = 'bg-amber-950/50 border-2 border-amber-500/40 hover:bg-amber-950';
+  
   return (
-    <button onClick={() => onExpand(summary.id)} className={`w-full flex items-center justify-between p-4 rounded-xl transition-all active:scale-[0.98] text-left ${
-      isReady
-        ? 'bg-emerald-950/60 border-2 border-emerald-500/50 hover:bg-emerald-950 animate-pulse'
-        : 'bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50'
-    }`}>
+    <button onClick={() => onExpand(order.id)} className={`w-full flex items-center justify-between p-4 rounded-xl transition-all active:scale-[0.98] text-left ${borderStyle}`}>
       <div>
-        <p className="text-xs text-slate-500 mb-0.5">{fmtTime(summary.createdAt)}</p>
+        <p className="text-xs text-slate-500 mb-0.5">{fmtTime(order.createdAt)}</p>
         <p className={`text-sm font-semibold ${st.color}`}>
-          {isReady && <span className="mr-1">🍽</span>}{st.label}
+          {isAllReady && <span className="mr-1">🍽</span>}
+          {isPartial && <span className="mr-1">🍹</span>}
+          {st.label}
         </p>
       </div>
       <div className="text-right">
-        <p className="text-white font-bold">{fmt(summary.total)}</p>
+        <p className="text-white font-bold">{fmt(order.total)}</p>
+        {readyItems > 0 && (
+          <p className={`text-xs mt-0.5 ${isAllReady ? 'text-green-400 font-bold' : 'text-amber-400'}`}>
+            {readyItems}/{items.length} listos
+          </p>
+        )}
         <p className="text-xs text-slate-500 mt-0.5">Ver detalle ›</p>
       </div>
     </button>
@@ -69,8 +90,13 @@ function OrderCard({ summary, onExpand }: {
 
 // ── Order detail sheet ────────────────────────────────────────────────────────
 
-function OrderDetailSheet({ order, onClose }: { order: Order; onClose: () => void }) {
+function OrderDetailSheet({ order, onClose, onDeliver }: { order: Order; onClose: () => void; onDeliver?: () => void }) {
   const st = STATUS_LABELS[order.status] ?? { label: order.status, color: 'text-slate-400' };
+  const items = order.orderItems || [];
+  const readyItems = items.filter(i => i.status === 'READY');
+  const inPrepItems = items.filter(i => i.status !== 'READY' && i.status !== 'SERVED' && i.status !== 'CANCELLED');
+  const servedItems = items.filter(i => i.status === 'SERVED');
+  
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
@@ -83,21 +109,71 @@ function OrderDetailSheet({ order, onClose }: { order: Order; onClose: () => voi
           </div>
           <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white">✕</button>
         </div>
-        <div className="overflow-y-auto flex-1 px-5 py-4 space-y-3">
-          {order.orderItems.map(item => (
-            <div key={item.id} className="flex gap-3">
-              <div className="w-8 h-8 bg-amber-400/10 border border-amber-400/20 rounded-lg flex items-center justify-center text-amber-400 font-bold text-sm shrink-0">{item.quantity}×</div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm leading-tight">
-                  {item.menuItem.name}
-                  {item.variant && <span className="text-slate-400"> · {item.variant.name}</span>}
-                </p>
-                {item.modifiers.map(m => <p key={m.id} className="text-xs text-slate-500">+ {m.modifierName}</p>)}
-                {item.specialInstructions && <p className="text-xs text-amber-400/70 italic mt-0.5">"{item.specialInstructions}"</p>}
+        <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+          {/* Ready to deliver */}
+          {readyItems.length > 0 && (
+            <div>
+              <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">✅ Listo para entregar ({readyItems.length})</p>
+              <div className="space-y-2">
+                {readyItems.map(item => (
+                  <div key={item.id} className="flex gap-3 bg-emerald-950/40 border border-emerald-500/20 rounded-lg p-3">
+                    <div className="w-8 h-8 bg-emerald-400/20 border border-emerald-400/30 rounded-lg flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">{item.quantity}×</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-medium text-sm leading-tight">
+                        {item.menuItem.name}
+                        {item.variant && <span className="text-slate-400"> · {item.variant.name}</span>}
+                      </p>
+                      {item.modifiers.map(m => <p key={m.id} className="text-xs text-slate-500">+ {m.modifierName}</p>)}
+                    </div>
+                    <p className="text-white text-sm font-mono shrink-0">{fmt(item.unitPrice * item.quantity / 100)}</p>
+                  </div>
+                ))}
               </div>
-              <p className="text-white text-sm font-mono shrink-0">{fmt(item.unitPrice * item.quantity / 100)}</p>
+              {onDeliver && (
+                <button onClick={onDeliver} className="mt-2 w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg active:scale-[0.98] transition-all">
+                  ✅ Entregar {readyItems.length} ítem{readyItems.length !== 1 ? 'es' : ''}
+                </button>
+              )}
             </div>
-          ))}
+          )}
+          {/* In preparation */}
+          {inPrepItems.length > 0 && (
+            <div>
+              <p className="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-2">⏳ En preparación ({inPrepItems.length})</p>
+              <div className="space-y-2">
+                {inPrepItems.map(item => (
+                  <div key={item.id} className="flex gap-3 bg-slate-800/60 border border-slate-700/50 rounded-lg p-3">
+                    <div className="w-8 h-8 bg-amber-400/10 border border-amber-400/20 rounded-lg flex items-center justify-center text-amber-400 font-bold text-sm shrink-0">{item.quantity}×</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-medium text-sm leading-tight">
+                        {item.menuItem.name}
+                        {item.variant && <span className="text-slate-400"> · {item.variant.name}</span>}
+                      </p>
+                      {item.modifiers.map(m => <p key={m.id} className="text-xs text-slate-500">+ {m.modifierName}</p>)}
+                      {item.specialInstructions && <p className="text-xs text-amber-400/70 italic mt-0.5">"{item.specialInstructions}"</p>}
+                    </div>
+                    <p className="text-white text-sm font-mono shrink-0">{fmt(item.unitPrice * item.quantity / 100)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Already delivered */}
+          {servedItems.length > 0 && (
+            <div>
+              <p className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">🍽️ Ya entregado ({servedItems.length})</p>
+              <div className="space-y-2 opacity-60">
+                {servedItems.map(item => (
+                  <div key={item.id} className="flex gap-3 bg-slate-800/40 border border-slate-700/30 rounded-lg p-3">
+                    <div className="w-8 h-8 bg-slate-700/40 rounded-lg flex items-center justify-center text-slate-400 font-bold text-sm shrink-0">{item.quantity}×</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-slate-400 font-medium text-sm leading-tight">{item.menuItem.name}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div className="px-5 py-4 border-t border-slate-800 space-y-1">
           <div className="flex justify-between text-sm text-slate-400"><span>Subtotal</span><span>{fmt(order.subtotal)}</span></div>
@@ -216,6 +292,7 @@ export default function WaiterSessionPage() {
   const [loadingOrder, setLoadingOrder] = useState<string | null>(null);
   const [showCuenta, setShowCuenta] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [delivering, setDelivering] = useState(false);
 
   const loadSession = useCallback(async () => {
     setLoading(true);
@@ -240,6 +317,27 @@ export default function WaiterSessionPage() {
       if (!res.ok) throw new Error('Error');
       setExpandOrder(await res.json());
     } catch { /* ignore */ } finally { setLoadingOrder(null); }
+  };
+
+  // Mark all READY items in an order as SERVED
+  const deliverReadyItems = async (orderId: string) => {
+    setDelivering(true);
+    try {
+      const fres = await fetch(`/api/admin/restaurant/orders/${orderId}`);
+      if (!fres.ok) throw new Error('Error al obtener orden');
+      const order = await fres.json() as Order;
+      const readyIds = (order.orderItems || []).filter(i => i.status === 'READY').map(i => i.id);
+      for (const itemId of readyIds) {
+        await fetch(`/api/admin/restaurant/orders/${orderId}/items/${itemId}/status`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'SERVED' }),
+        });
+      }
+      await loadSession();
+      setExpandOrder(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al entregar');
+    } finally { setDelivering(false); }
   };
 
   const closeSession = async () => {
@@ -327,7 +425,7 @@ export default function WaiterSessionPage() {
             {activeOrders.map(o => (
               <div key={o.id} className="relative">
                 {loadingOrder === o.id && <div className="absolute inset-0 bg-slate-900/50 rounded-xl flex items-center justify-center z-10"><div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" /></div>}
-                <OrderCard summary={o} onExpand={expandOrderDetail} />
+                <OrderCard order={o} onExpand={expandOrderDetail} />
               </div>
             ))}
           </div>
@@ -351,7 +449,7 @@ export default function WaiterSessionPage() {
         </div>
       </div>
 
-      {expandOrder && <OrderDetailSheet order={expandOrder} onClose={() => setExpandOrder(null)} />}
+      {expandOrder && <OrderDetailSheet order={expandOrder} onClose={() => setExpandOrder(null)} onDeliver={() => deliverReadyItems(expandOrder.id)} />}
       {showCuenta && <CuentaSheet session={session} onClose={() => setShowCuenta(false)} onPaid={loadSession} />}
     </div>
   );

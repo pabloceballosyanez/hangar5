@@ -158,6 +158,15 @@ export default async function ConfirmationPage({
           </Link>
         )}
 
+        {(status === "approved" || status === "cash") && orderId && (
+          <Link
+            href={`/menu/${qrToken}/tracker?orderId=${orderId}`}
+            className="w-full bg-amber-500 text-slate-900 font-black py-4 rounded-2xl text-center text-base min-h-[56px] flex items-center justify-center shadow-md"
+          >
+            👀 Seguir mi pedido
+          </Link>
+        )}
+
         <Link
           href={`/menu/${qrToken}`}
           className="w-full bg-gray-100 text-gray-700 font-bold py-4 rounded-2xl text-center text-base min-h-[56px] flex items-center justify-center"

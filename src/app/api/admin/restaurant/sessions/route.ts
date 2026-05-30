@@ -4,15 +4,63 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+type Urgency = 'empty' | 'active' | 'partial_ready' | 'all_ready' | 'served';
+
+function computeUrgency(orders: Array<{ status: string; orderItems?: Array<{ status: string }> }>): Urgency {
+  const active = orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
+  if (active.length === 0) return 'empty';
+  
+  let hasReady = false;
+  let hasPending = false;
+  
+  for (const order of active) {
+    const items = order.orderItems || [];
+    if (items.length === 0) {
+      // No item-level data → fall back to order status
+      if (order.status === 'READY') hasReady = true;
+      else hasPending = true;
+    } else {
+      for (const item of items) {
+        if (item.status === 'READY') hasReady = true;
+        else if (item.status === 'SERVED' || item.status === 'CANCELLED') continue;
+        else hasPending = true;
+      }
+    }
+  }
+
+  if (hasReady && hasPending) return 'partial_ready';
+  if (hasReady && !hasPending) return 'all_ready';
+  if (!hasReady && !hasPending) return 'served';
+  return 'active';
+}
+
+function itemSummary(orders: Array<{ orderItems?: Array<{ status: string; prepStation?: string }> }>) {
+  let ready = 0;
+  let pending = 0;
+  for (const order of orders) {
+    for (const item of (order.orderItems || [])) {
+      if (item.status === 'READY') ready++;
+      else if (item.status !== 'SERVED' && item.status !== 'CANCELLED') pending++;
+    }
+  }
+  return { ready, pending };
+}
+
 function serializeSession(s: Record<string, unknown>) {
   const result = { ...s };
   if (s.orders && Array.isArray(s.orders)) {
-    result.orders = (s.orders as Record<string, unknown>[]).map(o => ({
+    const orders = s.orders as Record<string, unknown>[];
+    result.orders = orders.map(o => ({
       ...o,
       total: typeof o.total === "number" ? o.total / 100 : o.total,
       subtotal: typeof o.subtotal === "number" ? o.subtotal / 100 : o.subtotal,
       tax: typeof o.tax === "number" ? o.tax / 100 : o.tax,
+      // Keep orderItems as-is (just pass through)
+      orderItems: o.orderItems || [],
     }));
+    // Compute urgency and item summary server-side
+    (result as any).urgency = computeUrgency(orders as any);
+    (result as any).itemSummary = itemSummary(orders as any);
   }
   if (s.payments && Array.isArray(s.payments)) {
     result.payments = (s.payments as Record<string, unknown>[]).map(p => ({
@@ -41,7 +89,10 @@ export async function GET(req: NextRequest) {
         table: { select: { number: true, name: true, location: true } },
         customer: { select: { id: true, name: true, phone: true } },
         orders: {
-          select: { id: true, status: true, total: true, subtotal: true, tax: true },
+          select: {
+            id: true, status: true, total: true, subtotal: true, tax: true,
+            orderItems: { select: { id: true, status: true } },
+          },
         },
         payments: {
           where: { status: "COMPLETED" },

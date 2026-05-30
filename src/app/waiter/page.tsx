@@ -3,6 +3,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
+interface SessionOrderItem { id: string; status: string; }
+interface SessionOrder {
+  id: string;
+  status: string;
+  total: number;
+  orderItems?: SessionOrderItem[];
+}
 interface Session {
   id: string;
   type: string;
@@ -11,24 +18,46 @@ interface Session {
   openedAt: string;
   table: { number: string; name: string | null } | null;
   customer: { id: string; name: string } | null;
-  orders: { id: string; status: string; total: number }[];
+  orders: SessionOrder[];
+  urgency?: 'empty' | 'active' | 'partial_ready' | 'all_ready' | 'served';
+  itemSummary?: { ready: number; pending: number };
 }
 
 const typeIcon: Record<string, string> = { TABLE: '🪑', TAB: '👤', WALKIN: '🚶' };
 
-function getSessionUrgency(session: Session): 'normal' | 'ready' | 'served' | 'empty' {
+function getSessionUrgency(session: Session): 'empty' | 'active' | 'partial_ready' | 'all_ready' | 'served' {
+  // Use server-computed urgency if available
+  if (session.urgency) return session.urgency;
+  
+  // Fallback: client-side computation (item-level)
   const active = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
   if (active.length === 0) return 'empty';
-  if (active.some(o => o.status === 'SERVED')) return 'served';
-  if (active.some(o => o.status === 'READY')) return 'ready';
-  return 'normal';
+  
+  let hasReady = false, hasPending = false;
+  for (const order of active) {
+    const items = order.orderItems || [];
+    if (items.length === 0) {
+      if (order.status === 'READY') hasReady = true;
+      else if (order.status !== 'SERVED') hasPending = true;
+    } else {
+      for (const item of items) {
+        if (item.status === 'READY') hasReady = true;
+        else if (item.status !== 'SERVED' && item.status !== 'CANCELLED') hasPending = true;
+      }
+    }
+  }
+  if (hasReady && hasPending) return 'partial_ready';
+  if (hasReady && !hasPending) return 'all_ready';
+  if (!hasReady && !hasPending) return 'served';
+  return 'active';
 }
 
-const URGENCY_CONFIG: Record<string, { bg: string; border: string; badge: string; label: string }> = {
-  empty:   { bg: 'bg-emerald-950/60', border: 'border-emerald-500/40', badge: 'bg-emerald-600', label: 'Vacío' },
-  normal:  { bg: 'bg-orange-950/60',  border: 'border-orange-500/40',  badge: 'bg-orange-600',  label: 'Activo' },
-  ready:   { bg: 'bg-green-950/60',   border: 'border-green-500/40',   badge: 'bg-green-600',   label: '¡Listo!' },
-  served:  { bg: 'bg-red-950/60',     border: 'border-red-500/40',     badge: 'bg-red-600',     label: 'Cobrar' },
+const URGENCY_CONFIG: Record<string, { bg: string; border: string; badge: string; label: string; pulse: boolean }> = {
+  empty:         { bg: 'bg-emerald-950/50', border: 'border-emerald-600/30', badge: 'bg-emerald-700/80', label: 'Vacío', pulse: false },
+  active:        { bg: 'bg-slate-800/60',    border: 'border-slate-600/40',   badge: 'bg-slate-600',      label: 'En cocina', pulse: false },
+  partial_ready: { bg: 'bg-amber-950/50',    border: 'border-amber-500/50',    badge: 'bg-amber-600',      label: 'Parcial', pulse: false },
+  all_ready:     { bg: 'bg-green-950/60',    border: 'border-green-500/60',    badge: 'bg-green-600',      label: '¡Listo!', pulse: true },
+  served:        { bg: 'bg-slate-900/60',    border: 'border-slate-700/50',    badge: 'bg-slate-700',      label: 'Entregado', pulse: false },
 };
 
 function fmtTime(iso: string) {
@@ -128,13 +157,15 @@ export default function WaiterHomePage() {
           const urgency = getSessionUrgency(session);
           const cfg = URGENCY_CONFIG[urgency];
           const activeOrders = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
-          const total = activeOrders.reduce((sum, o) => sum + o.total, 0);
+          const total = activeOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+          const readyCount = session.itemSummary?.ready || 0;
+          const pendingCount = session.itemSummary?.pending || 0;
 
           return (
             <button
               key={session.id}
               onClick={() => router.push(`/waiter/session/${session.id}`)}
-              className={`relative flex flex-col p-4 rounded-2xl border-2 ${cfg.bg} ${cfg.border} transition-all active:scale-95 text-left min-h-[130px]`}
+              className={`relative flex flex-col p-4 rounded-2xl border-2 ${cfg.bg} ${cfg.border} transition-all active:scale-95 text-left min-h-[130px] ${cfg.pulse ? 'animate-pulse' : ''}`}
             >
               <div className="flex items-start justify-between mb-1">
                 <span className="text-2xl font-black text-white leading-tight truncate pr-1">
@@ -155,12 +186,17 @@ export default function WaiterHomePage() {
                 <div className="text-right">
                   {activeOrders.length > 0 && (
                     <p className="text-xs text-amber-400 font-semibold">
-                      {activeOrders.length} ord · ${(total / 100).toFixed(0)}
+                      {activeOrders.length} ord · ${total.toFixed(0)}
                     </p>
                   )}
-                  {urgency === 'ready' && (
-                    <p className="text-xs text-green-400 font-bold animate-pulse">
-                      🍽 {activeOrders.filter(o => o.status === 'READY').length} listo{activeOrders.filter(o => o.status === 'READY').length !== 1 ? 's' : ''}
+                  {urgency === 'partial_ready' && readyCount > 0 && (
+                    <p className="text-xs text-amber-400 font-bold">
+                      🍹 {readyCount} listo{readyCount !== 1 ? 's' : ''}
+                    </p>
+                  )}
+                  {urgency === 'all_ready' && (
+                    <p className="text-xs text-green-400 font-bold">
+                      🍽 {readyCount} listo{readyCount !== 1 ? 's' : ''}
                     </p>
                   )}
                 </div>

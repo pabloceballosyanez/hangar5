@@ -21,7 +21,9 @@ export async function GET(
       orderBy: { openedAt: "desc" },
       include: {
         orders: {
-          select: { id: true, status: true, total: true, createdAt: true },
+          select: { id: true, status: true, total: true, createdAt: true,
+            orderItems: { select: { id: true, status: true } },
+          },
         },
       },
     });
