@@ -158,11 +158,20 @@ export default function MenuPage() {
 
     const load = async () => {
       try {
+        // Reuse stored session to avoid creating duplicates on page reload
+        let storedSession: TableInfo | null = null;
+        try {
+          const raw = localStorage.getItem("hangar5_session");
+          if (raw) storedSession = JSON.parse(raw) as TableInfo;
+        } catch { /* ignore */ }
+
+        if (storedSession) {
+          setTableInfo(storedSession);
+        }
+
         const [menuRes, sessRes] = await Promise.all([
           fetch("/api/restaurant/menu", { cache: "no-store" }),
-          fetch(`/api/restaurant/session?qrToken=${encodeURIComponent(qrToken)}`, {
-            cache: "no-store",
-          }),
+          fetch(`/api/restaurant/session?qrToken=${encodeURIComponent(qrToken)}`, { cache: "no-store" }),
         ]);
 
         if (!menuRes.ok) throw new Error("Error al cargar el menú");
@@ -172,10 +181,12 @@ export default function MenuPage() {
 
         if (sessRes.ok) {
           const sessData = (await sessRes.json()) as TableInfo;
-          setTableInfo(sessData);
-          try {
-            localStorage.setItem("hangar5_session", JSON.stringify(sessData));
-          } catch { /* ignore */ }
+          // Only create a new session if we don't have one stored (first visit)
+          // If we have a stored session, keep using it — avoid duplicates
+          if (!storedSession) {
+            setTableInfo(sessData);
+            try { localStorage.setItem("hangar5_session", JSON.stringify(sessData)); } catch { /* ignore */ }
+          }
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Error desconocido");
