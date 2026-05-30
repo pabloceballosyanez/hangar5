@@ -205,7 +205,7 @@ const HTML = `<!DOCTYPE html>
     </div>
     <div class="title-block">
       <div class="brand">Hangar 5</div>
-      <div class="sub">Cocina de Montaña &middot; Peñón del Marqués</div>
+      <div class="sub">Cocina de Montaña &middot; Peñón de Temascaltepec</div>
     </div>
   </div>
   
@@ -337,7 +337,7 @@ const HTML = `<!DOCTYPE html>
   </div>
   
   <div class="geo-footer">
-    <span>Hangar 5 &middot; Peñón del Marqués</span>
+    <span>Hangar 5 &middot; Peñón de Temascaltepec</span>
     <span>Precios MXN &middot; IVA incluido</span>
   </div>
 </div>
