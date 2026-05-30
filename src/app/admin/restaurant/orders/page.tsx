@@ -74,36 +74,68 @@ interface Order {
   payments: { method: string; status: string }[];
 }
 
+async function advanceOrderStatus(orderId: string, newStatus: string): Promise<void> {
+  const res = await fetch(`/api/admin/restaurant/orders/${orderId}/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: newStatus }),
+  });
+  if (!res.ok) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error((d as { error?: string }).error ?? 'Error');
+  }
+}
+
+async function deliverOrderItems(orderId: string): Promise<void> {
+  // First mark all READY items as SERVED via the confirm-delivery endpoint
+  const res = await fetch(`/api/restaurant/orders/${orderId}/confirm-delivery`, {
+    method: 'POST',
+  });
+  if (!res.ok) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error((d as { error?: string }).error ?? 'Error');
+  }
+  // Then advance order to SERVED if all items are served
+  await advanceOrderStatus(orderId, 'SERVED');
+}
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeTab, setActiveTab] = useState("");
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch("/api/admin/restaurant/orders");
+      if (!res.ok) return;
+      let data: Order[] = await res.json();
+      const statusFilter = TAB_FILTER[activeTab];
+      if (statusFilter) data = data.filter(o => statusFilter.includes(o.status));
+      setOrders(data);
+    } catch { /* keep old data */ }
+  };
 
   useEffect(() => {
     let cancelled = false;
-    async function fetchOrders() {
+    async function load() {
       try {
         const res = await fetch("/api/admin/restaurant/orders");
         if (!res.ok || cancelled) return;
         let data: Order[] = await res.json();
         if (!cancelled) {
-          // Client-side filter
           const statusFilter = TAB_FILTER[activeTab];
-          if (statusFilter) {
-            data = data.filter(o => statusFilter.includes(o.status));
-          }
+          if (statusFilter) data = data.filter(o => statusFilter.includes(o.status));
           setOrders(data);
         }
-      } catch {
-        // keep old data on error
-      } finally {
+      } catch { /* keep old data */ } finally {
         if (!cancelled) setLoading(false);
       }
     }
-
     setLoading(true);
-    fetchOrders();
-    const interval = setInterval(fetchOrders, 30000);
+    load();
+    const interval = setInterval(load, 30000);
     return () => { cancelled = true; clearInterval(interval); };
   }, [activeTab]);
 
@@ -123,6 +155,13 @@ export default function OrdersPage() {
           Actualización automática cada 30s
         </span>
       </div>
+
+      {actionError && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 flex items-center justify-between">
+          <span>{actionError}</span>
+          <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600">✕</button>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-gray-200">
@@ -175,6 +214,9 @@ export default function OrdersPage() {
                   </th>
                   <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
                     Pago
+                  </th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                    Acción
                   </th>
                   <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
                     Hora
@@ -253,6 +295,58 @@ export default function OrdersPage() {
                         </span>
                       ) : (
                         <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-2 text-center">
+                      {actionLoading === order.id ? (
+                        <span className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin inline-block" />
+                      ) : (
+                        <div className="flex items-center justify-center gap-1">
+                          {order.status === 'READY' && (
+                            <button
+                              onClick={async () => {
+                                setActionLoading(order.id);
+                                try { await deliverOrderItems(order.id); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
+                                setActionLoading(null);
+                              }}
+                              className="px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-md hover:bg-emerald-200 transition-colors"
+                              title="Marcar como entregado"
+                            >
+                              ✅ Entregar
+                            </button>
+                          )}
+                          {order.status === 'SERVED' && (
+                            <button
+                              onClick={async () => {
+                                setActionLoading(order.id);
+                                try { await advanceOrderStatus(order.id, 'PAID'); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
+                                setActionLoading(null);
+                              }}
+                              className="px-2 py-1 text-xs font-medium bg-violet-100 text-violet-700 border border-violet-300 rounded-md hover:bg-violet-200 transition-colors"
+                              title="Marcar como pagado"
+                            >
+                              💰 Pagar
+                            </button>
+                          )}
+                          {order.status !== 'READY' && order.status !== 'SERVED' && order.status !== 'PAID' && order.status !== 'CANCELLED' && (
+                            <button
+                              onClick={async () => {
+                                setActionLoading(order.id);
+                                try {
+                                  const next: Record<string, string> = { PLACED: 'IN_KITCHEN', IN_KITCHEN: 'READY', DRAFT: 'PLACED' };
+                                  const target = next[order.status];
+                                  if (target) await advanceOrderStatus(order.id, target);
+                                  await fetchOrders();
+                                } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
+                                setActionLoading(null);
+                              }}
+                              className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 border border-blue-300 rounded-md hover:bg-blue-200 transition-colors"
+                              title="Avanzar estado"
+                            >
+                              ⏭ Avanzar
+                            </button>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className="py-3 px-4 text-right text-xs text-gray-400 whitespace-nowrap">
