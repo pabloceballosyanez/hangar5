@@ -82,8 +82,9 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const totalOwed = unpaidOrders.reduce((sum, o) => sum + o.total, 0);
     const totalPaid = parsed.data.payments.reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
 
-    // Block closing walk-in/table sessions with unpaid orders
-    const isCustomer = session.customerId && session.type === "TAB";
+    // Block closing sessions without customer (anonymous/walk-in/table) with unpaid orders
+    // Customer sessions (TAB or QR) CAN close with unpaid orders → debt on their ledger
+    const isCustomer = session.customerId && (session.type === "TAB" || session.type === "QR");
     if (!isCustomer && totalPaid < totalOwed) {
       return NextResponse.json(
         { error: "Hay órdenes sin pagar. Usa 'Pagar' antes de cerrar la sesión." },
