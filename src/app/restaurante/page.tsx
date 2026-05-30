@@ -147,6 +147,14 @@ export default function RestaurantePage() {
           <p className="text-lg text-white/70 font-light tracking-wider max-w-2xl">
             Sabores artesanales al pie del Peñón
           </p>
+          <div className="mt-8">
+            <Link
+              href="/pedir"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-black text-lg rounded-xl shadow-xl shadow-amber-500/30 transition-all active:scale-95"
+            >
+              🛒 Pedir online
+            </Link>
+          </div>
         </div>
       </section>
 
