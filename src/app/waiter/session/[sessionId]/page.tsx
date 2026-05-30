@@ -189,7 +189,7 @@ function OrderDetailSheet({ order, onClose, onDeliver }: { order: Order; onClose
 
 const STATUS_PATH_TO_PAID = ['DRAFT', 'PLACED', 'IN_KITCHEN', 'READY', 'SERVED', 'PAID'];
 
-async function advanceOrderToPaid(orderId: string, currentStatus: string): Promise<void> {
+async function advanceOrderToPaid(orderId: string, currentStatus: string, paymentMethod?: string): Promise<void> {
   // Fetch real status from server first (avoid stale session data)
   let realStatus = currentStatus;
   try {
@@ -205,9 +205,13 @@ async function advanceOrderToPaid(orderId: string, currentStatus: string): Promi
   const startIdx = STATUS_PATH_TO_PAID.indexOf(realStatus);
   if (startIdx === -1 || realStatus === 'PAID' || realStatus === 'CANCELLED') return;
   for (let i = startIdx + 1; i < STATUS_PATH_TO_PAID.length; i++) {
+    const nextStatus = STATUS_PATH_TO_PAID[i];
+    const isLast = nextStatus === 'PAID';
+    const body: Record<string, string> = { status: nextStatus };
+    if (isLast && paymentMethod) body.paymentMethod = paymentMethod;
     const res = await fetch(`/api/admin/restaurant/orders/${orderId}/status`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: STATUS_PATH_TO_PAID[i] }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error((d as { error?: string }).error ?? 'Error'); }
     if (STATUS_PATH_TO_PAID[i] === 'PAID') break;
@@ -221,10 +225,10 @@ function CuentaSheet({ session, onClose, onPaid }: { session: Session; onClose: 
   const activeOrders = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
   const grandTotal = activeOrders.reduce((s, o) => s + o.total, 0);
 
-  const handlePay = async (_method: 'CASH' | 'CARD') => {
+  const handlePay = async (method: 'CASH' | 'CARD') => {
     setPaying(true); setPayError(null);
     try {
-      for (const order of activeOrders) await advanceOrderToPaid(order.id, order.status);
+      for (const order of activeOrders) await advanceOrderToPaid(order.id, order.status, method);
       setPaid(true); onPaid();
     } catch (e) {
       setPayError(e instanceof Error ? e.message : 'Error al procesar pago');
@@ -343,34 +347,26 @@ export default function WaiterSessionPage() {
   const closeSession = async () => {
     if (!session) return;
 
-    // Block closing walk-in/table without paying first
     const isCustomer = session.type === 'TAB' && session.customer;
-    if (!isCustomer) {
-      const unpaid = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
-      if (unpaid.length > 0) {
-        setError('Hay órdenes sin pagar. Usa "Pagar" antes de cerrar la sesión.');
-        return;
-      }
-    }
 
     setClosing(true);
     setError(null);
     try {
-      // Advance all active orders to PAID first (creates order-level payments)
-      const activeOrders = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status)) || [];
-      for (const o of activeOrders) {
-        try { await advanceOrderToPaid(o.id, o.status); } catch { /* ignore */ }
+      if (!isCustomer) {
+        // Non-customer: must pay before closing
+        const unpaid = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
+        if (unpaid.length > 0) {
+          setError('Hay órdenes sin pagar. Usa "Pagar" antes de cerrar la sesión.');
+          setClosing(false);
+          return;
+        }
       }
-      // Close session (payments already recorded per order, pass empty array)
-      const res = await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
+      // Close session — for customer tabs, debt goes to ledger via the API
+      await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payments: [] }),
       });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error((d as { error?: string }).error || 'Error al cerrar sesión');
-      }
       router.push('/waiter');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al cerrar');

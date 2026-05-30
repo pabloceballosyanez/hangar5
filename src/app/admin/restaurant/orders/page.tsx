@@ -74,11 +74,13 @@ interface Order {
   payments: { method: string; status: string }[];
 }
 
-async function advanceOrderStatus(orderId: string, newStatus: string): Promise<void> {
+async function advanceOrderStatus(orderId: string, newStatus: string, paymentMethod?: string): Promise<void> {
+  const body: Record<string, string> = { status: newStatus };
+  if (paymentMethod) body.paymentMethod = paymentMethod;
   const res = await fetch(`/api/admin/restaurant/orders/${orderId}/status`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: newStatus }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     const d = await res.json().catch(() => ({}));
@@ -87,7 +89,7 @@ async function advanceOrderStatus(orderId: string, newStatus: string): Promise<v
 }
 
 async function deliverOrderItems(orderId: string): Promise<void> {
-  // First mark all READY items as SERVED via the confirm-delivery endpoint
+  // Mark all READY items as SERVED
   const res = await fetch(`/api/restaurant/orders/${orderId}/confirm-delivery`, {
     method: 'POST',
   });
@@ -95,8 +97,12 @@ async function deliverOrderItems(orderId: string): Promise<void> {
     const d = await res.json().catch(() => ({}));
     throw new Error((d as { error?: string }).error ?? 'Error');
   }
-  // Then advance order to SERVED if all items are served
-  await advanceOrderStatus(orderId, 'SERVED');
+  // Only advance to SERVED if not already there (confirm-delivery may have already done it)
+  try {
+    await advanceOrderStatus(orderId, 'SERVED');
+  } catch {
+    // Order may already be SERVED — that's fine
+  }
 }
 
 export default function OrdersPage() {
@@ -319,7 +325,7 @@ export default function OrdersPage() {
                             <button
                               onClick={async () => {
                                 setActionLoading(order.id);
-                                try { await advanceOrderStatus(order.id, 'PAID'); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
+                                try { await advanceOrderStatus(order.id, 'PAID', 'CASH'); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
                                 setActionLoading(null);
                               }}
                               className="px-2 py-1 text-xs font-medium bg-violet-100 text-violet-700 border border-violet-300 rounded-md hover:bg-violet-200 transition-colors"

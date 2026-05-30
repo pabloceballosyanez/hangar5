@@ -216,16 +216,13 @@ function OrderDetailSheet({
 
 const STATUS_PATH_TO_PAID = ['DRAFT', 'PLACED', 'IN_KITCHEN', 'READY', 'SERVED', 'PAID'];
 
-async function advanceOrderToPaid(orderId: string, currentStatus: string): Promise<void> {
-  // Fetch real status from server first (avoid stale session data)
+async function advanceOrderToPaid(orderId: string, currentStatus: string, paymentMethod?: string): Promise<void> {
   let realStatus = currentStatus;
   try {
     const fresh = await fetch(`/api/admin/restaurant/orders/${orderId}`);
     if (fresh.ok) {
       const data = await fresh.json();
-      if (data?.status && data.status !== currentStatus) {
-        realStatus = data.status as string;
-      }
+      if (data?.status && data.status !== currentStatus) realStatus = data.status as string;
     }
   } catch { /* use stale status as fallback */ }
 
@@ -233,10 +230,13 @@ async function advanceOrderToPaid(orderId: string, currentStatus: string): Promi
   if (startIdx === -1 || realStatus === 'PAID' || realStatus === 'CANCELLED') return;
   for (let i = startIdx + 1; i < STATUS_PATH_TO_PAID.length; i++) {
     const nextStatus = STATUS_PATH_TO_PAID[i];
+    const isLast = nextStatus === 'PAID';
+    const body: Record<string, string> = { status: nextStatus };
+    if (isLast && paymentMethod) body.paymentMethod = paymentMethod;
     const res = await fetch(`/api/admin/restaurant/orders/${orderId}/status`, {
       method:  'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ status: nextStatus }),
+      body:    JSON.stringify(body),
     });
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
@@ -262,12 +262,12 @@ function CuentaSheet({
   const activeOrders = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
   const grandTotal   = activeOrders.reduce((s, o) => s + o.total, 0);
 
-  const handlePay = async (_method: 'CASH' | 'CARD') => {
+  const handlePay = async (method: 'CASH' | 'CARD') => {
     setPaying(true);
     setPayError(null);
     try {
       for (const order of activeOrders) {
-        await advanceOrderToPaid(order.id, order.status);
+        await advanceOrderToPaid(order.id, order.status, method);
       }
       setPaid(true);
       onPaid();

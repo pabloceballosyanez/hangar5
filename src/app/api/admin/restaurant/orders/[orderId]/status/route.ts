@@ -18,6 +18,7 @@ const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 
 const updateStatusSchema = z.object({
   status: z.enum(ORDER_STATUSES),
+  paymentMethod: z.enum(["CASH", "CARD", "TRANSFER", "ON_ACCOUNT"]).optional(),
 });
 
 // ─── PUT: update order status ─────────────────────────────────────────────────
@@ -33,7 +34,7 @@ export async function PUT(
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { status: newStatus } = parsed.data;
+    const { status: newStatus, paymentMethod } = parsed.data;
 
     const order = await prisma.order.findUnique({ where: { id: orderId } });
     if (!order) {
@@ -72,23 +73,21 @@ export async function PUT(
         },
       });
 
-      // When PAID, complete any pending payment or create CASH one
-      if (newStatus === "PAID") {
+      // When PAID: create payment only if paymentMethod is specified
+      if (newStatus === "PAID" && paymentMethod) {
+        // Complete any pending payment first
         const pendingPayment = updated.payments.find((p) => p.status === "PENDING");
         if (pendingPayment) {
           await tx.payment.update({
             where: { id: pendingPayment.id },
-            data: {
-              status: "COMPLETED",
-              paidAt: new Date(),
-            },
+            data: { status: "COMPLETED", paidAt: new Date() },
           });
-        } else if (!updated.payments[0]) {
+        } else {
           await tx.payment.create({
             data: {
               orderId,
               amount: order.total,
-              method: "CASH",
+              method: paymentMethod,
               status: "COMPLETED",
               paidAt: new Date(),
             },
