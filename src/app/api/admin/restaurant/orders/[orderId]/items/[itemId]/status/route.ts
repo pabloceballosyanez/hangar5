@@ -100,6 +100,27 @@ export async function PUT(
         }
       }
 
+      // Auto-advance to SERVED when all items are SERVED
+      const allServedOrCancelled = allItems.every(
+        (i) => i.status === "SERVED" || i.status === "CANCELLED"
+      );
+      const anyServed = allItems.some((i) => i.status === "SERVED");
+      if (allServedOrCancelled && anyServed) {
+        const latestOrder = await tx.order.findUnique({
+          where: { id: orderId },
+          select: { status: true },
+        });
+        if (latestOrder?.status === "READY") {
+          await tx.orderStatusEvent.create({
+            data: { orderId, fromStatus: "READY", toStatus: "SERVED" },
+          });
+          await tx.order.update({
+            where: { id: orderId },
+            data: { status: "SERVED" },
+          });
+        }
+      }
+
       return updatedItem;
     });
 

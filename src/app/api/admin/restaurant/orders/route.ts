@@ -336,18 +336,8 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Customer ledger: record the debt
-      if (customerId && total > 0) {
-        await tx.customerLedgerEntry.create({
-          data: {
-            customerId,
-            amount: total,
-            type: "CHARGE",
-            serviceSessionId: sessionId,
-            note: `Orden #${created.id.slice(-8)}`,
-          },
-        });
-      }
+      // ── DO NOT create ledger entry here — the session-close API is the source of truth.
+      // Creating a CHARGE here + another at session close would double the customer's debt.
 
       // Descontar inventario
       await deductInventory(tx, itemsWithPrices.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity })));

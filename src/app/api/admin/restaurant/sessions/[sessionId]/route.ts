@@ -124,6 +124,16 @@ export async function PUT(req: NextRequest, { params }: Params) {
             note: `Saldo de sesión: ${session.label}`,
           },
         });
+        // Advance unpaid orders to PAID (debt is in the ledger, no payment record needed)
+        for (const order of unpaidOrders) {
+          await tx.order.update({
+            where: { id: order.id },
+            data: { status: "PAID" },
+          });
+          await tx.orderStatusEvent.create({
+            data: { orderId: order.id, fromStatus: order.status, toStatus: "PAID" },
+          });
+        }
       }
 
       // Mark session closed
