@@ -195,7 +195,7 @@ export async function POST(req: NextRequest) {
     let sessionDeliveryNote: string | null = null;
 
     if (source === "QR") {
-      // QR orders are CUSTOMER tabs, not table sessions
+      // QR orders are CUSTOMER tabs, not table sessions — convert the session
       const parentSession = await prisma.serviceSession.findUnique({
         where: { id: serviceSessionId },
         include: { table: true },
@@ -209,16 +209,17 @@ export async function POST(req: NextRequest) {
         ? `📍 ${tableInfo.name || ("Mesa " + tableInfo.number)}${tableInfo.location ? " · " + tableInfo.location : ""}`
         : "📍 QR";
 
-      const newSession = await prisma.serviceSession.create({
+      // Convert existing session to QR (don't create a new one → avoids empty tab)
+      await prisma.serviceSession.update({
+        where: { id: serviceSessionId },
         data: {
           type: "QR",
           label: customerName || "Cliente QR",
+          tableId: null,
           customerId,
-          status: "OPEN",
         },
       });
-      sessionId = newSession.id;
-      // Store delivery location on the order (not session)
+      sessionId = serviceSessionId;
       sessionDeliveryNote = deliveryLabel;
     } else {
       // Waiter/Admin use the existing session
