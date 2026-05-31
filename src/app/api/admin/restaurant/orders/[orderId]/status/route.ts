@@ -93,6 +93,26 @@ export async function PUT(
             },
           });
         }
+
+        // Auto-close session if all orders are now PAID (QR/TAB sessions without mesero)
+        const sessionOrders = await tx.order.findMany({
+          where: { serviceSessionId: updated.serviceSessionId },
+          select: { status: true },
+        });
+        const allDone = sessionOrders.every(o => o.status === "PAID" || o.status === "CANCELLED");
+        if (allDone) {
+          const s = await tx.serviceSession.findUnique({
+            where: { id: updated.serviceSessionId },
+            select: { type: true, status: true },
+          });
+          // Auto-close QR sessions; keep TABLE/WALKIN open for mesero management
+          if (s?.status === "OPEN" && s.type !== "TABLE") {
+            await tx.serviceSession.update({
+              where: { id: updated.serviceSessionId },
+              data: { status: "CLOSED", closedAt: new Date() },
+            });
+          }
+        }
       }
 
       return { order: updated, statusEvent };
