@@ -15,6 +15,7 @@ export async function GET() {
         serviceSession: {
           include: { table: { select: { number: true, name: true, location: true } } },
         },
+        table: { select: { number: true, name: true, location: true } },
         orderItems: {
           where: {
             status: { in: ["PENDING", "IN_PREP"] },
@@ -73,7 +74,7 @@ export async function GET() {
         (grouped[station] as unknown[]).push({
           orderId: order.id,
           orderStatus: order.status,
-          table: order.serviceSession.table,
+          table: order.table || order.serviceSession?.table || null,
           customerName: order.customerName,
           notes: order.notes,
           source: order.source,

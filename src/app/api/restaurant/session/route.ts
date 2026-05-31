@@ -6,11 +6,11 @@ export const dynamic = "force-dynamic";
 /**
  * GET /api/restaurant/session?qrToken=xxx
  *
- * Public endpoint: resolves a QR token to the corresponding table
- * and returns (or creates) an open ServiceSession for it.
+ * Public endpoint: resolves a QR token to the corresponding table.
+ * NO LONGER creates a ServiceSession — QR orders link directly to the table.
  *
  * Response:
- *   { tableId, tableNumber, tableName, tableLocation, serviceSessionId }
+ *   { tableId, tableNumber, tableName, tableLocation }
  */
 export async function GET(req: NextRequest) {
   try {
@@ -31,29 +31,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Mesa fuera de servicio" }, { status: 409 });
     }
 
-    // Find existing open session or create a new one
-    let session = await prisma.serviceSession.findFirst({
-      where: { tableId: table.id, status: "OPEN" },
-      orderBy: { openedAt: "desc" },
-    });
-
-    if (!session) {
-      session = await prisma.serviceSession.create({
-        data: { tableId: table.id, status: "OPEN", type: "TABLE", label: table.name || ('Mesa ' + table.number) },
-      });
-    }
-
+    // Return table info only — no session creation for QR orders
     return NextResponse.json({
       tableId: table.id,
       tableNumber: table.number,
       tableName: table.name ?? null,
       tableLocation: table.location ?? null,
-      serviceSessionId: session.id,
     });
   } catch (err) {
     console.error("[GET /api/restaurant/session]", err);
     return NextResponse.json(
-      { error: "Error al obtener sesión de mesa" },
+      { error: "Error al obtener información de mesa" },
       { status: 500 }
     );
   }

@@ -38,13 +38,18 @@ interface Order {
   tax: number; // pesos
   total: number; // pesos
   customerName?: string | null;
+  customerEmail?: string | null;
   notes?: string | null;
   serviceSession: {
     table: {
       number: string;
       name?: string | null;
     };
-  };
+  } | null;
+  table: {
+    number: string;
+    name?: string | null;
+  } | null;
   orderItems: OrderItem[];
 }
 
@@ -77,6 +82,7 @@ function PaymentContent() {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [payingCash, setPayingCash] = useState(false);
+  const [chargingAccount, setChargingAccount] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -160,6 +166,35 @@ function PaymentContent() {
     }
   };
 
+  const handleChargeToAccount = async () => {
+    if (!orderId) return;
+    if (!order?.customerEmail) {
+      setError("Se requiere tu email para cargar a tu cuenta. Por favor regístralo en tus datos.");
+      return;
+    }
+    setChargingAccount(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/restaurant/checkout/account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+
+      if (!res.ok) {
+        const body = (await res.json()) as { error?: string };
+        throw new Error(body.error ?? "Error al cargar a cuenta");
+      }
+
+      const { redirectUrl } = (await res.json()) as { success: boolean; redirectUrl: string };
+      window.location.href = redirectUrl;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error desconocido");
+      setChargingAccount(false);
+    }
+  };
+
   // ── Loading ──
   if (loading) {
     return (
@@ -200,9 +235,9 @@ function PaymentContent() {
         <div>
           <h1 className="text-xl font-black text-gray-900">Pagar orden</h1>
           <p className="text-xs text-gray-500">
-            Mesa {order.serviceSession.table?.number}
-            {order.serviceSession.table?.name
-              ? ` · ${order.serviceSession.table?.name}`
+            Mesa {order.table?.number || order.serviceSession?.table?.number || "?"}
+            {((order.table?.name || order.serviceSession?.table?.name))
+              ? ` · ${order.table?.name || order.serviceSession?.table?.name}`
               : ""}
           </p>
         </div>
@@ -293,7 +328,7 @@ function PaymentContent() {
         {/* Card payment */}
         <button
           onClick={handlePay}
-          disabled={paying || payingCash}
+          disabled={paying || payingCash || chargingAccount}
           className="w-full bg-[#009ee3] hover:bg-[#0083c6] disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
         >
           {paying ? (
@@ -313,7 +348,7 @@ function PaymentContent() {
         {/* Cash payment */}
         <button
           onClick={handlePayCash}
-          disabled={payingCash || paying}
+          disabled={payingCash || paying || chargingAccount}
           className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
         >
           {payingCash ? (
@@ -329,10 +364,31 @@ function PaymentContent() {
             </>
           )}
         </button>
+
+        {/* Charge to account */}
+        <button
+          onClick={handleChargeToAccount}
+          disabled={chargingAccount || paying}
+          title={!order?.customerEmail ? "Ingresa tu email para usar esta opción" : "Cargar a tu cuenta para pagar después"}
+          className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
+        >
+          {chargingAccount ? (
+            <>
+              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Procesando…</span>
+            </>
+          ) : (
+            <>
+              <span>📒</span>
+              <span>Cargo a mi cuenta</span>
+              <span className="ml-auto font-black">{fmt(order.total)}</span>
+            </>
+          )}
+        </button>
       </div>
 
       <p className="text-center text-xs text-gray-400">
-        Con tarjeta: serás redirigido a Mercado Pago. Con efectivo: pagas directo al mesero.
+        Con tarjeta serás redirigido a Mercado Pago. Efectivo: pagas directo al mesero. Cargo a cuenta: se agrega a tu saldo para pagar después.
       </p>
     </div>
   );

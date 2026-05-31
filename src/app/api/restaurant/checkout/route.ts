@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
         serviceSession: {
           include: { table: true },
         },
+        table: true,
         payments: true,
       },
     });
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
     }
 
-    const qrToken = order.serviceSession.table?.qrToken;
+    const qrToken = order.table?.qrToken || order.serviceSession?.table?.qrToken;
     const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
     if (!qrToken) {

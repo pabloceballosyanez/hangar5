@@ -10,7 +10,6 @@ const sidebarLinks = [
   { href: '/admin/restaurant/modifier-groups', label: 'Modificadores', icon: '🔧' },
   { href: '/admin/restaurant/recipes', label: 'Recetas', icon: '📖' },
   { href: '/admin/restaurant/tables', label: 'Mesas', icon: '🪑' },
-  { href: '/admin/restaurant/sessions', label: 'Tabs', icon: '🧾' },
   { href: '/admin/restaurant/customers', label: 'Clientes', icon: '👥' },
   { href: '/admin/restaurant/orders', label: 'Órdenes', icon: '📦' },
   { href: '/kds', label: 'KDS Cocina', icon: '👨‍🍳' },

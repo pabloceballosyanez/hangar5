@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { payments: true, serviceSession: { include: { table: true } } },
+      include: { payments: true, serviceSession: { include: { table: true } }, table: true },
     });
 
     if (!order) {
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       });
     });
 
-    const qrToken = order.serviceSession.table?.qrToken || "t1";
+    const qrToken = order.table?.qrToken || order.serviceSession?.table?.qrToken || "t1";
 
     return NextResponse.json({
       success: true,

@@ -70,6 +70,7 @@ export async function PUT(
           orderItems: true,
           payments: true,
           serviceSession: { include: { table: true } },
+          table: true,
         },
       });
 
@@ -94,23 +95,24 @@ export async function PUT(
           });
         }
 
-        // Auto-close session if all orders are now PAID (QR/TAB sessions without mesero)
-        const sessionOrders = await tx.order.findMany({
-          where: { serviceSessionId: updated.serviceSessionId },
-          select: { status: true },
-        });
-        const allDone = sessionOrders.every(o => o.status === "PAID" || o.status === "CANCELLED");
-        if (allDone) {
-          const s = await tx.serviceSession.findUnique({
-            where: { id: updated.serviceSessionId },
-            select: { type: true, status: true },
+        // Auto-close session if all orders are now PAID (only if order has a session)
+        if (updated.serviceSessionId) {
+          const sessionOrders = await tx.order.findMany({
+            where: { serviceSessionId: updated.serviceSessionId },
+            select: { status: true },
           });
-          // Auto-close session when all orders are complete
-          if (s?.status === "OPEN") {
-            await tx.serviceSession.update({
+          const allDone = sessionOrders.every(o => o.status === "PAID" || o.status === "CANCELLED");
+          if (allDone) {
+            const s = await tx.serviceSession.findUnique({
               where: { id: updated.serviceSessionId },
-              data: { status: "CLOSED", closedAt: new Date() },
+              select: { type: true, status: true },
             });
+            if (s?.status === "OPEN") {
+              await tx.serviceSession.update({
+                where: { id: updated.serviceSessionId },
+                data: { status: "CLOSED", closedAt: new Date() },
+              });
+            }
           }
         }
       }

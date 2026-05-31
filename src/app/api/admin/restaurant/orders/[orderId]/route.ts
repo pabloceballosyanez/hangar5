@@ -36,6 +36,7 @@ export async function GET(
         statusEvents: { orderBy: { timestamp: "desc" } },
         payments: true,
         serviceSession: { include: { table: true } },
+        table: true,
       },
     });
 

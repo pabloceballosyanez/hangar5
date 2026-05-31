@@ -100,20 +100,22 @@ export async function POST(req: NextRequest) {
             });
 
       // Record payment in customer ledger
-      const svcSession = await tx.serviceSession.findUnique({
-        where: { id: order.serviceSessionId },
-        select: { customerId: true },
-      });
-      if (svcSession?.customerId) {
-        await tx.customerLedgerEntry.create({
-          data: {
-            customerId: svcSession.customerId,
-            amount: -order.total,
-            type: "PAYMENT",
-            serviceSessionId: order.serviceSessionId,
-            note: `Pago MP #${String(mpPayment.id).slice(-8)}`,
-          },
+      if (order.serviceSessionId) {
+        const svcSession = await tx.serviceSession.findUnique({
+          where: { id: order.serviceSessionId },
+          select: { customerId: true },
         });
+        if (svcSession?.customerId) {
+          await tx.customerLedgerEntry.create({
+            data: {
+              customerId: svcSession.customerId,
+              amount: -order.total,
+              type: "PAYMENT",
+              serviceSessionId: order.serviceSessionId,
+              note: `Pago MP #${String(mpPayment.id).slice(-8)}`,
+            },
+          });
+        }
       }
     });
 

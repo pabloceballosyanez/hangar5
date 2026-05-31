@@ -60,7 +60,6 @@ interface TableInfo {
   tableNumber: string;
   tableName: string | null;
   tableLocation: string | null;
-  serviceSessionId: string;
 }
 
 // ─── Cart types ───────────────────────────────────────────────────────────────

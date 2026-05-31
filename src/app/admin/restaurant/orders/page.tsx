@@ -62,7 +62,8 @@ interface OrderItem {
 
 interface Order {
   id: string;
-  serviceSession: { table: { number: string; name: string | null } | null };
+  serviceSession: { table: { number: string; name: string | null } | null } | null;
+  table: { number: string; name: string | null } | null;
   customerName: string | null;
   source: string;
   status: string;
@@ -235,11 +236,11 @@ export default function OrdersPage() {
                     <td className="py-3 px-4">
                       <div>
                         <span className="font-bold text-gray-900">
-                          {order.serviceSession?.table?.number || "—"}
+                          {order.table?.number || order.serviceSession?.table?.number || "—"}
                         </span>
-                        {order.serviceSession?.table?.name && (
+                        {(order.table?.name || order.serviceSession?.table?.name) && (
                           <span className="text-xs text-gray-400 ml-1">
-                            · {order.serviceSession.table.name}
+                            · {order.table?.name || order.serviceSession?.table?.name}
                           </span>
                         )}
                       </div>

@@ -91,6 +91,7 @@ export default async function RestaurantDashboardPage() {
           table: { select: { number: true, name: true } },
         },
       },
+      table: { select: { number: true, name: true } },
       orderItems: {
         include: {
           menuItem: { select: { name: true } },
@@ -279,7 +280,7 @@ export default async function RestaurantDashboardPage() {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="font-bold text-lg text-gray-400 shrink-0">
-                        {order.serviceSession.table?.number}
+                        {order.table?.number || order.serviceSession?.table?.number}
                       </span>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">

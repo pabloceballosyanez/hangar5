@@ -125,6 +125,7 @@ export async function GET(req: NextRequest) {
         serviceSession: {
           include: { table: true },
         },
+        table: true,
         orderItems: {
           include: {
             menuItem: true,
@@ -153,7 +154,8 @@ const orderItemSchema = z.object({
 });
 
 const createOrderSchema = z.object({
-  serviceSessionId: z.string().min(1),
+  serviceSessionId: z.string().optional().nullable(),
+  tableId: z.string().optional().nullable(),
   source: z.enum(ORDER_SOURCES),
   customerName: z.string().optional().nullable(),
   customerEmail: z.string().email().optional().nullable(),
@@ -170,7 +172,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { serviceSessionId, source, customerName, customerEmail, customerPhone, notes, items } = parsed.data;
+    const { serviceSessionId, tableId, source, customerName, customerEmail, customerPhone, notes, items } = parsed.data;
+
+    // Must have either sessionId OR tableId (QR orders use tableId, waiter orders use sessionId)
+    if (!serviceSessionId && !tableId) {
+      return NextResponse.json({ error: "Se requiere serviceSessionId o tableId" }, { status: 400 });
+    }
 
     // ── Resolve customer: logged-in session > email match > new customer ──
     const custSession = getCustomerSession(req);
@@ -190,11 +197,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── Resolve session ──────────────────────────────────────────────────────
-    let sessionId: string;
-    let sessionDeliveryNote: string | null = null;
+    // ── Resolve session or table ────────────────────────────────────────────
+    let sessionId: string | null = null;
+    let resolvedTableId: string | null = null;
+    let deliveryNote: string | null = null;
 
-    if (source === "QR") {
+    if (source === "QR" && tableId) {
+      // QR order: link directly to table — NO session created
+      const tableInfo = await prisma.table.findUnique({ where: { id: tableId } });
+      if (!tableInfo) {
+        return NextResponse.json({ error: "Mesa no encontrada" }, { status: 404 });
+      }
+      resolvedTableId = tableId;
+      deliveryNote = `📍 ${tableInfo.name || ("Mesa " + tableInfo.number)}${tableInfo.location ? " · " + tableInfo.location : ""}`;
+    } else if (source === "QR" && serviceSessionId) {
+      // Legacy: QR order with session (fallback for existing clients)
       const parentSession = await prisma.serviceSession.findUnique({
         where: { id: serviceSessionId },
         include: { table: true },
@@ -202,28 +219,14 @@ export async function POST(req: NextRequest) {
       if (!parentSession) {
         return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
       }
-
       const tableInfo = parentSession.table;
-      const deliveryLabel = tableInfo
+      deliveryNote = tableInfo
         ? `📍 ${tableInfo.name || ("Mesa " + tableInfo.number)}${tableInfo.location ? " · " + tableInfo.location : ""}`
         : "📍 QR";
-
-      // Update session: keep table linked so it stays tracked as "occupied"
-      // Multiple guests at the same table share one session = one bill
-      await prisma.serviceSession.update({
-        where: { id: serviceSessionId },
-        data: {
-          label: customerName
-            ? `${customerName} · ${parentSession.label}`
-            : parentSession.label,
-          customerId: customerId || parentSession.customerId,
-          // DO NOT set tableId: null — keep table linked
-        },
-      });
       sessionId = serviceSessionId;
-      sessionDeliveryNote = deliveryLabel;
-    } else {
-      // Waiter/Admin use the existing session
+      resolvedTableId = parentSession.tableId;
+    } else if (serviceSessionId) {
+      // Waiter/Admin: use existing session
       const svcSession = await prisma.serviceSession.findUnique({ where: { id: serviceSessionId } });
       if (!svcSession) {
         return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
@@ -240,6 +243,7 @@ export async function POST(req: NextRequest) {
         });
       }
       sessionId = serviceSessionId;
+      resolvedTableId = svcSession.tableId;
     }
 
     // Prefetch all menuItems and modifiers needed
@@ -292,11 +296,12 @@ export async function POST(req: NextRequest) {
       const created = await tx.order.create({
         data: {
           serviceSessionId: sessionId,
+          tableId: resolvedTableId,
           source,
           customerName,
           customerEmail,
           customerPhone,
-          notes: sessionDeliveryNote ? (notes ? `${notes} | ${sessionDeliveryNote}` : sessionDeliveryNote) : (notes || null),
+          notes: deliveryNote ? (notes ? `${notes} | ${deliveryNote}` : deliveryNote) : (notes || null),
           status: initialStatus,
           subtotal,
           tax,
@@ -351,6 +356,7 @@ export async function POST(req: NextRequest) {
           },
           statusEvents: true,
           serviceSession: { include: { table: true } },
+          table: true,
         },
       });
     });
