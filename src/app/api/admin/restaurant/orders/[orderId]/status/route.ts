@@ -105,8 +105,8 @@ export async function PUT(
             where: { id: updated.serviceSessionId },
             select: { type: true, status: true },
           });
-          // Auto-close QR sessions; keep TABLE/WALKIN open for mesero management
-          if (s?.status === "OPEN" && s.type !== "TABLE") {
+          // Auto-close session when all orders are complete
+          if (s?.status === "OPEN") {
             await tx.serviceSession.update({
               where: { id: updated.serviceSessionId },
               data: { status: "CLOSED", closedAt: new Date() },
