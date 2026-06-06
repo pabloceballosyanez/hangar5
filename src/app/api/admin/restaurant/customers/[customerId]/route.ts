@@ -59,6 +59,7 @@ const updateCustomerSchema = z.object({
   email: z.string().email().optional().nullable().or(z.literal("")),
   notes: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
+  hasCredit: z.boolean().optional(),
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {

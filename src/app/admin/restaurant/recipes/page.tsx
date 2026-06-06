@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 interface RecipeSummary {
   id: string;
-  menuItemId: string;
+  menuItemId: string | null;
   menuItemName: string;
   menuItemActive: boolean;
   yieldQuantity: number;
@@ -34,10 +34,10 @@ interface Ingredient {
 
 interface RecipeDetail {
   id: string;
-  menuItemId: string;
+  menuItemId: string | null;
   yieldQuantity: number;
   notes: string | null;
-  menuItem: { id: string; name: string; basePrice: number; isActive: boolean };
+  menuItem: { id: string; name: string; basePrice: number; isActive: boolean } | null;
   recipeItems: {
     id: string;
     recipeId: string;
@@ -342,10 +342,10 @@ export default function RecipesPage() {
             {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">{detailRecipe.menuItem.name}</h2>
+                <h2 className="text-lg font-bold text-gray-900">{detailRecipe.menuItem?.name ?? <span className="text-gray-400">(sin ítem)</span>}</h2>
                 <p className="text-xs text-gray-500">
                   Rinde {detailRecipe.yieldQuantity} porciones
-                  {detailRecipe.menuItem.basePrice > 0 && ` · Precio: ${formatPrice(detailRecipe.menuItem.basePrice / 100)}`}
+                  {detailRecipe.menuItem?.basePrice ? ` · Precio: ${formatPrice(detailRecipe.menuItem.basePrice / 100)}` : ''}
                 </p>
               </div>
               <button onClick={() => { setDetailRecipe(null); setError(null); }}

@@ -31,6 +31,7 @@ interface Customer {
   notes: string | null;
   balance: number;
   isActive: boolean;
+  hasCredit: boolean;
   ledgerEntries: LedgerEntry[];
   sessions: Session[];
 }
@@ -165,7 +166,36 @@ export default function CustomerDetailPage() {
         <Link href="/admin/restaurant/customers" className="text-sm text-gray-500 hover:text-gray-700">← Volver a clientes</Link>
         <div className="flex items-center justify-between mt-2">
           <h1 className="text-2xl font-bold text-gray-900">{customer.name}</h1>
-          <button
+          <div className="flex gap-2">
+            {/* Toggle credit */}
+            <button
+              onClick={async () => {
+                if (!confirm(`¿${customer.hasCredit ? 'Quitar' : 'Dar'} crédito a ${customer.name}? ${customer.hasCredit ? 'Ya no podrá cargar a su cuenta.' : 'Podrá pagar con cargo a su cuenta en pedidos online.'}`)) return;
+                setDeleting(true);
+                try {
+                  const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hasCredit: !customer.hasCredit }),
+                  });
+                  if (!res.ok) throw new Error('Error');
+                  setCustomer({ ...customer, hasCredit: !customer.hasCredit });
+                } catch {
+                  alert('No se pudo completar');
+                } finally {
+                  setDeleting(false);
+                }
+              }}
+              disabled={deleting}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg border disabled:opacity-50 transition-colors ${
+                customer.hasCredit
+                  ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                  : 'text-amber-600 border-amber-200 hover:bg-amber-50'
+              }`}
+            >
+              {deleting ? '⋯' : customer.hasCredit ? '📋 Con crédito' : '📋 Sin crédito'}
+            </button>
+            <button
             onClick={async () => {
               const action = customer.isActive ? 'desactivar' : 'reactivar';
               if (!confirm(`¿${action === 'desactivar' ? 'Desactivar' : 'Reactivar'} a ${customer.name}? ${customer.isActive ? 'No aparecerá en búsquedas pero su historial se conserva.' : 'Volverá a estar disponible.'}`)) return;
@@ -193,6 +223,7 @@ export default function CustomerDetailPage() {
           >
             {deleting ? '⋯' : customer.isActive ? '✕ Desactivar' : '↻ Reactivar'}
           </button>
+          </div>
         </div>
       </div>
 

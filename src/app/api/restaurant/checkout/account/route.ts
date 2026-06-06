@@ -51,13 +51,18 @@ export async function POST(req: NextRequest) {
       });
 
       if (!customer) {
-        customer = await tx.customer.create({
-          data: {
-            name: order.customerName || order.customerEmail!,
-            email: order.customerEmail!,
-            phone: order.customerPhone ?? null,
-          },
-        });
+        // Customer must already exist (created by admin) — no auto-creation
+        return NextResponse.json(
+          { error: "Cliente no registrado. Contacta al administrador para recibir crédito." },
+          { status: 400 }
+        );
+      }
+
+      if (!customer.hasCredit) {
+        return NextResponse.json(
+          { error: "No tienes crédito habilitado. Contacta al administrador." },
+          { status: 403 }
+        );
       }
 
       // Move order to IN_KITCHEN

@@ -81,6 +81,7 @@ function PaymentContent() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [hasCredit, setHasCredit] = useState(false);
   const [paying, setPaying] = useState(false);
   const [chargingAccount, setChargingAccount] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +102,13 @@ function PaymentContent() {
         if (!orderRes.ok) throw new Error("No pudimos cargar tu orden");
         const data = (await orderRes.json()) as Order;
         setOrder(data);
-        if (authRes.ok) setLoggedIn(true);
+        if (authRes.ok) {
+            const authData = await authRes.json();
+            if (authData.customer) {
+              setLoggedIn(true);
+              setHasCredit(authData.customer.hasCredit === true);
+            }
+          }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Error desconocido");
       } finally {
@@ -323,7 +330,7 @@ function PaymentContent() {
         </button>
 
         {/* Charge to account — only for logged-in customers */}
-        {loggedIn && order?.customerEmail && (
+        {loggedIn && hasCredit && order?.customerEmail && (
           <button
             onClick={handleChargeToAccount}
             disabled={chargingAccount || paying}

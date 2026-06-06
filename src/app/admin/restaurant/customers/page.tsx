@@ -9,6 +9,7 @@ interface Customer {
   phone: string | null;
   email: string | null;
   balance: number;
+  hasCredit: boolean;
   _count: { sessions: number };
   isActive: boolean;
 }
@@ -39,6 +40,24 @@ export default function CustomersPage() {
       });
       if (!res.ok) throw new Error('Error');
       setCustomers(prev => prev.map(c => c.id === customerId ? { ...c, isActive: !currentlyActive } : c));
+    } catch {
+      alert('No se pudo completar la acción');
+    } finally {
+      setToggling(null);
+    }
+  }
+
+  async function handleToggleCredit(customerId: string, name: string, hasCredit: boolean) {
+    if (!confirm(`¿${hasCredit ? 'Quitar' : 'Dar'} crédito a ${name}? ${hasCredit ? 'Ya no podrá cargar a su cuenta.' : 'Podrá pagar con cargo a su cuenta en pedidos online.'}`)) return;
+    setToggling(customerId);
+    try {
+      const res = await fetch(`/api/admin/restaurant/customers/${customerId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasCredit: !hasCredit }),
+      });
+      if (!res.ok) throw new Error('Error');
+      setCustomers(prev => prev.map(c => c.id === customerId ? { ...c, hasCredit: !hasCredit } : c));
     } catch {
       alert('No se pudo completar la acción');
     } finally {
@@ -104,14 +123,33 @@ export default function CustomersPage() {
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'}`}>
-                    {c.isActive ? 'Activo' : 'Inactivo'}
-                  </span>
+                  <div className="flex gap-1">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'}`}>
+                      {c.isActive ? 'Activo' : 'Inactivo'}
+                    </span>
+                    {c.hasCredit && (
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700">📋 Crédito</span>
+                    )}
+                  </div>
                   <span className="text-gray-300 group-hover:text-gray-400 transition-colors text-sm">
                     Ver →
                   </span>
                 </div>
               </Link>
+              {/* Toggle credit button */}
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggleCredit(c.id, c.name, c.hasCredit); }}
+                disabled={toggling === c.id}
+                className={`absolute top-3 right-3 z-10 px-2 py-1 text-xs font-medium rounded-lg border transition-all disabled:opacity-50 shadow-sm ${
+                  c.hasCredit
+                    ? 'bg-amber-50 border-amber-200 text-amber-600 hover:text-red-500 hover:border-red-300 hover:bg-red-50'
+                    : 'bg-white border-gray-200 text-gray-400 hover:text-amber-500 hover:border-amber-300 hover:bg-amber-50'
+                }`}
+                title={c.hasCredit ? 'Quitar crédito' : 'Dar crédito'}
+              >
+                {toggling === c.id ? '⋯' : c.hasCredit ? '📋 Quitar crédito' : '📋 Dar crédito'}
+              </button>
               {/* Toggle active/inactive button */}
               <button
                 type="button"
