@@ -8,6 +8,7 @@ interface StockMovement {
   ingredientId: string;
   delta: number;
   reason: string;
+  unitCost: number | null;
   notes: string | null;
   createdAt: string;
 }
@@ -291,6 +292,9 @@ export default function IngredientDetailPage() {
         </div>
       </div>
 
+      {/* Purchase form — weighted average */}
+      <PurchaseForm ingredientId={ingredientId} onSuccess={loadIngredient} unit={ingredient.unit} />
+
       {/* Stock adjustment */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <h2 className="font-semibold text-gray-900 mb-4">Ajustar stock</h2>
@@ -347,6 +351,7 @@ export default function IngredientDetailPage() {
                 <tr className="border-b border-gray-100 bg-gray-50">
                   <th className="text-left py-2 px-4 font-medium text-gray-500 text-xs">Fecha</th>
                   <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">Ajuste</th>
+                  <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">Costo U.</th>
                   <th className="text-left py-2 px-4 font-medium text-gray-500 text-xs">Motivo</th>
                   <th className="text-left py-2 px-4 font-medium text-gray-500 text-xs">Notas</th>
                 </tr>
@@ -357,6 +362,9 @@ export default function IngredientDetailPage() {
                     <td className="py-2 px-4 text-gray-600 whitespace-nowrap">{formatDate(mov.createdAt)}</td>
                     <td className={`py-2 px-4 text-right font-semibold whitespace-nowrap ${mov.delta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {mov.delta > 0 ? '+' : ''}{mov.delta}
+                    </td>
+                    <td className="py-2 px-4 text-right text-gray-500 whitespace-nowrap">
+                      {mov.unitCost != null ? formatPrice(Math.round(mov.unitCost / 100)) : '—'}
                     </td>
                     <td className="py-2 px-4">
                       <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">
@@ -371,6 +379,103 @@ export default function IngredientDetailPage() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── Purchase Form (weighted average) ────────────────────────────
+function PurchaseForm({ ingredientId, onSuccess, unit }: {
+  ingredientId: string;
+  onSuccess: () => void;
+  unit: string;
+}) {
+  const [qty, setQty] = useState('');
+  const [cost, setCost] = useState('');
+  const [supplier, setSupplier] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handlePurchase(e: React.FormEvent) {
+    e.preventDefault();
+    if (!qty || !cost) return;
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    try {
+      const res = await fetch(`/api/admin/restaurant/ingredients/${ingredientId}/purchase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quantity: parseFloat(qty),
+          unitCost: Math.round(parseFloat(cost) * 100),
+          supplier: supplier.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Error al registrar compra');
+      setResult(data);
+      setQty('');
+      setCost('');
+      setSupplier('');
+      onSuccess();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl shadow-sm border border-green-200 p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-lg">🛒</span>
+        <h2 className="font-semibold text-gray-900">Registrar Compra</h2>
+        <span className="text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded-full font-medium">Promedio Ponderado</span>
+      </div>
+
+      {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg mb-4">{error}</p>}
+
+      {result && (
+        <div className="bg-white rounded-lg p-4 mb-4 border border-green-300 text-sm space-y-1">
+          <p className="font-semibold text-green-800">✅ Compra registrada</p>
+          <p className="text-gray-600">
+            Stock: {result.stockBefore} → <strong>{result.stockAfter}</strong> {unit}
+          </p>
+          <p className="text-gray-600">
+            Costo:{' '}
+            <span className="line-through text-gray-400">${result.costBeforeDisplay}</span>{' '}
+            → <strong className="text-green-700">${result.costAfterDisplay}</strong>/{unit}
+          </p>
+        </div>
+      )}
+
+      <form onSubmit={handlePurchase} className="flex flex-wrap items-end gap-3">
+        <div className="w-32">
+          <label className="block text-xs text-gray-500 mb-1">Cantidad</label>
+          <input type="number" value={qty} onChange={e => setQty(e.target.value)}
+            step="0.01" min="0.01" required
+            placeholder="5"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none" />
+        </div>
+        <div className="w-36">
+          <label className="block text-xs text-gray-500 mb-1">Precio/{unit}</label>
+          <input type="number" value={cost} onChange={e => setCost(e.target.value)}
+            step="0.01" min="0.01" required
+            placeholder="22.00"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none" />
+        </div>
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs text-gray-500 mb-1">Proveedor (opcional)</label>
+          <input type="text" value={supplier} onChange={e => setSupplier(e.target.value)}
+            placeholder="Central Toluca"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none" />
+        </div>
+        <button type="submit" disabled={loading}
+          className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors">
+          {loading ? '...' : 'Registrar Compra'}
+        </button>
+      </form>
     </div>
   );
 }

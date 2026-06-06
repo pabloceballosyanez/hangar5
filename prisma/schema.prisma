@@ -182,6 +182,7 @@ model StockMovement {
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
   delta        Float
   reason       String
+  unitCost     Int?
   notes        String?
   createdAt    DateTime   @default(now())
 
