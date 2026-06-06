@@ -290,7 +290,7 @@ export async function POST(req: NextRequest) {
     const tax = Math.round(subtotal - subtotal / 1.16);
     const total = subtotal;
 
-    const initialStatus = source === "QR" ? "PLACED" : "DRAFT";
+    const initialStatus = source === "QR" ? "AWAITING_PAYMENT" : "DRAFT";
 
     const order = await prisma.$transaction(async (tx) => {
       const created = await tx.order.create({

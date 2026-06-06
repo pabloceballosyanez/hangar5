@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 // Valid status transitions
 const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   DRAFT: ["PLACED", "CANCELLED"],
+  AWAITING_PAYMENT: ["IN_KITCHEN", "CANCELLED"],
   PLACED: ["IN_KITCHEN", "CANCELLED"],
   IN_KITCHEN: ["READY"],
   READY: ["SERVED"],

@@ -3,6 +3,7 @@
 // ──────────────────────────────────────────────────────────────
 export const ORDER_STATUSES = [
   'DRAFT',
+  'AWAITING_PAYMENT',
   'PLACED',
   'IN_KITCHEN',
   'READY',

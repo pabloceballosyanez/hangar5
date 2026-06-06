@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
     }
 
-    if (order.status !== "PLACED" && order.status !== "DRAFT") {
+    if (order.status !== "AWAITING_PAYMENT" && order.status !== "PLACED" && order.status !== "DRAFT") {
       return NextResponse.json({ error: "La orden ya fue procesada" }, { status: 409 });
     }
 

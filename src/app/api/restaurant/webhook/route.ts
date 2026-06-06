@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 
     await prisma.$transaction(async (tx) => {
       // Only transition if order hasn't been moved past PLACED yet
-      if (order.status === "PLACED" || order.status === "DRAFT") {
+      if (order.status === "AWAITING_PAYMENT" || order.status === "PLACED" || order.status === "DRAFT") {
         await tx.orderStatusEvent.create({
           data: {
             orderId: order.id,

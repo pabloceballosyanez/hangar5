@@ -25,22 +25,12 @@ interface StatusConfig {
 function getStatusConfig(status: string | undefined): StatusConfig {
   switch (status) {
     case "approved":
+    case "cash":
       return {
         emoji: "✅",
         title: "¡Pedido confirmado!",
         subtitle:
           "Tu pago fue aprobado. Tu orden está en preparación — pronto llegará a tu mesa.",
-        bgClass: "bg-green-50",
-        borderClass: "border-green-200",
-        titleClass: "text-green-800",
-        subtitleClass: "text-green-600",
-      };
-    case "cash":
-      return {
-        emoji: "💵",
-        title: "¡Pedido confirmado!",
-        subtitle:
-          "Pagas en efectivo al mesero. Tu orden ya está en preparación.",
         bgClass: "bg-green-50",
         borderClass: "border-green-200",
         titleClass: "text-green-800",
@@ -137,13 +127,6 @@ export default async function ConfirmationPage({
               </li>
             ))}
           </ol>
-          {status === "cash" && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mt-2">
-              <p className="text-xs text-amber-700">
-                💵 No olvides pagar en efectivo al mesero cuando te entreguen tu orden.
-              </p>
-            </div>
-          )}
         </div>
       )}
 

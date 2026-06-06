@@ -20,7 +20,7 @@ interface Recipe {
   menuItemId: string;
   yieldQuantity: number;
   notes: string | null;
-  menuItem: { id: string; name: string; basePrice: number; isActive: boolean };
+  menuItem: { id: string; name: string; basePrice: number; isActive: boolean } | null;
   recipeItems: RecipeItem[];
 }
 
@@ -124,11 +124,14 @@ export default function RecipeDetailPage() {
   if (loading) return <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" /><p className="text-gray-500">Cargando...</p></div>;
   if (!recipe) return <div className="text-center py-12"><p className="text-gray-500">Receta no encontrada</p><Link href="/admin/restaurant/recipes" className="text-blue-600 text-sm">← Volver</Link></div>;
 
-  // Calculate total cost
+  // Calculate total cost (all in centavos consistently)
   const totalCostCents = recipe.recipeItems.reduce((sum, ri) => sum + ri.ingredientCost * ri.quantity, 0);
   const totalCost = totalCostCents / 100;
-  const costPerUnit = recipe.yieldQuantity > 0 ? totalCost / recipe.yieldQuantity : 0;
-  const margin = recipe.menuItem.basePrice > 0 ? ((recipe.menuItem.basePrice - costPerUnit) / recipe.menuItem.basePrice * 100).toFixed(1) : '—';
+  const costPerUnitCents = recipe.yieldQuantity > 0 ? totalCostCents / recipe.yieldQuantity : 0;
+  const costPerUnit = costPerUnitCents / 100;
+  const margin = recipe.menuItem && recipe.menuItem.basePrice > 0
+    ? ((recipe.menuItem.basePrice - costPerUnitCents) / recipe.menuItem.basePrice * 100).toFixed(1)
+    : '—';
 
   // Filter ingredients not already in recipe
   const usedIds = new Set(recipe.recipeItems.map(ri => ri.ingredientId));
@@ -139,11 +142,13 @@ export default function RecipeDetailPage() {
       <div>
         <Link href="/admin/restaurant/recipes" className="text-sm text-gray-500 hover:text-gray-700">← Volver a recetas</Link>
         <div className="flex items-center gap-3 mt-2">
-          <h1 className="text-2xl font-bold text-gray-900">{recipe.menuItem.name}</h1>
-          {!recipe.menuItem.isActive && <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Inactivo</span>}
+          <h1 className="text-2xl font-bold text-gray-900">
+            {recipe.menuItem ? recipe.menuItem.name : <span className="text-gray-400">(sin ítem)</span>}
+          </h1>
+          {recipe.menuItem && !recipe.menuItem.isActive && <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Inactivo</span>}
         </div>
         <p className="text-sm text-gray-500 mt-1">
-          Precio menú: {fmtMXN(recipe.menuItem.basePrice)} · Rinde {recipe.yieldQuantity} porción(es)
+          {recipe.menuItem ? `Precio menú: ${fmtMXN(recipe.menuItem.basePrice)} · ` : ''}Rinde {recipe.yieldQuantity} porción(es)
         </p>
       </div>
 

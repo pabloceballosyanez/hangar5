@@ -13,6 +13,7 @@ function formatPrice(pesos: number): string {
 
 const statusColors: Record<string, string> = {
   DRAFT: "bg-gray-100 text-gray-700 border-gray-300",
+  AWAITING_PAYMENT: "bg-yellow-100 text-yellow-700 border-yellow-300",
   PLACED: "bg-blue-100 text-blue-700 border-blue-300",
   IN_KITCHEN: "bg-orange-100 text-orange-700 border-orange-300",
   READY: "bg-green-100 text-green-700 border-green-300",
@@ -23,6 +24,7 @@ const statusColors: Record<string, string> = {
 
 const statusLabel: Record<string, string> = {
   DRAFT: "Borrador",
+  AWAITING_PAYMENT: "Pendiente de pago",
   PLACED: "Recibida",
   IN_KITCHEN: "En cocina",
   READY: "Lista",
@@ -40,6 +42,7 @@ const sourceLabel: Record<string, string> = {
 const tabs = [
   { key: "", label: "Todas" },
   { key: "active", label: "Activas" },
+  { key: "pending-pay", label: "Pendientes" },
   { key: "completed", label: "Completadas" },
   { key: "cancelled", label: "Canceladas" },
 ] as const;
@@ -47,6 +50,7 @@ const tabs = [
 // API filters map to status arrays for client-side filtering
 const TAB_FILTER: Record<string, string[]> = {
   active: ["PLACED", "IN_KITCHEN", "READY", "SERVED"],
+  "pending-pay": ["AWAITING_PAYMENT"],
   completed: ["PAID"],
   cancelled: ["CANCELLED"],
 };
@@ -90,19 +94,13 @@ async function advanceOrderStatus(orderId: string, newStatus: string, paymentMet
 }
 
 async function deliverOrderItems(orderId: string): Promise<void> {
-  // Mark all READY items as SERVED
+  // confirm-delivery marks READY items as SERVED and auto-advances order to SERVED when all items are done
   const res = await fetch(`/api/restaurant/orders/${orderId}/confirm-delivery`, {
     method: 'POST',
   });
   if (!res.ok) {
     const d = await res.json().catch(() => ({}));
     throw new Error((d as { error?: string }).error ?? 'Error');
-  }
-  // Only advance to SERVED if not already there (confirm-delivery may have already done it)
-  try {
-    await advanceOrderStatus(orderId, 'SERVED');
-  } catch {
-    // Order may already be SERVED — that's fine
   }
 }
 
@@ -148,6 +146,8 @@ export default function OrdersPage() {
 
   const emptyMessage = activeTab === "active"
     ? "No hay órdenes activas en este momento."
+    : activeTab === "pending-pay"
+    ? "No hay órdenes pendientes de pago."
     : activeTab === "completed"
     ? "No hay órdenes completadas."
     : activeTab === "cancelled"
@@ -309,7 +309,20 @@ export default function OrdersPage() {
                         <span className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin inline-block" />
                       ) : (
                         <div className="flex items-center justify-center gap-1">
-                          {order.status === 'READY' && (
+                          {order.status === 'AWAITING_PAYMENT' && (
+                        <button
+                          onClick={async () => {
+                            setActionLoading(order.id);
+                            try { await advanceOrderStatus(order.id, 'CANCELLED'); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
+                            setActionLoading(null);
+                          }}
+                          className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 border border-red-300 rounded-md hover:bg-red-200 transition-colors"
+                          title="Cancelar orden"
+                        >
+                          ❌ Cancelar
+                        </button>
+                      )}
+                      {order.status === 'READY' && (
                             <button
                               onClick={async () => {
                                 setActionLoading(order.id);
@@ -335,7 +348,7 @@ export default function OrdersPage() {
                               💰 Pagar
                             </button>
                           )}
-                          {order.status !== 'READY' && order.status !== 'SERVED' && order.status !== 'PAID' && order.status !== 'CANCELLED' && (
+                          {order.status !== 'AWAITING_PAYMENT' && order.status !== 'READY' && order.status !== 'SERVED' && order.status !== 'PAID' && order.status !== 'CANCELLED' && (
                             <button
                               onClick={async () => {
                                 setActionLoading(order.id);

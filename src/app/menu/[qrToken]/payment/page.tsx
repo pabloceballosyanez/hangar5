@@ -80,8 +80,8 @@ function PaymentContent() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [paying, setPaying] = useState(false);
-  const [payingCash, setPayingCash] = useState(false);
   const [chargingAccount, setChargingAccount] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -94,12 +94,14 @@ function PaymentContent() {
 
     const load = async () => {
       try {
-        const res = await fetch(`/api/admin/restaurant/orders/${orderId}`, {
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error("No pudimos cargar tu orden");
-        const data = (await res.json()) as Order;
+        const [orderRes, authRes] = await Promise.all([
+          fetch(`/api/admin/restaurant/orders/${orderId}`, { cache: "no-store" }),
+          fetch("/api/auth/customer/me", { cache: "no-store" }),
+        ]);
+        if (!orderRes.ok) throw new Error("No pudimos cargar tu orden");
+        const data = (await orderRes.json()) as Order;
         setOrder(data);
+        if (authRes.ok) setLoggedIn(true);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Error desconocido");
       } finally {
@@ -138,31 +140,6 @@ function PaymentContent() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error desconocido");
       setPaying(false);
-    }
-  };
-
-  const handlePayCash = async () => {
-    if (!orderId) return;
-    setPayingCash(true);
-    setError(null);
-
-    try {
-      const res = await fetch("/api/restaurant/checkout/cash", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId }),
-      });
-
-      if (!res.ok) {
-        const body = (await res.json()) as { error?: string };
-        throw new Error(body.error ?? "Error al procesar pago en efectivo");
-      }
-
-      const { redirectUrl } = (await res.json()) as { success: boolean; redirectUrl: string };
-      window.location.href = redirectUrl;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error desconocido");
-      setPayingCash(false);
     }
   };
 
@@ -328,7 +305,7 @@ function PaymentContent() {
         {/* Card payment */}
         <button
           onClick={handlePay}
-          disabled={paying || payingCash || chargingAccount}
+          disabled={paying || chargingAccount}
           className="w-full bg-[#009ee3] hover:bg-[#0083c6] disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
         >
           {paying ? (
@@ -345,50 +322,32 @@ function PaymentContent() {
           )}
         </button>
 
-        {/* Cash payment */}
-        <button
-          onClick={handlePayCash}
-          disabled={payingCash || paying || chargingAccount}
-          className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
-        >
-          {payingCash ? (
-            <>
-              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Procesando…</span>
-            </>
-          ) : (
-            <>
-              <span>💵</span>
-              <span>Pagar en efectivo</span>
-              <span className="ml-auto font-black">{fmt(order.total)}</span>
-            </>
-          )}
-        </button>
-
-        {/* Charge to account */}
-        <button
-          onClick={handleChargeToAccount}
-          disabled={chargingAccount || paying}
-          title={!order?.customerEmail ? "Ingresa tu email para usar esta opción" : "Cargar a tu cuenta para pagar después"}
-          className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
-        >
-          {chargingAccount ? (
-            <>
-              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Procesando…</span>
-            </>
-          ) : (
-            <>
-              <span>📒</span>
-              <span>Cargo a mi cuenta</span>
-              <span className="ml-auto font-black">{fmt(order.total)}</span>
-            </>
-          )}
-        </button>
+        {/* Charge to account — only for logged-in customers */}
+        {loggedIn && order?.customerEmail && (
+          <button
+            onClick={handleChargeToAccount}
+            disabled={chargingAccount || paying}
+            title="Cargar a tu cuenta para pagar después"
+            className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
+          >
+            {chargingAccount ? (
+              <>
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Procesando…</span>
+              </>
+            ) : (
+              <>
+                <span>📒</span>
+                <span>Cargo a mi cuenta</span>
+                <span className="ml-auto font-black">{fmt(order.total)}</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       <p className="text-center text-xs text-gray-400">
-        Con tarjeta serás redirigido a Mercado Pago. Efectivo: pagas directo al mesero. Cargo a cuenta: se agrega a tu saldo para pagar después.
+        Con tarjeta serás redirigido a Mercado Pago. Cargo a cuenta: se agrega a tu saldo para pagar después.
       </p>
     </div>
   );
