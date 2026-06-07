@@ -24,7 +24,7 @@ export async function GET() {
       menuItemActive: r.menuItem?.isActive ?? false,
       isTemplate: r.isTemplate,
       parentRecipeId: r.parentRecipeId,
-      parentRecipeName: r.parentRecipe?.menuItem?.name ?? null,
+      parentRecipeName: r.parentRecipe?.menuItem?.name ?? (r.parentRecipe?.notes ? r.parentRecipe.notes.split('. ')[0].split(' — ')[0].trim() : null),
       yieldQuantity: r.yieldQuantity,
       notes: r.notes,
       ingredientCount: r._count.recipeItems,
