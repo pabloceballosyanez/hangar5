@@ -13,15 +13,19 @@ interface RecipeItem {
   ingredientCost: number;
   ingredientCostDisplay: number;
   quantity: number;
+  inherited?: boolean;
 }
 
 interface Recipe {
   id: string;
-  menuItemId: string;
+  menuItemId: string | null;
+  isTemplate: boolean;
   yieldQuantity: number;
   notes: string | null;
   menuItem: { id: string; name: string; basePrice: number; isActive: boolean } | null;
+  parentRecipe: { id: string; notes: string | null; yieldQuantity: number } | null;
   recipeItems: RecipeItem[];
+  inheritedItems: RecipeItem[];
 }
 
 interface Ingredient {
@@ -124,14 +128,18 @@ export default function RecipeDetailPage() {
   if (loading) return <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" /><p className="text-gray-500">Cargando...</p></div>;
   if (!recipe) return <div className="text-center py-12"><p className="text-gray-500">Receta no encontrada</p><Link href="/admin/restaurant/recipes" className="text-blue-600 text-sm">← Volver</Link></div>;
 
-  // Calculate total cost (all in centavos consistently)
-  const totalCostCents = recipe.recipeItems.reduce((sum, ri) => sum + ri.ingredientCost * ri.quantity, 0);
+  // Calculate total cost including inherited ingredients (all in centavos consistently)
+  const allItems = [...recipe.recipeItems, ...(recipe.inheritedItems || [])];
+  const totalCostCents = allItems.reduce((sum, ri) => sum + ri.ingredientCost * ri.quantity, 0);
   const totalCost = totalCostCents / 100;
   const costPerUnitCents = recipe.yieldQuantity > 0 ? totalCostCents / recipe.yieldQuantity : 0;
   const costPerUnit = costPerUnitCents / 100;
   const margin = recipe.menuItem && recipe.menuItem.basePrice > 0
     ? ((recipe.menuItem.basePrice - costPerUnitCents) / recipe.menuItem.basePrice * 100).toFixed(1)
     : '—';
+
+  // Get display name (from menuItem, notes, or fallback)
+  const displayName = recipe.menuItem?.name || (recipe.notes ? recipe.notes.split('. ')[0].split(' — ')[0].trim() : '(sin ítem)');
 
   // Filter ingredients not already in recipe
   const usedIds = new Set(recipe.recipeItems.map(ri => ri.ingredientId));
@@ -143,12 +151,21 @@ export default function RecipeDetailPage() {
         <Link href="/admin/restaurant/recipes" className="text-sm text-gray-500 hover:text-gray-700">← Volver a recetas</Link>
         <div className="flex items-center gap-3 mt-2">
           <h1 className="text-2xl font-bold text-gray-900">
-            {recipe.menuItem ? recipe.menuItem.name : <span className="text-gray-400">(sin ítem)</span>}
+            {displayName}
           </h1>
           {recipe.menuItem && !recipe.menuItem.isActive && <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Inactivo</span>}
+          {recipe.isTemplate && <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full">Template</span>}
         </div>
         <p className="text-sm text-gray-500 mt-1">
           {recipe.menuItem ? `Precio menú: ${fmtMXN(recipe.menuItem.basePrice)} · ` : ''}Rinde {recipe.yieldQuantity} porción(es)
+          {recipe.parentRecipe && (
+            <span className="ml-2 text-xs text-purple-600">
+              · Hereda de: <Link href={`/admin/restaurant/recipes/${recipe.parentRecipe.id}`} className="underline hover:text-purple-800">
+                {recipe.parentRecipe.notes ? recipe.parentRecipe.notes.split('. ')[0].split(' — ')[0].trim() : 'Template'}
+              </Link>
+              {recipe.parentRecipe.yieldQuantity > 0 && ` (rinde ${recipe.parentRecipe.yieldQuantity})`}
+            </span>
+          )}
         </p>
       </div>
 
@@ -197,7 +214,7 @@ export default function RecipeDetailPage() {
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="font-semibold text-gray-900">Ingredientes ({recipe.recipeItems.length})</h2>
         </div>
-        {recipe.recipeItems.length === 0 ? (
+        {recipe.recipeItems.length === 0 && (recipe.inheritedItems || []).length === 0 ? (
           <div className="p-6 text-center text-gray-400 text-sm">Sin ingredientes — agrega abajo</div>
         ) : (
           <table className="w-full text-sm">
@@ -222,6 +239,19 @@ export default function RecipeDetailPage() {
                   <td className="py-2 px-4 text-center">
                     <button onClick={() => handleRemoveItem(ri.id)} className="text-red-400 hover:text-red-600 text-sm">✕</button>
                   </td>
+                </tr>
+              ))}
+              {/* Inherited ingredients from parent */}
+              {(recipe.inheritedItems || []).map(ri => (
+                <tr key={`inh-${ri.id}`} className="hover:bg-purple-50 bg-purple-50/30">
+                  <td className="py-2 px-4 font-medium text-purple-700">
+                    🧬 {ri.ingredientName}
+                  </td>
+                  <td className="py-2 px-4 text-purple-500">{ri.ingredientUnit}</td>
+                  <td className="py-2 px-4 text-right text-purple-700">{ri.quantity.toFixed(2)}</td>
+                  <td className="py-2 px-4 text-right text-purple-600">{fmtMXN(ri.ingredientCostDisplay)}</td>
+                  <td className="py-2 px-4 text-right font-semibold text-purple-700">{fmtMXN((ri.ingredientCost * ri.quantity) / 100)}</td>
+                  <td className="py-2 px-4 text-center text-xs text-purple-400">hereda</td>
                 </tr>
               ))}
             </tbody>

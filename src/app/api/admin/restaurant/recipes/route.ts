@@ -19,7 +19,7 @@ export async function GET() {
     const result = recipes.map((r) => ({
       id: r.id,
       menuItemId: r.menuItemId,
-      menuItemName: r.menuItem?.name ?? "(plantilla)",
+      menuItemName: r.menuItem?.name ?? (r.notes ? r.notes.split('. ')[0].split(' — ')[0].trim() : "(plantilla)"),
       menuItemImage: r.menuItem?.imageUrl ?? null,
       menuItemActive: r.menuItem?.isActive ?? false,
       isTemplate: r.isTemplate,

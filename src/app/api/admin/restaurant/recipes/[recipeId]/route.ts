@@ -17,6 +17,17 @@ export async function GET(_req: NextRequest, { params }: Params) {
         menuItem: {
           select: { id: true, name: true, basePrice: true, isActive: true },
         },
+        parentRecipe: {
+          include: {
+            recipeItems: {
+              include: {
+                ingredient: {
+                  select: { id: true, name: true, unit: true, cost: true, currentStock: true },
+                },
+              },
+            },
+          },
+        },
         recipeItems: {
           include: {
             ingredient: {
@@ -36,6 +47,13 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
     return NextResponse.json({
       ...recipe,
+      // Include parent info
+      parentRecipe: recipe.parentRecipe ? {
+        id: recipe.parentRecipe.id,
+        notes: recipe.parentRecipe.notes,
+        yieldQuantity: recipe.parentRecipe.yieldQuantity,
+      } : null,
+      // Own ingredients
       recipeItems: recipe.recipeItems.map((ri) => ({
         id: ri.id,
         recipeId: ri.recipeId,
@@ -45,7 +63,23 @@ export async function GET(_req: NextRequest, { params }: Params) {
         ingredientCost: ri.ingredient.cost,
         ingredientCostDisplay: Math.round(ri.ingredient.cost / 100),
         quantity: ri.quantity,
+        inherited: false,
       })),
+      // Inherited ingredients from parent (scaled by yield)
+      inheritedItems: recipe.parentRecipe ? recipe.parentRecipe.recipeItems.map((ri) => ({
+        id: ri.id,
+        recipeId: ri.recipeId,
+        ingredientId: ri.ingredientId,
+        ingredientName: ri.ingredient.name,
+        ingredientUnit: ri.ingredient.unit,
+        ingredientCost: ri.ingredient.cost,
+        ingredientCostDisplay: Math.round(ri.ingredient.cost / 100),
+        // Scale by yield: if parent yields 6 bases and this recipe uses 1, scale down
+        quantity: recipe.parentRecipe!.yieldQuantity > 0
+          ? (ri.quantity / recipe.parentRecipe!.yieldQuantity) * recipe.yieldQuantity
+          : ri.quantity,
+        inherited: true,
+      })) : [],
     });
   } catch (err) {
     console.error("[GET /api/admin/restaurant/recipes/[recipeId]]", err);
@@ -58,6 +92,7 @@ const updateRecipeSchema = z.object({
   yieldQuantity: z.number().min(0).optional(),
   notes: z.string().optional().nullable(),
   isTemplate: z.boolean().optional(),
+  parentRecipeId: z.string().optional().nullable(),
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {
