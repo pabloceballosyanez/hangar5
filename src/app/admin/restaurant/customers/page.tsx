@@ -65,16 +65,40 @@ export default function CustomersPage() {
     }
   }
 
+async function handleCleanupInactive() {
+    if (!confirm('¿Eliminar todos los clientes sin actividad (sin sesiones, pagos ni movimientos)? Esta acción no se puede deshacer.')) return;
+    try {
+      const res = await fetch('/api/admin/restaurant/customers/cleanup', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Se eliminaron ${data.deleted} cliente(s) fantasma.`);
+        loadCustomers();
+      } else {
+        alert(data.error || 'Error al limpiar');
+      }
+    } catch {
+      alert('Error de conexión');
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
-        <Link
-          href="/admin/restaurant/customers/nuevo"
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          + Nuevo cliente
-        </Link>
+        <div className="flex gap-2">
+          <button
+            onClick={handleCleanupInactive}
+            className="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors"
+          >
+            🧹 Limpiar inactivos
+          </button>
+          <Link
+            href="/admin/restaurant/customers/nuevo"
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            + Nuevo cliente
+          </Link>
+        </div>
       </div>
 
       {loading ? (
