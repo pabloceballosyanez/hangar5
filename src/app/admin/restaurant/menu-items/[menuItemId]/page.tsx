@@ -49,6 +49,7 @@ interface RecipeItem {
   ingredientUnit?: string;
   ingredientCost?: number;
   quantity: number;
+  inherited?: boolean;
 }
 
 interface Recipe {
@@ -56,6 +57,8 @@ interface Recipe {
   yieldQuantity: number;
   notes: string | null;
   recipeItems: RecipeItem[];
+  inheritedItems?: RecipeItem[];
+  parentRecipe?: { id: string; notes: string | null; yieldQuantity: number } | null;
 }
 
 interface ModifierGroup {
@@ -96,6 +99,7 @@ export default function EditMenuItemPage() {
   const [recipeYield, setRecipeYield] = useState<number | ''>(1);
   const [recipeNotes, setRecipeNotes] = useState('');
   const [recipeItems, setRecipeItems] = useState<RecipeItem[]>([]);
+  const [inheritedRecipeItems, setInheritedRecipeItems] = useState<RecipeItem[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [addIngredientId, setAddIngredientId] = useState('');
   const [addIngredientQty, setAddIngredientQty] = useState('');
@@ -156,6 +160,17 @@ export default function EditMenuItemPage() {
               ingredientUnit: ri.ingredient?.unit || ri.ingredientUnit,
               ingredientCost: ri.ingredient?.cost ?? ri.ingredientCost,
               quantity: ri.quantity,
+              inherited: false,
+            }))
+          );
+          setInheritedRecipeItems(
+            (itemAny.recipe.inheritedItems || []).map((ri: any) => ({
+              ingredientId: ri.ingredientId || ri.ingredient?.id,
+              ingredientName: ri.ingredient?.name || ri.ingredientName,
+              ingredientUnit: ri.ingredient?.unit || ri.ingredientUnit,
+              ingredientCost: ri.ingredient?.cost ?? ri.ingredientCost,
+              quantity: ri.quantity,
+              inherited: true,
             }))
           );
         }
@@ -215,7 +230,13 @@ export default function EditMenuItemPage() {
   }
 
   // ─── Recipe cost calculations ────────────────────────────────────────────
-  const recipeTotalCost = recipeItems.reduce(
+  const inheritedItems = inheritedRecipeItems;
+  const allRecipeItems = [...recipeItems, ...inheritedItems];
+  const recipeTotalCost = allRecipeItems.reduce(
+    (sum, ri) => sum + (ri.ingredientCost || 0) * ri.quantity,
+    0
+  );
+  const ownCost = recipeItems.reduce(
     (sum, ri) => sum + (ri.ingredientCost || 0) * ri.quantity,
     0
   );
@@ -734,6 +755,25 @@ export default function EditMenuItemPage() {
                             );
                           })}
                         </tbody>
+                        {inheritedItems.length > 0 && (
+                          <tbody className="bg-purple-50/30">
+                            <tr className="border-b border-purple-100">
+                              <td colSpan={5} className="py-1.5 px-3 text-xs text-purple-600 font-medium">
+                                🧬 Heredados de template
+                              </td>
+                            </tr>
+                            {inheritedItems.map((ri, idx) => (
+                              <tr key={`inh-${idx}`} className="border-b border-purple-50">
+                                <td className="py-1.5 px-3 text-sm text-purple-700">{ri.ingredientName}</td>
+                                <td className="py-1.5 px-3 text-xs text-purple-500">{ri.ingredientUnit}</td>
+                                <td className="py-1.5 px-3 text-right text-sm text-purple-700">{ri.quantity.toFixed(2)}</td>
+                                <td className="py-1.5 px-3 text-right text-xs text-purple-500">${(ri.ingredientCost || 0).toFixed(2)}</td>
+                                <td className="py-1.5 px-3 text-right text-sm text-purple-700">${((ri.ingredientCost || 0) * ri.quantity).toFixed(2)}</td>
+                                <td></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        )}
                         <tfoot>
                           <tr className="bg-gray-50 border-t border-gray-200">
                             <td colSpan={3} className="py-2 px-3 text-right text-xs font-medium text-gray-500">

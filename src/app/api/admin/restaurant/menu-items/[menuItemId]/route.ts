@@ -10,6 +10,7 @@ type Params = { params: Promise<{ menuItemId: string }> };
 
 function serializeItem(item: Record<string, unknown>) {
   const recipe = item.recipe as Record<string, unknown> | null | undefined;
+  const parentRecipe = recipe?.parentRecipe as Record<string, unknown> | null | undefined;
   return {
     ...item,
     basePrice: typeof item.basePrice === "number" ? item.basePrice / 100 : item.basePrice,
@@ -25,6 +26,7 @@ function serializeItem(item: Record<string, unknown>) {
           recipeItems: Array.isArray(recipe.recipeItems)
             ? (recipe.recipeItems as Record<string, unknown>[]).map((ri) => ({
                 ...ri,
+                inherited: false,
                 ingredient: ri.ingredient
                   ? {
                       ...(ri.ingredient as Record<string, unknown>),
@@ -35,6 +37,30 @@ function serializeItem(item: Record<string, unknown>) {
                   : undefined,
               }))
             : [],
+          inheritedItems: parentRecipe && Array.isArray(parentRecipe.recipeItems)
+            ? (parentRecipe.recipeItems as Record<string, unknown>[]).map((ri) => {
+                const ing = ri.ingredient as Record<string, unknown> | undefined;
+                const parentYield = (parentRecipe.yieldQuantity as number) || 1;
+                const thisYield = (recipe.yieldQuantity as number) || 1;
+                const scale = thisYield / parentYield;
+                return {
+                  ...ri,
+                  inherited: true,
+                  quantity: (ri.quantity as number) * scale,
+                  ingredient: ing
+                    ? {
+                        ...ing,
+                        cost: typeof ing.cost === "number" ? ing.cost / 100 : ing.cost,
+                      }
+                    : undefined,
+                };
+              })
+            : [],
+          parentRecipe: parentRecipe ? {
+            id: parentRecipe.id,
+            notes: parentRecipe.notes,
+            yieldQuantity: parentRecipe.yieldQuantity,
+          } : null,
         }
       : null,
   };
@@ -60,6 +86,13 @@ export async function GET(_req: NextRequest, { params }: Params) {
           include: {
             recipeItems: {
               include: { ingredient: true },
+            },
+            parentRecipe: {
+              include: {
+                recipeItems: {
+                  include: { ingredient: true },
+                },
+              },
             },
           },
         },
@@ -194,6 +227,13 @@ export async function PUT(req: NextRequest, { params }: Params) {
             include: {
               recipeItems: {
                 include: { ingredient: true },
+              },
+              parentRecipe: {
+                include: {
+                  recipeItems: {
+                    include: { ingredient: true },
+                  },
+                },
               },
             },
           },
