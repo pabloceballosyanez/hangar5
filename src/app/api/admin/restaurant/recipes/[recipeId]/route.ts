@@ -57,6 +57,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 const updateRecipeSchema = z.object({
   yieldQuantity: z.number().min(0).optional(),
   notes: z.string().optional().nullable(),
+  isTemplate: z.boolean().optional(),
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {
