@@ -8,6 +8,7 @@ interface RecipeSummary {
   menuItemId: string | null;
   menuItemName: string;
   menuItemActive: boolean;
+  isTemplate: boolean;
   yieldQuantity: number;
   notes: string | null;
   ingredientCount: number;
@@ -65,6 +66,7 @@ export default function RecipesPage() {
   // Create form
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedMenuItemId, setSelectedMenuItemId] = useState('');
+  const [selectedParentId, setSelectedParentId] = useState('');
   const [yieldQuantity, setYieldQuantity] = useState('1');
   const [notes, setNotes] = useState('');
 
@@ -106,6 +108,7 @@ export default function RecipesPage() {
 
   function resetCreateForm() {
     setSelectedMenuItemId('');
+    setSelectedParentId('');
     setYieldQuantity('1');
     setNotes('');
     setShowCreateForm(false);
@@ -123,6 +126,7 @@ export default function RecipesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           menuItemId: selectedMenuItemId,
+          parentRecipeId: selectedParentId || undefined,
           yieldQuantity: parseFloat(yieldQuantity) || 1,
           notes: notes.trim() || undefined,
         }),
@@ -253,6 +257,17 @@ export default function RecipesPage() {
               {availableMenuItems.length === 0 && (
                 <p className="text-xs text-amber-600 mt-1">Todos los ítems activos ya tienen receta.</p>
               )}
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Receta base (template)</label>
+              <select value={selectedParentId} onChange={e => setSelectedParentId(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="">Ninguna (receta independiente)</option>
+                {recipes.filter(r => r.isTemplate).map(r => (
+                  <option key={r.id} value={r.id}>{r.menuItemName}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-400 mt-1">Hereda ingredientes del template seleccionado</p>
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Rendimiento (porciones)</label>

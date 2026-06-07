@@ -2,7 +2,7 @@
   "name": "Hangar 5 — Staff",
   "short_name": "Hangar 5",
   "description": "Acceso al panel de restaurante Hangar 5",
-  "start_url": "/login",
+  "start_url": "/waiter/login",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#f59e0b",

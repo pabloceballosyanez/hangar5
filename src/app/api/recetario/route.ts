@@ -67,13 +67,13 @@ export async function GET(req: NextRequest) {
 
       return {
         id: r.id,
-        name: r.menuItem?.name ?? "Plantilla sin menú",
+        name: r.menuItem?.name ?? (r.notes ? r.notes.split('. ')[0].split(' — ')[0].trim() : 'Receta'),
         imageUrl: r.menuItem?.imageUrl ?? null,
         price: r.menuItem?.basePrice ?? 0,
         category: r.menuItem?.category?.name ?? null,
         isTemplate: r.isTemplate,
         parentRecipeId: r.parentRecipeId,
-        parentName: r.parentRecipe?.menuItem?.name ?? null,
+        parentName: r.parentRecipe?.menuItem?.name ?? (r.parentRecipe?.notes ? r.parentRecipe.notes.split('. ')[0].split(' — ')[0].trim() : null),
         yieldQuantity: r.yieldQuantity,
         notes: r.notes,
         ingredients: allIngredients,

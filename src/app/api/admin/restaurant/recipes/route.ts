@@ -11,7 +11,7 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       include: {
         menuItem: { select: { id: true, name: true, isActive: true, imageUrl: true } },
-        parentRecipe: { select: { id: true, menuItem: { select: { name: true } } } },
+        parentRecipe: { select: { id: true, notes: true, menuItem: { select: { name: true } } } },
         _count: { select: { recipeItems: true, childRecipes: true } },
       },
     });
