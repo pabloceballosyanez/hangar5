@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import Image from "next/image";
 
 interface GalleryProps {
   images: string[];
@@ -42,16 +41,10 @@ export default function Gallery({ images }: GalleryProps) {
     <>
       {/* Main image */}
       <div
-        className="relative aspect-[4/5] rounded-lg overflow-hidden shadow-lg cursor-pointer group"
+        className="aspect-[4/5] rounded-lg overflow-hidden bg-cover bg-center shadow-lg cursor-pointer group relative"
+        style={{ backgroundImage: `url('${images[0]}')` }}
         onClick={() => open(0)}
       >
-        <Image
-          src={images[0]}
-          alt=""
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 50vw"
-        />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
           <span className="opacity-0 group-hover:opacity-100 text-white text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full transition-opacity duration-300">
             Ver galería →
@@ -66,17 +59,10 @@ export default function Gallery({ images }: GalleryProps) {
           return (
             <div
               key={offset}
-              className="relative aspect-square rounded overflow-hidden opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
+              className="aspect-square rounded bg-cover bg-center opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
+              style={{ backgroundImage: `url('${images[idx]}')` }}
               onClick={() => open(idx)}
-            >
-              <Image
-                src={images[idx]}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="128px"
-              />
-            </div>
+            />
           );
         })}
       </div>
@@ -114,19 +100,12 @@ export default function Gallery({ images }: GalleryProps) {
             </svg>
           </button>
 
-          {/* Lightbox image */}
+          {/* Image */}
           <div
-            className="relative max-w-[90vw] max-h-[85vh] w-full h-full"
+            className="max-w-[90vw] max-h-[85vh] w-full h-full bg-contain bg-center bg-no-repeat"
+            style={{ backgroundImage: `url('${images[current]}')` }}
             onClick={(e) => e.stopPropagation()}
-          >
-            <Image
-              src={images[current]}
-              alt=""
-              fill
-              className="object-contain"
-              sizes="90vw"
-            />
-          </div>
+          />
 
           {/* Next */}
           <button
@@ -145,20 +124,13 @@ export default function Gallery({ images }: GalleryProps) {
               <button
                 key={i}
                 onClick={(e) => { e.stopPropagation(); setCurrent(i); }}
-                className={`relative w-16 h-12 rounded flex-shrink-0 overflow-hidden border-2 transition-all ${
+                className={`w-16 h-12 rounded flex-shrink-0 bg-cover bg-center border-2 transition-all ${
                   i === current
                     ? "border-white opacity-100"
                     : "border-transparent opacity-40 hover:opacity-70"
                 }`}
-              >
-                <Image
-                  src={img}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="64px"
-                />
-              </button>
+                style={{ backgroundImage: `url('${img}')` }}
+              />
             ))}
           </div>
         </div>

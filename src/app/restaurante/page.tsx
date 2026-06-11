@@ -1,8 +1,7 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 interface MenuItemVariant {
   id: string;
@@ -40,13 +39,13 @@ export default function RestaurantePage() {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const response = await fetch("/api/menu");
-        if (!response.ok) throw new Error("Failed to fetch menu");
+        const response = await fetch('/api/menu');
+        if (!response.ok) throw new Error('Failed to fetch menu');
         const data = await response.json();
         setCategories(data);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching menu:", error);
+        console.error('Error fetching menu:', error);
         setLoading(false);
         setCategories([]);
       }
@@ -56,7 +55,7 @@ export default function RestaurantePage() {
   }, []);
 
   const handleImageError = (itemId: string) => {
-    setImageErrors((prev) => new Set([...prev, itemId]));
+    setImageErrors(prev => new Set([...prev, itemId]));
   };
 
   if (loading) {
@@ -108,12 +107,12 @@ export default function RestaurantePage() {
                   key={cat.id}
                   onClick={() => {
                     setActiveCategory(idx);
-                    document.getElementById(`category-${cat.id}`)?.scrollIntoView({ behavior: "smooth" });
+                    document.getElementById(`category-${cat.id}`)?.scrollIntoView({ behavior: 'smooth' });
                   }}
                   className="px-4 py-2 text-xs font-medium tracking-[0.15em] uppercase whitespace-nowrap transition-all duration-300 rounded-lg"
                   style={{
-                    color: activeCategory === idx ? "#b88364" : "#5c3d2e",
-                    backgroundColor: activeCategory === idx ? "#b88364/10" : "transparent",
+                    color: activeCategory === idx ? '#b88364' : '#5c3d2e',
+                    backgroundColor: activeCategory === idx ? '#b88364/10' : 'transparent',
                   }}
                 >
                   {cat.name}
@@ -129,16 +128,15 @@ export default function RestaurantePage() {
 
       {/* Hero Section */}
       <section className="relative w-full h-[60vh] md:h-[60vh] overflow-hidden pt-16">
-        <Image
-          src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4"
-          alt=""
-          fill
-          className="object-cover"
-          sizes="100vw"
-          priority
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: 'url(https://source.unsplash.com/1600x900/?mountain,sunset,adventure)',
+            backgroundPosition: 'center',
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
-
+        
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
           <h1 className="text-5xl md:text-7xl font-serif text-white mb-4 tracking-[-0.02em] leading-[0.85]">
             Hangar <span className="italic">5</span>
@@ -192,12 +190,10 @@ export default function RestaurantePage() {
                       {/* Image Container */}
                       <div className="relative w-full bg-[#f5f2ef] aspect-[4/3] overflow-hidden">
                         {hasImage ? (
-                          <Image
-                            src={item.imageUrl!}
+                          <img
+                            src={item.imageUrl}
                             alt={item.name}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             onError={() => handleImageError(item.id)}
                           />
                         ) : (
