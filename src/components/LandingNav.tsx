@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-const links = [
+const landingLinks = [
   { href: '#cabanas', label: 'Cabañas' },
   { href: '#glampings', label: 'Glampings' },
   { href: '#actividades', label: 'Actividades' },
@@ -12,8 +13,16 @@ const links = [
   { href: '#contacto', label: 'Contacto' },
 ];
 
+const pageLinks = [
+  { href: '/comunidad', label: 'Comunidad' },
+];
+
 export default function LandingNav() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
+  const anchorHref = (hash: string) => (isHome ? hash : `/${hash}`);
 
   return (
     <>
@@ -25,10 +34,15 @@ export default function LandingNav() {
 
           {/* Desktop links */}
           <div className="hidden md:flex gap-10 text-xs tracking-[0.2em] uppercase">
-            {links.map(l => (
-              <a key={l.href} href={l.href} className="hover:opacity-70 transition-opacity">
+            {landingLinks.map(l => (
+              <a key={l.href} href={anchorHref(l.href)} className="hover:opacity-70 transition-opacity">
                 {l.label}
               </a>
+            ))}
+            {pageLinks.map(l => (
+              <Link key={l.href} href={l.href} className="hover:opacity-70 transition-opacity">
+                {l.label}
+              </Link>
             ))}
           </div>
 
@@ -56,15 +70,25 @@ export default function LandingNav() {
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/95 backdrop-blur-lg" onClick={() => setOpen(false)} />
           <div className="relative z-10 flex flex-col items-center justify-center h-full gap-8">
-            {links.map(l => (
+            {landingLinks.map(l => (
               <a
+                key={l.href}
+                href={anchorHref(l.href)}
+                onClick={() => setOpen(false)}
+                className="text-white text-2xl font-light tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
+              >
+                {l.label}
+              </a>
+            ))}
+            {pageLinks.map(l => (
+              <Link
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
                 className="text-white text-2xl font-light tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
