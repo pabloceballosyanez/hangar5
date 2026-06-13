@@ -4,11 +4,33 @@ import { useState } from 'react';
 import Link from 'next/link';
 import LandingNav from '@/components/LandingNav';
 
+const FASES = [
+  { num: 1, title: 'Electrónica Básica', duration: '2 sesiones (fin de semana)', slug: 'fase-1-electronica', desc: 'Identificar componentes, usar protoboard, conectar sensores I²C, armar circuitos básicos y leer temperatura desde Python.' },
+  { num: 2, title: 'Armado del Prototipo', duration: '1 sesión', slug: 'fase-2-prototipo', desc: 'Montar la primera estación completa: Pi + anemómetro + BME280 + panel solar. Escribir el script de lecturas y envío a la API.' },
+  { num: 3, title: 'Programación y Servidor', duration: '2 sesiones', slug: 'fase-3-programacion', desc: 'Cómo funciona una API REST, cómo mandar datos a internet y cómo visualizarlos en tiempo real. Python, JSON, HTTP.' },
+  { num: 4, title: 'Impermeabilización y Montaje', duration: '1 sesión', slug: 'fase-4-impermeabilizacion', desc: 'Soldar componentes, armar gabinetes estancos, montar mástiles y paneles solares. Probar en exterior real.' },
+  { num: 5, title: 'Instalación en Campo', duration: '1 día por estación', slug: 'fase-5-instalacion', desc: 'Subir al launch, medio cerro y LZ. Instalar las estaciones en sus ubicaciones definitivas. Verificar transmisión.' },
+  { num: 6, title: 'Monitoreo y Mejora Continua', duration: 'Permanente', slug: 'fase-6-monitoreo', desc: 'Rotar turnos de mantenimiento, limpiar sensores, revisar paneles, resetear. Mejorar con feedback de pilotos.' },
+];
+
 const DONATION_AMOUNTS = [
   { label: 'Café solidario', amount: 50 },
   { label: 'Sensor BME280', amount: 200 },
   { label: 'Kit completo', amount: 500 },
   { label: 'Estación entera', amount: 5000 },
+];
+
+const MATERIALES = [
+  ['Microcomputadora', 'Raspberry Pi Zero 2 W', '~$800'],
+  ['Anemómetro + veleta', 'Sparkfun / InSpeed', '~$1,500'],
+  ['Sensor temp/hum/presión', 'BME280', '~$150'],
+  ['Panel solar 5W', 'Genérico 12V', '~$400'],
+  ['Controlador de carga + batería', 'TP4056 + Li-Ion 18650', '~$250'],
+  ['Gabinete estanco IP65', 'Caja plástica con prensaestopas', '~$300'],
+  ['Mástil + soportes', 'Tubo PVC 2 m + abrazaderas', '~$350'],
+  ['Tarjeta microSD 32 GB', 'SanDisk / Kingston', '~$150'],
+  ['Módem 4G USB', 'Huawei / ZTE (si no hay WiFi)', '~$500'],
+  ['Cables, conectores, tornillos', 'Varios', '~$300'],
 ];
 
 export default function ComunidadPage() {
@@ -62,14 +84,14 @@ export default function ComunidadPage() {
             <span className="italic">Comunitaria</span>
           </h1>
           <p className="text-lg md:text-xl font-light leading-relaxed max-w-2xl mx-auto opacity-80">
-            Estaciones DIY con Raspberry Pi construidas por jóvenes de El Peñón
-            para que pilotos y comunidad tengan datos meteorológicos en tiempo real
-            desde los puntos clave de vuelo.
+            Estaciones meteorológicas con Raspberry Pi, construidas por jóvenes de
+            El Peñón para que pilotos y comunidad tengan datos en tiempo real desde
+            los puntos clave de vuelo. Un curso completo, gratuito y abierto.
           </p>
         </div>
       </section>
 
-      {/* La Visión */}
+      {/* ¿Por qué hacer esto? */}
       <section className="py-32 bg-[#faf7f5]">
         <div className="max-w-4xl mx-auto px-6">
           <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">La Visión</p>
@@ -80,26 +102,91 @@ export default function ComunidadPage() {
           <div className="space-y-8 text-lg text-[#5c3d2e] leading-relaxed">
             <p>
               Hoy, un piloto que llega al Peñón no tiene forma de saber cómo está el viento
-              en el launch antes de subir. Las predicciones meteorológicas globales no capturan
+              en el despegue antes de subir. Los pronósticos meteorológicos globales no capturan
               lo que pasa en nuestros valles, con nuestros microclimas, a nuestra altitud.
             </p>
             <p>
               Una <strong className="text-[#1b4235]">red de estaciones meteorológicas</strong> en
-              puntos estratégicos — launch, medio cerro, aterrizaje — cambia eso por completo.
-              Datos reales, en tiempo real, accesibles desde el celular.
+              puntos estratégicos — despegue, medio cerro, aterrizaje — cambia eso por completo.
+              Datos reales, en tiempo real, desde cualquier celular.
             </p>
             <p>
-              Y si quienes las construyen, instalan y mantienen son los <strong className="text-[#1b4235]">
-              jóvenes de El Peñón</strong>, el proyecto se transforma: ya no es solo tecnología,
-              es educación, oficio y orgullo comunitario.
+              Y si quienes las construyen, instalan y mantienen son los{' '}
+              <strong className="text-[#1b4235]">jóvenes de El Peñón</strong>,
+              el proyecto se transforma: ya no es solo tecnología, es educación, oficio
+              y orgullo comunitario.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mt-20">
+          {/* Evidencia científica */}
+          <div className="mt-16 p-8 bg-white rounded-lg border border-[#1b4235]/10">
+            <h3 className="font-serif text-2xl text-[#1b4235] mb-6">¿Lo respalda la ciencia?</h3>
+            <div className="space-y-5 text-sm text-[#5c3d2e] leading-relaxed">
+              <p>
+                Sí. Múltiples estudios demuestran que una red densa de estaciones meteorológicas
+                de bajo costo mejora significativamente los pronósticos locales, sobre todo en
+                terrenos complejos como montañas y valles.
+              </p>
+              <div className="space-y-4 mt-4">
+                <div className="border-l-2 border-[#b88364]/40 pl-4">
+                  <p className="font-medium text-[#1b4235]">
+                    Madaus & Hakim (2014) — <span className="italic">Monthly Weather Review</span>
+                  </p>
+                  <p className="text-[#5c3d2e]/70 mt-1">
+                    Demostraron que las observaciones de presión barométrica de estaciones personales
+                    densas mejoran los análisis meteorológicos de mesoescala. Las estaciones ciudadanas
+                    pueden llenar huecos donde los modelos globales tienen poca resolución.
+                  </p>
+                </div>
+                <div className="border-l-2 border-[#b88364]/40 pl-4">
+                  <p className="font-medium text-[#1b4235]">
+                    Muller et al. (2015) — <span className="italic">International Journal of Climatology</span>
+                  </p>
+                  <p className="text-[#5c3d2e]/70 mt-1">
+                    Revisión exhaustiva sobre el uso de ciencia ciudadana y crowdsourcing para
+                    ciencias atmosféricas. Concluye que las observaciones ciudadanas son especialmente
+                    valiosas en zonas con baja densidad de estaciones oficiales.
+                  </p>
+                </div>
+                <div className="border-l-2 border-[#b88364]/40 pl-4">
+                  <p className="font-medium text-[#1b4235]">
+                    Meier et al. (2017) — <span className="italic">International Journal of Climatology</span>
+                  </p>
+                  <p className="text-[#5c3d2e]/70 mt-1">
+                    Analizaron datos de temperatura de miles de estaciones meteorológicas ciudadanas
+                    en Europa. Demostraron que, con calibración adecuada, estas estaciones alcanzan
+                    una precisión comparable a las oficiales para estudios de isla de calor urbana
+                    y monitoreo de microclimas.
+                  </p>
+                </div>
+                <div className="border-l-2 border-[#b88364]/40 pl-4">
+                  <p className="font-medium text-[#1b4235]">
+                    Clark et al. (2020) — <span className="italic">Meteorological Applications</span>
+                  </p>
+                  <p className="text-[#5c3d2e]/70 mt-1">
+                    Estudiaron el uso operacional de observaciones colaborativas en meteorología.
+                    Señalan que las redes densas de bajo costo son particularmente útiles para
+                    aplicaciones de very short-range forecasting (0–6 horas), justo lo que necesita
+                    un piloto antes de despegar.
+                  </p>
+                </div>
+              </div>
+              <p className="mt-4 text-[#1b4235] font-medium">
+                Adicionalmente, el programa{' '}
+                <strong>CWOP (Citizen Weather Observer Program)</strong> envía datos de más de 7,000
+                estaciones ciudadanas al sistema MADIS de la NOAA, y estos datos se incorporan
+                diariamente en los modelos operacionales de Estados Unidos. El{' '}
+                <strong>Raspberry Pi Oracle Weather Station</strong> desplegó casi 1,000 estaciones
+                escolares en todo el mundo. No es teoría: se hace, funciona y está documentado.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mt-16">
             {[
-              { title: 'Educación', text: 'Jóvenes locales aprenden electrónica, programación y meteorología con un proyecto real.' },
-              { title: 'Seguridad', text: 'Pilotos consultan condiciones reales del launch antes de despegar. Menos riesgo, mejores vuelos.' },
-              { title: 'Comunidad', text: 'El Peñón se vuelve referente en monitoreo meteorológico. Datos abiertos para todos.' },
+              { title: 'Educación', text: 'Jóvenes locales aprenden electrónica, programación y meteorología con un proyecto real, tangible y útil para su comunidad.' },
+              { title: 'Seguridad', text: 'Pilotos consultan condiciones reales del despegue antes de volar. Información local reduce el riesgo y mejora las decisiones.' },
+              { title: 'Comunidad', text: 'El Peñón se vuelve referente regional en monitoreo meteorológico. Datos abiertos para toda la comunidad de vuelo libre.' },
             ].map((item) => (
               <div key={item.title} className="bg-white p-8 rounded-lg border border-[#1b4235]/5 hover:shadow-lg transition-shadow">
                 <h3 className="font-serif text-xl text-[#1b4235] mb-3">{item.title}</h3>
@@ -118,9 +205,10 @@ export default function ComunidadPage() {
             Materiales por estación
           </h2>
 
-          <p className="text-white/60 mb-12 text-lg">
-            Cada estación mide viento (velocidad + dirección), temperatura, humedad y presión atmosférica.
-            Se alimenta con panel solar y transmite datos por WiFi o red móvil 4G.
+          <p className="text-white/60 mb-12 text-lg max-w-3xl">
+            Cada estación mide viento (velocidad y dirección), temperatura, humedad y presión
+            atmosférica. Se alimenta con panel solar y transmite datos por WiFi o red móvil 4G.
+            Los precios son estimados en pesos mexicanos a junio de 2026.
           </p>
 
           <div className="overflow-x-auto">
@@ -128,23 +216,12 @@ export default function ComunidadPage() {
               <thead>
                 <tr className="border-b border-white/10">
                   <th className="py-4 pr-8 text-xs tracking-[0.2em] uppercase text-[#b88364] font-normal">Componente</th>
-                  <th className="py-4 pr-8 text-xs tracking-[0.2em] uppercase text-[#b88364] font-normal">Modelo</th>
+                  <th className="py-4 pr-8 text-xs tracking-[0.2em] uppercase text-[#b88364] font-normal">Modelo sugerido</th>
                   <th className="py-4 text-right text-xs tracking-[0.2em] uppercase text-[#b88364] font-normal">Costo est.</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {[
-                  ['Microcomputadora', 'Raspberry Pi Zero 2 W', '~$800'],
-                  ['Anemómetro + veleta', 'Sparkfun / InSpeed', '~$1,500'],
-                  ['Sensor temp/hum/presión', 'BME280', '~$150'],
-                  ['Panel solar 5W', 'Genérico', '~$400'],
-                  ['Controlador carga solar', 'TP4056 + batería Li-Ion', '~$250'],
-                  ['Gabinete estanco IP65', 'Caja plástica', '~$300'],
-                  ['Mástil + soportes', 'Tubo PVC 2m + abrazaderas', '~$350'],
-                  ['Tarjeta microSD 32GB', 'SanDisk / Kingston', '~$150'],
-                  ['Módem 4G USB', 'Huawei / ZTE (si no hay WiFi)', '~$500'],
-                  ['Cables, conectores, tornillos', 'Varios', '~$300'],
-                ].map(([comp, model, cost]) => (
+                {MATERIALES.map(([comp, model, cost]) => (
                   <tr key={comp} className="hover:bg-white/5 transition-colors">
                     <td className="py-4 pr-8 text-sm">{comp}</td>
                     <td className="py-4 pr-8 text-sm text-white/50">{model}</td>
@@ -163,9 +240,11 @@ export default function ComunidadPage() {
 
           <div className="mt-12 p-6 bg-white/5 rounded-lg border border-white/10">
             <p className="text-sm text-white/70">
-              <strong className="text-white">Meta inicial:</strong> 3 estaciones — Launch, Medio Cerro, LZ.
+              <strong className="text-white">Meta inicial:</strong> 3 estaciones — Despegue, Medio Cerro, Aterrizaje.
               <br />
-              <strong className="text-white">Presupuesto total:</strong> ~$14,100 MXN en materiales.
+              <strong className="text-white">Presupuesto total estimado:</strong> ~$14,100 MXN en materiales.
+              <br />
+              <strong className="text-white">Costo por equipo:</strong> Entre 4 y 5 jóvenes por estación.
             </p>
           </div>
         </div>
@@ -180,63 +259,35 @@ export default function ComunidadPage() {
           </h2>
 
           <div className="space-y-6">
-            {[
-              {
-                phase: 'Fase 1',
-                title: 'Taller de Electrónica Básica',
-                duration: '2 sesiones (fin de semana)',
-                desc: 'Los chavos aprenden a identificar componentes, usar protoboard, conectar sensores I²C, y armar circuitos básicos. Cada quien conecta su BME280 a la Raspberry Pi y lee temperatura en Python.',
-              },
-              {
-                phase: 'Fase 2',
-                title: 'Armado del Prototipo',
-                duration: '1 sesión',
-                desc: 'Montamos la primera estación completa sobre protoboard: Pi + anemómetro + BME280 + panel solar. Escribimos el script que toma lecturas cada minuto y las envía a una API.',
-              },
-              {
-                phase: 'Fase 3',
-                title: 'Programación y Servidor',
-                duration: '2 sesiones',
-                desc: 'Los chavos aprenden cómo funciona una API REST, cómo se mandan datos a internet, y cómo se visualizan en hangar5.onrender.com. Conceptos de Python, JSON, HTTP.',
-              },
-              {
-                phase: 'Fase 4',
-                title: 'Impermeabilización y Montaje',
-                duration: '1 sesión',
-                desc: 'Soldamos componentes en placa perforada, armamos gabinetes estancos, montamos mástiles y paneles solares. Probamos en exterior real.',
-              },
-              {
-                phase: 'Fase 5',
-                title: 'Instalación en Campo',
-                duration: '1 día por estación',
-                desc: 'Subimos al launch, medio cerro y LZ. Instalamos las 3 estaciones en sus ubicaciones definitivas. Verificamos transmisión de datos.',
-              },
-              {
-                phase: 'Fase 6',
-                title: 'Monitoreo y Mejora Continua',
-                duration: 'Permanente',
-                desc: 'Los chavos rotan turnos de mantenimiento (limpiar sensores, revisar paneles, resetear). Mejoramos el software con feedback de pilotos. Agregamos más estaciones.',
-              },
-            ].map((item) => (
-              <div key={item.phase} className="flex gap-6 p-6 bg-white rounded-lg border border-[#1b4235]/5 hover:shadow-md transition-shadow">
-                <div className="flex-shrink-0 w-16 h-16 rounded-full bg-[#b88364]/10 flex items-center justify-center">
-                  <span className="text-[#b88364] text-sm font-bold">{item.phase.split(' ')[1]}</span>
+            {FASES.map((fase) => (
+              <Link
+                key={fase.slug}
+                href={`/comunidad/${fase.slug}`}
+                className="flex gap-6 p-6 bg-white rounded-lg border border-[#1b4235]/5 hover:shadow-md hover:border-[#b88364]/20 transition-all group block"
+              >
+                <div className="flex-shrink-0 w-16 h-16 rounded-full bg-[#b88364]/10 flex items-center justify-center group-hover:bg-[#b88364]/20 transition-colors">
+                  <span className="text-[#b88364] text-lg font-bold">{fase.num}</span>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-3 mb-1">
-                    <span className="text-xs text-[#b88364] tracking-[0.2em] uppercase">{item.phase}</span>
-                    <span className="text-xs text-[#5c3d2e]/40">· {item.duration}</span>
+                    <span className="text-xs text-[#b88364] tracking-[0.2em] uppercase">Fase {fase.num}</span>
+                    <span className="text-xs text-[#5c3d2e]/40">· {fase.duration}</span>
                   </div>
-                  <h3 className="font-serif text-xl text-[#1b4235] mb-2">{item.title}</h3>
-                  <p className="text-sm text-[#5c3d2e] leading-relaxed">{item.desc}</p>
+                  <h3 className="font-serif text-xl text-[#1b4235] mb-2 group-hover:text-[#b88364] transition-colors">
+                    {fase.title}
+                  </h3>
+                  <p className="text-sm text-[#5c3d2e] leading-relaxed">{fase.desc}</p>
+                  <span className="inline-flex items-center gap-2 text-xs text-[#b88364] mt-3 tracking-wider uppercase group-hover:translate-x-1 transition-transform">
+                    Ver curso completo →
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Software Stack */}
+      {/* Stack de software */}
       <section className="py-32 bg-[#faf7f5]">
         <div className="max-w-4xl mx-auto px-6">
           <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Tecnología</p>
@@ -246,12 +297,12 @@ export default function ComunidadPage() {
 
           <div className="grid md:grid-cols-2 gap-8">
             {[
-              { title: 'Raspberry Pi OS Lite', desc: 'Linux ligero sin interfaz gráfica. Corre en microSD, consume casi nada. Ideal para correr 24/7 con panel solar.' },
-              { title: 'Python + bibliotecas', desc: 'Scripts en Python 3 para leer sensores (smbus2, gpiozero), tomar lecturas cada minuto y enviarlas como JSON a la API.' },
-              { title: 'WeeWX', desc: 'Servidor meteorológico open source. Opcional si se quiere dashboard local con gráficos, histórico y reportes.' },
-              { title: 'API en hangar5.onrender.com', desc: 'Endpoint que recibe los datos de cada estación, los guarda en base de datos y los muestra en tiempo real a pilotos.' },
-              { title: 'Supervisor / systemd', desc: 'Asegura que el script de lecturas se reinicie automáticamente si falla. Cero intervención manual.' },
-              { title: 'Dashboard web', desc: 'Página pública con viento, ráfagas, dirección y tendencia de cada punto. Accesible desde cualquier celular.' },
+              { title: 'Raspberry Pi OS Lite', desc: 'Linux ligero sin entorno gráfico. Corre en microSD, consume muy poca energía. Ideal para operar 24/7 con panel solar.' },
+              { title: 'Python 3 + bibliotecas', desc: 'Scripts en Python para leer sensores (smbus2, gpiozero). Toman lecturas cada minuto y las envían como JSON a la API.' },
+              { title: 'WeeWX (opcional)', desc: 'Servidor meteorológico de código abierto. Se puede usar si se quiere un panel de control local con gráficas, histórico y reportes.' },
+              { title: 'API en hangar5.onrender.com', desc: 'Servidor que recibe los datos de cada estación, los guarda en la base de datos y los muestra en tiempo real a los pilotos.' },
+              { title: 'Supervisor / systemd', desc: 'Asegura que el programa de lecturas se reinicie automáticamente si falla. Cero intervención manual.' },
+              { title: 'Tablero de control web', desc: 'Página pública con viento, ráfagas, dirección y tendencia de cada punto. Accesible desde cualquier teléfono celular.' },
             ].map((item) => (
               <div key={item.title} className="bg-white p-6 rounded-lg border border-[#1b4235]/5">
                 <h3 className="font-serif text-lg text-[#1b4235] mb-2">{item.title}</h3>
@@ -265,13 +316,13 @@ export default function ComunidadPage() {
       {/* Donativos */}
       <section id="donar" className="py-32 bg-[#1b4235] text-white">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Apoyá el proyecto</p>
+          <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Apoya el proyecto</p>
           <h2 className="font-serif text-5xl md:text-6xl tracking-[-0.02em] mb-8">
             Donativos
           </h2>
           <p className="text-white/60 mb-12 leading-relaxed max-w-xl mx-auto">
-            Cada peso va directo a componentes para las estaciones. Los chavos ponen el talento,
-            las ganas y el tiempo. Con tu ayuda ponemos los sensores, las placas y los paneles.
+            Cada peso va directo a componentes para las estaciones. Los jóvenes ponen el talento,
+            las ganas y el tiempo. Con tu ayuda ponemos los sensores, las placas y los paneles solares.
           </p>
 
           {error && (
@@ -286,7 +337,7 @@ export default function ComunidadPage() {
                 disabled={loading}
                 className="px-6 py-3 rounded-full border border-white/20 hover:border-[#b88364] hover:bg-[#b88364]/10 transition-all duration-300 disabled:opacity-50"
               >
-                <span className="block text-lg font-medium">${item.amount}</span>
+                <span className="block text-lg font-medium">${item.amount.toLocaleString('es-MX')}</span>
                 <span className="block text-xs text-white/50 mt-0.5">{item.label}</span>
               </button>
             ))}
@@ -294,7 +345,7 @@ export default function ComunidadPage() {
 
           <div className="flex items-center gap-3 justify-center mb-12">
             <div className="h-px w-12 bg-white/20" />
-            <span className="text-xs text-white/30 uppercase tracking-wider">o elegí tu monto</span>
+            <span className="text-xs text-white/30 uppercase tracking-wider">o elige tu monto</span>
             <div className="h-px w-12 bg-white/20" />
           </div>
 
@@ -325,16 +376,16 @@ export default function ComunidadPage() {
         </div>
       </section>
 
-      {/* CTA Participar */}
+      {/* Participá */}
       <section className="py-32 bg-[#faf7f5]">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">¿Sos del Peñón?</p>
+          <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">¿Eres de El Peñón?</p>
           <h2 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em] mb-8">
-            Participá
+            Participa
           </h2>
           <p className="text-lg text-[#5c3d2e] leading-relaxed mb-12 max-w-xl mx-auto">
-            Si vivís en El Peñón, Temascaltepec, o alrededores, y tenés entre 13 y 25 años,
-            este proyecto es para vos. No necesitás saber nada — te enseñamos todo.
+            Si vives en El Peñón, Temascaltepec o alrededores, y tienes entre 13 y 25 años,
+            este proyecto es para ti. No necesitas saber nada: te enseñamos todo.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -350,7 +401,7 @@ export default function ComunidadPage() {
               href="mailto:hangar.cinco.mexico@gmail.com?subject=Quiero%20participar%20en%20la%20Red%20Meteorol%C3%B3gica"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#1b4235]/20 hover:border-[#b88364] hover:bg-[#b88364]/5 text-[#1b4235] rounded-lg text-sm tracking-widest uppercase font-semibold transition-all duration-300"
             >
-              Email
+              Correo electrónico
             </a>
           </div>
         </div>
