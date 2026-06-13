@@ -304,7 +304,7 @@ export default async function Home() {
                   A 2 horas de CDMX y 45 min de Toluca
                 </p>
                 <div className="mt-6 pt-6 border-t border-[#1b4235]/10">
-                  <a href="https://maps.google.com/?q=El+Peñón+Temascaltepec+51305" target="_blank" rel="noopener"
+                  <a href="https://maps.app.goo.gl/Bcb1xeE3wwr4w2xv8" target="_blank" rel="noopener"
                     className="inline-flex items-center gap-2 text-sm tracking-wider uppercase text-[#b88364] hover:text-[#1b4235] transition-colors">
                     Ver en Google Maps →
                   </a>
