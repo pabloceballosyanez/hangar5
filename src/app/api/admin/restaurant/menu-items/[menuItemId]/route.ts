@@ -150,7 +150,14 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const body = await req.json();
     const parsed = updateMenuItemSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+      const flat = parsed.error.flatten();
+      const fields = Object.entries(flat.fieldErrors)
+        .filter(([, v]) => v)
+        .map(([k, v]) => `${k}: ${(v as string[]).join(', ')}`)
+        .join('; ');
+      const msg = [flat.formErrors?.join(', '), fields].filter(Boolean).join(' | ') || 'Datos inválidos';
+      console.error('[PUT validation]', JSON.stringify(flat, null, 2));
+      return NextResponse.json({ error: msg }, { status: 400 });
     }
 
     const existing = await prisma.menuItem.findUnique({ where: { id: menuItemId } });

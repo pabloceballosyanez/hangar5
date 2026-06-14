@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -112,6 +112,7 @@ export default function EditMenuItemPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -255,6 +256,8 @@ export default function EditMenuItemPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    // Prevent double-submit
+    if (saving) return;
     setError(null);
 
     if (!name.trim()) {
@@ -310,12 +313,19 @@ export default function EditMenuItemPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error ?? `Error ${res.status}`);
+        const msg = typeof data?.error === 'string'
+          ? data.error
+          : (data?.error?.fieldErrors || data?.error?.formErrors
+            ? 'Datos inválidos. Revisa los campos marcados.'
+            : `Error ${res.status}`);
+        throw new Error(msg);
       }
 
       router.push('/admin/restaurant/menu-items');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error inesperado');
+      // Scroll to error so user actually sees it
+      setTimeout(() => errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
     } finally {
       setSaving(false);
     }
@@ -368,7 +378,7 @@ export default function EditMenuItemPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <form onSubmit={handleSave} className="space-y-5">
+          <form onSubmit={(e) => e.preventDefault()} className="space-y-5">
             {/* Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -471,10 +481,10 @@ export default function EditMenuItemPage() {
                 URL de imagen <span className="text-gray-400 font-normal">(opcional)</span>
               </label>
               <input
-                type="url"
+                type="text"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://…"
+                placeholder="/img/menu/ejemplo.jpg"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -562,7 +572,7 @@ export default function EditMenuItemPage() {
 
             {/* Error */}
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+              <div ref={errorRef} className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
             )}
 
             {/* ── Modifier Groups ── */}
@@ -838,15 +848,30 @@ export default function EditMenuItemPage() {
               <button
                 type="button"
                 disabled={saving}
-                onClick={(e) => { e.preventDefault(); handleSave(e as unknown as React.FormEvent); }}
+                onClick={() => handleSave({ preventDefault: () => {} } as React.FormEvent)}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
                 {saving ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </div>
+
+            {/* Error also visible near submit button */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+            )}
           </form>
         </div>
       </div>
+
+      {/* Saving overlay for clear visual feedback */}
+      {saving && (
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg px-6 py-4 flex items-center gap-3">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />
+            <span className="text-sm font-medium text-gray-700">Guardando cambios...</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
