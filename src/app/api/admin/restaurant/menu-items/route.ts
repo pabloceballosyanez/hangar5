@@ -60,7 +60,7 @@ const createMenuItemSchema = z.object({
   description: z.string().optional().nullable(),
   basePrice: z.number().int().nonnegative(),
   prepStation: z.enum(["KITCHEN", "BAR", "COLD_STATION"]),
-  imageUrl: z.string().url().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
   isActive: z.boolean().default(true),
   estimatedPrepMinutes: z.number().int().default(10),
   sortOrder: z.number().int().default(0),

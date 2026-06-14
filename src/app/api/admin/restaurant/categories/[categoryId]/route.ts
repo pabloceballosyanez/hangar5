@@ -36,7 +36,7 @@ const updateCategorySchema = z.object({
   kind: z.enum(["FOOD", "DRINK"]).optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
-  imageUrl: z.string().url().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {

@@ -134,7 +134,7 @@ const updateMenuItemSchema = z.object({
   description: z.string().optional().nullable(),
   basePrice: z.number().int().nonnegative().optional(),
   prepStation: z.enum(["KITCHEN", "BAR", "COLD_STATION"]).optional(),
-  imageUrl: z.string().url().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   estimatedPrepMinutes: z.number().int().optional(),
   sortOrder: z.number().int().optional(),

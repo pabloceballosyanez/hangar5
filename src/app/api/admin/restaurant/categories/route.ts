@@ -27,7 +27,7 @@ const createCategorySchema = z.object({
   kind: z.enum(["FOOD", "DRINK"]),
   sortOrder: z.number().int().default(0),
   isActive: z.boolean().default(true),
-  imageUrl: z.string().url().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
 });
 
 export async function POST(req: NextRequest) {
