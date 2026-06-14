@@ -181,6 +181,9 @@ export default function EditMenuItemPage() {
       }
     }
     load();
+    // Safety timeout: never get stuck on loading
+    const timeout = setTimeout(() => setLoading(false), 20_000);
+    return () => clearTimeout(timeout);
   }, [menuItemId]);
 
   function addVariant() {
@@ -835,6 +838,7 @@ export default function EditMenuItemPage() {
               <button
                 type="submit"
                 disabled={saving}
+                onClick={(e) => { e.preventDefault(); handleSave(e as unknown as React.FormEvent); }}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
                 {saving ? 'Guardando...' : 'Guardar cambios'}
