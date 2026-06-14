@@ -836,7 +836,7 @@ export default function EditMenuItemPage() {
                 {deleting ? 'Desactivando...' : 'Desactivar'}
               </button>
               <button
-                type="submit"
+                type="button"
                 disabled={saving}
                 onClick={(e) => { e.preventDefault(); handleSave(e as unknown as React.FormEvent); }}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
