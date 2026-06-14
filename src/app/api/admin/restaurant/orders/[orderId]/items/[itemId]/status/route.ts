@@ -55,7 +55,7 @@ export async function PUT(
       });
 
       const allDoneOrCancelled = allItems.every(
-        (i) => i.status === "READY" || i.status === "CANCELLED"
+        (i) => i.status === "READY" || i.status === "SERVED" || i.status === "CANCELLED"
       );
       const anyReady = allItems.some((i) => i.status === "READY");
 
@@ -110,9 +110,9 @@ export async function PUT(
           where: { id: orderId },
           select: { status: true },
         });
-        if (latestOrder?.status === "READY") {
+        if (latestOrder && ["PLACED", "IN_KITCHEN", "READY"].includes(latestOrder.status)) {
           await tx.orderStatusEvent.create({
-            data: { orderId, fromStatus: "READY", toStatus: "SERVED" },
+            data: { orderId, fromStatus: latestOrder.status, toStatus: "SERVED" },
           });
           await tx.order.update({
             where: { id: orderId },
