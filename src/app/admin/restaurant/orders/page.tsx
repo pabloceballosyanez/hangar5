@@ -94,7 +94,7 @@ async function advanceOrderStatus(orderId: string, newStatus: string, paymentMet
   }
 }
 
-async function deliverOrderItems(orderId: string): Promise<void> {
+async function deliverOrderItems(orderId: string): Promise<number> {
   // confirm-delivery marks READY items as SERVED and auto-advances order to SERVED when all items are done
   const res = await fetch(`/api/restaurant/orders/${orderId}/confirm-delivery`, {
     method: 'POST',
@@ -103,6 +103,8 @@ async function deliverOrderItems(orderId: string): Promise<void> {
     const d = await res.json().catch(() => ({}));
     throw new Error((d as { error?: string }).error ?? 'Error');
   }
+  const data = await res.json();
+  return (data as { itemsMarked?: number }).itemsMarked ?? 0;
 }
 
 export default function OrdersPage() {
@@ -111,6 +113,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
   const fetchOrders = async () => {
     try {
@@ -168,6 +171,13 @@ export default function OrdersPage() {
         <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 flex items-center justify-between">
           <span>{actionError}</span>
           <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600">✕</button>
+        </div>
+      )}
+
+      {actionSuccess && (
+        <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700 flex items-center justify-between animate-pulse">
+          <span>{actionSuccess}</span>
+          <button onClick={() => setActionSuccess(null)} className="text-green-400 hover:text-green-600">✕</button>
         </div>
       )}
 
@@ -330,7 +340,13 @@ export default function OrdersPage() {
                                 <button
                                   onClick={async () => {
                                     setActionLoading(order.id);
-                                    try { await deliverOrderItems(order.id); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
+                                    setActionSuccess(null);
+                                    setActionError(null);
+                                    try {
+                                      const count = await deliverOrderItems(order.id);
+                                      setActionSuccess(`✅ ${count} ítem(s) entregado(s) — ${readyCount - count} pendiente(s) en cocina`);
+                                      await fetchOrders();
+                                    } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
                                     setActionLoading(null);
                                   }}
                                   className="px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-md hover:bg-emerald-200 transition-colors"
@@ -354,7 +370,9 @@ export default function OrdersPage() {
                               💰 Pagar
                             </button>
                           )}
-                          {order.status !== 'AWAITING_PAYMENT' && order.status !== 'READY' && order.status !== 'SERVED' && order.status !== 'PAID' && order.status !== 'CANCELLED' && (
+                          {order.status !== 'AWAITING_PAYMENT' && order.status !== 'READY' && order.status !== 'SERVED' && order.status !== 'PAID' && order.status !== 'CANCELLED' &&
+                            // Hide "Avanzar" for IN_KITCHEN when items are still pending (Fix #1 blocks it, cook handles it via KDS)
+                            !(order.status === 'IN_KITCHEN' && order.orderItems.some(i => i.status !== 'READY' && i.status !== 'SERVED' && i.status !== 'CANCELLED')) && (
                             <button
                               onClick={async () => {
                                 setActionLoading(order.id);
