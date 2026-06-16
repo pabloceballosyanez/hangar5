@@ -55,6 +55,26 @@ export async function PUT(
       );
     }
 
+    // 🔒 Validate IN_KITCHEN → READY: all items must be READY/SERVED/CANCELLED
+    if (currentStatus === "IN_KITCHEN" && newStatus === "READY") {
+      const items = await prisma.orderItem.findMany({
+        where: { orderId },
+        select: { id: true, status: true },
+      });
+      const pendingItems = items.filter(
+        (i) => i.status !== "READY" && i.status !== "SERVED" && i.status !== "CANCELLED"
+      );
+      if (pendingItems.length > 0) {
+        return NextResponse.json(
+          {
+            error: `No se puede forzar a READY: ${pendingItems.length} ítem(s) aún no están listos`,
+            pendingItems: pendingItems.map((i) => i.id),
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     const result = await prisma.$transaction(async (tx) => {
       const statusEvent = await tx.orderStatusEvent.create({
         data: {

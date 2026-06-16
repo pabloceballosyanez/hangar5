@@ -58,6 +58,7 @@ const TAB_FILTER: Record<string, string[]> = {
 interface OrderItem {
   id: string;
   quantity: number;
+  status: string;
   menuItem: { name: string; prepStation: string };
   variant: { name: string } | null;
   modifiers: { modifierName: string; priceDelta: number }[];
@@ -322,18 +323,23 @@ export default function OrdersPage() {
                           ❌ Cancelar
                         </button>
                       )}
-                      {order.status === 'READY' && (
-                            <button
-                              onClick={async () => {
-                                setActionLoading(order.id);
-                                try { await deliverOrderItems(order.id); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
-                                setActionLoading(null);
-                              }}
-                              className="px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-md hover:bg-emerald-200 transition-colors"
-                              title="Marcar como entregado"
-                            >
-                              ✅ Entregar
-                            </button>
+                      {(order.orderItems.some(i => i.status === 'READY')) && (
+                            (() => {
+                              const readyCount = order.orderItems.filter(i => i.status === 'READY').length;
+                              return (
+                                <button
+                                  onClick={async () => {
+                                    setActionLoading(order.id);
+                                    try { await deliverOrderItems(order.id); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
+                                    setActionLoading(null);
+                                  }}
+                                  className="px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-md hover:bg-emerald-200 transition-colors"
+                                  title={`Entregar ${readyCount} ítem(es) listo(s)`}
+                                >
+                                  ✅ Entregar ({readyCount})
+                                </button>
+                              );
+                            })()
                           )}
                           {order.status === 'SERVED' && (
                             <button

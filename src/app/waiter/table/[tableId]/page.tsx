@@ -449,11 +449,17 @@ export default function WaiterTablePage() {
 
   const deliverReadyItems = async (orderId: string) => {
     setDelivering(true);
+    setError(null);
     try {
       const fres = await fetch(`/api/admin/restaurant/orders/${orderId}`);
       if (!fres.ok) throw new Error('Error al obtener orden');
       const order = await fres.json() as Order;
       const readyIds = (order.orderItems || []).filter((i: OrderItem) => i.status === 'READY').map((i: OrderItem) => i.id);
+      if (readyIds.length === 0) {
+        setError('No hay ítems listos para entregar en esta orden.');
+        setExpandOrder(null);
+        return;
+      }
       for (const itemId of readyIds) {
         await fetch(`/api/admin/restaurant/orders/${orderId}/items/${itemId}/status`, {
           method: 'PUT', headers: { 'Content-Type': 'application/json' },

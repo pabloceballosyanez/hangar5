@@ -8,7 +8,7 @@ export async function GET() {
   try {
     const orders = await prisma.order.findMany({
       where: {
-        status: { in: ["PLACED", "IN_KITCHEN"] },
+        status: { in: ["PLACED", "IN_KITCHEN", "READY"] },
       },
       orderBy: { createdAt: "asc" }, // FIFO
       include: {
