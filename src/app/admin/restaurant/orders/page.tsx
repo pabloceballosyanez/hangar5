@@ -344,7 +344,7 @@ export default function OrdersPage() {
                                     setActionError(null);
                                     try {
                                       const count = await deliverOrderItems(order.id);
-                                      setActionSuccess(`✅ ${count} ítem(s) entregado(s) — ${readyCount - count} pendiente(s) en cocina`);
+                                      setActionSuccess(`✅ ${count} ítem(s) entregado(s)`);
                                       await fetchOrders();
                                     } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
                                     setActionLoading(null);
