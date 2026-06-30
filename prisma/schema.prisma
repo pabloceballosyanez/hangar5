@@ -24,6 +24,7 @@ model Item {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   bookings    Booking[]
+  calendars   ExternalCalendar[]
 }
 
 model Booking {
@@ -401,6 +402,37 @@ model StaffClock {
   type      String
 
   @@index([staffId, timestamp])
+}
+
+// ============================================================
+// === iCal SYNC =============================================
+// ============================================================
+
+model ExternalCalendar {
+  id        String          @id @default(cuid())
+  itemId    String
+  item      Item            @relation(fields: [itemId], references: [id])
+  name      String
+  url       String
+  lastSync  DateTime?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  blocks    ExternalBlock[]
+
+  @@unique([itemId, name])
+}
+
+model ExternalBlock {
+  id         String           @id @default(cuid())
+  calendarId String
+  calendar   ExternalCalendar @relation(fields: [calendarId], references: [id])
+  startDate  DateTime
+  endDate    DateTime
+  uid        String?
+  createdAt  DateTime         @default(now())
+
+  @@index([calendarId, startDate, endDate])
+  @@unique([calendarId, uid])
 }
 
 // ============================================================

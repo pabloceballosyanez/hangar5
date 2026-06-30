@@ -259,6 +259,9 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
             <a href="/admin/restaurant" className="text-[10px] uppercase tracking-wider border border-[#e07a5f]/40 text-[#e07a5f] px-3 py-1 rounded hover:bg-[#e07a5f]/10 transition-colors font-medium">
               🍽️ Restaurante
             </a>
+            <a href="/admin/aventura/calendarios" className="text-[10px] uppercase tracking-wider border border-[#3b82f6]/40 text-[#3b82f6] px-3 py-1 rounded hover:bg-[#3b82f6]/10 transition-colors font-medium">
+              📡 iCal Sync
+            </a>
             <a href="/recetario" className="text-[10px] uppercase tracking-wider border border-[#b88364]/40 text-[#b88364] px-3 py-1 rounded hover:bg-[#b88364]/10 transition-colors font-medium">
               📋 Recetario
             </a>

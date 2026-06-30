@@ -14,24 +14,12 @@ export async function GET(req: NextRequest) {
   const startDate = new Date(start);
   const endDate = new Date(end);
 
-  // For activities / single-day bookings (same start and end), check if that date is taken
-  if (startDate.getTime() === endDate.getTime()) {
-    const conflicts = await prisma.booking.findMany({
-      where: {
-        itemId,
-        status: { notIn: ["cancelled"] },
-        startDate: { gte: startDate },
-        endDate: { lte: endDate },
-      },
-    });
-    return NextResponse.json({ available: conflicts.length === 0, conflicts: conflicts.length });
-  }
-
   if (endDate <= startDate) {
     return NextResponse.json({ available: false, reason: "End date must be after start date" });
   }
 
-  const conflicts = await prisma.booking.findMany({
+  // Check Hangar5 bookings
+  const bookingConflicts = await prisma.booking.findMany({
     where: {
       itemId,
       status: { notIn: ["cancelled"] },
@@ -40,5 +28,20 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  return NextResponse.json({ available: conflicts.length === 0, conflicts: conflicts.length });
+  // Check external blocks (Airbnb/Booking.com)
+  const externalConflicts = await prisma.externalBlock.findMany({
+    where: {
+      calendar: { itemId },
+      startDate: { lt: endDate },
+      endDate: { gt: startDate },
+    },
+  });
+
+  const totalConflicts = bookingConflicts.length + externalConflicts.length;
+  return NextResponse.json({
+    available: totalConflicts === 0,
+    conflicts: totalConflicts,
+    bookingConflicts: bookingConflicts.length,
+    externalConflicts: externalConflicts.length,
+  });
 }
