@@ -10,7 +10,7 @@ export default async function CalendarsPage() {
   if (c.get('hangar5_admin_session')?.value !== 'true') redirect('/admin/login');
 
   const items = await prisma.item.findMany({
-    where: { active: true },
+    where: { active: true, type: { in: ['cabana', 'glamping'] } },
     orderBy: [{ type: 'asc' }, { name: 'asc' }],
   });
 
