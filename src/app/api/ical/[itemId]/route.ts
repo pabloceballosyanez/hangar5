@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-function formatICAL(date: Date): string {
+// Format date as iCal DATE value (YYYYMMDD) — Airbnb/Booking expect date-only, no time
+function formatICALDate(date: Date): string {
   const d = new Date(date);
-  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}${m}${day}`;
+}
+
+// Format as iCal DATE-TIME UTC (YYYYMMDDTHHMMSSZ)
+function formatICALDateTime(date: Date): string {
+  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 }
 
 function escapeICAL(text: string): string {
@@ -11,22 +20,23 @@ function escapeICAL(text: string): string {
 }
 
 function generateICalFeed(itemName: string, events: { uid: string; start: Date; end: Date; summary: string }[]): string {
+  const now = formatICALDateTime(new Date());
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//Hangar5//Reservas//ES',
     'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    `X-WR-CALNAME:Hangar5 - ${escapeICAL(itemName)}`,
+    'X-WR-CALNAME:Hangar5 - ' + escapeICAL(itemName),
     'X-WR-TIMEZONE:America/Mexico_City',
   ];
 
   for (const ev of events) {
     lines.push(
       'BEGIN:VEVENT',
+      `DTSTAMP:${now}`,
       `UID:${ev.uid}`,
-      `DTSTART:${formatICAL(ev.start)}`,
-      `DTEND:${formatICAL(ev.end)}`,
+      `DTSTART;VALUE=DATE:${formatICALDate(ev.start)}`,
+      `DTEND;VALUE=DATE:${formatICALDate(ev.end)}`,
       `SUMMARY:${escapeICAL(ev.summary)}`,
       'TRANSP:OPAQUE',
       'END:VEVENT'
