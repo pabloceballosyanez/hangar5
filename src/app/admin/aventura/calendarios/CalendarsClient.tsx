@@ -163,7 +163,7 @@ export default function CalendarsClient({ items, calendars: initialCalendars }: 
                   <code style={{ fontSize: '0.75rem', wordBreak: 'break-all' }}>{cal.url}</code>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>
-                  {cal._count.blocks} bloques sincronizados
+                  {cal._count?.blocks ?? 0} bloques sincronizados
                   {cal.lastSync ? ` · Último sync: ${new Date(cal.lastSync).toLocaleString('es-MX')}` : ' · Sin sincronizar'}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>

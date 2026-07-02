@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
 
   const calendar = await prisma.externalCalendar.create({
     data: { itemId, name, url },
-    include: { item: { select: { id: true, name: true, slug: true } } },
+    include: { item: { select: { id: true, name: true, slug: true, type: true } } },
   });
 
-  return NextResponse.json(calendar, { status: 201 });
+  return NextResponse.json({ ...calendar, _count: { blocks: 0 } }, { status: 201 });
 }
