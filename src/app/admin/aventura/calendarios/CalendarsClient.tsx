@@ -143,7 +143,7 @@ export default function CalendarsClient({ items, calendars: initialCalendars }: 
             <p><strong>📤 Exportar desde Hangar5:</strong></p>
             {items.map(i => (
               <code key={i.id} style={{ display: 'inline-block', margin: '0.25rem 0.5rem', padding: '0.25rem 0.5rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.75rem' }}>
-                https://hangar5.onrender.com/api/ical/{i.id} ({i.name})
+                https://hangar5.onrender.com/api/ical/{i.id}.ics ({i.name})
               </code>
             ))}
           </div>
@@ -169,7 +169,7 @@ export default function CalendarsClient({ items, calendars: initialCalendars }: 
                 <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>
                   📤 Export iCal:{' '}
                   <code style={{ background: '#f1f5f9', padding: '0.15rem 0.4rem', borderRadius: '3px' }}>
-                    https://hangar5.onrender.com/api/ical/{cal.itemId}
+                    https://hangar5.onrender.com/api/ical/{cal.itemId}.ics
                   </code>
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function CalendarsClient({ items, calendars: initialCalendars }: 
         <ol style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.25rem', color: '#666' }}>
           <li>En Airbnb, ve a <strong>Anuncios → Disponibilidad → Sincronización de calendario</strong></li>
           <li>Copia la URL de <strong>Exportar calendario</strong> y pégala acá como conexión "Airbnb"</li>
-          <li>En esa misma página, pega la URL de exportación de Hangar5 (<code>/api/ical/[id]</code>) en <strong>Importar calendario</strong></li>
+          <li>En esa misma página, pega la URL de exportación de Hangar5 (<code>/api/ical/[id].ics</code>) en <strong>Importar calendario</strong></li>
         </ol>
         <strong style={{ display: 'block', marginTop: '0.75rem' }}>📘 Cómo conectar con Booking.com:</strong>
         <ol style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.25rem', color: '#666' }}>

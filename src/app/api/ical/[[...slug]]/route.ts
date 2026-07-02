@@ -49,9 +49,11 @@ function generateICalFeed(itemName: string, events: { uid: string; start: Date; 
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ itemId: string }> }
+  { params }: { params: Promise<{ slug?: string[] }> }
 ) {
-  const { itemId } = await params;
+  const { slug } = await params;
+  const raw = slug?.[0] || '';
+  const itemId = raw.endsWith('.ics') ? raw.slice(0, -4) : raw;
 
   const item = await prisma.item.findUnique({
     where: { id: itemId },
