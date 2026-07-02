@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 
 async function isAdmin() {
   const c = await cookies();
-  return c.get('hangar5_admin_session')?.value === 'authenticated';
+  return c.get('hangar5_admin_session')?.value === 'true';
 }
 
 interface ParsedEvent {
@@ -113,7 +113,7 @@ async function isAdminOrSync(req: NextRequest) {
   if (auth === `Bearer ${process.env.ICAL_SYNC_SECRET || 'hangar5-ical-sync-2026'}`) return true;
   // Or admin session
   const c = await cookies();
-  return c.get('hangar5_admin_session')?.value === 'authenticated';
+  return c.get('hangar5_admin_session')?.value === 'true';
 }
 
 export async function POST(req: NextRequest) {

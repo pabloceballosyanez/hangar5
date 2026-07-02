@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 
 async function isAdmin() {
   const c = await cookies();
-  return c.get('hangar5_admin_session')?.value === 'authenticated';
+  return c.get('hangar5_admin_session')?.value === 'true';
 }
 
 // GET /api/admin/ical — list all calendars
