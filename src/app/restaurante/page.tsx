@@ -131,7 +131,7 @@ export default function RestaurantePage() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url(https://source.unsplash.com/1600x900/?mountain,sunset,adventure)',
+            backgroundImage: 'url(/img/hero-bg.jpg)',
             backgroundPosition: 'center',
           }}
         />
