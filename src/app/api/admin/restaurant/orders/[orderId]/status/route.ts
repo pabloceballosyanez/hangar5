@@ -138,6 +138,44 @@ export async function PUT(
         }
       }
 
+      // Auto-advance to PAID if payment is already completed
+      if (newStatus === "SERVED") {
+        const hasCompletedPayment = updated.payments?.some(
+          (p) => p.status === "COMPLETED"
+        );
+        if (hasCompletedPayment) {
+          await tx.orderStatusEvent.create({
+            data: { orderId, fromStatus: "SERVED", toStatus: "PAID" },
+          });
+          await tx.order.update({
+            where: { id: orderId },
+            data: { status: "PAID" },
+          });
+          // Close session if all orders PAID/CANCELLED
+          if (updated.serviceSessionId) {
+            const sessionOrders = await tx.order.findMany({
+              where: { serviceSessionId: updated.serviceSessionId },
+              select: { status: true },
+            });
+            const allDone = sessionOrders.every(
+              (o) => o.status === "PAID" || o.status === "CANCELLED"
+            );
+            if (allDone) {
+              const s = await tx.serviceSession.findUnique({
+                where: { id: updated.serviceSessionId },
+                select: { status: true },
+              });
+              if (s?.status === "OPEN") {
+                await tx.serviceSession.update({
+                  where: { id: updated.serviceSessionId },
+                  data: { status: "CLOSED", closedAt: new Date() },
+                });
+              }
+            }
+          }
+        }
+      }
+
       return { order: updated, statusEvent };
     });
 
