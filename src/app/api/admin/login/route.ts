@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 const ADMIN_PW = process.env.ADMIN_PASSWORD;
 if (!ADMIN_PW) {
   console.error("ADMIN_PASSWORD env var is not set!");
 }
 const COOKIE_NAME = "hangar5_admin_session";
+
+function getClientIP(req: NextRequest): string {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
 
 function baseUrl(req: NextRequest): string {
   // Use forwarded headers from Cloudflare/Render proxy
@@ -14,6 +19,22 @@ function baseUrl(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 attempts per 15 min per IP
+  const ip = getClientIP(req);
+  const limit = rateLimit(`admin-login:${ip}`, 5, 900);
+
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Demasiados intentos. Intenta de nuevo más tarde." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(limit.resetIn),
+        },
+      }
+    );
+  }
+
   try {
     const contentType = req.headers.get("content-type") || "";
     let password = "";
@@ -27,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (password !== ADMIN_PW) {
-      return NextResponse.redirect(new URL("/admin/login?error=1", baseUrl(req)));
+      return NextResponse.redirect(new URL(`/admin/login?error=1`, baseUrl(req)));
     }
 
     const response = NextResponse.redirect(new URL("/admin", baseUrl(req)));

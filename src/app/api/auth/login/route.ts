@@ -1,15 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
+function getClientIP(req: NextRequest): string {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+
 // POST /api/auth/login — login por PIN
 export async function POST(req: NextRequest) {
+  const ip = getClientIP(req);
+
   try {
     const { staffId, pin } = await req.json();
 
     if (!staffId || !pin) {
       return NextResponse.json({ error: "ID y PIN requeridos" }, { status: 400 });
+    }
+
+    // Rate limit: 5 attempts per 15 min per IP
+    const limit = rateLimit(`staff-login:${ip}`, 5, 900);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: `Demasiados intentos. Intenta en ${limit.resetIn} segundos.` },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limit.resetIn) },
+        }
+      );
     }
 
     const staff = await prisma.staff.findUnique({ where: { id: staffId } });
