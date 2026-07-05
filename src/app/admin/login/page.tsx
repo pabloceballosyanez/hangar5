@@ -2,7 +2,10 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
-const ADMIN_PW = "hangar5admin2026";
+const ADMIN_PW = process.env.ADMIN_PASSWORD;
+if (!ADMIN_PW) {
+  console.error("ADMIN_PASSWORD env var is not set!");
+}
 const COOKIE_NAME = "hangar5_admin_session";
 
 export const dynamic = "force-dynamic";
