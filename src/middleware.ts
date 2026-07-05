@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateAdminSession } from "@/lib/auth";
 
 // Rutas públicas (no requieren auth)
-const PUBLIC_ADMIN_PATHS = ["/admin/login", "/api/admin/login"];
+const PUBLIC_ADMIN_PATHS = ["/admin/login", "/api/admin/login", "/api/admin/ical/sync"];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
