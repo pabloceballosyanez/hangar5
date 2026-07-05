@@ -80,6 +80,7 @@ function DryRunButton() {
         <button onClick={() => setState('confirm')} className="text-xs uppercase tracking-wider bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded hover:bg-red-100 transition-colors font-medium">
           🧹 Preparar Dry Run
         </button>
+        <span className="text-[10px] text-gray-400 ml-1">Solo borra órdenes y clientes. Recetas y menú intactos.</span>
       )}
     </>
   );
