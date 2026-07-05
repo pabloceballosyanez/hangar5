@@ -224,7 +224,7 @@ function CuentaSheet({ session, onClose, onPaid }: { session: Session; onClose: 
   const [payError, setPayError] = useState<string | null>(null);
   const activeOrders = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
   const grandTotal = activeOrders.reduce((s, o) => s + o.total, 0);
-  const canCredit = session.customer?.hasCredit === true;
+  const canCredit = session.customer != null;
 
   const handlePay = async (method: string) => {
     setPaying(true); setPayError(null);
