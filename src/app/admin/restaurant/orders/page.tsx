@@ -39,6 +39,20 @@ const sourceLabel: Record<string, string> = {
   ADMIN: "Admin",
 };
 
+const paymentMethodLabel: Record<string, string> = {
+  CASH: "💵 Efectivo",
+  CARD: "💳 Tarjeta",
+  TRANSFER: "🏦 Transferencia",
+  MP: "💳 MercadoPago",
+  ON_ACCOUNT: "📒 Crédito",
+};
+
+const paymentOptions = [
+  { method: "CASH", label: "💵 Efectivo", color: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200" },
+  { method: "CARD", label: "💳 Tarjeta", color: "bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200" },
+  { method: "ON_ACCOUNT", label: "📒 Crédito", color: "bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200", requiresCustomer: true },
+];
+
 const tabs = [
   { key: "", label: "Todas" },
   { key: "active", label: "Activas" },
@@ -67,7 +81,10 @@ interface OrderItem {
 
 interface Order {
   id: string;
-  serviceSession: { table: { number: string; name: string | null } | null } | null;
+  serviceSession: {
+    table: { number: string; name: string | null } | null;
+    customer: { id: string; name: string; hasCredit: boolean } | null;
+  } | null;
   table: { number: string; name: string | null } | null;
   customerName: string | null;
   source: string;
@@ -114,6 +131,7 @@ export default function OrdersPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [selectingPayment, setSelectingPayment] = useState<string | null>(null);
 
   const fetchOrders = async () => {
     try {
@@ -308,7 +326,7 @@ export default function OrdersPage() {
                             ? "bg-green-100 text-green-700 border-green-300"
                             : "bg-yellow-100 text-yellow-700 border-yellow-300"
                         }`}>
-                          {order.payments[0].method === "CASH" ? "💵 Efectivo" : order.payments[0].method === "MP" ? "💳 Tarjeta" : order.payments[0].method}
+                          {paymentMethodLabel[order.payments[0].method] || order.payments[0].method}
                           {order.payments[0].status === "COMPLETED" ? " ✓" : " ⏳"}
                         </span>
                       ) : (
@@ -357,18 +375,52 @@ export default function OrdersPage() {
                               );
                             })()
                           )}
-                          {order.status === 'SERVED' && (
+                          {order.status === 'SERVED' && selectingPayment !== order.id && (
                             <button
-                              onClick={async () => {
-                                setActionLoading(order.id);
-                                try { await advanceOrderStatus(order.id, 'PAID', 'CASH'); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
-                                setActionLoading(null);
-                              }}
+                              onClick={() => setSelectingPayment(order.id)}
                               className="px-2 py-1 text-xs font-medium bg-violet-100 text-violet-700 border border-violet-300 rounded-md hover:bg-violet-200 transition-colors"
-                              title="Marcar como pagado"
+                              title="Seleccionar método de pago"
                             >
                               💰 Pagar
                             </button>
+                          )}
+                          {order.status === 'SERVED' && selectingPayment === order.id && (
+                            <div className="flex flex-col gap-1">
+                              {paymentOptions.map((opt) => {
+                                const disabled = opt.requiresCustomer && !order.serviceSession?.customer?.hasCredit;
+                                return (
+                                  <button
+                                    key={opt.method}
+                                    disabled={disabled}
+                                    onClick={async () => {
+                                      setActionLoading(order.id);
+                                      setSelectingPayment(null);
+                                      try {
+                                        await advanceOrderStatus(order.id, 'PAID', opt.method);
+                                        await fetchOrders();
+                                      } catch (e) {
+                                        setActionError(e instanceof Error ? e.message : 'Error');
+                                      }
+                                      setActionLoading(null);
+                                    }}
+                                    className={`px-2 py-1 text-xs font-medium border rounded-md transition-colors ${
+                                      disabled
+                                        ? 'bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed'
+                                        : opt.color
+                                    }`}
+                                    title={disabled ? 'Cliente sin crédito habilitado' : opt.label}
+                                  >
+                                    {opt.label}{disabled ? ' 🔒' : ''}
+                                  </button>
+                                );
+                              })}
+                              <button
+                                onClick={() => setSelectingPayment(null)}
+                                className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-600"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
                           )}
                           {order.status !== 'AWAITING_PAYMENT' && order.status !== 'READY' && order.status !== 'SERVED' && order.status !== 'PAID' && order.status !== 'CANCELLED' &&
                             // Hide "Avanzar" for IN_KITCHEN when items are still pending (Fix #1 blocks it, cook handles it via KDS)

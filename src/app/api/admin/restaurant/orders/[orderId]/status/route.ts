@@ -90,19 +90,44 @@ export async function PUT(
         include: {
           orderItems: true,
           payments: true,
-          serviceSession: { include: { table: true } },
+          serviceSession: { include: { table: true, customer: true } },
           table: true,
         },
       });
 
       // When PAID: create payment only if paymentMethod is specified
       if (newStatus === "PAID" && paymentMethod) {
+        // ON_ACCOUNT: create ledger entry for the customer
+        if (paymentMethod === "ON_ACCOUNT") {
+          const customerId = updated.serviceSession?.customerId;
+          if (!customerId) {
+            throw new Error("No hay cliente asociado para cargo a cuenta");
+          }
+          const customer = await tx.customer.findUnique({ where: { id: customerId } });
+          if (!customer?.hasCredit) {
+            throw new Error("El cliente no tiene crédito habilitado");
+          }
+          await tx.customerLedgerEntry.create({
+            data: {
+              customerId,
+              amount: order.total,
+              type: "CHARGE",
+              serviceSessionId: updated.serviceSessionId,
+              note: `Orden #${order.id.slice(-6)}`,
+            },
+          });
+        }
+
         // Complete any pending payment first
         const pendingPayment = updated.payments.find((p) => p.status === "PENDING");
         if (pendingPayment) {
           await tx.payment.update({
             where: { id: pendingPayment.id },
-            data: { status: "COMPLETED", paidAt: new Date() },
+            data: {
+              status: "COMPLETED",
+              paidAt: new Date(),
+              method: pendingPayment.method === "MP" ? paymentMethod : pendingPayment.method,
+            },
           });
         } else {
           await tx.payment.create({
@@ -112,6 +137,9 @@ export async function PUT(
               method: paymentMethod,
               status: "COMPLETED",
               paidAt: new Date(),
+              ...(paymentMethod === "ON_ACCOUNT" && updated.serviceSession?.customerId
+                ? { customerId: updated.serviceSession.customerId }
+                : {}),
             },
           });
         }
