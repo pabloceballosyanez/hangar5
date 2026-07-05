@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { signAdminSession } from "@/lib/auth";
 
 const ADMIN_PW = process.env.ADMIN_PASSWORD;
 if (!ADMIN_PW) {
@@ -51,8 +52,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.redirect(new URL(`/admin/login?error=1`, baseUrl(req)));
     }
 
+    const token = signAdminSession();
     const response = NextResponse.redirect(new URL("/admin", baseUrl(req)));
-    response.cookies.set(COOKIE_NAME, "true", {
+    response.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",

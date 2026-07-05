@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { validateAdminSession } from "@/lib/auth";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +24,8 @@ function getTodayBounds() {
 
 export default async function RestaurantDashboardPage() {
   const cookieStore = await cookies();
-  if (cookieStore.get("hangar5_admin_session")?.value !== "true") {
+  const session = cookieStore.get("hangar5_admin_session")?.value;
+  if (!session || (session !== "true" && !validateAdminSession(session))) {
     redirect("/admin/login");
   }
 

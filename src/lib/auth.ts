@@ -27,7 +27,7 @@ function signJWT(payload: object): string {
   return `${header}.${body}.${sig}`;
 }
 
-function verifyJWT(token: string): object | null {
+export function verifyJWT(token: string): object | null {
   try {
     const [header, body, sig] = token.split(".");
     const expected = crypto.createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest("base64url");
@@ -70,11 +70,84 @@ export function getCustomerSession(req: NextRequest): CustomerSession | null {
 
 export { CUSTOMER_COOKIE };
 
-// Leer sesión desde cookie (staff)
+// ─── Admin auth ─────────────────────────────────────────────────────────────
+
+const ADMIN_COOKIE = "hangar5_admin_session";
+
+export function signAdminSession(): string {
+  return signJWT({ role: "admin" });
+}
+
+export function validateAdminSession(token: string): boolean {
+  const payload = verifyJWT(token);
+  if (!payload || typeof payload !== "object") return false;
+  const p = payload as Record<string, unknown>;
+  return p.role === "admin";
+}
+
+export function getAdminSession(req: NextRequest): { role: string } | null {
+  try {
+    const token = req.cookies.get(ADMIN_COOKIE)?.value;
+    if (!token) return null;
+    const payload = verifyJWT(token);
+    if (!payload || typeof payload !== "object") return null;
+    const p = payload as Record<string, unknown>;
+    if (p.role !== "admin") return null;
+    return { role: "admin" };
+  } catch {
+    return null;
+  }
+}
+
+export { ADMIN_COOKIE };
+
+// ─── Staff auth ─────────────────────────────────────────────────────────────
+
+export const STAFF_COOKIE = "hangar5_session";
+
+export function signStaffSession(staff: StaffSession): string {
+  return signJWT(staff as object);
+}
+
+export function getStaffSession(req: NextRequest): StaffSession | null {
+  try {
+    const token = req.cookies.get(STAFF_COOKIE)?.value;
+    if (!token) return null;
+    const payload = verifyJWT(token);
+    if (!payload || typeof payload !== "object") return null;
+    const p = payload as Record<string, unknown>;
+    if (
+      typeof p.staffId !== "string" ||
+      typeof p.name !== "string" ||
+      typeof p.role !== "string"
+    )
+      return null;
+    return { staffId: p.staffId, name: p.name, role: p.role as StaffRole };
+  } catch {
+    return null;
+  }
+}
+
+// Legacy: leer sesión desde cookie (staff) — mantiene compatibilidad con sesiones base64 viejas
 export function getSession(req: NextRequest): StaffSession | null {
   try {
     const cookie = req.cookies.get("hangar5_session")?.value;
     if (!cookie) return null;
+    // Try JWT first (new format)
+    try {
+      const payload = verifyJWT(cookie);
+      if (payload && typeof payload === "object") {
+        const p = payload as Record<string, unknown>;
+        if (
+          typeof p.staffId === "string" &&
+          typeof p.name === "string" &&
+          typeof p.role === "string"
+        ) {
+          return { staffId: p.staffId, name: p.name, role: p.role as StaffRole };
+        }
+      }
+    } catch { /* fall through to legacy format */ }
+    // Legacy base64 format
     return JSON.parse(Buffer.from(cookie, "base64").toString("utf-8"));
   } catch {
     return null;

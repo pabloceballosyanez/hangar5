@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { validateAdminSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 // POST — actualizar imageUrl por nombre de MenuItem
-const ADMIN_PW = "***";
+const ADMIN_PW = process.env.ADMIN_PASSWORD;
 
 export async function POST(req: NextRequest) {
   const adminSession = req.cookies.get("hangar5_admin_session")?.value;
   const adminHeader = req.headers.get("x-admin-password");
-  if ((!adminSession || adminSession !== "true") && adminHeader !== ADMIN_PW) {
+  if ((!adminSession || (adminSession !== "true" && !validateAdminSession(adminSession))) && adminHeader !== ADMIN_PW) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

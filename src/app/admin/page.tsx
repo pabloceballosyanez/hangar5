@@ -2,13 +2,15 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getTypeLabel, isActivity } from "@/lib/types";
+import { validateAdminSession } from "@/lib/auth";
 import AdminClient from "./AdminClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const cookieStore = await cookies();
-  if (cookieStore.get("hangar5_admin_session")?.value !== "true") {
+  const session = cookieStore.get("hangar5_admin_session")?.value;
+  if (!session || (session !== "true" && !validateAdminSession(session))) {
     redirect("/admin/login");
   }
   // Get bookings from 6 months ago to cover dashboard stats + chart

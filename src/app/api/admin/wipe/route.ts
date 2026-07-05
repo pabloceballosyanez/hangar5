@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { validateAdminSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -7,7 +8,7 @@ export const dynamic = "force-dynamic";
 // Protected by admin session cookie
 export async function POST(req: NextRequest) {
   const adminSession = req.cookies.get("hangar5_admin_session")?.value;
-  if (!adminSession || adminSession !== "true") {
+  if (!adminSession || (adminSession !== "true" && !validateAdminSession(adminSession))) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

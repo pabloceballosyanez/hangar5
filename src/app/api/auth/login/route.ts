@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
+import { hashPassword, verifyPassword, signStaffSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -37,12 +38,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Usuario no encontrado o inactivo" }, { status: 401 });
     }
 
-    if (staff.pin !== pin) {
+    // Progressive PIN migration: support both hashed and plaintext
+    const isHashed = staff.pin.includes(":");
+    let pinValid = false;
+
+    if (isHashed) {
+      pinValid = verifyPassword(pin, staff.pin);
+    } else {
+      pinValid = staff.pin === pin;
+      // Auto-migrate: hash the PIN on successful login
+      if (pinValid) {
+        await prisma.staff.update({
+          where: { id: staff.id },
+          data: { pin: hashPassword(pin) },
+        });
+      }
+    }
+
+    if (!pinValid) {
       return NextResponse.json({ error: "PIN incorrecto" }, { status: 401 });
     }
 
-    // Crear cookie de sesión con rol
-    const session = JSON.stringify({
+    // Crear cookie de sesión firmada con JWT
+    const token = signStaffSession({
       staffId: staff.id,
       name: staff.name,
       role: staff.role,
@@ -53,7 +71,7 @@ export async function POST(req: NextRequest) {
       staff: { id: staff.id, name: staff.name, role: staff.role },
     });
 
-    response.cookies.set("hangar5_session", Buffer.from(session).toString("base64"), {
+    response.cookies.set("hangar5_session", token, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -76,6 +94,21 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Intentar JWT primero (nuevo formato)
+    const { verifyJWT } = await import("@/lib/auth");
+    try {
+      const payload = verifyJWT(cookie);
+      if (payload && typeof payload === "object") {
+        const p = payload as Record<string, unknown>;
+        if (typeof p.staffId === "string") {
+          return NextResponse.json({
+            staff: { id: p.staffId, name: p.name, role: p.role },
+          });
+        }
+      }
+    } catch { /* fall through to legacy */ }
+
+    // Legacy: base64
     const session = JSON.parse(Buffer.from(cookie, "base64").toString("utf-8"));
     return NextResponse.json({ staff: session });
   } catch {

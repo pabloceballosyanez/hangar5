@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateAdminSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+
+const ADMIN_PW = process.env.ADMIN_PASSWORD;
 
 const DEFAULT_STYLES = [
   {
@@ -36,8 +39,7 @@ Look: cozy but sophisticated. Like a menu you'd read by firelight at a mountain 
 export async function POST(req: NextRequest) {
   const adminSession = req.cookies.get("hangar5_admin_session")?.value;
   const adminHeader = req.headers.get("x-admin-password");
-  const ADMIN_PW = "***";
-  if ((!adminSession || adminSession !== "true") && adminHeader !== ADMIN_PW) {
+  if ((!adminSession || (adminSession !== "true" && !validateAdminSession(adminSession))) && adminHeader !== ADMIN_PW) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
