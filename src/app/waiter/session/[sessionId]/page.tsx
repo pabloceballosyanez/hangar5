@@ -20,7 +20,7 @@ interface Order {
 interface Session {
   id: string; type: string; label: string; status: string; openedAt: string;
   table: { number: string; name: string | null } | null;
-  customer: { id: string; name: string } | null;
+  customer: { id: string; name: string; hasCredit: boolean } | null;
   orders: Order[];
 }
 
@@ -224,8 +224,9 @@ function CuentaSheet({ session, onClose, onPaid }: { session: Session; onClose: 
   const [payError, setPayError] = useState<string | null>(null);
   const activeOrders = session.orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
   const grandTotal = activeOrders.reduce((s, o) => s + o.total, 0);
+  const canCredit = session.customer != null;
 
-  const handlePay = async (method: 'CASH' | 'CARD') => {
+  const handlePay = async (method: string) => {
     setPaying(true); setPayError(null);
     try {
       for (const order of activeOrders) await advanceOrderToPaid(order.id, order.status, method);
@@ -238,40 +239,94 @@ function CuentaSheet({ session, onClose, onPaid }: { session: Session; onClose: 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-slate-900 rounded-t-3xl border-t-2 border-amber-400/20 shadow-2xl">
+      <div className="relative bg-slate-900 rounded-t-3xl border-t-2 border-amber-400/20 shadow-2xl max-h-[90dvh] flex flex-col">
         <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 bg-slate-700 rounded-full" /></div>
-        <div className="px-5 py-4">
-          <h2 className="font-black text-white text-xl mb-4">💳 Cuenta</h2>
-          <div className="space-y-2 mb-4">
-            {activeOrders.map((o, i) => (
-              <div key={o.id} className="flex justify-between text-sm">
-                <span className="text-slate-400">Orden {i + 1} — {STATUS_LABELS[o.status]?.label ?? o.status}</span>
-                <span className="text-white">{fmt(o.total)}</span>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-slate-700 pt-3 flex justify-between">
+        <div className="px-5 py-4 border-b border-slate-800">
+          <h2 className="font-black text-white text-xl">💳 Cuenta</h2>
+          <p className="text-xs text-slate-500 mt-1">{session.label}</p>
+        </div>
+
+        {/* Consumption summary */}
+        <div className="overflow-y-auto flex-1 px-5 py-4">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Consumos</p>
+          {activeOrders.length === 0 ? (
+            <p className="text-sm text-slate-600 text-center py-4">Sin pedidos pendientes</p>
+          ) : (
+            <div className="space-y-4">
+              {activeOrders.map((o, oIdx) => (
+                <div key={o.id}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-semibold text-slate-400">
+                      Orden {oIdx + 1} · {STATUS_LABELS[o.status]?.label ?? o.status} · {fmtTime(o.createdAt)}
+                    </p>
+                  </div>
+                  <div className="space-y-1.5">
+                    {(o.orderItems || []).map(item => (
+                      <div key={item.id} className="flex items-start gap-2 text-sm">
+                        <span className="text-amber-400 font-mono text-xs w-8 shrink-0 text-right">{item.quantity}×</span>
+                        <span className="text-slate-300 flex-1 leading-tight">
+                          {item.menuItem.name}
+                          {item.variant && <span className="text-slate-500"> · {item.variant.name}</span>}
+                        </span>
+                        <span className="text-white font-mono text-xs shrink-0">{fmt(item.unitPrice * item.quantity / 100)}</span>
+                      </div>
+                    ))}
+                    {(o.orderItems || []).some(i => i.modifiers?.length > 0) && (
+                      <>
+                        {(o.orderItems || []).filter(i => i.modifiers?.length > 0).map(item =>
+                          item.modifiers.map(m => (
+                            <div key={m.id || m.modifierName} className="flex items-start gap-2 text-xs ml-10">
+                              <span className="text-slate-600">+ {m.modifierName}</span>
+                            </div>
+                          ))
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <div className="flex justify-end mt-1 pt-1 border-t border-slate-800/50">
+                    <span className="text-sm font-semibold text-white">{fmt(o.total)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Payment footer */}
+        <div className="px-5 py-4 border-t border-slate-700 bg-slate-900">
+          <div className="flex justify-between mb-3">
             <span className="font-bold text-white text-lg">Total</span>
             <span className="font-black text-amber-400 text-2xl font-mono">{fmt(grandTotal)}</span>
           </div>
           {paid ? (
-            <div className="mt-4 p-4 bg-emerald-950/50 border border-emerald-700/40 rounded-xl text-center">
+            <div className="p-4 bg-emerald-950/50 border border-emerald-700/40 rounded-xl text-center">
               <p className="text-emerald-400 font-bold text-lg">✅ Cobrado</p>
             </div>
           ) : (
             <>
-              <p className="text-xs text-slate-500 mt-3 mb-3 text-center">Selecciona método de pago</p>
+              <p className="text-xs text-slate-500 mb-3 text-center">Selecciona método de pago</p>
               {payError && <p className="text-sm text-red-400 text-center mb-3">{payError}</p>}
-              <div className="grid grid-cols-2 gap-3">
+              <div className={`grid gap-3 ${canCredit ? 'grid-cols-3' : 'grid-cols-2'}`}>
                 <button onClick={() => handlePay('CASH')} disabled={paying || activeOrders.length === 0}
-                  className="min-h-[60px] bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1">
-                  <span className="text-2xl">💵</span><span className="text-sm">Efectivo</span>
+                  className="min-h-[64px] bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1">
+                  <span className="text-2xl">💵</span><span className="text-xs">Efectivo</span>
                 </button>
                 <button onClick={() => handlePay('CARD')} disabled={paying || activeOrders.length === 0}
-                  className="min-h-[60px] bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1">
-                  <span className="text-2xl">💳</span><span className="text-sm">Tarjeta</span>
+                  className="min-h-[64px] bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1">
+                  <span className="text-2xl">💳</span><span className="text-xs">Tarjeta</span>
                 </button>
+                {canCredit && (
+                  <button onClick={() => handlePay('ON_ACCOUNT')} disabled={paying || activeOrders.length === 0}
+                    className="min-h-[64px] bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1">
+                    <span className="text-2xl">📒</span><span className="text-xs">Crédito</span>
+                  </button>
+                )}
               </div>
+              {canCredit && (
+                <p className="text-xs text-amber-400/60 text-center mt-2">
+                  Cargo a cuenta de {session.customer?.name}
+                </p>
+              )}
               {paying && <p className="text-center text-sm text-slate-400 mt-3 animate-pulse">Procesando pago…</p>}
             </>
           )}

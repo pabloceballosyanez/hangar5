@@ -348,7 +348,7 @@ model Payment {
   customerId       String?          // FK → Customer (for account payments)
   customer         Customer?        @relation(fields: [customerId], references: [id])
   amount           Int // total charged in MXN cents
-  method           String // "MP" | "CASH" | "CARD" | "TRANSFER"
+  method           String // "MP" | "CASH" | "CARD" | "TRANSFER" | "ON_ACCOUNT"
   status           String           @default("PENDING") // "PENDING" | "COMPLETED" | "REFUNDED"
   note             String?
   mpPaymentId      String?

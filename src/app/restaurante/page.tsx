@@ -128,14 +128,12 @@ export default function RestaurantePage() {
 
       {/* Hero Section */}
       <section className="relative w-full h-[60vh] md:h-[60vh] overflow-hidden pt-16">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: 'url(https://source.unsplash.com/1600x900/?mountain,sunset,adventure)',
-            backgroundPosition: 'center',
-          }}
+        <img
+          src="/img/hero-bg.jpg?v=2"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/40" />
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
           <h1 className="text-5xl md:text-7xl font-serif text-white mb-4 tracking-[-0.02em] leading-[0.85]">

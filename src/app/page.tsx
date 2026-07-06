@@ -253,16 +253,16 @@ export default async function Home() {
             <div className="relative">
               <div className="grid grid-cols-2 gap-4">
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&fit=crop" alt="Pizza artesanal" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="/img/menu/menu-pizza-margarita.jpg" alt="Pizza artesanal" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&fit=crop" alt="Ensalada fresca" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="/img/menu/ensalada-tropical.jpg" alt="Ensalada fresca" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1599789197514-47270cd526b4?w=400&fit=crop" alt="Chilaquiles" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="/img/menu/menu-chilaquiles.jpg" alt="Chilaquiles" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1676105797000-323c37de780c?w=400&fit=crop" alt="Mojito" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="/img/menu/cocteles-clasicos.jpg" alt="Cocteles" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
               </div>
             </div>

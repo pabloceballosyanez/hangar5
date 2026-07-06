@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { hashPassword, verifyPassword, signStaffSession } from "@/lib/auth";
+import type { StaffRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -39,13 +40,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Progressive PIN migration: support both hashed and plaintext
-    const isHashed = staff.pin.includes(":");
+    const staffPin = staff.pin;
+    if (!staffPin) {
+      return NextResponse.json({ error: "PIN no configurado para este usuario" }, { status: 401 });
+    }
+    const isHashed = staffPin.includes(":");
     let pinValid = false;
 
     if (isHashed) {
-      pinValid = verifyPassword(pin, staff.pin);
+      pinValid = verifyPassword(pin, staffPin);
     } else {
-      pinValid = staff.pin === pin;
+      pinValid = staffPin === pin;
       // Auto-migrate: hash the PIN on successful login
       if (pinValid) {
         await prisma.staff.update({
@@ -63,7 +68,7 @@ export async function POST(req: NextRequest) {
     const token = signStaffSession({
       staffId: staff.id,
       name: staff.name,
-      role: staff.role,
+      role: staff.role as StaffRole,
     });
 
     const response = NextResponse.json({

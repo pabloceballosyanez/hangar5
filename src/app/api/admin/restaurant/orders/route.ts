@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
       include: {
         serviceSession: {
-          include: { table: true },
+          include: { table: true, customer: true },
         },
         table: true,
         orderItems: {

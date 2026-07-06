@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Clear operational data (keep reference data: items, menu, tables, staff, modifiers, categories)
+    // Clear ONLY operational data — preserve ALL reference data:
+    // recipes, ingredients, menu items, categories, items, tables, staff, modifiers
     await prisma.orderStatusEvent.deleteMany();
     await prisma.orderItemModifier.deleteMany();
     await prisma.orderItem.deleteMany();
@@ -22,9 +23,6 @@ export async function POST(req: NextRequest) {
     await prisma.serviceSession.deleteMany();
     await prisma.booking.deleteMany();
     await prisma.stockMovement.deleteMany();
-    await prisma.recipeItem.deleteMany();
-    await prisma.recipe.deleteMany();
-    await prisma.ingredient.deleteMany();
     await prisma.staffShift.deleteMany();
     await prisma.staffClock.deleteMany();
     await prisma.customerLedgerEntry.deleteMany();
@@ -33,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Base de datos reiniciada para dry run. Datos de referencia preservados.",
+      message: "Datos operativos reiniciados. Recetas, ingredientes, menú y referencia intactos.",
     });
   } catch (err) {
     console.error("[POST /api/admin/wipe]", err);

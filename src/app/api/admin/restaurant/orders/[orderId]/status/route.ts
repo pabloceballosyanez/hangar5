@@ -75,6 +75,26 @@ export async function PUT(
       }
     }
 
+    // Pre-validate ON_ACCOUNT: must have a customer with credit (before transaction)
+    if (newStatus === "PAID" && paymentMethod === "ON_ACCOUNT") {
+      const sessionWithCustomer = await prisma.serviceSession.findUnique({
+        where: { id: order.serviceSessionId ?? "" },
+        select: { customerId: true, customer: { select: { id: true, name: true, hasCredit: true } } },
+      });
+      if (!sessionWithCustomer?.customerId) {
+        return NextResponse.json(
+          { error: "No hay cliente asociado para cargo a cuenta" },
+          { status: 400 }
+        );
+      }
+      if (!sessionWithCustomer.customer?.hasCredit) {
+        return NextResponse.json(
+          { error: "El cliente no tiene crédito habilitado" },
+          { status: 400 }
+        );
+      }
+    }
+
     const result = await prisma.$transaction(async (tx) => {
       const statusEvent = await tx.orderStatusEvent.create({
         data: {
@@ -90,19 +110,37 @@ export async function PUT(
         include: {
           orderItems: true,
           payments: true,
-          serviceSession: { include: { table: true } },
+          serviceSession: { include: { table: true, customer: true } },
           table: true,
         },
       });
 
       // When PAID: create payment only if paymentMethod is specified
       if (newStatus === "PAID" && paymentMethod) {
+        // ON_ACCOUNT: create ledger entry for the customer (already validated before transaction)
+        if (paymentMethod === "ON_ACCOUNT") {
+          const customerId = updated.serviceSession?.customerId!;
+          await tx.customerLedgerEntry.create({
+            data: {
+              customerId,
+              amount: order.total,
+              type: "CHARGE",
+              serviceSessionId: updated.serviceSessionId,
+              note: `Orden #${order.id.slice(-6)}`,
+            },
+          });
+        }
+
         // Complete any pending payment first
         const pendingPayment = updated.payments.find((p) => p.status === "PENDING");
         if (pendingPayment) {
           await tx.payment.update({
             where: { id: pendingPayment.id },
-            data: { status: "COMPLETED", paidAt: new Date() },
+            data: {
+              status: "COMPLETED",
+              paidAt: new Date(),
+              method: pendingPayment.method === "MP" ? paymentMethod : pendingPayment.method,
+            },
           });
         } else {
           await tx.payment.create({
@@ -112,6 +150,9 @@ export async function PUT(
               method: paymentMethod,
               status: "COMPLETED",
               paidAt: new Date(),
+              ...(paymentMethod === "ON_ACCOUNT" && updated.serviceSession?.customerId
+                ? { customerId: updated.serviceSession.customerId }
+                : {}),
             },
           });
         }
@@ -133,6 +174,44 @@ export async function PUT(
                 where: { id: updated.serviceSessionId },
                 data: { status: "CLOSED", closedAt: new Date() },
               });
+            }
+          }
+        }
+      }
+
+      // Auto-advance to PAID if payment is already completed
+      if (newStatus === "SERVED") {
+        const hasCompletedPayment = updated.payments?.some(
+          (p) => p.status === "COMPLETED"
+        );
+        if (hasCompletedPayment) {
+          await tx.orderStatusEvent.create({
+            data: { orderId, fromStatus: "SERVED", toStatus: "PAID" },
+          });
+          await tx.order.update({
+            where: { id: orderId },
+            data: { status: "PAID" },
+          });
+          // Close session if all orders PAID/CANCELLED
+          if (updated.serviceSessionId) {
+            const sessionOrders = await tx.order.findMany({
+              where: { serviceSessionId: updated.serviceSessionId },
+              select: { status: true },
+            });
+            const allDone = sessionOrders.every(
+              (o) => o.status === "PAID" || o.status === "CANCELLED"
+            );
+            if (allDone) {
+              const s = await tx.serviceSession.findUnique({
+                where: { id: updated.serviceSessionId },
+                select: { status: true },
+              });
+              if (s?.status === "OPEN") {
+                await tx.serviceSession.update({
+                  where: { id: updated.serviceSessionId },
+                  data: { status: "CLOSED", closedAt: new Date() },
+                });
+              }
             }
           }
         }

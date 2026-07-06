@@ -40,7 +40,7 @@ export type PrepStation = (typeof PREP_STATIONS)[number];
 // ──────────────────────────────────────────────────────────────
 // Payment Method
 // ──────────────────────────────────────────────────────────────
-export const PAYMENT_METHODS = ['MP', 'CASH', 'CARD', 'TRANSFER'] as const;
+export const PAYMENT_METHODS = ['MP', 'CASH', 'CARD', 'TRANSFER', 'ON_ACCOUNT'] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 // ──────────────────────────────────────────────────────────────

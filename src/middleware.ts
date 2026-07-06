@@ -5,6 +5,7 @@ import { validateAdminSession, getStaffSession } from "@/lib/auth";
 const PUBLIC_PATHS = [
   "/admin/login",
   "/api/admin/login",
+  "/api/admin/ical/sync",                // sincronización iCal externa
 ];
 
 // Rutas de restaurante abiertas para clientes QR (sin sesión)
