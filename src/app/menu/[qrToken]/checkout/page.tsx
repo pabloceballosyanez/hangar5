@@ -139,7 +139,7 @@ export default function CheckoutPage() {
         } catch { /* ignore */ }
       }
 
-      // Build order payload
+      // Build items payload
       const items = cart.map((item) => ({
         menuItemId: item.menuItemId,
         variantId: item.variantId ?? null,
@@ -148,43 +148,42 @@ export default function CheckoutPage() {
         modifierIds: item.modifiers.map((m) => m.id),
       }));
 
-      const orderRes = await fetch("/api/admin/restaurant/orders", {
+      // Send to checkout API (creates MP preference, NOT an order)
+      const checkoutRes = await fetch("/api/restaurant/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tableId: tableId,
-          source: "QR",
+          tableId,
+          items,
           customerName: form.name.trim(),
           customerEmail: form.email.trim() || null,
           customerPhone: form.phone.trim() || null,
           notes: form.notes.trim() || null,
-          items,
+          paymentMethod: loggedIn ? "card" : "card", // default: card
         }),
       });
 
-      if (!orderRes.ok) {
-        const body = await orderRes.json();
-        // Zod flatten returns { fieldErrors, formErrors }
-        const msg =
-          typeof body.error === "string"
-            ? body.error
-            : body.error?.fieldErrors
-              ? Object.entries(body.error.fieldErrors)
-                  .map(([k, v]) => `${k}: ${(Array.isArray(v) ? v : []).join(", ")}`)
-                  .join("; ")
-              : JSON.stringify(body.error ?? body);
-        throw new Error(msg || "Error al crear la orden");
+      if (!checkoutRes.ok) {
+        const body = await checkoutRes.json().catch(() => ({}));
+        throw new Error(body.error || "Error al procesar el pago");
       }
 
-      const order = (await orderRes.json()) as { id: string };
+      const data = await checkoutRes.json();
 
       // Clear cart on success
       try {
         localStorage.removeItem("hangar5_cart");
       } catch { /* ignore */ }
 
-      // Navigate to payment
-      router.push(`/menu/${qrToken}/payment?orderId=${order.id}`);
+      // Redirect to MercadoPago or confirmation
+      if (data.initPoint) {
+        window.location.href = data.initPoint;
+      } else if (data.redirectUrl) {
+        router.push(data.redirectUrl);
+      } else {
+        setError("Error: no se pudo iniciar el pago");
+        setSubmitting(false);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error desconocido");
       setSubmitting(false);
