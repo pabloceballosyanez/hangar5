@@ -75,6 +75,26 @@ export async function PUT(
       }
     }
 
+    // Pre-validate ON_ACCOUNT: must have a customer with credit (before transaction)
+    if (newStatus === "PAID" && paymentMethod === "ON_ACCOUNT") {
+      const sessionWithCustomer = await prisma.serviceSession.findUnique({
+        where: { id: order.serviceSessionId ?? "" },
+        select: { customerId: true, customer: { select: { id: true, name: true, hasCredit: true } } },
+      });
+      if (!sessionWithCustomer?.customerId) {
+        return NextResponse.json(
+          { error: "No hay cliente asociado para cargo a cuenta" },
+          { status: 400 }
+        );
+      }
+      if (!sessionWithCustomer.customer?.hasCredit) {
+        return NextResponse.json(
+          { error: "El cliente no tiene crédito habilitado" },
+          { status: 400 }
+        );
+      }
+    }
+
     const result = await prisma.$transaction(async (tx) => {
       const statusEvent = await tx.orderStatusEvent.create({
         data: {
@@ -97,16 +117,9 @@ export async function PUT(
 
       // When PAID: create payment only if paymentMethod is specified
       if (newStatus === "PAID" && paymentMethod) {
-        // ON_ACCOUNT: create ledger entry for the customer
+        // ON_ACCOUNT: create ledger entry for the customer (already validated before transaction)
         if (paymentMethod === "ON_ACCOUNT") {
-          const customerId = updated.serviceSession?.customerId;
-          if (!customerId) {
-            throw new Error("No hay cliente asociado para cargo a cuenta");
-          }
-          const customer = await tx.customer.findUnique({ where: { id: customerId } });
-          if (!customer?.hasCredit) {
-            throw new Error("El cliente no tiene crédito habilitado");
-          }
+          const customerId = updated.serviceSession?.customerId!;
           await tx.customerLedgerEntry.create({
             data: {
               customerId,

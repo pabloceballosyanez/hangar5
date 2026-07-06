@@ -128,12 +128,10 @@ export default function RestaurantePage() {
 
       {/* Hero Section */}
       <section className="relative w-full h-[60vh] md:h-[60vh] overflow-hidden pt-16">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: 'url(/img/hero-bg.jpg)',
-            backgroundPosition: 'center',
-          }}
+        <img
+          src="/img/hero-bg.jpg?v=2"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/40" />
         
