@@ -20,21 +20,7 @@ function baseUrl(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
-  // Rate limit: 5 attempts per 15 min per IP
   const ip = getClientIP(req);
-  const limit = rateLimit(`admin-login:${ip}`, 5, 900);
-
-  if (!limit.allowed) {
-    return NextResponse.json(
-      { error: "Demasiados intentos. Intenta de nuevo más tarde." },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(limit.resetIn),
-        },
-      }
-    );
-  }
 
   try {
     const contentType = req.headers.get("content-type") || "";
@@ -48,21 +34,33 @@ export async function POST(req: NextRequest) {
       password = (formData.get("password") as string) || "";
     }
 
-    if (password !== ADMIN_PW) {
-      return NextResponse.redirect(new URL(`/admin/login?error=1`, baseUrl(req)));
+    // Contraseña correcta: siempre dejar pasar (sin rate limit)
+    if (password === ADMIN_PW) {
+      const token = signAdminSession();
+      const response = NextResponse.redirect(new URL("/admin", baseUrl(req)));
+      response.cookies.set(COOKIE_NAME, token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24,
+      });
+      return response;
     }
 
-    const token = signAdminSession();
-    const response = NextResponse.redirect(new URL("/admin", baseUrl(req)));
-    response.cookies.set(COOKIE_NAME, token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
+    // Contraseña incorrecta: aplicar rate limit (5 intentos / 15 min)
+    const limit = rateLimit(`admin-login:${ip}`, 5, 900);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: "Demasiados intentos. Intenta de nuevo más tarde." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limit.resetIn) },
+        }
+      );
+    }
 
-    return response;
+    return NextResponse.redirect(new URL(`/admin/login?error=1`, baseUrl(req)));
   } catch {
     return NextResponse.redirect(new URL("/admin/login?error=1", baseUrl(req)));
   }

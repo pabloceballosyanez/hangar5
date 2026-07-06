@@ -53,7 +53,12 @@ export async function POST(req: NextRequest) {
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { payments: true },
+      include: {
+        payments: true,
+        orderItems: {
+          include: { menuItem: true },
+        },
+      },
     });
 
     if (!order) {
@@ -62,7 +67,34 @@ export async function POST(req: NextRequest) {
 
     await prisma.$transaction(async (tx) => {
       // Only transition if order hasn't been moved past PLACED yet
-      if (order.status === "AWAITING_PAYMENT" || order.status === "PLACED" || order.status === "DRAFT") {
+      const shouldTransition = order.status === "AWAITING_PAYMENT" || order.status === "PLACED" || order.status === "DRAFT";
+
+      if (shouldTransition) {
+        // Descontar inventario al confirmar pago (si la orden venía de DRAFT/QR)
+        if (order.status === "DRAFT" && order.orderItems.length > 0) {
+          for (const item of order.orderItems) {
+            const recipe = await tx.recipe.findUnique({
+              where: { menuItemId: item.menuItemId },
+              include: { recipeItems: { include: { ingredient: true } } },
+            });
+            if (recipe && recipe.recipeItems.length > 0) {
+              for (const ri of recipe.recipeItems) {
+                await tx.ingredient.update({
+                  where: { id: ri.ingredientId },
+                  data: { currentStock: { decrement: ri.quantity * item.quantity } },
+                });
+                await tx.stockMovement.create({
+                  data: {
+                    ingredientId: ri.ingredientId,
+                    delta: -(ri.quantity * item.quantity),
+                    reason: `Venta QR: ${item.quantity}x ${item.menuItem.name}`,
+                  },
+                });
+              }
+            }
+          }
+        }
+
         await tx.orderStatusEvent.create({
           data: {
             orderId: order.id,

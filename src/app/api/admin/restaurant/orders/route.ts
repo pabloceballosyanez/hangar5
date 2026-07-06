@@ -290,7 +290,7 @@ export async function POST(req: NextRequest) {
     const tax = Math.round(subtotal - subtotal / 1.16);
     const total = subtotal;
 
-    const initialStatus = source === "QR" ? "AWAITING_PAYMENT" : "DRAFT";
+    const initialStatus = source === "QR" ? "DRAFT" : "DRAFT";
 
     const order = await prisma.$transaction(async (tx) => {
       const created = await tx.order.create({
@@ -345,8 +345,10 @@ export async function POST(req: NextRequest) {
       // ── DO NOT create ledger entry here — the session-close API is the source of truth.
       // Creating a CHARGE here + another at session close would double the customer's debt.
 
-      // Descontar inventario
-      await deductInventory(tx, itemsWithPrices.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity })));
+      // Descontar inventario (solo para órdenes que van directo a cocina, no QR drafts)
+      if (source !== "QR") {
+        await deductInventory(tx, itemsWithPrices.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity })));
+      }
 
       return tx.order.findUnique({
         where: { id: created.id },
