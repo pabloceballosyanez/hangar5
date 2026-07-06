@@ -253,16 +253,16 @@ export default async function Home() {
             <div className="relative">
               <div className="grid grid-cols-2 gap-4">
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="/img/placeholder-food.jpg" alt="Pizza artesanal" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="/img/menu/menu-pizza-margarita.jpg" alt="Pizza artesanal" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="/img/placeholder-food.jpg" alt="Ensalada fresca" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="/img/menu/ensalada-tropical.jpg" alt="Ensalada fresca" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="/img/placeholder-food.jpg" alt="Chilaquiles" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="/img/menu/menu-chilaquiles.jpg" alt="Chilaquiles" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="aspect-square rounded-lg overflow-hidden">
-                  <img src="/img/placeholder-food.jpg" alt="Mojito" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src="/img/menu/cocteles-clasicos.jpg" alt="Cocteles" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
               </div>
             </div>
