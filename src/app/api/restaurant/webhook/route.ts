@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { prisma } from "@/lib/prisma";
-import { createOrderFromCart } from "../checkout/route";
+import { createOrderFromCart } from "@/lib/create-order";
 
 export const dynamic = "force-dynamic";
 
