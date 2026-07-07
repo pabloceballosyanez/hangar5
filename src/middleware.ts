@@ -30,15 +30,7 @@ const PUBLIC_PATHS = [
   "/api/admin/ical/sync",
 ];
 
-const QR_OPEN_PATHS = [
-  "/api/admin/restaurant/orders",
-];
-
 const RESTAURANT_API_PREFIX = "/api/admin/restaurant";
-
-function isQrOpenPath(pathname: string): boolean {
-  return QR_OPEN_PATHS.some((p) => pathname.startsWith(p));
-}
 
 function hasValidSession(req: NextRequest): boolean {
   if (isAdminCookie(req.cookies.get("hangar5_admin_session")?.value)) return true;
@@ -46,16 +38,37 @@ function hasValidSession(req: NextRequest): boolean {
   return false;
 }
 
+/**
+ * Online ordering (QR): allow public order creation & single-order fetch.
+ * - POST /api/admin/restaurant/orders → create order (checkout)
+ * - GET  /api/admin/restaurant/orders/:id → fetch order (payment page)
+ *
+ * Other operations (list all orders, PUT, DELETE) remain admin/staff only.
+ */
+function isQrOpenPath(pathname: string, method: string): boolean {
+  // POST to create a new order (checkout flow)
+  if (method === "POST" && pathname === "/api/admin/restaurant/orders") {
+    return true;
+  }
+  // GET a specific order by ID (payment page)
+  if (method === "GET" && /^\/api\/admin\/restaurant\/orders\/[^/]+$/.test(pathname)) {
+    return true;
+  }
+  return false;
+}
+
 // ─── Middleware ────────────────────────────────────────────────────────────────
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const method = req.method;
 
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  if (isQrOpenPath(pathname)) {
+  // Online ordering: allow specific public order operations
+  if (isQrOpenPath(pathname, method)) {
     return NextResponse.next();
   }
 
