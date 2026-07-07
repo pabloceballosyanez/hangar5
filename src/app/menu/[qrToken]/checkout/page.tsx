@@ -67,6 +67,8 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [hasCredit, setHasCredit] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "account">("card");
 
   // Hydrate from localStorage
   useEffect(() => {
@@ -86,6 +88,7 @@ export default function CheckoutPage() {
       .then((data) => {
         if (data.customer) {
           setLoggedIn(true);
+          setHasCredit(data.customer.hasCredit === true);
           setForm((prev) => ({
             ...prev,
             name: data.customer.name || prev.name,
@@ -159,7 +162,7 @@ export default function CheckoutPage() {
           customerEmail: form.email.trim() || null,
           customerPhone: form.phone.trim() || null,
           notes: form.notes.trim() || null,
-          paymentMethod: loggedIn ? "card" : "card", // default: card
+          paymentMethod,
         }),
       });
 
@@ -258,13 +261,56 @@ export default function CheckoutPage() {
 
       {/* ── Logged in banner ── */}
       {loggedIn && (
-        <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex items-center gap-3">
-          <span className="text-xl">👋</span>
-          <div>
-            <p className="text-sm font-bold text-green-800">¡Hola de nuevo, {form.name}!</p>
-            <p className="text-xs text-green-600">Tu orden se guardará en tu historial.</p>
+        <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">👋</span>
+            <div>
+              <p className="text-sm font-bold text-green-800">¡Hola, {form.name}!</p>
+              <p className="text-xs text-green-600">Tu orden se guardará en tu historial.</p>
+            </div>
           </div>
+          {hasCredit && (
+            <div className="bg-white rounded-xl p-3 border border-green-100">
+              <p className="text-xs font-semibold text-green-700 mb-2">Método de pago</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("card")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                    paymentMethod === "card"
+                      ? "bg-amber-500 text-white shadow"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  💳 Tarjeta
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("account")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                    paymentMethod === "account"
+                      ? "bg-purple-600 text-white shadow"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  📋 A cuenta
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+      )}
+
+      {/* ── Login prompt (not logged in) ── */}
+      {!loggedIn && (
+        <a
+          href={`/ingresar?redirect=/menu/${qrToken}/checkout`}
+          className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-2xl px-4 py-3 text-sm text-blue-700 hover:bg-blue-100 transition-colors"
+        >
+          <span>🔑</span>
+          <span className="font-medium">Inicia sesión</span>
+          <span className="text-blue-500 text-xs">para guardar tu historial y pagar a cuenta</span>
+        </a>
       )}
 
       {/* ── Customer info ── */}
@@ -359,9 +405,9 @@ export default function CheckoutPage() {
       </button>
 
       <p className="text-center text-xs text-gray-400 leading-relaxed">
-        Al confirmar aceptas los términos de servicio.
-        <br />
-        Pago seguro procesado por Mercado Pago.
+        {paymentMethod === "account"
+          ? "El cargo se aplicará a tu cuenta de cliente."
+          : "Pago seguro procesado por Mercado Pago."}
       </p>
     </div>
   );
