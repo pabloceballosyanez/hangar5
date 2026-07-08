@@ -70,31 +70,29 @@ export async function PUT(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    const session = await prisma.serviceSession.findUnique({
-      where: { id: sessionId },
-      include: { orders: true, customer: true },
-    });
-    if (!session) return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
-    if (session.status === "CLOSED") return NextResponse.json({ error: "Sesión ya cerrada" }, { status: 409 });
+    const paymentInputs = parsed.data.payments;
+    const totalPaid = paymentInputs.reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
 
-    // Only count unpaid orders (ignore already PAID/CANCELLED orders that have their own payments)
-    const unpaidOrders = session.orders.filter(o => o.status !== "PAID" && o.status !== "CANCELLED");
-    const totalOwed = unpaidOrders.reduce((sum, o) => sum + o.total, 0);
-    const totalPaid = parsed.data.payments.reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
-
-    // Block closing sessions without customer (anonymous/walk-in/table) with unpaid orders
-    // Customer sessions (TAB or QR) CAN close with unpaid orders → debt on their ledger
-    const isCustomer = session.customerId && (session.type === "TAB" || session.type === "QR");
-    if (!isCustomer && totalPaid < totalOwed) {
-      return NextResponse.json(
-        { error: "Hay órdenes sin pagar. Usa 'Pagar' antes de cerrar la sesión." },
-        { status: 409 }
-      );
-    }
-
+    // Run entire close operation inside a transaction to prevent race conditions.
+    // Session read + status check + close happen atomically.
     const result = await prisma.$transaction(async (tx) => {
-      // Create payment records (skip $0 payments)
-      for (const p of parsed.data.payments) {
+      const session = await tx.serviceSession.findUnique({
+        where: { id: sessionId },
+        include: { orders: true, customer: true },
+      });
+
+      if (!session) throw new Error("NOT_FOUND");
+      if (session.status === "CLOSED") throw new Error("ALREADY_CLOSED");
+
+      const unpaidOrders = session.orders.filter(o => o.status !== "PAID" && o.status !== "CANCELLED");
+      const totalOwed = unpaidOrders.reduce((sum, o) => sum + o.total, 0);
+
+      const isCustomer = session.customerId && (session.type === "TAB" || session.type === "QR");
+      if (!isCustomer && totalPaid < totalOwed) {
+        throw new Error("UNPAID_ORDERS");
+      }
+
+      for (const p of paymentInputs) {
         const cents = Math.round(p.amount * 100);
         if (cents <= 0) continue;
         await tx.payment.create({
@@ -109,10 +107,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
         });
       }
 
-      // Calculate remaining balance
       const balance = totalOwed - totalPaid;
 
-      // If customer linked and balance ≠ 0, create ledger entry
       if (session.customerId && balance !== 0) {
         const ledgerAmount = balance > 0 ? balance : -Math.abs(balance);
         await tx.customerLedgerEntry.create({
@@ -124,7 +120,6 @@ export async function PUT(req: NextRequest, { params }: Params) {
             note: `Saldo de sesión: ${session.label}`,
           },
         });
-        // Advance unpaid orders to PAID (debt is in the ledger, no payment record needed)
         for (const order of unpaidOrders) {
           await tx.order.update({
             where: { id: order.id },
@@ -136,7 +131,6 @@ export async function PUT(req: NextRequest, { params }: Params) {
         }
       }
 
-      // Mark session closed
       const closed = await tx.serviceSession.update({
         where: { id: sessionId },
         data: { status: "CLOSED", closedAt: new Date() },
@@ -148,6 +142,19 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
     return NextResponse.json(result);
   } catch (err) {
+    const message = (err as Error).message;
+    if (message === "NOT_FOUND") {
+      return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
+    }
+    if (message === "ALREADY_CLOSED") {
+      return NextResponse.json({ error: "Sesión ya cerrada" }, { status: 409 });
+    }
+    if (message === "UNPAID_ORDERS") {
+      return NextResponse.json(
+        { error: "Hay órdenes sin pagar. Usa 'Pagar' antes de cerrar la sesión." },
+        { status: 409 }
+      );
+    }
     console.error("[PUT /api/admin/restaurant/sessions/[sessionId]]", err);
     return NextResponse.json({ error: "Error al cerrar sesión" }, { status: 500 });
   }

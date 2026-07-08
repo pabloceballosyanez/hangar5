@@ -85,13 +85,20 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Batch-fetch recipes with their items
+    // Batch-fetch recipes with their items (including parent recipes for inheritance)
     const menuItemIds = [...processedMenuItems.keys()];
     const recipes = await prisma.recipe.findMany({
       where: { menuItemId: { in: menuItemIds } },
       include: {
         recipeItems: {
           include: { ingredient: { select: { cost: true } } },
+        },
+        parentRecipe: {
+          include: {
+            recipeItems: {
+              include: { ingredient: { select: { cost: true } } },
+            },
+          },
         },
       },
     });
@@ -102,8 +109,20 @@ export async function GET(req: NextRequest) {
       if (!recipe || recipe.yieldQuantity <= 0) continue;
 
       let costPerYield = 0;
-      for (const ri of recipe.recipeItems) {
-        costPerYield += ri.quantity * ri.ingredient.cost;
+      if (recipe.recipeItems.length > 0) {
+        // Recipe has its own ingredients — use those (complete list)
+        for (const ri of recipe.recipeItems) {
+          costPerYield += ri.quantity * ri.ingredient.cost;
+        }
+      } else if (recipe.parentRecipe) {
+        // Pure inheritance: use parent's ingredients scaled by yield ratio
+        const parent = recipe.parentRecipe;
+        if (parent.yieldQuantity > 0) {
+          const yieldRatio = recipe.yieldQuantity / parent.yieldQuantity;
+          for (const ri of parent.recipeItems) {
+            costPerYield += ri.quantity * ri.ingredient.cost * yieldRatio;
+          }
+        }
       }
       const costPerPortion = costPerYield / recipe.yieldQuantity;
       ingredientCost += costPerPortion * totalQty;

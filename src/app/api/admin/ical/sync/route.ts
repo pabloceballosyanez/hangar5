@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
+import { validateAdminSession } from '@/lib/auth';
 
 async function isAdmin() {
   const c = await cookies();
-  return c.get('hangar5_admin_session')?.value === 'true';
+  const token = c.get('hangar5_admin_session')?.value;
+  return !!token && validateAdminSession(token);
 }
 
 interface ParsedEvent {
@@ -14,8 +16,6 @@ interface ParsedEvent {
 }
 
 function parseICalDate(icalStr: string): Date {
-  // Convert iCal DTSTART/DTEND format to Date
-  // 20260630T140000Z or 20260630T140000 or 20260630
   const cleaned = icalStr.replace(/[^0-9TZ]/g, '');
   const year = parseInt(cleaned.substring(0, 4));
   const month = parseInt(cleaned.substring(4, 6)) - 1;
@@ -69,7 +69,6 @@ function parseICalFeed(raw: string): ParsedEvent[] {
 
 async function syncCalendar(calendar: { id: string; url: string }) {
   const now = new Date();
-  // Fetch the external iCal feed
   const response = await fetch(calendar.url, {
     headers: { 'User-Agent': 'Hangar5-iCal-Sync/1.0' },
     signal: AbortSignal.timeout(15000),
@@ -82,10 +81,8 @@ async function syncCalendar(calendar: { id: string; url: string }) {
   const raw = await response.text();
   const events = parseICalFeed(raw);
 
-  // Delete old blocks for this calendar
   await prisma.externalBlock.deleteMany({ where: { calendarId: calendar.id } });
 
-  // Insert new blocks (only future ones to save space)
   const futureEvents = events.filter(e => e.end > now);
   if (futureEvents.length > 0) {
     await prisma.externalBlock.createMany({
@@ -98,7 +95,6 @@ async function syncCalendar(calendar: { id: string; url: string }) {
     });
   }
 
-  // Update lastSync
   await prisma.externalCalendar.update({
     where: { id: calendar.id },
     data: { lastSync: new Date() },
@@ -107,13 +103,20 @@ async function syncCalendar(calendar: { id: string; url: string }) {
   return { eventsFound: events.length, futureBlocks: futureEvents.length };
 }
 
-async function isAdminOrSync(req: NextRequest) {
-  // Sync secret for cron jobs
+/**
+ * Auth for sync: either admin session (via cookie) or ICAL_SYNC_SECRET (via Bearer header).
+ * The sync secret MUST be set in env — no hardcoded fallback.
+ */
+async function isAdminOrSync(req: NextRequest): Promise<boolean> {
+  // Sync secret for cron/automated syncs
+  const syncSecret = process.env.ICAL_SYNC_SECRET;
   const auth = req.headers.get('authorization');
-  if (auth === `Bearer ${process.env.ICAL_SYNC_SECRET || 'hangar5-ical-sync-2026'}`) return true;
-  // Or admin session
+  if (syncSecret && auth === `Bearer ${syncSecret}`) return true;
+
+  // Or admin session via cookie
   const c = await cookies();
-  return c.get('hangar5_admin_session')?.value === 'true';
+  const token = c.get('hangar5_admin_session')?.value;
+  return !!token && validateAdminSession(token);
 }
 
 export async function POST(req: NextRequest) {

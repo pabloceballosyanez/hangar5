@@ -33,14 +33,13 @@ async function deductInventory(
     });
 
     if (recipe && recipe.recipeItems.length > 0) {
-      // Tiene receta: descontar cada ingrediente
+      // Child recipe has its own ingredients → those are the complete list
       for (const ri of recipe.recipeItems) {
         const decrement = ri.quantity * item.quantity;
         await tx.ingredient.update({
           where: { id: ri.ingredientId },
           data: { currentStock: { decrement } },
         });
-        // Registrar movimiento de stock
         await tx.stockMovement.create({
           data: {
             ingredientId: ri.ingredientId,
@@ -49,27 +48,31 @@ async function deductInventory(
           },
         });
       }
-      // También heredar de receta padre si existe
-      if (recipe.parentRecipeId) {
-        const parent = await tx.recipe.findUnique({
-          where: { id: recipe.parentRecipeId },
-          include: { recipeItems: { include: { ingredient: true } } },
-        });
-        if (parent) {
-          for (const ri of parent.recipeItems) {
-            const decrement = ri.quantity * item.quantity;
-            await tx.ingredient.update({
-              where: { id: ri.ingredientId },
-              data: { currentStock: { decrement } },
-            });
-            await tx.stockMovement.create({
-              data: {
-                ingredientId: ri.ingredientId,
-                delta: -decrement,
-                reason: `Venta (base): ${item.quantity}x`,
-              },
-            });
-          }
+    } else if (recipe && recipe.parentRecipeId) {
+      // No own ingredients → pure inheritance from parent recipe
+      // Scale by yield ratio: childYield / parentYield
+      const parent = await tx.recipe.findUnique({
+        where: { id: recipe.parentRecipeId },
+        include: { recipeItems: { include: { ingredient: true } } },
+      });
+      if (parent && parent.recipeItems.length > 0) {
+        const yieldRatio = parent.yieldQuantity > 0
+          ? recipe.yieldQuantity / parent.yieldQuantity
+          : 1;
+        for (const ri of parent.recipeItems) {
+          const decrement = Math.round(ri.quantity * item.quantity * yieldRatio);
+          if (decrement <= 0) continue;
+          await tx.ingredient.update({
+            where: { id: ri.ingredientId },
+            data: { currentStock: { decrement } },
+          });
+          await tx.stockMovement.create({
+            data: {
+              ingredientId: ri.ingredientId,
+              delta: -decrement,
+              reason: `Venta (base): ${item.quantity}x`,
+            },
+          });
         }
       }
     } else {

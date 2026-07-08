@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
+import { validateAdminSession } from '@/lib/auth';
 
 async function isAdmin() {
   const c = await cookies();
-  return c.get('hangar5_admin_session')?.value === 'true';
+  const token = c.get('hangar5_admin_session')?.value;
+  return !!token && validateAdminSession(token);
 }
 
 // GET /api/admin/ical/[id] — get single calendar

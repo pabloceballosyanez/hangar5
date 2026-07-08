@@ -17,12 +17,16 @@ export interface CustomerSession {
   email: string;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.MP_ACCESS_TOKEN || "hangar5-customer-secret-dev";
+const JWT_SECRET = process.env.JWT_SECRET || "hangar5-jwt-secret-prod-CHANGE-ME";
 const CUSTOMER_COOKIE = "hangar5_customer_session";
+
+const JWT_EXPIRY_SECONDS = 86400; // 24 hours
 
 function signJWT(payload: object): string {
   const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
-  const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const now = Math.floor(Date.now() / 1000);
+  const fullPayload = { ...payload, iat: now, exp: now + JWT_EXPIRY_SECONDS };
+  const body = Buffer.from(JSON.stringify(fullPayload)).toString("base64url");
   const sig = crypto.createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest("base64url");
   return `${header}.${body}.${sig}`;
 }
@@ -30,9 +34,13 @@ function signJWT(payload: object): string {
 export function verifyJWT(token: string): object | null {
   try {
     const [header, body, sig] = token.split(".");
+    if (!header || !body || !sig) return null;
     const expected = crypto.createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest("base64url");
     if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
-    return JSON.parse(Buffer.from(body, "base64url").toString("utf-8"));
+    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf-8"));
+    // Check expiration
+    if (typeof payload.exp === "number" && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
   } catch {
     return null;
   }
@@ -51,7 +59,7 @@ export function verifyPassword(password: string, stored: string): boolean {
 }
 
 export function signCustomerSession(customer: CustomerSession): string {
-  return signJWT(customer as object);
+  return signJWT({ type: "customer", payload: customer });
 }
 
 export function getCustomerSession(req: NextRequest): CustomerSession | null {
@@ -61,8 +69,10 @@ export function getCustomerSession(req: NextRequest): CustomerSession | null {
     const payload = verifyJWT(cookie);
     if (!payload || typeof payload !== "object") return null;
     const p = payload as Record<string, unknown>;
-    if (typeof p.customerId !== "string" || typeof p.name !== "string" || typeof p.email !== "string") return null;
-    return { customerId: p.customerId, name: p.name, email: p.email };
+    if (p.type !== "customer") return null;
+    const data = p.payload as Record<string, unknown>;
+    if (typeof data?.customerId !== "string" || typeof data?.name !== "string" || typeof data?.email !== "string") return null;
+    return { customerId: data.customerId, name: data.name, email: data.email };
   } catch {
     return null;
   }
@@ -75,14 +85,14 @@ export { CUSTOMER_COOKIE };
 const ADMIN_COOKIE = "hangar5_admin_session";
 
 export function signAdminSession(): string {
-  return signJWT({ role: "admin" });
+  return signJWT({ type: "admin", role: "admin" });
 }
 
 export function validateAdminSession(token: string): boolean {
   const payload = verifyJWT(token);
   if (!payload || typeof payload !== "object") return false;
   const p = payload as Record<string, unknown>;
-  return p.role === "admin";
+  return p.type === "admin" && p.role === "admin";
 }
 
 export function getAdminSession(req: NextRequest): { role: string } | null {
@@ -92,7 +102,7 @@ export function getAdminSession(req: NextRequest): { role: string } | null {
     const payload = verifyJWT(token);
     if (!payload || typeof payload !== "object") return null;
     const p = payload as Record<string, unknown>;
-    if (p.role !== "admin") return null;
+    if (p.type !== "admin" || p.role !== "admin") return null;
     return { role: "admin" };
   } catch {
     return null;
@@ -106,7 +116,7 @@ export { ADMIN_COOKIE };
 export const STAFF_COOKIE = "hangar5_session";
 
 export function signStaffSession(staff: StaffSession): string {
-  return signJWT(staff as object);
+  return signJWT({ type: "staff", payload: staff });
 }
 
 export function getStaffSession(req: NextRequest): StaffSession | null {
@@ -116,13 +126,15 @@ export function getStaffSession(req: NextRequest): StaffSession | null {
     const payload = verifyJWT(token);
     if (!payload || typeof payload !== "object") return null;
     const p = payload as Record<string, unknown>;
+    if (p.type !== "staff") return null;
+    const data = p.payload as Record<string, unknown>;
     if (
-      typeof p.staffId !== "string" ||
-      typeof p.name !== "string" ||
-      typeof p.role !== "string"
+      typeof data?.staffId !== "string" ||
+      typeof data?.name !== "string" ||
+      typeof data?.role !== "string"
     )
       return null;
-    return { staffId: p.staffId, name: p.name, role: p.role as StaffRole };
+    return { staffId: data.staffId, name: data.name, role: data.role as StaffRole };
   } catch {
     return null;
   }
@@ -138,12 +150,15 @@ export function getSession(req: NextRequest): StaffSession | null {
       const payload = verifyJWT(cookie);
       if (payload && typeof payload === "object") {
         const p = payload as Record<string, unknown>;
-        if (
-          typeof p.staffId === "string" &&
-          typeof p.name === "string" &&
-          typeof p.role === "string"
-        ) {
-          return { staffId: p.staffId, name: p.name, role: p.role as StaffRole };
+        if (p.type === "staff") {
+          const data = p.payload as Record<string, unknown>;
+          if (
+            typeof data?.staffId === "string" &&
+            typeof data?.name === "string" &&
+            typeof data?.role === "string"
+          ) {
+            return { staffId: data.staffId, name: data.name, role: data.role as StaffRole };
+          }
         }
       }
     } catch { /* fall through to legacy format */ }
@@ -154,7 +169,24 @@ export function getSession(req: NextRequest): StaffSession | null {
   }
 }
 
-// Verificar si un rol tiene acceso a cierta área
+// Verify staff session in route handlers (used by staff API routes)
+export function verifyStaffSession(token: string): StaffSession | null {
+  const payload = verifyJWT(token);
+  if (!payload || typeof payload !== "object") return null;
+  const p = payload as Record<string, unknown>;
+  if (p.type !== "staff") return null;
+  const data = p.payload as Record<string, unknown>;
+  if (
+    typeof data?.staffId !== "string" ||
+    typeof data?.name !== "string" ||
+    typeof data?.role !== "string"
+  )
+    return null;
+  return { staffId: data.staffId, name: data.name, role: data.role as StaffRole };
+}
+
+// ─── Role-based permissions ─────────────────────────────────────────────────
+
 const ROLE_PERMISSIONS: Record<StaffRole, string[]> = {
   SUPER_ADMIN: ["admin", "restaurant", "waiter", "kds", "recetario", "carta", "staff"],
   GERENTE: ["admin", "restaurant", "waiter", "kds", "recetario", "carta", "staff"],
@@ -178,3 +210,6 @@ export const MENU_ROLES: StaffRole[] = ["SUPER_ADMIN", "GERENTE"];
 
 // Roles que pueden ver reportes
 export const REPORT_ROLES: StaffRole[] = ["SUPER_ADMIN", "GERENTE", "GERENTE_TURNO", "CAJA"];
+
+// Roles que pueden gestionar el restaurante (menú, órdenes, sesiones)
+export const RESTAURANT_ROLES: StaffRole[] = ["SUPER_ADMIN", "GERENTE", "GERENTE_TURNO"];
