@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>Modo Solo — Admin Style: Three Panel (Menú | Órdenes | KDS)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          terracota: '#b88364',
+          cream: '#edd3c5',
+          forest: '#1b4235',
+          'forest-light': '#2a5c4a',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f3f4f6;
+    color: #1b4235;
+    height: 100vh; overflow: hidden;
+  }
+  .panel { height: 100vh; overflow-y: auto; }
+  .panel-header {
+    position: sticky; top: 0; z-index: 10;
+    background: white; border-bottom: 1px solid #e5e7eb;
+    padding: 12px 16px;
+  }
+  .card { transition: all 0.12s; cursor: pointer; }
+  .card:active { transform: scale(0.98); }
+  .btn { transition: all 0.12s; cursor: pointer; }
+  .btn:active { transform: scale(0.96); }
+  .menu-item { transition: all 0.1s; }
+  .menu-item:hover { border-color: #b88364; background: #fef9f6; }
+  .menu-item:active { background: #fdf3ed; }
+  .tab-active { color: #b88364; border-bottom: 2px solid #b88364; font-weight: 600; }
+  @keyframes pulse-soft { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+  .pulse-live { animation: pulse-soft 1.5s infinite; }
+  .session-bar { transition: all 0.12s; }
+  .session-bar:hover { background: #f9fafb; }
+  .session-bar.active { background: #fef9f6; border-left: 3px solid #b88364; }
+</style>
+</head>
+<body class="flex">
+
+<!-- ═══════════ LEFT PANEL: MENÚ ═══════════ w-[380px] -->
+<div class="panel w-[380px] bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+
+  <!-- Header -->
+  <div class="panel-header flex items-center justify-between">
+    <div>
+      <h1 class="text-base font-bold text-forest">🔥 Modo Solo</h1>
+      <p class="text-xs text-gray-500">Tomar pedido → Mesa 3</p>
+    </div>
+    <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium pulse-live">ACTIVO</span>
+  </div>
+
+  <!-- Category tabs -->
+  <div class="flex overflow-x-auto border-b border-gray-100 bg-gray-50/50 px-3 gap-0.5 flex-shrink-0">
+    <span class="tab-active text-xs py-2.5 px-3 whitespace-nowrap cursor-pointer">🍽️ Todo</span>
+    <span class="text-xs py-2.5 px-3 whitespace-nowrap cursor-pointer text-gray-500 hover:text-forest">🥩 Parrilla</span>
+    <span class="text-xs py-2.5 px-3 whitespace-nowrap cursor-pointer text-gray-500 hover:text-forest">🥗 Ensaladas</span>
+    <span class="text-xs py-2.5 px-3 whitespace-nowrap cursor-pointer text-gray-500 hover:text-forest">🍟 Entradas</span>
+    <span class="text-xs py-2.5 px-3 whitespace-nowrap cursor-pointer text-gray-500 hover:text-forest">🍸 Bebidas</span>
+    <span class="text-xs py-2.5 px-3 whitespace-nowrap cursor-pointer text-gray-500 hover:text-forest">🍰 Postres</span>
+  </div>
+
+  <!-- Menu items grid -->
+  <div class="flex-1 overflow-y-auto p-3 space-y-1.5">
+
+    <!-- Item: Hamburguesa Clásica -->
+    <div class="menu-item flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3">
+      <div class="w-12 h-12 bg-cream/50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">🍔</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-forest truncate">Hamburguesa Clásica</p>
+        <p class="text-[11px] text-gray-500 truncate">Grande / Regular · +Queso +Tocino</p>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <p class="text-sm font-bold text-forest">$120</p>
+        <button class="btn mt-1 w-8 h-8 bg-terracota hover:bg-forest-light text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm">+</button>
+      </div>
+    </div>
+
+    <!-- Item: Papas Fritas (already added indicator) -->
+    <div class="menu-item flex items-center gap-3 bg-terracota/5 border border-terracota/20 rounded-lg p-3">
+      <div class="w-12 h-12 bg-cream/50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">🍟</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-forest truncate">Papas Fritas</p>
+        <p class="text-[11px] text-gray-500 truncate">Regular · +Aderezo</p>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <p class="text-sm font-bold text-forest">$65</p>
+        <span class="inline-block mt-1 w-8 h-8 bg-terracota text-white rounded-full text-xs font-bold flex items-center justify-center">1</span>
+      </div>
+    </div>
+
+    <!-- Item: Ensalada César -->
+    <div class="menu-item flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3">
+      <div class="w-12 h-12 bg-cream/50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">🥗</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-forest truncate">Ensalada César</p>
+        <p class="text-[11px] text-gray-500 truncate">Pollo / Camarón</p>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <p class="text-sm font-bold text-forest">$95</p>
+        <button class="btn mt-1 w-8 h-8 bg-terracota hover:bg-forest-light text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm">+</button>
+      </div>
+    </div>
+
+    <!-- Item: Coca-Cola -->
+    <div class="menu-item flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3">
+      <div class="w-12 h-12 bg-cream/50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">🥤</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-forest truncate">Coca-Cola</p>
+        <p class="text-[11px] text-gray-500 truncate">600ml</p>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <p class="text-sm font-bold text-forest">$35</p>
+        <button class="btn mt-1 w-8 h-8 bg-terracota hover:bg-forest-light text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm">+</button>
+      </div>
+    </div>
+
+    <!-- Item: Michelada -->
+    <div class="menu-item flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3">
+      <div class="w-12 h-12 bg-cream/50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">🍺</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-forest truncate">Michelada</p>
+        <p class="text-[11px] text-gray-500 truncate">Clásica / Mango / Tamarindo</p>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <p class="text-sm font-bold text-forest">$75</p>
+        <button class="btn mt-1 w-8 h-8 bg-terracota hover:bg-forest-light text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm">+</button>
+      </div>
+    </div>
+
+    <!-- Item: Limonada -->
+    <div class="menu-item flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3">
+      <div class="w-12 h-12 bg-cream/50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">🍋</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-forest truncate">Limonada Natural</p>
+        <p class="text-[11px] text-gray-500 truncate">Hierbabuena / Fresa</p>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <p class="text-sm font-bold text-forest">$55</p>
+        <button class="btn mt-1 w-8 h-8 bg-terracota hover:bg-forest-light text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart footer -->
+  <div class="border-t border-gray-200 bg-white p-4 space-y-3 flex-shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">🛒 Carrito (3 items)</span>
+      <button class="text-xs text-gray-400 hover:text-red-500">Vaciar</button>
+    </div>
+    <div class="space-y-1 text-xs">
+      <div class="flex justify-between"><span class="text-gray-500">2× Hamburguesa Clásica (Grande)</span><span class="font-medium">$240</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">1× Papas Fritas +Aderezo</span><span class="font-medium">$65</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">1× Coca-Cola 600ml</span><span class="font-medium">$35</span></div>
+    </div>
+    <div class="flex justify-between pt-2 border-t border-gray-100">
+      <span class="text-sm font-bold text-forest">Total</span>
+      <span class="text-sm font-bold text-forest">$340</span>
+    </div>
+    <button class="btn w-full py-2.5 bg-terracota hover:bg-forest-light text-white font-bold text-sm rounded-lg shadow-sm">
+      📤 Enviar a cocina
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════ CENTER PANEL: ÓRDENES ═══════════ flex-1 -->
+<div class="panel flex-1 bg-gray-50 flex flex-col border-r border-gray-200">
+
+  <!-- Header -->
+  <div class="panel-header flex items-center justify-between">
+    <div>
+      <h2 class="text-base font-bold text-forest">📦 Órdenes activas</h2>
+      <p class="text-xs text-gray-500">Mesa 3 — Cheny · Terraza</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded-lg border border-gray-200">
+        💵 Cobrar $485
+      </button>
+    </div>
+  </div>
+
+  <!-- Session bar -->
+  <div class="flex overflow-x-auto bg-white border-b border-gray-200 px-1 py-1 gap-1 flex-shrink-0">
+    <div class="session-bar active flex items-center gap-2 px-3 py-2 rounded-lg min-w-fit cursor-pointer">
+      <span class="text-sm font-bold text-forest">🪑 M3</span>
+      <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">$485</span>
+    </div>
+    <div class="session-bar flex items-center gap-2 px-3 py-2 rounded-lg min-w-fit cursor-pointer">
+      <span class="text-sm text-gray-600">🪑 M1</span>
+      <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">$165</span>
+    </div>
+    <div class="session-bar flex items-center gap-2 px-3 py-2 rounded-lg min-w-fit cursor-pointer">
+      <span class="text-sm text-gray-600">🪑 M5</span>
+      <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">$90</span>
+    </div>
+    <button class="flex items-center gap-1 px-3 py-2 text-sm text-gray-400 hover:text-terracota rounded-lg">
+      <span>+ Abrir mesa</span>
+    </button>
+  </div>
+
+  <!-- Orders content -->
+  <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+    <!-- Order #A3F2 — IN KITCHEN -->
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-amber-50/50">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-mono text-gray-400">#A3F2</span>
+          <span class="text-[11px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">👨‍🍳 EN COCINA</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-gray-500">Hace 18 min</span>
+          <span class="w-2 h-2 rounded-full bg-red-500 pulse-live"></span>
+        </div>
+      </div>
+      <div class="divide-y divide-gray-100">
+        <div class="flex items-center gap-3 px-4 py-3">
+          <span class="text-2xl font-black text-gray-300">2×</span>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-forest">Hamburguesa Clásica <span class="text-gray-400 font-normal text-xs">Grande</span></p>
+            <div class="flex flex-wrap gap-1 mt-0.5">
+              <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">+Queso</span>
+              <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">+Tocino</span>
+            </div>
+            <p class="text-[10px] text-amber-600 italic mt-0.5">📝 "Sin cebolla, por favor"</p>
+          </div>
+          <span class="text-sm font-medium text-forest">$240</span>
+        </div>
+        <div class="flex items-center gap-3 px-4 py-3">
+          <span class="text-2xl font-black text-gray-300">1×</span>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-forest">Papas Fritas <span class="text-gray-400 font-normal text-xs">Regular</span></p>
+          </div>
+          <span class="text-sm font-medium text-forest">$65</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order #B4E1 — READY -->
+    <div class="bg-white border-2 border-green-400 rounded-xl overflow-hidden shadow-sm">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-green-100 bg-green-50">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-mono text-gray-400">#B4E1</span>
+          <span class="text-[11px] font-semibold bg-green-200 text-green-800 px-2 py-0.5 rounded-full">✅ LISTA</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-gray-500">Hace 25 min</span>
+          <span class="w-2 h-2 rounded-full bg-green-500 pulse-live"></span>
+        </div>
+      </div>
+      <div class="px-4 py-3">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl font-black text-gray-300">1×</span>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-forest">Coca-Cola 600ml</p>
+          </div>
+          <span class="text-sm font-medium text-forest">$35</span>
+        </div>
+        <div class="mt-3 flex gap-2">
+          <button class="btn flex-1 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-lg shadow-sm">
+            🍽️ Entregar orden
+          </button>
+          <button class="btn px-3 py-2 border border-gray-200 text-gray-500 hover:text-gray-700 rounded-lg text-sm">⋯</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order #C5D8 — ENTREGADA -->
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden opacity-50 shadow-sm">
+      <div class="flex items-center justify-between px-4 py-3">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-mono text-gray-400">#C5D8</span>
+          <span class="text-[11px] font-semibold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">🍽️ ENTREGADA</span>
+        </div>
+        <span class="text-xs text-gray-400">$265 · 14:05</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ RIGHT PANEL: KDS ═══════════ w-[320px] -->
+<div class="panel w-[320px] bg-white flex flex-col flex-shrink-0">
+
+  <!-- Header -->
+  <div class="panel-header flex items-center justify-between">
+    <div>
+      <h2 class="text-base font-bold text-forest">👨‍🍳 Cocina</h2>
+      <p class="text-xs text-gray-500">3 estaciones · 5 ítems</p>
+    </div>
+    <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium pulse-live">LIVE</span>
+  </div>
+
+  <!-- Kitchen content -->
+  <div class="flex-1 overflow-y-auto p-3 space-y-2">
+
+    <!-- Station: COCINA -->
+    <div>
+      <div class="flex items-center gap-2 mb-2 px-1">
+        <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">👨‍🍳 Cocina</span>
+        <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">2</span>
+      </div>
+
+      <!-- M3 Order — urgent -->
+      <div class="bg-white border border-red-300 rounded-xl overflow-hidden shadow-sm mb-2">
+        <div class="flex justify-between items-center px-3 py-2 bg-red-50 border-b border-red-100">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-forest">M3</span>
+            <span class="text-[10px] text-gray-500">Terraza</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-red-600">18 min</span>
+            <span class="w-2 h-2 rounded-full bg-red-500 pulse-live"></span>
+          </div>
+        </div>
+        <div class="px-3 py-2 space-y-1">
+          <div class="flex justify-between text-sm">
+            <span class="text-forest font-medium">2× Hamburguesa</span>
+            <span class="text-gray-400 text-xs">Grande</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-forest font-medium">1× Papas Fritas</span>
+            <span class="text-gray-400 text-xs">Regular</span>
+          </div>
+        </div>
+        <div class="px-3 pb-1">
+          <p class="text-[10px] text-amber-600 truncate">📝 Sin cebolla</p>
+        </div>
+        <button class="btn w-full py-2 bg-gray-50 hover:bg-green-50 text-green-600 hover:text-green-700 font-semibold text-xs border-t border-gray-100 transition-all">
+          ✓ Marcar todo listo (2)
+        </button>
+      </div>
+
+      <!-- M1 Order -->
+      <div class="bg-white border border-amber-200 rounded-xl overflow-hidden shadow-sm">
+        <div class="flex justify-between items-center px-3 py-2 bg-amber-50 border-b border-amber-100">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-forest">M1</span>
+            <span class="text-[10px] text-gray-500">Interior</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-amber-600">12 min</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          </div>
+        </div>
+        <div class="px-3 py-2 space-y-1">
+          <div class="flex justify-between text-sm">
+            <span class="text-forest font-medium">1× Ensalada César</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-forest font-medium">1× Limonada</span>
+          </div>
+        </div>
+        <button class="btn w-full py-2 bg-gray-50 hover:bg-green-50 text-green-600 hover:text-green-700 font-semibold text-xs border-t border-gray-100 transition-all">
+          ✓ Marcar todo listo (2)
+        </button>
+      </div>
+    </div>
+
+    <!-- Station: BAR -->
+    <div class="mt-4">
+      <div class="flex items-center gap-2 mb-2 px-1">
+        <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">🍸 Bar</span>
+        <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">1</span>
+      </div>
+
+      <div class="bg-white border border-green-200 rounded-xl overflow-hidden shadow-sm">
+        <div class="flex justify-between items-center px-3 py-2 bg-green-50 border-b border-green-100">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-forest">M5</span>
+            <span class="text-[10px] text-gray-500">Terraza</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-green-600">4 min</span>
+            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+          </div>
+        </div>
+        <div class="px-3 py-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-forest font-medium">2× Michelada</span>
+          </div>
+        </div>
+        <button class="btn w-full py-2 bg-gray-50 hover:bg-green-50 text-green-600 hover:text-green-700 font-semibold text-xs border-t border-gray-100 transition-all">
+          ✓ Marcar listo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KDS Footer with stats -->
+  <div class="border-t border-gray-200 p-3 bg-gray-50">
+    <div class="flex gap-2">
+      <div class="flex-1 bg-white rounded-lg px-3 py-2 text-center border border-gray-200">
+        <p class="text-[10px] text-gray-400">Pendientes</p>
+        <p class="text-sm font-bold text-amber-600">5</p>
+      </div>
+      <div class="flex-1 bg-white rounded-lg px-3 py-2 text-center border border-gray-200">
+        <p class="text-[10px] text-gray-400">Urgentes</p>
+        <p class="text-sm font-bold text-red-600">1</p>
+      </div>
+      <div class="flex-1 bg-white rounded-lg px-3 py-2 text-center border border-gray-200">
+        <p class="text-[10px] text-gray-400">Promedio</p>
+        <p class="text-sm font-bold text-gray-700">11 min</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating: selected item detail modal (shown when + is tapped) -->
+<div id="item-modal" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.4); display:none; align-items:flex-end; justify-content:center;">
+  <div style="background:white; border-radius:16px 16px 0 0; max-width:480px; width:100%; padding:20px; max-height:70vh; overflow-y:auto;">
+    <div style="display:flex; justify-content:center; margin-bottom:12px;">
+      <div style="width:40px; height:4px; background:#e5e7eb; border-radius:2px;"></div>
+    </div>
+    <h3 style="font-size:18px; font-weight:700; color:#1b4235; margin-bottom:4px;">Hamburguesa Clásica</h3>
+    <p style="font-size:13px; color:#6b7280; margin-bottom:16px;">Seleccioná variante y modificadores</p>
+
+    <div style="margin-bottom:16px;">
+      <p style="font-size:11px; font-weight:600; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">Tamaño</p>
+      <div style="display:flex; gap:8px;">
+        <div style="flex:1; padding:10px; border:2px solid #b88364; border-radius:10px; text-align:center; background:#fef9f6; cursor:pointer;">
+          <p style="font-weight:600; color:#1b4235;">Grande</p>
+          <p style="font-size:12px; color:#b88364;">+$0</p>
+        </div>
+        <div style="flex:1; padding:10px; border:1px solid #e5e7eb; border-radius:10px; text-align:center; cursor:pointer;">
+          <p style="font-weight:600; color:#1b4235;">Regular</p>
+          <p style="font-size:12px; color:#6b7280;">-$20</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <p style="font-size:11px; font-weight:600; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">Extras</p>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <span style="padding:6px 12px; border:1px solid #b88364; border-radius:20px; font-size:13px; background:#fef9f6; color:#1b4235; cursor:pointer;">+ Queso $15</span>
+        <span style="padding:6px 12px; border:1px solid #e5e7eb; border-radius:20px; font-size:13px; color:#6b7280; cursor:pointer;">+ Tocino $20</span>
+        <span style="padding:6px 12px; border:1px solid #e5e7eb; border-radius:20px; font-size:13px; color:#6b7280; cursor:pointer;">+ Huevo $15</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <p style="font-size:11px; font-weight:600; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">Instrucciones especiales</p>
+      <input type="text" placeholder="Ej: sin cebolla, término medio..." style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:10px; font-size:14px; outline:none;" />
+    </div>
+
+    <div style="display:flex; gap:8px;">
+      <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:12px; border:1px solid #e5e7eb; border-radius:10px; padding:8px;">
+        <button style="width:32px; height:32px; border-radius:50%; border:1px solid #e5e7eb; background:white; font-size:18px; cursor:pointer;">−</button>
+        <span style="font-weight:700; font-size:16px;">1</span>
+        <button style="width:32px; height:32px; border-radius:50%; border:1px solid #e5e7eb; background:white; font-size:18px; cursor:pointer;">+</button>
+      </div>
+      <button class="btn" style="flex:2; padding:12px; background:#b88364; color:white; border:none; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer;">
+        Agregar · $135
+      </button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
