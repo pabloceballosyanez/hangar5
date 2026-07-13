@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1024, initial-scale=1">
+<title>Modo Solo — Variant B: KDS Always Visible</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #020617;
+    color: #e2e8f0;
+    height: 100vh; overflow: hidden;
+  }
+  .panel { height: 100vh; overflow-y: auto; }
+  .card { transition: all 0.15s; cursor: pointer; }
+  .card:active { transform: scale(0.97); }
+  .tab { transition: all 0.15s; cursor: pointer; }
+  .tab-active { border-bottom: 2px solid #fbbf24; color: #fbbf24; }
+  .kds-card { transition: all 0.15s; }
+  .kds-card:hover { transform: translateY(-1px); }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .pulse-dot { animation: pulse 1s infinite; }
+</style>
+</head>
+<body class="flex">
+
+<!-- ═══ MAIN AREA (flex-1) ═══ -->
+<div class="panel flex-1 bg-slate-950 flex flex-col">
+
+  <!-- Top bar -->
+  <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex-shrink-0">
+    <div class="flex items-center gap-3">
+      <h1 class="text-lg font-black text-white">🔥 Modo Solo</h1>
+      <span class="text-xs text-slate-600">—</span>
+      <span class="text-xs bg-green-600/20 text-green-400 px-2 py-0.5 rounded-full font-semibold pulse-dot">LIVE</span>
+    </div>
+    <div class="flex items-center gap-2 text-xs text-slate-500">
+      <span>Vie 13 Jul</span>
+      <span>·</span>
+      <span>14:32</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex border-b border-slate-800 bg-slate-900/50 flex-shrink-0">
+    <div class="tab tab-active px-6 py-3 text-sm font-bold" data-tab="sessions">📋 Mesas (4)</div>
+    <div class="tab px-6 py-3 text-sm font-bold text-slate-500 hover:text-slate-300" data-tab="orders">📦 Órdenes (5)</div>
+    <div class="tab px-6 py-3 text-sm font-bold text-slate-500 hover:text-slate-300" data-tab="menu">📋 Menú</div>
+  </div>
+
+  <!-- Sessions tab content (active) -->
+  <div class="flex-1 overflow-y-auto p-4" id="tab-sessions">
+    <!-- Active session: M3 — expanded -->
+    <div class="border border-amber-500/30 bg-amber-950/10 rounded-2xl overflow-hidden mb-4">
+      <!-- Session header -->
+      <div class="flex items-center justify-between px-5 py-4 bg-slate-900/80 cursor-pointer">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl font-black text-white">🪑 M3</span>
+          <div>
+            <p class="text-sm text-slate-400">Cheny · Terraza</p>
+            <p class="text-xs text-slate-600">Abierta hace 22 min</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-lg font-bold text-amber-400">$485</span>
+          <span class="text-xs bg-amber-600/20 text-amber-300 px-2 py-0.5 rounded-full">3 órdenes</span>
+          <span class="text-sm text-slate-600">▼</span>
+        </div>
+      </div>
+
+      <!-- Order #A3F2 -->
+      <div class="border-t border-slate-800/50 px-5 py-3">
+        <div class="flex justify-between items-center mb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono text-slate-600">#A3F2</span>
+            <span class="text-xs bg-amber-600/20 text-amber-400 px-2 py-0.5 rounded-full font-semibold">👨‍🍳 EN COCINA</span>
+          </div>
+          <span class="text-xs text-slate-500">18 min</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-slate-800/60 rounded-lg p-2">
+            <p class="text-sm text-white font-medium">2× Hamburguesa</p>
+            <p class="text-[10px] text-slate-500">Grande · +Queso +Tocino</p>
+            <p class="text-[10px] text-amber-400/60 mt-0.5">📝 Sin cebolla</p>
+          </div>
+          <div class="bg-slate-800/60 rounded-lg p-2">
+            <p class="text-sm text-white font-medium">1× Papas Fritas</p>
+            <p class="text-[10px] text-slate-500">Regular</p>
+          </div>
+          <div class="bg-slate-800/60 rounded-lg p-2 flex items-center justify-center">
+            <p class="text-sm text-slate-500">$185</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order #B4E1 — READY -->
+      <div class="border-t border-slate-800/50 px-5 py-3 bg-emerald-950/20">
+        <div class="flex justify-between items-center mb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono text-slate-600">#B4E1</span>
+            <span class="text-xs bg-emerald-600/20 text-emerald-400 px-2 py-0.5 rounded-full font-semibold animate-pulse">✅ LISTA</span>
+          </div>
+          <span class="text-xs text-slate-500">25 min</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-white">1× Coca-Cola 600ml</span>
+          <span class="text-sm text-slate-400">$35</span>
+        </div>
+        <div class="mt-3 flex gap-2">
+          <button class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-lg transition-all active:scale-[0.98]">
+            🍽️ Entregar
+          </button>
+          <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-all">
+            ⋯
+          </button>
+        </div>
+      </div>
+
+      <!-- Session actions -->
+      <div class="border-t border-slate-800/50 px-5 py-3 flex gap-2">
+        <button class="flex-1 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold text-sm rounded-lg transition-all active:scale-95">
+          + Nueva Orden
+        </button>
+        <button class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm rounded-lg transition-all active:scale-95">
+          💵 Cobrar $485
+        </button>
+      </div>
+    </div>
+
+    <!-- Other sessions — compact grid -->
+    <div class="grid grid-cols-3 gap-3">
+      <!-- M1 -->
+      <div class="card border border-slate-800 bg-slate-900/60 rounded-xl p-4 hover:border-slate-600">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xl font-black">🪑 M1</span>
+          <span class="text-[10px] text-slate-600">12 min</span>
+        </div>
+        <p class="text-xs text-slate-500">Nina · Interior</p>
+        <div class="mt-3 flex justify-between items-end">
+          <span class="text-lg font-bold text-slate-300">$165</span>
+          <span class="text-[10px] text-slate-600">2 órdenes</span>
+        </div>
+      </div>
+
+      <!-- M5 -->
+      <div class="card border border-slate-800 bg-slate-900/60 rounded-xl p-4 hover:border-slate-600">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xl font-black">🪑 M5</span>
+          <span class="text-[10px] text-slate-600">4 min</span>
+        </div>
+        <p class="text-xs text-slate-500">Nina · Terraza</p>
+        <div class="mt-3 flex justify-between items-end">
+          <span class="text-lg font-bold text-slate-300">$90</span>
+          <span class="text-[10px] text-slate-600">1 orden</span>
+        </div>
+      </div>
+
+      <!-- M8 (empty) -->
+      <div class="card border border-dashed border-slate-800 bg-slate-900/30 rounded-xl p-4 hover:border-amber-400/30">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xl font-black text-slate-700">🪑 M8</span>
+        </div>
+        <p class="text-xs text-slate-700">Vacía</p>
+        <div class="mt-3">
+          <span class="text-xs text-slate-700">Tocar para abrir</span>
+        </div>
+      </div>
+
+      <!-- New -->
+      <div class="card border-2 border-dashed border-slate-700 bg-transparent rounded-xl p-4 flex items-center justify-center hover:border-amber-400/30 min-h-[120px]">
+        <div class="text-center">
+          <span class="text-3xl text-slate-700">➕</span>
+          <p class="text-xs text-slate-600 mt-1">Nueva Mesa</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ KDS PANEL (always visible, right side) ═══  w-[340px] -->
+<div class="panel w-[340px] bg-slate-900 border-l border-slate-800 flex flex-col flex-shrink-0">
+
+  <!-- KDS Header -->
+  <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+    <div>
+      <h2 class="text-base font-black text-white">🍳 Cocina</h2>
+      <p class="text-[10px] text-slate-600 mt-0.5">3 estaciones · 5 ítems</p>
+    </div>
+    <span class="text-[10px] bg-green-600/30 text-green-400 px-2 py-0.5 rounded-full animate-pulse font-semibold">LIVE</span>
+  </div>
+
+  <!-- KDS Content -->
+  <div class="flex-1 overflow-y-auto p-3 space-y-2">
+
+    <!-- Station: Cocina -->
+    <div class="mb-3">
+      <div class="flex items-center gap-2 mb-2 px-1">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">👨‍🍳 Cocina</h3>
+        <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full">2</span>
+      </div>
+
+      <!-- M3 Order -->
+      <div class="kds-card border border-red-500/40 bg-slate-950 rounded-xl overflow-hidden mb-2">
+        <div class="flex justify-between items-center px-3 py-2 bg-red-950/30 border-b border-red-500/10">
+          <div class="flex items-center gap-2">
+            <span class="font-black text-white">M3</span>
+            <span class="text-[10px] text-slate-500">Terraza</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-red-400">18 min</span>
+            <span class="w-2 h-2 rounded-full bg-red-500 pulse-dot"></span>
+          </div>
+        </div>
+        <div class="px-3 py-2 space-y-1">
+          <div class="flex justify-between text-sm">
+            <span class="text-white">2× Hamburguesa</span>
+            <span class="text-slate-500 text-xs">Grande</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-white">1× Papas</span>
+            <span class="text-slate-500 text-xs">Regular</span>
+          </div>
+        </div>
+        <div class="px-3 pb-2">
+          <p class="text-[10px] text-amber-400/60 truncate">📝 Sin cebolla, por favor</p>
+        </div>
+        <button class="w-full py-2 bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-bold transition-all border-t border-slate-800">
+          ✓ Marcar todo listo (2)
+        </button>
+      </div>
+
+      <!-- M1 Order -->
+      <div class="kds-card border border-amber-500/30 bg-slate-950 rounded-xl overflow-hidden mb-2">
+        <div class="flex justify-between items-center px-3 py-2 bg-amber-950/20 border-b border-amber-500/10">
+          <div class="flex items-center gap-2">
+            <span class="font-black text-white">M1</span>
+            <span class="text-[10px] text-slate-500">Interior</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-amber-400">12 min</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          </div>
+        </div>
+        <div class="px-3 py-2 space-y-1">
+          <div class="flex justify-between text-sm">
+            <span class="text-white">1× Ensalada César</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-white">1× Limonada</span>
+          </div>
+        </div>
+        <button class="w-full py-2 bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-bold transition-all border-t border-slate-800">
+          ✓ Marcar todo listo (2)
+        </button>
+      </div>
+    </div>
+
+    <!-- Station: Bar -->
+    <div>
+      <div class="flex items-center gap-2 mb-2 px-1">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">🍸 Bar</h3>
+        <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full">1</span>
+      </div>
+
+      <div class="kds-card border border-green-500/30 bg-slate-950 rounded-xl overflow-hidden">
+        <div class="flex justify-between items-center px-3 py-2 bg-green-950/15 border-b border-green-500/10">
+          <div class="flex items-center gap-2">
+            <span class="font-black text-white">M5</span>
+            <span class="text-[10px] text-slate-500">Terraza</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-green-400">4 min</span>
+            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+          </div>
+        </div>
+        <div class="px-3 py-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-white">2× Michelada</span>
+          </div>
+        </div>
+        <button class="w-full py-2 bg-slate-800 hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-bold transition-all border-t border-slate-800">
+          ✓ Marcar listo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KDS Footer — quick stats -->
+  <div class="p-3 border-t border-slate-800 flex gap-2">
+    <div class="flex-1 bg-slate-950 rounded-lg px-3 py-2 text-center">
+      <p class="text-[10px] text-slate-600">Pendientes</p>
+      <p class="text-sm font-bold text-amber-400">5</p>
+    </div>
+    <div class="flex-1 bg-slate-950 rounded-lg px-3 py-2 text-center">
+      <p class="text-[10px] text-slate-600">Urgentes</p>
+      <p class="text-sm font-bold text-red-400">1</p>
+    </div>
+    <div class="flex-1 bg-slate-950 rounded-lg px-3 py-2 text-center">
+      <p class="text-[10px] text-slate-600">Promedio</p>
+      <p class="text-sm font-bold text-slate-300">11 min</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Simple tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-active'));
+    document.querySelectorAll('.tab').forEach(t => { t.classList.add('text-slate-500'); t.classList.remove('text-slate-300'); });
+    tab.classList.add('tab-active');
+    tab.classList.remove('text-slate-500');
+  });
+});
+</script>
+
+</body>
+</html>
