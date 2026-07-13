@@ -413,6 +413,64 @@ export default function SoloOrdersPanel({
   const [showPayment, setShowPayment] = useState(false);
   const [delivering, setDelivering] = useState(false);
 
+  // ── New table modal ──────────────────────────────────────────────────────
+  const [showNewTable, setShowNewTable] = useState(false);
+  const [availableTables, setAvailableTables] = useState<Array<{ id: string; number: string; name: string | null }>>([]);
+  const [selectedTableId, setSelectedTableId] = useState('');
+  const [creatingSession, setCreatingSession] = useState(false);
+  const [newTableError, setNewTableError] = useState<string | null>(null);
+
+  const openNewTableModal = useCallback(async () => {
+    setNewTableError(null);
+    setSelectedTableId('');
+    try {
+      // Fetch both tables and open sessions to know which tables are free
+      const [tRes, sRes] = await Promise.all([
+        fetch('/api/admin/restaurant/tables'),
+        fetch('/api/admin/restaurant/sessions?status=OPEN'),
+      ]);
+      if (!tRes.ok) throw new Error('Error al cargar mesas');
+      const tables = await tRes.json();
+      const sessions = sRes.ok ? await sRes.json() : [];
+      const occupiedTableIds = new Set(
+        (Array.isArray(sessions) ? sessions : []).map((s: any) => s.table?.id).filter(Boolean)
+      );
+      const free = (Array.isArray(tables) ? tables : [])
+        .filter((t: any) => t.isActive !== false && !occupiedTableIds.has(t.id));
+      setAvailableTables(free);
+      setShowNewTable(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al cargar mesas');
+    }
+  }, []);
+
+  const createSession = useCallback(async () => {
+    if (!selectedTableId) return;
+    setCreatingSession(true);
+    setNewTableError(null);
+    try {
+      const table = availableTables.find(t => t.id === selectedTableId);
+      const label = table ? `Mesa ${table.number}` : 'Mesa';
+      const res = await fetch('/api/admin/restaurant/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'TABLE', label, tableId: selectedTableId }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Error al crear sesión');
+      }
+      const session = await res.json();
+      setShowNewTable(false);
+      await loadSessions();
+      onSelectSession(session.id);
+    } catch (e) {
+      setNewTableError(e instanceof Error ? e.message : 'Error');
+    } finally {
+      setCreatingSession(false);
+    }
+  }, [selectedTableId, availableTables, loadSessions, onSelectSession]);
+
   // ── Load open sessions ────────────────────────────────────────────────────
 
   const loadSessions = useCallback(async () => {
@@ -515,12 +573,12 @@ export default function SoloOrdersPanel({
         ) : sessions.length === 0 ? (
           <div className="text-center py-4">
             <p className="text-sm text-gray-400 mb-2">No hay sesiones abiertas</p>
-            <a
-              href="/waiter/nuevo"
-              className="inline-block text-sm text-blue-600 hover:text-blue-800 font-medium"
+            <button
+              onClick={openNewTableModal}
+              className="inline-block text-sm text-[#b88364] hover:text-[#8a5d44] font-medium"
             >
-              + Abrir mesa →
-            </a>
+              + Abrir mesa
+            </button>
           </div>
         ) : (
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
@@ -562,13 +620,13 @@ export default function SoloOrdersPanel({
             })}
 
             {/* + Abrir mesa button */}
-            <a
-              href="/waiter/nuevo"
+            <button
+              onClick={openNewTableModal}
               className="shrink-0 min-w-[100px] px-3 py-2 rounded-lg border border-dashed border-gray-300 bg-white hover:bg-gray-50 text-center flex items-center justify-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
               <span className="text-lg">+</span>
               <span>Abrir mesa</span>
-            </a>
+            </button>
           </div>
         )}
       </div>
@@ -701,6 +759,57 @@ export default function SoloOrdersPanel({
             setShowPayment(false);
           }}
         />
+      )}
+
+      {/* ── New table modal ───────────────────────────────────────────────── */}
+      {showNewTable && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowNewTable(false)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Abrir mesa</h3>
+            <p className="text-sm text-gray-500 mb-4">Seleccioná una mesa disponible</p>
+
+            {newTableError && (
+              <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600">{newTableError}</div>
+            )}
+
+            {availableTables.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">No hay mesas disponibles</p>
+            ) : (
+              <div className="space-y-1 max-h-48 overflow-y-auto mb-4">
+                {availableTables.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setSelectedTableId(t.id)}
+                    className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all border ${
+                      selectedTableId === t.id
+                        ? 'bg-[#fef9f6] border-[#b88364] font-semibold text-[#b88364]'
+                        : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    🪑 Mesa {t.number}
+                    {t.name && <span className="text-gray-400 ml-1 text-xs">· {t.name}</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowNewTable(false)}
+                className="flex-1 py-2.5 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={createSession}
+                disabled={!selectedTableId || creatingSession}
+                className="flex-1 py-2.5 bg-[#b88364] text-white text-sm font-semibold rounded-lg hover:bg-[#8a5d44] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {creatingSession ? 'Creando…' : 'Abrir mesa'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

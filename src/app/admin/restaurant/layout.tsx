@@ -12,6 +12,7 @@ const sidebarLinks = [
   { href: '/admin/restaurant/tables', label: 'Mesas', icon: '🪑' },
   { href: '/admin/restaurant/customers', label: 'Clientes', icon: '👥' },
   { href: '/admin/restaurant/orders', label: 'Órdenes', icon: '📦' },
+  { href: '/solo', label: 'Modo Solo', icon: '🔥' },
   { href: '/kds', label: 'KDS Cocina', icon: '👨‍🍳' },
   { href: '/admin/restaurant/ingredients', label: 'Inventario', icon: '🧂' },
   { href: '/admin/restaurant/fixed-expenses', label: 'Gastos Fijos', icon: '💰' },
