@@ -19,6 +19,7 @@ export default function SoloPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      {/* Modo Solo v2 — inline session creation */}
       {/* LEFT: Menú + carrito */}
       <div className="flex-1 min-w-0 border-r border-gray-200">
         {selectedSessionId ? (
