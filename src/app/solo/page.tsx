@@ -33,7 +33,7 @@ export default function SoloPage() {
             <div className="text-center text-gray-400">
               <div className="text-5xl mb-3">👈</div>
               <p className="text-sm font-medium">Seleccioná una mesa</p>
-              <p className="text-xs mt-1">para empezar a tomar pedidos v2</p>
+              <p className="text-xs mt-1">para empezar a tomar pedidos</p>
             </div>
           </div>
         )}
