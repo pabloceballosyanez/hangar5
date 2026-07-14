@@ -414,18 +414,32 @@ export default function SoloOrdersPanel({
   const [showPayment, setShowPayment] = useState(false);
   const [delivering, setDelivering] = useState(false);
 
-  // ── New table modal ──────────────────────────────────────────────────────
-  const [showNewTable, setShowNewTable] = useState(false);
+  // ── New session modal ────────────────────────────────────────────────────
+  const [showNewSession, setShowNewSession] = useState(false);
+  const [newTabType, setNewTabType] = useState<'TABLE' | 'TAB' | 'WALKIN'>('TABLE');
+  const [newTabLabel, setNewTabLabel] = useState('');
   const [availableTables, setAvailableTables] = useState<Array<{ id: string; number: string; name: string | null }>>([]);
   const [selectedTableId, setSelectedTableId] = useState('');
   const [creatingSession, setCreatingSession] = useState(false);
-  const [newTableError, setNewTableError] = useState<string | null>(null);
+  const [newSessionError, setNewSessionError] = useState<string | null>(null);
+  
+  // Customer search for TAB type
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [customers, setCustomers] = useState<Array<{ id: string; name: string; phone: string | null }>>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<{ id: string; name: string; phone: string | null } | null>(null);
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
 
-  const openNewTableModal = useCallback(async () => {
-    setNewTableError(null);
+  const openNewSessionModal = useCallback(async () => {
+    setNewSessionError(null);
     setSelectedTableId('');
+    setNewTabType('TABLE');
+    setNewTabLabel('');
+    setSelectedCustomer(null);
+    setCustomerSearch('');
+    setCustomers([]);
     try {
-      // Fetch both tables and open sessions to know which tables are free
+      // Fetch tables (only needed upfront to avoid delay when switching to TABLE)
       const [tRes, sRes] = await Promise.all([
         fetch('/api/admin/restaurant/tables'),
         fetch('/api/admin/restaurant/sessions?status=OPEN'),
@@ -439,31 +453,72 @@ export default function SoloOrdersPanel({
       const free = (Array.isArray(tables) ? tables : [])
         .filter((t: any) => t.isActive !== false && !occupiedTableIds.has(t.id));
       setAvailableTables(free);
-      setShowNewTable(true);
+      setShowNewSession(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al cargar mesas');
     }
   }, []);
 
-  const createSession = useCallback(async () => {
-    if (!selectedTableId) return;
-    setCreatingSession(true);
-    setNewTableError(null);
+  // Customer search for TAB type
+  const searchCustomers = useCallback(async (q: string) => {
+    if (q.trim().length === 0) {
+      setCustomers([]);
+      setShowCustomerDropdown(false);
+      return;
+    }
+    setLoadingCustomers(true);
     try {
-      const table = availableTables.find(t => t.id === selectedTableId);
-      const label = table ? `Mesa ${table.number}` : 'Mesa';
+      const res = await fetch(`/api/admin/restaurant/customers?search=${encodeURIComponent(q.trim())}`);
+      if (res.ok) {
+        const data = await res.json();
+        setCustomers(Array.isArray(data) ? data.slice(0, 10) : []);
+        setShowCustomerDropdown(true);
+      }
+    } catch { /* ignore */ }
+    finally { setLoadingCustomers(false); }
+  }, []);
+
+  const createSession = useCallback(async () => {
+    // Validate based on type
+    if (newTabType === 'TABLE' && !selectedTableId) {
+      setNewSessionError('Seleccioná una mesa');
+      return;
+    }
+    if (newTabType === 'TAB' && !selectedCustomer) {
+      setNewSessionError('Seleccioná un cliente');
+      return;
+    }
+    const label = newTabLabel.trim();
+    if (!label && newTabType === 'WALKIN') {
+      setNewTabLabel('Walk-in');
+    }
+    const finalLabel = label || 'Walk-in';
+
+    setCreatingSession(true);
+    setNewSessionError(null);
+    try {
+      const body: Record<string, any> = {
+        type: newTabType,
+        label: newTabType === 'TABLE'
+          ? `Mesa ${availableTables.find(t => t.id === selectedTableId)?.number || '?'}`
+          : finalLabel,
+        tableId: newTabType === 'TABLE' ? selectedTableId : null,
+      };
+      if (newTabType === 'TAB' && selectedCustomer) {
+        body.customerId = selectedCustomer.id;
+      }
+
       const res = await fetch('/api/admin/restaurant/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'TABLE', label, tableId: selectedTableId }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Error al crear sesión');
       }
       const session = await res.json();
-      setShowNewTable(false);
-      // Reload sessions to include the new one
+      setShowNewSession(false);
       try {
         const sRes = await fetch('/api/admin/restaurant/sessions?status=OPEN');
         if (sRes.ok) {
@@ -473,11 +528,11 @@ export default function SoloOrdersPanel({
       } catch { /* ignore */ }
       onSelectSession(session.id);
     } catch (e) {
-      setNewTableError(e instanceof Error ? e.message : 'Error');
+      setNewSessionError(e instanceof Error ? e.message : 'Error');
     } finally {
       setCreatingSession(false);
     }
-  }, [selectedTableId, availableTables, onSelectSession]);
+  }, [newTabType, newTabLabel, selectedTableId, selectedCustomer, availableTables, onSelectSession]);
 
   // ── Load open sessions ────────────────────────────────────────────────────
 
@@ -582,10 +637,10 @@ export default function SoloOrdersPanel({
           <div className="text-center py-4">
             <p className="text-sm text-gray-400 mb-2">No hay sesiones abiertas</p>
             <button
-              onClick={openNewTableModal}
+              onClick={openNewSessionModal}
               className="inline-block text-sm text-[#b88364] hover:text-[#8a5d44] font-medium"
             >
-              + Abrir mesa
+              + Nuevo tab
             </button>
           </div>
         ) : (
@@ -607,6 +662,7 @@ export default function SoloOrdersPanel({
                   }`}
                 >
                   <p className="text-xs font-semibold text-gray-900 truncate">
+                    {s.type === 'TABLE' ? '🪑 ' : s.type === 'TAB' ? '👤 ' : s.type === 'WALKIN' ? '🚶 ' : ''}
                     {s.table
                       ? `Mesa ${s.table.number}`
                       : s.label || 'Sin mesa'}
@@ -629,11 +685,11 @@ export default function SoloOrdersPanel({
 
             {/* + Abrir mesa button */}
             <button
-              onClick={openNewTableModal}
+              onClick={openNewSessionModal}
               className="shrink-0 min-w-[100px] px-3 py-2 rounded-lg border border-dashed border-gray-300 bg-white hover:bg-gray-50 text-center flex items-center justify-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
               <span className="text-lg">+</span>
-              <span>Abrir mesa</span>
+              <span>Nuevo tab</span>
             </button>
           </div>
         )}
@@ -659,7 +715,7 @@ export default function SoloOrdersPanel({
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="text-4xl mb-3">📋</div>
             <p className="text-gray-400 text-sm">
-              Seleccioná una mesa para ver sus órdenes
+              Seleccioná un tab para ver sus órdenes
             </p>
           </div>
         ) : loadingDetail ? (
@@ -769,51 +825,161 @@ export default function SoloOrdersPanel({
         />
       )}
 
-      {/* ── New table modal ───────────────────────────────────────────────── */}
-      {showNewTable && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowNewTable(false)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Abrir mesa</h3>
-            <p className="text-sm text-gray-500 mb-4">Seleccioná una mesa disponible</p>
+      {/* ── New session modal ───────────────────────────────────────────────── */}
+      {showNewSession && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowNewSession(false)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 max-h-[90dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Nuevo tab</h3>
+            <p className="text-sm text-gray-500 mb-4">Crear sesión para atender</p>
 
-            {newTableError && (
-              <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600">{newTableError}</div>
+            {newSessionError && (
+              <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600">{newSessionError}</div>
             )}
 
-            {availableTables.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-4">No hay mesas disponibles</p>
-            ) : (
-              <div className="space-y-1 max-h-48 overflow-y-auto mb-4">
-                {availableTables.map(t => (
+            {/* Tab type selector */}
+            <div className="mb-4">
+              <label className="block text-sm text-gray-500 mb-2">Tipo</label>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { key: 'TABLE' as const, icon: '🪑', label: 'Mesa', desc: 'Física' },
+                  { key: 'TAB' as const, icon: '👤', label: 'Cliente', desc: 'Registrado' },
+                  { key: 'WALKIN' as const, icon: '🚶', label: 'Walk-in', desc: 'Anónimo' },
+                ]).map(t => (
                   <button
-                    key={t.id}
-                    onClick={() => setSelectedTableId(t.id)}
-                    className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all border ${
-                      selectedTableId === t.id
-                        ? 'bg-[#fef9f6] border-[#b88364] font-semibold text-[#b88364]'
-                        : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                    key={t.key}
+                    type="button"
+                    onClick={() => { setNewTabType(t.key); setNewSessionError(null); }}
+                    className={`p-3 rounded-xl border-2 text-left transition-all ${
+                      newTabType === t.key
+                        ? 'border-[#b88364] bg-[#fef9f6]'
+                        : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    🪑 Mesa {t.number}
-                    {t.name && <span className="text-gray-400 ml-1 text-xs">· {t.name}</span>}
+                    <p className="font-bold text-[#1b4235] text-sm">{t.icon} {t.label}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{t.desc}</p>
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* TABLE: select mesa */}
+            {newTabType === 'TABLE' && (
+              <div className="mb-4">
+                <label className="block text-sm text-gray-500 mb-1">Mesa</label>
+                {availableTables.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-3">No hay mesas disponibles</p>
+                ) : (
+                  <div className="space-y-1 max-h-40 overflow-y-auto">
+                    {availableTables.map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => setSelectedTableId(t.id)}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all border ${
+                          selectedTableId === t.id
+                            ? 'bg-[#fef9f6] border-[#b88364] font-semibold text-[#b88364]'
+                            : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        🪑 Mesa {t.number}
+                        {t.name && <span className="text-gray-400 ml-1 text-xs">· {t.name}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
 
-            <div className="flex gap-2">
+            {/* TAB: customer search */}
+            {newTabType === 'TAB' && (
+              <div className="mb-4 relative">
+                <label className="block text-sm text-gray-500 mb-1">
+                  Cliente {selectedCustomer && <span className="text-green-600 ml-1">✓ Seleccionado</span>}
+                </label>
+                {selectedCustomer ? (
+                  <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl">
+                    <span className="text-xl">👤</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[#1b4235] font-medium truncate">{selectedCustomer.name}</p>
+                      {selectedCustomer.phone && <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>}
+                    </div>
+                    <button type="button" onClick={() => { setSelectedCustomer(null); setCustomerSearch(''); }}
+                      className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors">
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={customerSearch}
+                        onChange={e => { setCustomerSearch(e.target.value); searchCustomers(e.target.value); }}
+                        onFocus={() => { if (customers.length > 0) setShowCustomerDropdown(true); }}
+                        placeholder="Buscar cliente por nombre o teléfono..."
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-[#1b4235] placeholder:text-gray-400 focus:outline-none focus:border-[#b88364] text-sm"
+                      />
+                      {loadingCustomers && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <div className="w-4 h-4 border-2 border-[#b88364] border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                    {showCustomerDropdown && customers.length > 0 && (
+                      <div className="absolute z-30 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xl max-h-52 overflow-y-auto">
+                        {customers.map(c => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => { setSelectedCustomer(c); setCustomerSearch(''); setShowCustomerDropdown(false); }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                          >
+                            <span className="text-lg shrink-0">👤</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[#1b4235] font-medium text-sm truncate">{c.name}</p>
+                              {c.phone && <p className="text-xs text-gray-400">{c.phone}</p>}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* WALKIN: optional name */}
+            {newTabType === 'WALKIN' && (
+              <div className="mb-4">
+                <label className="block text-sm text-gray-500 mb-1">Nombre (opcional)</label>
+                <input
+                  type="text"
+                  value={newTabLabel}
+                  onChange={e => setNewTabLabel(e.target.value)}
+                  placeholder="Ej: Pareja terraza, Juan..."
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-[#1b4235] placeholder:text-gray-400 focus:outline-none focus:border-[#b88364] text-sm"
+                  autoFocus
+                />
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div className="flex gap-2 pt-2">
               <button
-                onClick={() => setShowNewTable(false)}
+                onClick={() => setShowNewSession(false)}
                 className="flex-1 py-2.5 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={createSession}
-                disabled={!selectedTableId || creatingSession}
+                disabled={
+                  creatingSession ||
+                  (newTabType === 'TABLE' && !selectedTableId) ||
+                  (newTabType === 'TAB' && !selectedCustomer)
+                }
                 className="flex-1 py-2.5 bg-[#b88364] text-white text-sm font-semibold rounded-lg hover:bg-[#8a5d44] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {creatingSession ? 'Creando…' : 'Abrir mesa'}
+                {creatingSession ? 'Creando…' : 'Abrir tab'}
               </button>
             </div>
           </div>
