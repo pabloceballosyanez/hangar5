@@ -405,6 +405,7 @@ export default function SoloOrdersPanel({
   selectedSessionId,
   onSelectSession,
 }: SoloOrdersPanelProps) {
+  // Modo Solo — inline session creation, no redirects to /waiter
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [sessionDetail, setSessionDetail] = useState<SessionDetail | null>(null);
   const [loadingSessions, setLoadingSessions] = useState(true);
@@ -462,14 +463,21 @@ export default function SoloOrdersPanel({
       }
       const session = await res.json();
       setShowNewTable(false);
-      await loadSessions();
+      // Reload sessions to include the new one
+      try {
+        const sRes = await fetch('/api/admin/restaurant/sessions?status=OPEN');
+        if (sRes.ok) {
+          const data = await sRes.json();
+          setSessions(Array.isArray(data) ? data : []);
+        }
+      } catch { /* ignore */ }
       onSelectSession(session.id);
     } catch (e) {
       setNewTableError(e instanceof Error ? e.message : 'Error');
     } finally {
       setCreatingSession(false);
     }
-  }, [selectedTableId, availableTables, loadSessions, onSelectSession]);
+  }, [selectedTableId, availableTables, onSelectSession]);
 
   // ── Load open sessions ────────────────────────────────────────────────────
 
