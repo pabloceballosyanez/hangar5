@@ -103,6 +103,31 @@ function elapsedDot(minutes: number): string {
   return '🔴';
 }
 
+// ── Session urgency (ported from /waiter — same color system) ─────────────────
+
+type Urgency = 'empty' | 'active' | 'partial_ready' | 'all_ready' | 'served';
+
+function getSessionUrgency(session: SessionSummary): Urgency {
+  if (session.urgency) return session.urgency as Urgency;
+  const active = (session.orders || []).filter(o => !['PAID', 'CANCELLED'].includes(o.status));
+  if (active.length === 0) return 'empty';
+  // All orders are SERVED (no items to track)
+  if (active.every(o => o.status === 'SERVED')) return 'served';
+  // Any order in READY = all ready (simplified — server computes item-level)
+  if (active.some(o => o.status === 'READY')) return 'partial_ready';
+  const allReady = active.every(o => o.status === 'READY');
+  if (allReady) return 'all_ready';
+  return 'active';
+}
+
+const URGENCY_CONFIG: Record<Urgency, { bg: string; border: string; badge: string; label: string; }> = {
+  empty:         { bg: 'bg-white',             border: 'border-gray-200', badge: 'bg-gray-100 text-gray-400', label: 'Vacío' },
+  active:        { bg: 'bg-amber-50',          border: 'border-amber-200', badge: 'bg-amber-100 text-amber-700', label: 'En cocina' },
+  partial_ready: { bg: 'bg-amber-50',          border: 'border-orange-300 border-l-orange-500 border-l-[3px]', badge: 'bg-orange-100 text-orange-700', label: 'Parcial' },
+  all_ready:     { bg: 'bg-green-50',          border: 'border-green-400 border-l-green-500 border-l-[3px]', badge: 'bg-green-500 text-white animate-pulse', label: '¡Listo!' },
+  served:        { bg: 'bg-gray-50 opacity-60', border: 'border-gray-200', badge: 'bg-gray-100 text-gray-400', label: 'Entregado' },
+};
+
 // ── Payment: advance order status step by step ────────────────────────────────
 
 const STATUS_PATH_TO_PAID = ['DRAFT', 'PLACED', 'IN_KITCHEN', 'READY', 'SERVED', 'PAID'];
@@ -626,8 +651,8 @@ export default function SoloOrdersPanel({
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
-      {/* ── Session bar (horizontal scrollable tabs) ─────────────────────── */}
-      <div className="shrink-0 bg-white border-b border-gray-200 px-3 py-2">
+      {/* ── Session bar (flex-wrap chips with urgency colors) ──────────────── */}
+      <div className="shrink-0 bg-white border-b border-gray-200 px-2.5 py-2">
         {loadingSessions ? (
           <div className="flex items-center justify-center py-3">
             <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
@@ -644,52 +669,57 @@ export default function SoloOrdersPanel({
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+          <div className="flex flex-wrap items-center gap-1.5">
             {sessions.map(s => {
-              const sessTotal = (s.orders || []).reduce((sum, o) => sum + (o.total || 0), 0);
-              const activeCount = (s.orders || []).filter(
-                o => !['PAID', 'CANCELLED'].includes(o.status)
-              ).length;
               const isSelected = s.id === selectedSessionId;
+              const urgency = getSessionUrgency(s);
+              const cfg = URGENCY_CONFIG[urgency];
+              const activeOrders = (s.orders || []).filter(o => !['PAID', 'CANCELLED'].includes(o.status));
+              const sessTotal = activeOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+              const activeCount = activeOrders.length;
               return (
                 <button
                   key={s.id}
                   onClick={() => onSelectSession(s.id)}
-                  className={`shrink-0 min-w-[120px] px-3 py-2 rounded-lg text-left transition-all border ${
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-left transition-all border ${cfg.border} ${cfg.bg} ${
                     isSelected
-                      ? 'bg-white border-[#D4724A] shadow-sm border-l-[3px]'
-                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100 border-l-[3px] border-l-transparent'
+                      ? 'ring-2 ring-[#b88364] ring-offset-1 shadow-sm scale-[1.02]'
+                      : 'hover:shadow-sm hover:scale-[1.01]'
                   }`}
                 >
-                  <p className="text-xs font-semibold text-gray-900 truncate">
-                    {s.type === 'TABLE' ? '🪑 ' : s.type === 'TAB' ? '👤 ' : s.type === 'WALKIN' ? '🚶 ' : ''}
-                    {s.table
-                      ? `Mesa ${s.table.number}`
-                      : s.label || 'Sin mesa'}
-                  </p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    {sessTotal > 0 && (
-                      <span className="text-xs font-mono font-bold text-gray-700">
-                        {fmt(sessTotal)}
-                      </span>
-                    )}
-                    {activeCount > 0 && (
-                      <span className="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-medium">
-                        {activeCount} activa{activeCount !== 1 ? 's' : ''}
-                      </span>
-                    )}
-                  </div>
+                  {/* Type icon */}
+                  <span className="text-xs shrink-0">
+                    {s.type === 'TABLE' ? '🪑' : s.type === 'TAB' ? '👤' : '🚶'}
+                  </span>
+
+                  {/* Label */}
+                  <span className="text-xs font-semibold text-gray-800 leading-tight max-w-[100px] truncate">
+                    {s.table ? `Mesa ${s.table.number}` : s.label || '…'}
+                  </span>
+
+                  {/* Urgency badge */}
+                  {urgency !== 'empty' && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0 ${cfg.badge}`}>
+                      {urgency === 'all_ready' ? '¡Listo!' : activeCount > 0 ? activeCount : cfg.label}
+                    </span>
+                  )}
+
+                  {/* Total */}
+                  {sessTotal > 0 && (
+                    <span className="text-[10px] font-mono font-bold text-gray-600 shrink-0">
+                      {fmt(sessTotal)}
+                    </span>
+                  )}
                 </button>
               );
             })}
 
-            {/* + Abrir mesa button */}
+            {/* + Nuevo tab button */}
             <button
               onClick={openNewSessionModal}
-              className="shrink-0 min-w-[100px] px-3 py-2 rounded-lg border border-dashed border-gray-300 bg-white hover:bg-gray-50 text-center flex items-center justify-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-dashed border-gray-300 bg-white hover:bg-gray-50 text-xs text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <span className="text-lg">+</span>
-              <span>Nuevo tab</span>
+              <span className="text-base leading-none">+</span>
             </button>
           </div>
         )}
