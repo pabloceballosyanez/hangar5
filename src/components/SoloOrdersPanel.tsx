@@ -62,6 +62,10 @@ interface SessionDetail {
 interface SoloOrdersPanelProps {
   selectedSessionId: string | null;
   onSelectSession: (id: string) => void;
+  /** Bumped by sibling panels — triggers an instant silent re-fetch */
+  refreshSignal?: number;
+  /** Call after a local mutation so sibling panels re-fetch instantly */
+  onMutate?: () => void;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -429,6 +433,8 @@ function OrderCard({
 export default function SoloOrdersPanel({
   selectedSessionId,
   onSelectSession,
+  refreshSignal,
+  onMutate,
 }: SoloOrdersPanelProps) {
   // Modo Solo — inline session creation, no redirects to /waiter
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
@@ -581,8 +587,8 @@ export default function SoloOrdersPanel({
 
   // ── Load session detail when selected ─────────────────────────────────────
 
-  const loadSessionDetail = useCallback(async (sessionId: string) => {
-    setLoadingDetail(true);
+  const loadSessionDetail = useCallback(async (sessionId: string, silent = false) => {
+    if (!silent) setLoadingDetail(true);
     setError(null);
     try {
       const res = await fetch(`/api/admin/restaurant/sessions/${sessionId}`);
@@ -591,9 +597,9 @@ export default function SoloOrdersPanel({
       setSessionDetail(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al cargar sesión');
-      setSessionDetail(null);
+      if (!silent) setSessionDetail(null);
     } finally {
-      setLoadingDetail(false);
+      if (!silent) setLoadingDetail(false);
     }
   }, []);
 
@@ -605,13 +611,21 @@ export default function SoloOrdersPanel({
     }
   }, [selectedSessionId, loadSessionDetail]);
 
-  // ── Auto-refresh every 30 seconds ─────────────────────────────────────────
+  // ── Instant refresh when sibling panels mutate (silent, no flicker) ────────
+
+  useEffect(() => {
+    if (refreshSignal === undefined || refreshSignal === 0) return;
+    loadSessions();
+    if (selectedSessionId) loadSessionDetail(selectedSessionId, true);
+  }, [refreshSignal, loadSessions, loadSessionDetail, selectedSessionId]);
+
+  // ── Auto-refresh every 10 seconds (aligned with KDS) ───────────────────────
 
   useEffect(() => {
     const interval = setInterval(() => {
       loadSessions();
-      if (selectedSessionId) loadSessionDetail(selectedSessionId);
-    }, 30000);
+      if (selectedSessionId) loadSessionDetail(selectedSessionId, true);
+    }, 10000);
     return () => clearInterval(interval);
   }, [loadSessions, loadSessionDetail, selectedSessionId]);
 
@@ -633,7 +647,8 @@ export default function SoloOrdersPanel({
           body: JSON.stringify({ status: 'SERVED' }),
         });
       }
-      await loadSessionDetail(selectedSessionId!);
+      await loadSessionDetail(selectedSessionId!, true);
+      onMutate?.(); // notify KDS + sessions bar instantly
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al entregar');
     } finally {
@@ -849,7 +864,9 @@ export default function SoloOrdersPanel({
           sessionLabel={sessionDetail.label}
           onClose={() => setShowPayment(false)}
           onPaid={() => {
-            loadSessionDetail(selectedSessionId!);
+            loadSessionDetail(selectedSessionId!, true);
+            loadSessions();
+            onMutate?.(); // notify KDS instantly (paid orders leave the queue)
             setShowPayment(false);
           }}
         />

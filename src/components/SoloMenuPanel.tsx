@@ -513,13 +513,6 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
 
   // ── Render helpers ───────────────────────────────────────────────────────
 
-  const tabClass = (catId: string) =>
-    `whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors border-b-2 cursor-pointer ${
-      activeCategoryId === catId
-        ? 'border-[#b88364] text-[#b88364]'
-        : 'border-transparent text-gray-500 hover:text-[#1b4235] hover:border-gray-300'
-    }`;
-
   // ── Loading state ────────────────────────────────────────────────────────
 
   if (loading) {
@@ -595,16 +588,20 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
         />
       </div>
 
-      {/* Category tabs (hidden during search) */}
+      {/* Category tabs (hidden during search) — all visible, wrapping */}
       {!search.trim() && (
-        <div className="flex-shrink-0 border-b border-gray-100">
-          <div className="flex overflow-x-auto scrollbar-hide px-2">
+        <div className="flex-shrink-0 border-b border-gray-100 px-3 py-2">
+          <div className="flex flex-wrap gap-1.5">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 type="button"
-                className={tabClass(cat.id)}
                 onClick={() => setActiveCategoryId(cat.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border ${
+                  activeCategoryId === cat.id
+                    ? 'bg-[#b88364] text-white border-[#b88364] shadow-sm'
+                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-[#b88364]/40 hover:text-[#b88364]'
+                }`}
               >
                 {cat.name}
               </button>

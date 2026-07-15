@@ -94,7 +94,14 @@ function urgencyTextColor(urgency: Urgency): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function SoloKDSPanel() {
+interface SoloKDSPanelProps {
+  /** Bumped by sibling panels — triggers an instant re-fetch */
+  refreshSignal?: number;
+  /** Call after marking items ready so sibling panels re-fetch instantly */
+  onMutate?: () => void;
+}
+
+export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelProps) {
   const [grouped, setGrouped] = useState<StationGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
@@ -196,9 +203,15 @@ export default function SoloKDSPanel() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchOrders();
-    const interval = setInterval(fetchOrders, 15000);
+    const interval = setInterval(fetchOrders, 10000); // aligned with orders panel
     return () => clearInterval(interval);
   }, [fetchOrders]);
+
+  // Instant refresh when sibling panels mutate (order sent, delivered, paid)
+  useEffect(() => {
+    if (refreshSignal === undefined || refreshSignal === 0) return;
+    fetchOrders();
+  }, [refreshSignal, fetchOrders]);
 
   // ── Mark Ready ─────────────────────────────────────────────────────────────
 
@@ -222,6 +235,8 @@ export default function SoloKDSPanel() {
           next.delete(itemId);
           return next;
         });
+      } else {
+        onMutate?.(); // orders panel shows READY (deliver button) instantly
       }
     } catch {
       setOptimisticReadyItems((prev) => {
@@ -230,7 +245,7 @@ export default function SoloKDSPanel() {
         return next;
       });
     }
-  }, []);
+  }, [onMutate]);
 
   const markAllItemsReady = useCallback(
     async (orderId: string, itemIds: string[]) => {
@@ -268,8 +283,11 @@ export default function SoloKDSPanel() {
           return next;
         });
       }
+      if (failedIds.length < pendingIds.length) {
+        onMutate?.(); // at least one item marked ready → sync siblings
+      }
     },
-    [optimisticReadyItems]
+    [optimisticReadyItems, onMutate]
   );
 
   // ── Stats ──────────────────────────────────────────────────────────────────
