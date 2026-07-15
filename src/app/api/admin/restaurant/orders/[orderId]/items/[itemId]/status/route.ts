@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { notifyOrderReady } from "@/lib/whatsapp";
 import { ORDER_ITEM_STATUSES, type OrderItemStatus } from "@/lib/restaurant-types";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,9 @@ export async function PUT(
     }
 
     const previousStatus = orderItem.status as OrderItemStatus;
+
+    // Track whether the order auto-advanced to READY inside the transaction
+    let orderBecameReady = false;
 
     const result = await prisma.$transaction(async (tx) => {
       const updatedItem = await tx.orderItem.update({
@@ -97,6 +101,7 @@ export async function PUT(
             where: { id: orderId },
             data: { status: "READY" },
           });
+          orderBecameReady = true;
         }
       }
 
@@ -123,6 +128,12 @@ export async function PUT(
 
       return updatedItem;
     });
+
+    // ── WhatsApp: aviso al cliente cuando su pedido queda listo ─────────────
+    // Fire-and-forget: nunca bloquea ni rompe el flujo de cocina.
+    if (orderBecameReady) {
+      void notifyOrderReady(orderId);
+    }
 
     return NextResponse.json(result);
   } catch (err) {

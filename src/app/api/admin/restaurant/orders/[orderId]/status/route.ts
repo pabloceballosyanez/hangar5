@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { notifyOrderReady } from "@/lib/whatsapp";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/restaurant-types";
 
 export const dynamic = "force-dynamic";
@@ -219,6 +220,12 @@ export async function PUT(
 
       return { order: updated, statusEvent };
     });
+
+    // ── WhatsApp: aviso al cliente cuando su pedido está listo ──────────────
+    // Fire-and-forget: nunca bloquea ni rompe el flujo de cocina.
+    if (newStatus === "READY") {
+      void notifyOrderReady(orderId);
+    }
 
     return NextResponse.json(result);
   } catch (err) {

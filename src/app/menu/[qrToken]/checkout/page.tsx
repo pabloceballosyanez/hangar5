@@ -349,13 +349,13 @@ export default function CheckoutPage() {
 
           <div className="px-4 py-3">
             <label className="block text-xs font-semibold text-gray-500 mb-1">
-              Teléfono <span className="text-gray-400 font-normal">(opcional)</span>
+              WhatsApp <span className="text-green-600 font-normal">📱 te avisamos cuando tu pedido esté listo</span>
             </label>
             <input
               type="tel"
               value={form.phone}
               onChange={(e) => updateField("phone", e.target.value)}
-              placeholder="+52 555 000 0000"
+              placeholder="722 000 0000"
               autoComplete="tel"
               className="w-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
             />
