@@ -30,62 +30,6 @@ const paymentLabels: Record<string, string> = {
   card: "💳 Tarjeta",
   transfer: "🏦 Transferencia",
   cash: "💵 Efectivo",
-};
-
-function DryRunButton() {
-  const [state, setState] = useState<'idle' | 'confirm' | 'running' | 'done'>('idle');
-  const [confirmText, setConfirmText] = useState('');
-
-  const handleWipe = async () => {
-    if (confirmText !== 'REINICIAR') return;
-    setState('running');
-    const res = await fetch('/api/admin/wipe', { method: 'POST' });
-    if (res.ok) {
-      setState('done');
-      setTimeout(() => window.location.reload(), 2000);
-    } else {
-      alert('Error al reiniciar. Revisá la consola.');
-      setState('idle');
-    }
-  };
-
-  if (state === 'done') return <span className="text-xs text-green-600 font-medium">✅ Listo — recargando...</span>;
-  if (state === 'running') return <span className="text-xs text-amber-600 font-medium">⏳ Reiniciando...</span>;
-
-  return (
-    <>
-      {state === 'confirm' ? (
-        <span className="flex items-center gap-2">
-          <span className="text-xs text-red-600 font-medium whitespace-nowrap">⚠️ Escribe REINICIAR:</span>
-          <input
-            type="text"
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value.toUpperCase())}
-            placeholder="REINICIAR"
-            className="w-28 px-2 py-1 text-xs border border-red-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
-            autoFocus
-          />
-          <button
-            onClick={handleWipe}
-            disabled={confirmText !== 'REINICIAR'}
-            className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            Ejecutar
-          </button>
-          <button onClick={() => { setState('idle'); setConfirmText(''); }} className="text-xs px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
-            Cancelar
-          </button>
-        </span>
-      ) : (
-        <>
-          <button onClick={() => setState('confirm')} className="text-xs uppercase tracking-wider bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded hover:bg-red-100 transition-colors font-medium">
-            🧹 Preparar Dry Run
-          </button>
-          <span className="text-[10px] text-gray-400 ml-1">Solo borra órdenes y clientes. Recetas y menú intactos.</span>
-        </>
-      )}
-    </>
-  );
 }
 
 export default function AdminClient({ bookings, items, cabanas, activities, rentals }: {
@@ -288,9 +232,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
           <button onClick={() => setTab("items")} className={`px-6 py-3 text-sm uppercase tracking-wider transition-colors ${tab === "items" ? "text-[#1b4235] border-b-2 border-[#1b4235] font-medium" : "text-[#b88364] hover:text-[#1b4235]"}`}>
             🏷️ Items
           </button>
-          <div className="ml-auto">
-            <DryRunButton />
-          </div>
+          <div className="ml-auto" />
         </div>
 
         {/* ===== TAB: DASHBOARD ===== */}
