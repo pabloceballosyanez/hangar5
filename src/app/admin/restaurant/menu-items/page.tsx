@@ -28,11 +28,20 @@ export default async function MenuItemsPage({
     typeof resolvedParams.categoryId === "string" && resolvedParams.categoryId
       ? resolvedParams.categoryId
       : undefined;
+  const statusFilter = typeof resolvedParams.status === "string"
+    ? resolvedParams.status
+    : "active";
+
+  // Build isActive filter: "active" → true, "inactive" → false, "all" → undefined (no filter)
+  const isActiveFilter =
+    statusFilter === "active" ? true
+    : statusFilter === "inactive" ? false
+    : undefined;
 
   const [items, categories] = await Promise.all([
     prisma.menuItem.findMany({
       where: {
-        isActive: true,
+        ...(isActiveFilter !== undefined ? { isActive: isActiveFilter } : {}),
         ...(categoryFilter ? { categoryId: categoryFilter } : {}),
       },
       include: {
@@ -59,10 +68,31 @@ export default async function MenuItemsPage({
         </Link>
       </div>
 
-      {/* Filter */}
-      <div className="flex items-center gap-3">
+      {/* Filters */}
+      <div className="flex items-center gap-3 flex-wrap">
         <label className="text-sm font-medium text-gray-600">Filtrar por categoría:</label>
         <CategoryFilter categories={categories} currentCategoryId={categoryFilter} />
+        <span className="text-gray-300">|</span>
+        <span className="text-sm font-medium text-gray-600">Estado:</span>
+        <div className="flex gap-1">
+          {[
+            { key: "active", label: "Activos" },
+            { key: "inactive", label: "Inactivos" },
+            { key: "all", label: "Todos" },
+          ].map((f) => (
+            <a
+              key={f.key}
+              href={`/admin/restaurant/menu-items?status=${f.key}${categoryFilter ? `&categoryId=${categoryFilter}` : ""}`}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border ${
+                statusFilter === f.key
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              {f.label}
+            </a>
+          ))}
+        </div>
       </div>
 
       {items.length === 0 ? (
