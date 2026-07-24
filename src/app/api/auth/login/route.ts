@@ -105,10 +105,20 @@ export async function GET(req: NextRequest) {
       const payload = verifyJWT(cookie);
       if (payload && typeof payload === "object") {
         const p = payload as Record<string, unknown>;
-        if (typeof p.staffId === "string") {
-          return NextResponse.json({
-            staff: { id: p.staffId, name: p.name, role: p.role },
-          });
+
+        // Staff JWT: { type: "staff", payload: { staffId, name, role } }
+        if (p.type === "staff" && p.payload && typeof p.payload === "object") {
+          const s = p.payload as Record<string, unknown>;
+          if (typeof s.staffId === "string") {
+            return NextResponse.json({
+              staff: { id: s.staffId, name: s.name, role: s.role },
+            });
+          }
+        }
+
+        // Admin JWT: { type: "admin", role: "admin" }
+        if (p.type === "admin") {
+          return NextResponse.json({ staff: { role: "admin" } });
         }
       }
     } catch { /* fall through to legacy */ }
