@@ -2,36 +2,18 @@ services:
   - type: web
     name: hangar5
     env: node
-    buildCommand: npm install && npx prisma generate && npm run build
+    region: oregon
+    plan: starter
+    buildCommand: npm install && npm run build
     startCommand: npm start
     disk:
-      name: hangar5-data
+      name: data
       mountPath: /data
       sizeGB: 1
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: DATABASE_URL
         value: file:/data/hangar5.db
-      - key: NEXT_PUBLIC_URL
-        value: https://hangar5.onrender.com
-      - key: HOSTNAME
-        value: 0.0.0.0
-      - key: MP_ACCESS_TOKEN
-        sync: false
-      - key: BANK_NAME
-        sync: false
-      - key: BANK_CLABE
-        sync: false
-      - key: BANK_ACCOUNT_HOLDER
-        sync: false
-      - key: BANK_CARD
-        sync: false
-      - key: EMAIL_USER
-        sync: false
-      - key: EMAIL_PASS
-        sync: false
-      - key: DEEPSEEK_API_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
