@@ -23,7 +23,7 @@ function serializeOrder(order: Record<string, unknown>) {
 /** Descuenta inventario para una orden dentro de una transacción */
 async function deductInventory(
   tx: any,
-  items: { menuItemId: string; quantity: number }[]
+  items: { menuItemId: string; quantity: number; modifierIds?: string[] }[]
 ) {
   for (const item of items) {
     // 1. Buscar receta del platillo
@@ -33,7 +33,6 @@ async function deductInventory(
     });
 
     if (recipe && recipe.recipeItems.length > 0) {
-      // Child recipe has its own ingredients → those are the complete list
       for (const ri of recipe.recipeItems) {
         const decrement = ri.quantity * item.quantity;
         await tx.ingredient.update({
@@ -49,8 +48,6 @@ async function deductInventory(
         });
       }
     } else if (recipe && recipe.parentRecipeId) {
-      // No own ingredients → pure inheritance from parent recipe
-      // Scale by yield ratio: childYield / parentYield
       const parent = await tx.recipe.findUnique({
         where: { id: recipe.parentRecipeId },
         include: { recipeItems: { include: { ingredient: true } } },
@@ -76,7 +73,6 @@ async function deductInventory(
         }
       }
     } else {
-      // Sin receta: buscar ingrediente con mismo nombre que el platillo
       const menuItem = await tx.menuItem.findUnique({ where: { id: item.menuItemId } });
       if (menuItem) {
         const ingredient = await tx.ingredient.findFirst({
@@ -92,6 +88,37 @@ async function deductInventory(
               ingredientId: ingredient.id,
               delta: -item.quantity,
               reason: `Venta directa: ${item.quantity}x ${menuItem.name}`,
+            },
+          });
+        }
+      }
+    }
+
+    // 2. Descontar recetas de modificadores (ej: "extra queso" → descuenta queso)
+    if (item.modifierIds && item.modifierIds.length > 0) {
+      for (const modifierId of item.modifierIds) {
+        const modRecipe = await tx.recipe.findUnique({
+          where: { modifierId },
+          include: { recipeItems: { include: { ingredient: true } } },
+        });
+        if (!modRecipe || modRecipe.recipeItems.length === 0) continue;
+
+        const modName = await tx.modifier.findUnique({
+          where: { id: modifierId },
+          select: { name: true },
+        });
+
+        for (const ri of modRecipe.recipeItems) {
+          const decrement = ri.quantity * item.quantity;
+          await tx.ingredient.update({
+            where: { id: ri.ingredientId },
+            data: { currentStock: { decrement } },
+          });
+          await tx.stockMovement.create({
+            data: {
+              ingredientId: ri.ingredientId,
+              delta: -decrement,
+              reason: `Venta: ${item.quantity}x +"${modName?.name || 'mod'}"`,
             },
           });
         }
@@ -350,7 +377,11 @@ export async function POST(req: NextRequest) {
 
       // Descontar inventario (solo para órdenes que van directo a cocina, no QR drafts)
       if (source !== "QR") {
-        await deductInventory(tx, itemsWithPrices.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity })));
+        await deductInventory(tx, itemsWithPrices.map(i => ({
+          menuItemId: i.menuItemId,
+          quantity: i.quantity,
+          modifierIds: i.modifierIds,
+        })));
       }
 
       return tx.order.findUnique({

@@ -161,6 +161,30 @@ export async function createOrderFromCart(input: CartOrderInput) {
           });
         }
       }
+
+      // Deduct modifier recipes
+      if (item.modifierIds && item.modifierIds.length > 0) {
+        for (const modifierId of item.modifierIds) {
+          const modRecipe = await tx.recipe.findUnique({
+            where: { modifierId },
+            include: { recipeItems: { include: { ingredient: true } } },
+          });
+          if (!modRecipe || modRecipe.recipeItems.length === 0) continue;
+          for (const ri of modRecipe.recipeItems) {
+            await tx.ingredient.update({
+              where: { id: ri.ingredientId },
+              data: { currentStock: { decrement: ri.quantity * item.quantity } },
+            });
+            await tx.stockMovement.create({
+              data: {
+                ingredientId: ri.ingredientId,
+                delta: -(ri.quantity * item.quantity),
+                reason: `Venta QR: ${item.quantity}x +"${modifierMap.get(modifierId)?.name || 'mod'}"`,
+              },
+            });
+          }
+        }
+      }
     }
 
     return tx.order.findUnique({

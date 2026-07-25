@@ -121,6 +121,7 @@ model Modifier {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   orderItemModifiers OrderItemModifier[]
+  recipes            Recipe[]
 }
 
 model MenuItemModifierGroup {
@@ -155,6 +156,8 @@ model Recipe {
   id             String       @id @default(cuid())
   menuItemId     String?      @unique
   menuItem       MenuItem?    @relation(fields: [menuItemId], references: [id])
+  modifierId     String?      @unique
+  modifier       Modifier?    @relation(fields: [modifierId], references: [id])
   parentRecipeId String?
   parentRecipe   Recipe?      @relation("RecipeExtensions", fields: [parentRecipeId], references: [id])
   childRecipes   Recipe[]     @relation("RecipeExtensions")
