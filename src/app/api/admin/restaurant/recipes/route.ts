@@ -11,6 +11,7 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       include: {
         menuItem: { select: { id: true, name: true, isActive: true, imageUrl: true } },
+        modifier: { select: { id: true, name: true } },
         parentRecipe: { select: { id: true, notes: true, menuItem: { select: { name: true } } } },
         _count: { select: { recipeItems: true, childRecipes: true } },
       },
@@ -19,9 +20,11 @@ export async function GET() {
     const result = recipes.map((r) => ({
       id: r.id,
       menuItemId: r.menuItemId,
-      menuItemName: r.menuItem?.name ?? (r.notes ? r.notes.split('. ')[0].split(' — ')[0].trim() : "(plantilla)"),
+      modifierId: r.modifierId,
+      menuItemName: r.menuItem?.name ?? (r.modifier?.name ? `+ ${r.modifier.name}` : (r.notes ? r.notes.split('. ')[0].split(' — ')[0].trim() : "(plantilla)")),
       menuItemImage: r.menuItem?.imageUrl ?? null,
-      menuItemActive: r.menuItem?.isActive ?? false,
+      menuItemActive: r.menuItem?.isActive ?? true,
+      isModifier: !!r.modifierId,
       isTemplate: r.isTemplate,
       parentRecipeId: r.parentRecipeId,
       parentRecipeName: r.parentRecipe?.menuItem?.name ?? (r.parentRecipe?.notes ? r.parentRecipe.notes.split('. ')[0].split(' — ')[0].trim() : null),
@@ -43,6 +46,7 @@ export async function GET() {
 // ─── POST: create recipe ─────────────────────────────────────────────────────
 const createRecipeSchema = z.object({
   menuItemId: z.string().optional(),
+  modifierId: z.string().optional(),
   parentRecipeId: z.string().optional(),
   isTemplate: z.boolean().default(false),
   yieldQuantity: z.number().min(0).default(1),
@@ -55,6 +59,10 @@ export async function POST(req: NextRequest) {
     const parsed = createRecipeSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    }
+
+    if (!parsed.data.menuItemId && !parsed.data.modifierId) {
+      return NextResponse.json({ error: "Se requiere menuItemId o modifierId" }, { status: 400 });
     }
 
     const data: any = {
@@ -70,6 +78,14 @@ export async function POST(req: NextRequest) {
       const existing = await prisma.recipe.findUnique({ where: { menuItemId: parsed.data.menuItemId } });
       if (existing) return NextResponse.json({ error: "Ya existe una receta para este ítem" }, { status: 409 });
       data.menuItemId = parsed.data.menuItemId;
+    }
+
+    if (parsed.data.modifierId) {
+      const modifier = await prisma.modifier.findUnique({ where: { id: parsed.data.modifierId } });
+      if (!modifier) return NextResponse.json({ error: "Modificador no encontrado" }, { status: 404 });
+      const existing = await prisma.recipe.findUnique({ where: { modifierId: parsed.data.modifierId } });
+      if (existing) return NextResponse.json({ error: "Ya existe una receta para este modificador" }, { status: 409 });
+      data.modifierId = parsed.data.modifierId;
     }
 
     if (parsed.data.parentRecipeId) {
