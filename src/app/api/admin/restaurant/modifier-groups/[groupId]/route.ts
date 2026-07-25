@@ -20,6 +20,61 @@ function serializeGroup(group: Record<string, unknown>) {
   };
 }
 
+// ─── PATCH: update a single modifier field ───────────────────────────────────
+export async function PATCH(req: NextRequest, { params }: Params) {
+  try {
+    const { groupId } = await params;
+    const body = await req.json();
+    const { modifierId, ...fields } = body as Record<string, unknown>;
+
+    if (!modifierId) {
+      return NextResponse.json({ error: "Se requiere modifierId" }, { status: 400 });
+    }
+
+    const modifier = await prisma.modifier.findUnique({ where: { id: String(modifierId) } });
+    if (!modifier || modifier.modifierGroupId !== groupId) {
+      return NextResponse.json({ error: "Modificador no encontrado" }, { status: 404 });
+    }
+
+    // Only allow specific fields
+    const allowed = ["deductsInventory", "inventoryIngredientId", "inventoryQuantity", "name", "priceDelta"];
+    const updates: Record<string, unknown> = {};
+    for (const key of allowed) {
+      if (key in fields) updates[key] = fields[key];
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: "No hay campos para actualizar" }, { status: 400 });
+    }
+
+    // Convert priceDelta to cents if provided
+    if (typeof updates.priceDelta === "number") {
+      updates.priceDelta = Math.round(updates.priceDelta * 100);
+    }
+
+    // If deductsInventory turns off, clear the ingredient fields
+    if (updates.deductsInventory === false) {
+      updates.inventoryIngredientId = null;
+      updates.inventoryQuantity = 0;
+    }
+
+    await prisma.modifier.update({
+      where: { id: String(modifierId) },
+      data: updates as any,
+    });
+
+    const group = await prisma.modifierGroup.findUnique({
+      where: { id: groupId },
+      include: { modifiers: true },
+    });
+
+    return NextResponse.json(serializeGroup(group as unknown as Record<string, unknown>));
+  } catch (err) {
+    console.error("[PATCH /api/admin/restaurant/modifier-groups/[groupId]]", err);
+    return NextResponse.json({ error: "Error al actualizar modificador" }, { status: 500 });
+  }
+}
+
 // ─── GET: single modifier group with its modifiers ──────────────────────────
 export async function GET(_req: NextRequest, { params }: Params) {
   try {

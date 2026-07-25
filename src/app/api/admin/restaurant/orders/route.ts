@@ -94,34 +94,26 @@ async function deductInventory(
       }
     }
 
-    // 2. Descontar recetas de modificadores (ej: "extra queso" → descuenta queso)
+    // 2. Descontar inventario de modificadores (si tienen deductsInventory activado)
     if (item.modifierIds && item.modifierIds.length > 0) {
-      for (const modifierId of item.modifierIds) {
-        const modRecipe = await tx.recipe.findUnique({
-          where: { modifierId },
-          include: { recipeItems: { include: { ingredient: true } } },
+      const modifiers = await tx.modifier.findMany({
+        where: { id: { in: item.modifierIds }, deductsInventory: true },
+        select: { id: true, name: true, inventoryIngredientId: true, inventoryQuantity: true },
+      });
+      for (const mod of modifiers) {
+        if (!mod.inventoryIngredientId || !mod.inventoryQuantity) continue;
+        const decrement = mod.inventoryQuantity * item.quantity;
+        await tx.ingredient.update({
+          where: { id: mod.inventoryIngredientId },
+          data: { currentStock: { decrement } },
         });
-        if (!modRecipe || modRecipe.recipeItems.length === 0) continue;
-
-        const modName = await tx.modifier.findUnique({
-          where: { id: modifierId },
-          select: { name: true },
+        await tx.stockMovement.create({
+          data: {
+            ingredientId: mod.inventoryIngredientId,
+            delta: -decrement,
+            reason: `Venta: ${item.quantity}x +"${mod.name}"`,
+          },
         });
-
-        for (const ri of modRecipe.recipeItems) {
-          const decrement = ri.quantity * item.quantity;
-          await tx.ingredient.update({
-            where: { id: ri.ingredientId },
-            data: { currentStock: { decrement } },
-          });
-          await tx.stockMovement.create({
-            data: {
-              ingredientId: ri.ingredientId,
-              delta: -decrement,
-              reason: `Venta: ${item.quantity}x +"${modName?.name || 'mod'}"`,
-            },
-          });
-        }
       }
     }
   }

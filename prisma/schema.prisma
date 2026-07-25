@@ -113,15 +113,18 @@ model ModifierGroup {
 }
 
 model Modifier {
-  id                 String              @id @default(cuid())
-  modifierGroupId    String
-  modifierGroup      ModifierGroup       @relation(fields: [modifierGroupId], references: [id])
-  name               String
-  priceDelta         Int                 @default(0)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  orderItemModifiers OrderItemModifier[]
-  recipes            Recipe[]
+  id                   String              @id @default(cuid())
+  modifierGroupId      String
+  modifierGroup        ModifierGroup       @relation(fields: [modifierGroupId], references: [id])
+  name                 String
+  priceDelta           Int                 @default(0)
+  deductsInventory     Boolean             @default(false)
+  inventoryIngredientId String?
+  inventoryIngredient  Ingredient?         @relation("ModifierInventoryIngredient", fields: [inventoryIngredientId], references: [id])
+  inventoryQuantity    Float               @default(0)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  orderItemModifiers   OrderItemModifier[]
 }
 
 model MenuItemModifierGroup {
@@ -150,14 +153,13 @@ model Ingredient {
   updatedAt      DateTime        @updatedAt
   recipeItems    RecipeItem[]
   stockMovements StockMovement[]
+  modifiers      Modifier[]         @relation("ModifierInventoryIngredient")
 }
 
 model Recipe {
   id             String       @id @default(cuid())
   menuItemId     String?      @unique
   menuItem       MenuItem?    @relation(fields: [menuItemId], references: [id])
-  modifierId     String?      @unique
-  modifier       Modifier?    @relation(fields: [modifierId], references: [id])
   parentRecipeId String?
   parentRecipe   Recipe?      @relation("RecipeExtensions", fields: [parentRecipeId], references: [id])
   childRecipes   Recipe[]     @relation("RecipeExtensions")

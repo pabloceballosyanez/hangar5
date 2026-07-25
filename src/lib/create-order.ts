@@ -162,27 +162,26 @@ export async function createOrderFromCart(input: CartOrderInput) {
         }
       }
 
-      // Deduct modifier recipes
+      // Deduct modifier inventory (direct fields, no recipe needed)
       if (item.modifierIds && item.modifierIds.length > 0) {
-        for (const modifierId of item.modifierIds) {
-          const modRecipe = await tx.recipe.findUnique({
-            where: { modifierId },
-            include: { recipeItems: { include: { ingredient: true } } },
+        const mods = await tx.modifier.findMany({
+          where: { id: { in: item.modifierIds }, deductsInventory: true },
+          select: { id: true, name: true, inventoryIngredientId: true, inventoryQuantity: true },
+        });
+        for (const mod of mods) {
+          if (!mod.inventoryIngredientId || !mod.inventoryQuantity) continue;
+          const decrement = mod.inventoryQuantity * item.quantity;
+          await tx.ingredient.update({
+            where: { id: mod.inventoryIngredientId },
+            data: { currentStock: { decrement } },
           });
-          if (!modRecipe || modRecipe.recipeItems.length === 0) continue;
-          for (const ri of modRecipe.recipeItems) {
-            await tx.ingredient.update({
-              where: { id: ri.ingredientId },
-              data: { currentStock: { decrement: ri.quantity * item.quantity } },
-            });
-            await tx.stockMovement.create({
-              data: {
-                ingredientId: ri.ingredientId,
-                delta: -(ri.quantity * item.quantity),
-                reason: `Venta QR: ${item.quantity}x +"${modifierMap.get(modifierId)?.name || 'mod'}"`,
-              },
-            });
-          }
+          await tx.stockMovement.create({
+            data: {
+              ingredientId: mod.inventoryIngredientId,
+              delta: -decrement,
+              reason: `Venta QR: ${item.quantity}x +"${mod.name}"`,
+            },
+          });
         }
       }
     }

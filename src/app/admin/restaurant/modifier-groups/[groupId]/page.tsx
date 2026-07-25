@@ -8,6 +8,16 @@ interface Modifier {
   id: string;
   name: string;
   priceDelta: number; // pesos from API
+  deductsInventory: boolean;
+  inventoryIngredientId: string | null;
+  inventoryIngredientName?: string | null;
+  inventoryQuantity: number;
+}
+
+interface Ingredient {
+  id: string;
+  name: string;
+  unit: string;
 }
 
 interface ModifierGroup {
@@ -46,8 +56,15 @@ export default function ModifierGroupPage() {
   const [deletingModId, setDeletingModId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Ingredients list (for inventory dropdown)
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+
   useEffect(() => {
     if (!isNew) loadGroup();
+    fetch('/api/admin/restaurant/ingredients')
+      .then(r => r.json())
+      .then(data => setIngredients(Array.isArray(data) ? data : []))
+      .catch(() => {});
   }, [groupId]);
 
   async function loadGroup() {
@@ -192,6 +209,28 @@ export default function ModifierGroupPage() {
       setError(e instanceof Error ? e.message : 'Error al eliminar');
     } finally {
       setDeletingModId(null);
+    }
+  }
+
+  async function updateModifierField(modifierId: string, field: string, value: any) {
+    // Optimistic update
+    setModifiers(prev => prev.map(m =>
+      m.id === modifierId ? { ...m, [field]: value } : m
+    ));
+    try {
+      const res = await fetch(`/api/admin/restaurant/modifier-groups/${groupId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ modifierId, [field]: value }),
+      });
+      if (!res.ok) {
+        // Revert on failure
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || 'Error al actualizar');
+        await loadGroup();
+      }
+    } catch {
+      await loadGroup();
     }
   }
 
@@ -362,33 +401,79 @@ export default function ModifierGroupPage() {
             </button>
           </form>
 
-          {/* Modifiers list */}
+          {/* Modifiers list with inline inventory controls */}
           {modifiers.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-4">
               No hay modificadores. Agrega uno usando el formulario de arriba.
             </p>
           ) : (
-            <ul className="divide-y divide-gray-50">
+            <div className="divide-y divide-gray-100">
               {modifiers.map((mod) => (
-                <li key={mod.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{mod.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {mod.priceDelta === 0
-                        ? 'Sin costo adicional'
-                        : `+$${mod.priceDelta.toFixed(2)} MXN`}
-                    </p>
+                <div key={mod.id} className="py-3 first:pt-0 last:pb-0 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{mod.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {mod.priceDelta === 0
+                          ? 'Sin costo adicional'
+                          : `+$${mod.priceDelta.toFixed(2)} MXN`}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteModifier(mod)}
+                      disabled={deletingModId === mod.id}
+                      className="text-red-500 hover:text-red-700 text-sm font-medium disabled:opacity-50 transition-colors"
+                    >
+                      {deletingModId === mod.id ? 'Eliminando...' : 'Eliminar'}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleDeleteModifier(mod)}
-                    disabled={deletingModId === mod.id}
-                    className="text-red-500 hover:text-red-700 text-sm font-medium disabled:opacity-50 transition-colors"
-                  >
-                    {deletingModId === mod.id ? 'Eliminando...' : 'Eliminar'}
-                  </button>
-                </li>
+
+                  {/* Inventory controls */}
+                  <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={mod.deductsInventory}
+                        onChange={(e) => updateModifierField(mod.id, 'deductsInventory', e.target.checked)}
+                        className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-xs font-medium text-gray-700">
+                        ☑️ ¿Descuenta inventario?
+                      </span>
+                    </label>
+
+                    {mod.deductsInventory && (
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <label className="block text-[10px] text-gray-500 mb-0.5">Ingrediente</label>
+                          <select
+                            value={mod.inventoryIngredientId || ''}
+                            onChange={(e) => updateModifierField(mod.id, 'inventoryIngredientId', e.target.value || null)}
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+                          >
+                            <option value="">Seleccionar...</option>
+                            {ingredients.map(ing => (
+                              <option key={ing.id} value={ing.id}>{ing.name} ({ing.unit})</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="w-24">
+                          <label className="block text-[10px] text-gray-500 mb-0.5">Cantidad</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            value={mod.inventoryQuantity || ''}
+                            onChange={(e) => updateModifierField(mod.id, 'inventoryQuantity', parseFloat(e.target.value) || 0)}
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       )}
