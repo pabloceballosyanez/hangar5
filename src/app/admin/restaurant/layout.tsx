@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const sidebarLinks = [
-  { href: '/admin', label: '🏠 Dashboard', icon: '🏠' },
+  { href: '/admin/restaurant', label: '🏠 Dashboard', icon: '🏠' },
   { href: '/admin/restaurant/categories', label: 'Categorías', icon: '📂' },
   { href: '/admin/restaurant/menu-items', label: 'Menú', icon: '📋' },
   { href: '/admin/restaurant/modifier-groups', label: 'Modificadores', icon: '🔧' },
