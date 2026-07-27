@@ -458,7 +458,9 @@ export default function ModifierGroupPage() {
                           </select>
                         </div>
                         <div className="w-24">
-                          <label className="block text-[10px] text-gray-500 mb-0.5">Cantidad</label>
+                          <label className="block text-[10px] text-gray-500 mb-0.5">
+                            Cantidad <span className="text-gray-400">({ingredients.find(ing => ing.id === mod.inventoryIngredientId)?.unit || '?'})</span>
+                          </label>
                           <input
                             type="number"
                             step="0.01"
