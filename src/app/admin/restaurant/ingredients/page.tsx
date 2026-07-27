@@ -36,6 +36,9 @@ export default function IngredientsPage() {
   const [minStock, setMinStock] = useState('');
   const [cost, setCost] = useState('');
 
+  // Search
+  const [search, setSearch] = useState('');
+
   const loadIngredients = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/restaurant/ingredients');
@@ -125,8 +128,8 @@ export default function IngredientsPage() {
     } catch { /* ignore */ }
   }
 
-  const activeIngredients = ingredients.filter(i => i.isActive);
-  const inactiveIngredients = ingredients.filter(i => !i.isActive);
+  const activeIngredients = ingredients.filter(i => i.isActive && (!search || i.name.toLowerCase().includes(search.toLowerCase())));
+  const inactiveIngredients = ingredients.filter(i => !i.isActive && (!search || i.name.toLowerCase().includes(search.toLowerCase())));
 
   return (
     <div className="space-y-6">
@@ -151,6 +154,17 @@ export default function IngredientsPage() {
             + Nuevo ingrediente
           </button>
         </div>
+      </div>
+
+      {/* Search */}
+      <div>
+        <input
+          type="search"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="🔍 Buscar ingrediente..."
+          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+        />
       </div>
 
       {/* Form */}

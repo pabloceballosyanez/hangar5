@@ -81,6 +81,9 @@ export default function RecipesPage() {
   const [yieldQuantity, setYieldQuantity] = useState('1');
   const [notes, setNotes] = useState('');
 
+  // Search
+  const [recipeSearch, setRecipeSearch] = useState('');
+
   // Detail modal
   const [detailRecipe, setDetailRecipe] = useState<RecipeDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -277,6 +280,17 @@ export default function RecipesPage() {
         </button>
       </div>
 
+      {/* Search */}
+      <div>
+        <input
+          type="search"
+          value={recipeSearch}
+          onChange={e => setRecipeSearch(e.target.value)}
+          placeholder="🔍 Buscar receta por nombre de platillo..."
+          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+        />
+      </div>
+
       {/* Create recipe form */}
       {showCreateForm && (
         <form onSubmit={handleCreateRecipe} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
@@ -395,7 +409,9 @@ export default function RecipesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {recipes.map(recipe => (
+                {recipes
+                  .filter(r => !recipeSearch || r.menuItemName.toLowerCase().includes(recipeSearch.toLowerCase()))
+                  .map(recipe => (
                   <tr key={recipe.id} className={`hover:bg-gray-50 ${!recipe.menuItemActive ? 'opacity-50' : ''}`}>
                     <td className="py-3 px-4">
                       <span className="font-medium text-gray-900">{recipe.menuItemName}</span>

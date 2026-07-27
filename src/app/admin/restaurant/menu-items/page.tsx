@@ -31,6 +31,9 @@ export default async function MenuItemsPage({
   const statusFilter = typeof resolvedParams.status === "string"
     ? resolvedParams.status
     : "active";
+  const searchFilter = typeof resolvedParams.search === "string" && resolvedParams.search
+    ? resolvedParams.search
+    : undefined;
 
   // Build isActive filter: "active" → true, "inactive" → false, "all" → undefined (no filter)
   const isActiveFilter =
@@ -43,6 +46,7 @@ export default async function MenuItemsPage({
       where: {
         ...(isActiveFilter !== undefined ? { isActive: isActiveFilter } : {}),
         ...(categoryFilter ? { categoryId: categoryFilter } : {}),
+        ...(searchFilter ? { name: { contains: searchFilter } } : {}),
       },
       include: {
         category: true,
@@ -93,6 +97,23 @@ export default async function MenuItemsPage({
             </a>
           ))}
         </div>
+      </div>
+
+      {/* Search */}
+      <div>
+        <input
+          type="search"
+          placeholder="🔍 Buscar platillo..."
+          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          onChange={(e) => {
+            const q = e.target.value;
+            const url = new URL(window.location.href);
+            if (q) url.searchParams.set('search', q);
+            else url.searchParams.delete('search');
+            window.location.href = url.toString();
+          }}
+          defaultValue={typeof resolvedParams.search === 'string' ? resolvedParams.search : ''}
+        />
       </div>
 
       {items.length === 0 ? (
