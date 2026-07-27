@@ -101,19 +101,17 @@ export default async function MenuItemsPage({
 
       {/* Search */}
       <div>
-        <input
-          type="search"
-          placeholder="🔍 Buscar platillo..."
-          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-          onChange={(e) => {
-            const q = e.target.value;
-            const url = new URL(window.location.href);
-            if (q) url.searchParams.set('search', q);
-            else url.searchParams.delete('search');
-            window.location.href = url.toString();
-          }}
-          defaultValue={typeof resolvedParams.search === 'string' ? resolvedParams.search : ''}
-        />
+        <form method="GET" action="/admin/restaurant/menu-items">
+          {statusFilter !== 'active' && <input type="hidden" name="status" value={statusFilter} />}
+          {categoryFilter && <input type="hidden" name="categoryId" value={categoryFilter} />}
+          <input
+            type="search"
+            name="search"
+            placeholder="🔍 Buscar platillo..."
+            defaultValue={searchFilter || ''}
+            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </form>
       </div>
 
       {items.length === 0 ? (
