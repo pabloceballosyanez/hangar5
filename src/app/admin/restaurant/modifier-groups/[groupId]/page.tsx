@@ -461,7 +461,7 @@ export default function ModifierGroupPage() {
                           <label className="block text-[10px] text-gray-500 mb-0.5">Cantidad</label>
                           <input
                             type="number"
-                            step="0.1"
+                            step="0.01"
                             min="0"
                             value={mod.inventoryQuantity || ''}
                             onChange={(e) => updateModifierField(mod.id, 'inventoryQuantity', parseFloat(e.target.value) || 0)}
