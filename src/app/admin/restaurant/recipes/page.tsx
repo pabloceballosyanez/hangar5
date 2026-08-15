@@ -11,6 +11,8 @@ interface RecipeSummary {
   menuItemActive: boolean;
   isModifier?: boolean;
   isTemplate: boolean;
+  parentRecipeName?: string | null;
+  childRecipeCount?: number;
   yieldQuantity: number;
   notes: string | null;
   ingredientCount: number;
@@ -78,8 +80,12 @@ export default function RecipesPage() {
   const [selectedMenuItemId, setSelectedMenuItemId] = useState('');
   const [selectedModifierId, setSelectedModifierId] = useState('');
   const [selectedParentId, setSelectedParentId] = useState('');
+  const [isTemplate, setIsTemplate] = useState(false);
   const [yieldQuantity, setYieldQuantity] = useState('1');
   const [notes, setNotes] = useState('');
+
+  // Search
+  const [recipeSearch, setRecipeSearch] = useState('');
 
   // Detail modal
   const [detailRecipe, setDetailRecipe] = useState<RecipeDetail | null>(null);
@@ -139,6 +145,7 @@ export default function RecipesPage() {
     setSelectedModifierId('');
     setRecipeType('menu');
     setSelectedParentId('');
+    setIsTemplate(false);
     setYieldQuantity('1');
     setNotes('');
     setShowCreateForm(false);
@@ -154,6 +161,7 @@ export default function RecipesPage() {
     try {
       const body: Record<string, any> = {
         parentRecipeId: selectedParentId || undefined,
+        isTemplate,
         yieldQuantity: parseFloat(yieldQuantity) || 1,
         notes: notes.trim() || undefined,
       };
@@ -277,6 +285,17 @@ export default function RecipesPage() {
         </button>
       </div>
 
+      {/* Search */}
+      <div>
+        <input
+          type="search"
+          value={recipeSearch}
+          onChange={e => setRecipeSearch(e.target.value)}
+          placeholder="🔍 Buscar receta por nombre de platillo..."
+          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+        />
+      </div>
+
       {/* Create recipe form */}
       {showCreateForm && (
         <form onSubmit={handleCreateRecipe} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
@@ -335,15 +354,36 @@ export default function RecipesPage() {
               )}
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Receta base (template)</label>
-              <select value={selectedParentId} onChange={e => setSelectedParentId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="">Ninguna (receta independiente)</option>
-                {recipes.filter(r => r.isTemplate).map(r => (
-                  <option key={r.id} value={r.id}>{r.menuItemName}</option>
-                ))}
-              </select>
-              <p className="text-xs text-gray-400 mt-1">Hereda ingredientes del template seleccionado</p>
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="checkbox"
+                  id="isTemplate"
+                  checked={isTemplate}
+                  onChange={(e) => setIsTemplate(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                />
+                <label htmlFor="isTemplate" className="text-xs font-medium text-gray-700">
+                  📋 Es receta base (template)
+                </label>
+              </div>
+              {isTemplate && (
+                <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded-lg mb-2">
+                  Las recetas base no se vinculan a un platillo. Otras recetas pueden heredar sus ingredientes.
+                </p>
+              )}
+              {!isTemplate && (
+                <>
+                  <label className="block text-xs text-gray-500 mb-1">Receta base (opcional)</label>
+                  <select value={selectedParentId} onChange={e => setSelectedParentId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="">Ninguna (receta independiente)</option>
+                    {recipes.filter(r => r.isTemplate).map(r => (
+                      <option key={r.id} value={r.id}>{r.menuItemName}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-400 mt-1">Hereda ingredientes de la receta base. Agregá solo los ingredientes extra.</p>
+                </>
+              )}
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Rendimiento (porciones)</label>
@@ -395,13 +435,26 @@ export default function RecipesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {recipes.map(recipe => (
+                {recipes
+                  .filter(r => !recipeSearch || r.menuItemName.toLowerCase().includes(recipeSearch.toLowerCase()))
+                  .map(recipe => (
                   <tr key={recipe.id} className={`hover:bg-gray-50 ${!recipe.menuItemActive ? 'opacity-50' : ''}`}>
                     <td className="py-3 px-4">
-                      <span className="font-medium text-gray-900">{recipe.menuItemName}</span>
-                      {!recipe.menuItemActive && (
-                        <span className="ml-2 text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full">Inactivo</span>
-                      )}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-medium text-gray-900">{recipe.menuItemName}</span>
+                        {recipe.isTemplate && (
+                          <span className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">📋 Template</span>
+                        )}
+                        {recipe.parentRecipeName && (
+                          <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">🔗 {recipe.parentRecipeName}</span>
+                        )}
+                        {(recipe.childRecipeCount ?? 0) > 0 && (
+                          <span className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">👶 {recipe.childRecipeCount}</span>
+                        )}
+                        {!recipe.menuItemActive && (
+                          <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full">Inactivo</span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${recipe.ingredientCount > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
