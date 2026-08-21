@@ -57,28 +57,41 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    if (!parsed.data.menuItemId) {
-      return NextResponse.json({ error: "Se requiere menuItemId" }, { status: 400 });
+    const { menuItemId, parentRecipeId, isTemplate, yieldQuantity, notes } = parsed.data;
+
+    // Exclusividad: o es receta base (template) o se vincula a un platillo, nunca ambos.
+    if (isTemplate) {
+      if (menuItemId) {
+        return NextResponse.json({ error: "Una receta base no puede vincularse a un platillo" }, { status: 400 });
+      }
+      if (!notes || !notes.trim()) {
+        return NextResponse.json({ error: "La receta base necesita un nombre" }, { status: 400 });
+      }
+    } else {
+      if (!menuItemId) {
+        return NextResponse.json({ error: "Seleccioná un ítem del menú (o marcá receta base)" }, { status: 400 });
+      }
     }
 
     const data: any = {
-      isTemplate: parsed.data.isTemplate,
-      parentRecipeId: parsed.data.parentRecipeId || null,
-      yieldQuantity: parsed.data.yieldQuantity,
-      notes: parsed.data.notes || null,
+      isTemplate,
+      parentRecipeId: isTemplate ? null : (parentRecipeId || null),
+      yieldQuantity,
+      notes: notes || null,
     };
 
-    if (parsed.data.menuItemId) {
-      const menuItem = await prisma.menuItem.findUnique({ where: { id: parsed.data.menuItemId } });
+    if (menuItemId) {
+      const menuItem = await prisma.menuItem.findUnique({ where: { id: menuItemId } });
       if (!menuItem) return NextResponse.json({ error: "Ítem de menú no encontrado" }, { status: 404 });
-      const existing = await prisma.recipe.findUnique({ where: { menuItemId: parsed.data.menuItemId } });
+      const existing = await prisma.recipe.findUnique({ where: { menuItemId } });
       if (existing) return NextResponse.json({ error: "Ya existe una receta para este ítem" }, { status: 409 });
-      data.menuItemId = parsed.data.menuItemId;
+      data.menuItemId = menuItemId;
     }
 
-    if (parsed.data.parentRecipeId) {
-      const parent = await prisma.recipe.findUnique({ where: { id: parsed.data.parentRecipeId } });
+    if (parentRecipeId) {
+      const parent = await prisma.recipe.findUnique({ where: { id: parentRecipeId } });
       if (!parent) return NextResponse.json({ error: "Receta base no encontrada" }, { status: 404 });
+      if (!parent.isTemplate) return NextResponse.json({ error: "La receta seleccionada no es una receta base" }, { status: 400 });
     }
 
     const recipe = await prisma.recipe.create({

@@ -6,10 +6,8 @@ import Link from 'next/link';
 interface RecipeSummary {
   id: string;
   menuItemId: string | null;
-  modifierId?: string | null;
   menuItemName: string;
   menuItemActive: boolean;
-  isModifier?: boolean;
   isTemplate: boolean;
   parentRecipeName?: string | null;
   childRecipeCount?: number;
@@ -25,12 +23,6 @@ interface MenuItem {
   basePrice: number;
   isActive: boolean;
   categoryName?: string;
-}
-
-interface ModifierOption {
-  id: string;
-  name: string;
-  groupName: string;
 }
 
 interface Ingredient {
@@ -68,7 +60,6 @@ function formatPrice(pesos: number) {
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [modifiers, setModifiers] = useState<ModifierOption[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,11 +67,10 @@ export default function RecipesPage() {
 
   // Create form
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [recipeType, setRecipeType] = useState<'menu' | 'modifier'>('menu');
+  const [recipeType, setRecipeType] = useState<'menu' | 'template'>('menu');
   const [selectedMenuItemId, setSelectedMenuItemId] = useState('');
-  const [selectedModifierId, setSelectedModifierId] = useState('');
   const [selectedParentId, setSelectedParentId] = useState('');
-  const [isTemplate, setIsTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState('');
   const [yieldQuantity, setYieldQuantity] = useState('1');
   const [notes, setNotes] = useState('');
 
@@ -110,22 +100,6 @@ export default function RecipesPage() {
     } catch { /* ignore */ }
   }, []);
 
-  const loadModifiers = useCallback(async () => {
-    try {
-      const res = await fetch('/api/admin/restaurant/modifier-groups');
-      if (res.ok) {
-        const groups = await res.json();
-        const all: ModifierOption[] = [];
-        for (const g of groups) {
-          for (const m of g.modifiers || []) {
-            all.push({ id: m.id, name: m.name, groupName: g.name });
-          }
-        }
-        setModifiers(all);
-      }
-    } catch { /* ignore */ }
-  }, []);
-
   const loadIngredients = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/restaurant/ingredients');
@@ -136,16 +110,14 @@ export default function RecipesPage() {
   useEffect(() => {
     loadRecipes();
     loadMenuItems();
-    loadModifiers();
     loadIngredients();
-  }, [loadRecipes, loadMenuItems, loadModifiers, loadIngredients]);
+  }, [loadRecipes, loadMenuItems, loadIngredients]);
 
   function resetCreateForm() {
     setSelectedMenuItemId('');
-    setSelectedModifierId('');
-    setRecipeType('menu');
     setSelectedParentId('');
-    setIsTemplate(false);
+    setRecipeType('menu');
+    setTemplateName('');
     setYieldQuantity('1');
     setNotes('');
     setShowCreateForm(false);
@@ -154,19 +126,21 @@ export default function RecipesPage() {
 
   async function handleCreateRecipe(e: React.FormEvent) {
     e.preventDefault();
-    const hasTarget = recipeType === 'menu' ? !!selectedMenuItemId : !!selectedModifierId;
+    const isTemplate = recipeType === 'template';
+    const hasTarget = isTemplate ? !!templateName.trim() : !!selectedMenuItemId;
     if (!hasTarget) return;
     setSaving(true);
     setError(null);
     try {
       const body: Record<string, any> = {
-        parentRecipeId: selectedParentId || undefined,
         isTemplate,
         yieldQuantity: parseFloat(yieldQuantity) || 1,
-        notes: notes.trim() || undefined,
+        notes: isTemplate ? templateName.trim() : (notes.trim() || undefined),
       };
-      if (recipeType === 'menu') body.menuItemId = selectedMenuItemId;
-      else body.modifierId = selectedModifierId;
+      if (!isTemplate) {
+        body.menuItemId = selectedMenuItemId;
+        if (selectedParentId) body.parentRecipeId = selectedParentId;
+      }
 
       const res = await fetch('/api/admin/restaurant/recipes', {
         method: 'POST',
@@ -249,13 +223,9 @@ export default function RecipesPage() {
     }
   }
 
-  // Available menu items (those without a recipe yet)
-  const existingMenuItemIds = new Set(recipes.filter(r => !r.isModifier).map(r => r.menuItemId));
+  // Available menu items (those without a recipe yet, excluding templates)
+  const existingMenuItemIds = new Set(recipes.filter(r => !r.isTemplate).map(r => r.menuItemId));
   const availableMenuItems = menuItems.filter(mi => !existingMenuItemIds.has(mi.id) && mi.isActive);
-
-  // Available modifiers (those without a recipe yet)
-  const existingModifierIds = new Set(recipes.filter(r => r.isModifier).map(r => r.modifierId));
-  const availableModifiers = modifiers.filter(m => !existingModifierIds.has(m.id));
 
   // Available ingredients (those not already in the recipe)
   const existingIngredientIds = detailRecipe
@@ -302,30 +272,34 @@ export default function RecipesPage() {
           <h2 className="font-semibold text-gray-900">Nueva receta</h2>
           {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+            <div className="sm:col-span-2">
               <label className="block text-xs text-gray-500 mb-1">Tipo de receta</label>
-              <div className="flex gap-2 mb-2">
-                {[
-                  { key: 'menu' as const, label: '📋 Ítem del menú' },
-                  { key: 'modifier' as const, label: '🔧 Modificador' },
-                ].map(t => (
-                  <button
-                    key={t.key}
-                    type="button"
-                    onClick={() => { setRecipeType(t.key); setSelectedMenuItemId(''); setSelectedModifierId(''); }}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
-                      recipeType === t.key
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <label className={`flex-1 flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                  recipeType === 'menu' ? 'border-blue-600 bg-blue-50' : 'border-gray-300 bg-white hover:bg-gray-50'
+                }`}>
+                  <input type="radio" name="recipeType" checked={recipeType === 'menu'} onChange={() => setRecipeType('menu')} className="accent-blue-600" />
+                  <div>
+                    <span className="text-sm font-medium text-gray-900">📋 Receta de platillo</span>
+                    <span className="block text-xs text-gray-500">Se vincula a un ítem del menú. Opcionalmente hereda de una receta base.</span>
+                  </div>
+                </label>
+                <label className={`flex-1 flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                  recipeType === 'template' ? 'border-blue-600 bg-blue-50' : 'border-gray-300 bg-white hover:bg-gray-50'
+                }`}>
+                  <input type="radio" name="recipeType" checked={recipeType === 'template'} onChange={() => setRecipeType('template')} className="accent-blue-600" />
+                  <div>
+                    <span className="text-sm font-medium text-gray-900">🏷️ Receta base (template)</span>
+                    <span className="block text-xs text-gray-500">Sin platillo. Otras recetas heredan sus ingredientes.</span>
+                  </div>
+                </label>
               </div>
-              {recipeType === 'menu' ? (
-                <>
-                  <label className="block text-xs text-gray-500 mb-1">Ítem del menú</label>
+            </div>
+
+            {recipeType === 'menu' ? (
+              <>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Ítem del menú *</label>
                   <select value={selectedMenuItemId} onChange={e => setSelectedMenuItemId(e.target.value)}
                     required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     <option value="">Seleccionar ítem...</option>
@@ -336,43 +310,8 @@ export default function RecipesPage() {
                   {availableMenuItems.length === 0 && (
                     <p className="text-xs text-amber-600 mt-1">Todos los ítems activos ya tienen receta.</p>
                   )}
-                </>
-              ) : (
-                <>
-                  <label className="block text-xs text-gray-500 mb-1">Modificador</label>
-                  <select value={selectedModifierId} onChange={e => setSelectedModifierId(e.target.value)}
-                    required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                    <option value="">Seleccionar modificador...</option>
-                    {availableModifiers.map(m => (
-                      <option key={m.id} value={m.id}>{m.name} ({m.groupName})</option>
-                    ))}
-                  </select>
-                  {availableModifiers.length === 0 && (
-                    <p className="text-xs text-amber-600 mt-1">Todos los modificadores ya tienen receta.</p>
-                  )}
-                </>
-              )}
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <input
-                  type="checkbox"
-                  id="isTemplate"
-                  checked={isTemplate}
-                  onChange={(e) => setIsTemplate(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                />
-                <label htmlFor="isTemplate" className="text-xs font-medium text-gray-700">
-                  📋 Es receta base (template)
-                </label>
-              </div>
-              {isTemplate && (
-                <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded-lg mb-2">
-                  Las recetas base no se vinculan a un platillo. Otras recetas pueden heredar sus ingredientes.
-                </p>
-              )}
-              {!isTemplate && (
-                <>
+                </div>
+                <div>
                   <label className="block text-xs text-gray-500 mb-1">Receta base (opcional)</label>
                   <select value={selectedParentId} onChange={e => setSelectedParentId(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
@@ -382,21 +321,32 @@ export default function RecipesPage() {
                     ))}
                   </select>
                   <p className="text-xs text-gray-400 mt-1">Hereda ingredientes de la receta base. Agregá solo los ingredientes extra.</p>
-                </>
-              )}
-            </div>
+                </div>
+              </>
+            ) : (
+              <div className="sm:col-span-2">
+                <label className="block text-xs text-gray-500 mb-1">Nombre de la receta base *</label>
+                <input type="text" value={templateName} onChange={e => setTemplateName(e.target.value)}
+                  placeholder='Ej: "Masa de pizza", "Masa de empanadas"'
+                  required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+            )}
+
             <div>
               <label className="block text-xs text-gray-500 mb-1">Rendimiento (porciones)</label>
               <input type="number" value={yieldQuantity} onChange={e => setYieldQuantity(e.target.value)}
                 step="0.5" min="0.5" required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
-            <div className="sm:col-span-2">
-              <label className="block text-xs text-gray-500 mb-1">Notas</label>
-              <textarea value={notes} onChange={e => setNotes(e.target.value)}
-                rows={2} placeholder="Notas de preparación, instrucciones, etc."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-            </div>
+
+            {recipeType === 'menu' && (
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Notas</label>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)}
+                  rows={2} placeholder="Notas de preparación, instrucciones, etc."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+            )}
           </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={saving}
