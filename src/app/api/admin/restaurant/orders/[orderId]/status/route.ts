@@ -11,8 +11,8 @@ const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   DRAFT: ["PLACED", "CANCELLED"],
   AWAITING_PAYMENT: ["IN_KITCHEN", "CANCELLED"],
   PLACED: ["IN_KITCHEN", "CANCELLED"],
-  IN_KITCHEN: ["READY"],
-  READY: ["SERVED"],
+  IN_KITCHEN: ["READY", "CANCELLED"],
+  READY: ["SERVED", "CANCELLED"],
   SERVED: ["PAID"],
   PAID: [],
   CANCELLED: [],
@@ -21,6 +21,8 @@ const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 const updateStatusSchema = z.object({
   status: z.enum(ORDER_STATUSES),
   paymentMethod: z.enum(["CASH", "CARD", "TRANSFER", "ON_ACCOUNT"]).optional(),
+  supervisorPin: z.string().optional(),
+  reason: z.string().optional(),
 });
 
 // ─── PUT: update order status ─────────────────────────────────────────────────
@@ -36,7 +38,7 @@ export async function PUT(
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { status: newStatus, paymentMethod } = parsed.data;
+    const { status: newStatus, paymentMethod, supervisorPin, reason } = parsed.data;
 
     const order = await prisma.order.findUnique({ where: { id: orderId } });
     if (!order) {
@@ -54,6 +56,17 @@ export async function PUT(
         },
         { status: 409 }
       );
+    }
+
+    // 🔒 Cancelación requiere autorización de supervisor + motivo obligatorio
+    if (newStatus === "CANCELLED") {
+      const supervisorPw = process.env.ADMIN_PASSWORD;
+      if (!supervisorPin || supervisorPin !== supervisorPw) {
+        return NextResponse.json({ error: "PIN de supervisor incorrecto" }, { status: 403 });
+      }
+      if (!reason || !reason.trim()) {
+        return NextResponse.json({ error: "Se requiere un motivo para cancelar la orden" }, { status: 400 });
+      }
     }
 
     // 🔒 Validate IN_KITCHEN → READY: all items must be READY/SERVED/CANCELLED
@@ -102,6 +115,8 @@ export async function PUT(
           orderId,
           fromStatus: currentStatus,
           toStatus: newStatus,
+          actorName: newStatus === "CANCELLED" ? "Supervisor" : null,
+          reason: newStatus === "CANCELLED" ? (reason?.trim() || null) : null,
         },
       });
 

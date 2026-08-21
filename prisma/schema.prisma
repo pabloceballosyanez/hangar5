@@ -335,6 +335,8 @@ model OrderStatusEvent {
   orderItem   OrderItem? @relation(fields: [orderItemId], references: [id])
   fromStatus  String
   toStatus    String
+  actorName   String?
+  reason      String?
   timestamp   DateTime   @default(now())
 
   @@index([orderId, timestamp])
