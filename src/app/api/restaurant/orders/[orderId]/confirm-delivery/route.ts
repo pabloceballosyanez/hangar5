@@ -26,6 +26,14 @@ export async function POST(
       return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
     }
 
+    // 🔒 Bloquear confirmación de entrega en órdenes canceladas o pagadas
+    if (order.status === "CANCELLED" || order.status === "PAID") {
+      return NextResponse.json(
+        { error: "No se puede confirmar entrega de una orden cancelada o pagada" },
+        { status: 409 }
+      );
+    }
+
     if (order.orderItems.length === 0) {
       return NextResponse.json({ message: "No hay ítems listos para confirmar" });
     }

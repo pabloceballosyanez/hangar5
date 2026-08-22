@@ -32,6 +32,18 @@ export async function PUT(
       return NextResponse.json({ error: "Item no encontrado" }, { status: 404 });
     }
 
+    // 🔒 Bloquear cambios en órdenes canceladas o pagadas
+    const parentOrder = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: { status: true },
+    });
+    if (parentOrder && (parentOrder.status === "CANCELLED" || parentOrder.status === "PAID")) {
+      return NextResponse.json(
+        { error: "No se puede modificar una orden cancelada o pagada" },
+        { status: 409 }
+      );
+    }
+
     const previousStatus = orderItem.status as OrderItemStatus;
 
     // Track whether the order auto-advanced to READY inside the transaction

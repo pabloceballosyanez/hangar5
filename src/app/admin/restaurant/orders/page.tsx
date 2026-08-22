@@ -97,9 +97,11 @@ interface Order {
   payments: { method: string; status: string }[];
 }
 
-async function advanceOrderStatus(orderId: string, newStatus: string, paymentMethod?: string): Promise<void> {
+async function advanceOrderStatus(orderId: string, newStatus: string, paymentMethod?: string, supervisorPin?: string, reason?: string): Promise<void> {
   const body: Record<string, string> = { status: newStatus };
   if (paymentMethod) body.paymentMethod = paymentMethod;
+  if (supervisorPin) body.supervisorPin = supervisorPin;
+  if (reason) body.reason = reason;
   const res = await fetch(`/api/admin/restaurant/orders/${orderId}/status`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -132,6 +134,8 @@ export default function OrdersPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [selectingPayment, setSelectingPayment] = useState<string | null>(null);
+  const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
+  const [cancelPin, setCancelPin] = useState("");
 
   const fetchOrders = async () => {
     try {
@@ -175,6 +179,21 @@ export default function OrdersPage() {
     : activeTab === "cancelled"
     ? "No hay órdenes canceladas."
     : "Aún no se han registrado órdenes.";
+
+  async function handleCancelOrder() {
+    if (!cancelOrderId) return;
+    setActionLoading(cancelOrderId);
+    setActionError(null);
+    try {
+      await advanceOrderStatus(cancelOrderId, 'CANCELLED', undefined, cancelPin);
+      setCancelOrderId(null);
+      setCancelPin("");
+      await fetchOrders();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : 'Error');
+    }
+    setActionLoading(null);
+  }
 
   return (
     <div className="space-y-6">
@@ -338,15 +357,11 @@ export default function OrdersPage() {
                         <span className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin inline-block" />
                       ) : (
                         <div className="flex items-center justify-center gap-1">
-                          {order.status === 'AWAITING_PAYMENT' && (
+                          {['DRAFT', 'AWAITING_PAYMENT', 'PLACED', 'IN_KITCHEN', 'READY'].includes(order.status) && (
                         <button
-                          onClick={async () => {
-                            setActionLoading(order.id);
-                            try { await advanceOrderStatus(order.id, 'CANCELLED'); await fetchOrders(); } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
-                            setActionLoading(null);
-                          }}
+                          onClick={() => { setCancelOrderId(order.id); setCancelPin(""); }}
                           className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 border border-red-300 rounded-md hover:bg-red-200 transition-colors"
-                          title="Cancelar orden"
+                          title="Cancelar orden (requiere supervisor)"
                         >
                           ❌ Cancelar
                         </button>
@@ -455,6 +470,48 @@ export default function OrdersPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── Cancel order modal ─────────────────────────────────────────────── */}
+      {cancelOrderId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setCancelOrderId(null)}>
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Cancelar orden</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Esta acción requiere autorización de supervisor y quedará registrada en la auditoría.
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">PIN de supervisor *</label>
+                <input
+                  type="password"
+                  value={cancelPin}
+                  onChange={(e) => setCancelPin(e.target.value)}
+                  autoFocus
+                  placeholder="Clave de supervisor"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={() => { setCancelOrderId(null); setCancelPin(""); }}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Volver
+              </button>
+              <button
+                onClick={handleCancelOrder}
+                disabled={actionLoading === cancelOrderId}
+                className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+              >
+                {actionLoading === cancelOrderId ? 'Cancelando...' : 'Confirmar cancelación'}
+              </button>
+            </div>
           </div>
         </div>
       )}
