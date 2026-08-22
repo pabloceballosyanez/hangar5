@@ -36,6 +36,13 @@ export default function IngredientsPage() {
   const [minStock, setMinStock] = useState('');
   const [cost, setCost] = useState('');
 
+  // Stock adjustment authorization
+  const [originalStock, setOriginalStock] = useState<number | null>(null);
+  const [showAdjustModal, setShowAdjustModal] = useState(false);
+  const [adjustPin, setAdjustPin] = useState('');
+  const [adjustReason, setAdjustReason] = useState('');
+  const [pendingBody, setPendingBody] = useState<Record<string, unknown> | null>(null);
+
   // Search
   const [search, setSearch] = useState('');
 
@@ -56,6 +63,7 @@ export default function IngredientsPage() {
     setMinStock('0');
     setCost('');
     setEditId(null);
+    setOriginalStock(null);
     setShowForm(false);
     setError(null);
   }
@@ -67,23 +75,15 @@ export default function IngredientsPage() {
     setCurrentStock(ing.currentStock.toString());
     setMinStock(ing.minStock.toString());
     setCost(ing.costDisplay.toString());
+    setOriginalStock(ing.currentStock);
     setShowForm(true);
     setError(null);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim() || !unit.trim() || !cost) return;
+  async function doSave(body: Record<string, unknown>) {
     setSaving(true);
     setError(null);
     try {
-      const body = {
-        name: name.trim(),
-        unit: unit.trim(),
-        currentStock: parseFloat(currentStock) || 0,
-        minStock: parseFloat(minStock) || 0,
-        cost: Math.round(parseFloat(cost) * 100),
-      };
       const url = editId
         ? `/api/admin/restaurant/ingredients/${editId}`
         : '/api/admin/restaurant/ingredients';
@@ -103,6 +103,38 @@ export default function IngredientsPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim() || !unit.trim() || !cost) return;
+    const body = {
+      name: name.trim(),
+      unit: unit.trim(),
+      currentStock: parseFloat(currentStock) || 0,
+      minStock: parseFloat(minStock) || 0,
+      cost: Math.round(parseFloat(cost) * 100),
+    };
+    // Si es edición y cambió el stock → pedir autorización de supervisor
+    const newStock = parseFloat(currentStock) || 0;
+    if (editId && originalStock !== null && newStock !== originalStock) {
+      setPendingBody(body);
+      setAdjustPin('');
+      setAdjustReason('');
+      setShowAdjustModal(true);
+      return;
+    }
+    await doSave(body);
+  }
+
+  async function confirmAdjust() {
+    if (!adjustReason.trim()) {
+      setError('Escribí un motivo para el ajuste');
+      return;
+    }
+    if (!pendingBody) return;
+    setShowAdjustModal(false);
+    await doSave({ ...pendingBody, supervisorPin: adjustPin, reason: adjustReason.trim() });
   }
 
   async function handleDelete(id: string, name: string) {
@@ -318,6 +350,58 @@ export default function IngredientsPage() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── Stock adjustment authorization modal ───────────────────────────── */}
+      {showAdjustModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowAdjustModal(false)}>
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Autorizar ajuste de stock</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Cambiar el stock manualmente requiere autorización de supervisor y queda registrado en la auditoría.
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">PIN de supervisor *</label>
+                <input
+                  type="password"
+                  value={adjustPin}
+                  onChange={(e) => setAdjustPin(e.target.value)}
+                  autoFocus
+                  placeholder="Clave de supervisor"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Motivo del ajuste *</label>
+                <textarea
+                  value={adjustReason}
+                  onChange={(e) => setAdjustReason(e.target.value)}
+                  rows={2}
+                  placeholder='Ej: "Recuento físico", "Merma por caducidad"'
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={() => setShowAdjustModal(false)}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Volver
+              </button>
+              <button
+                onClick={confirmAdjust}
+                disabled={saving}
+                className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+              >
+                {saving ? 'Guardando...' : 'Autorizar y guardar'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
