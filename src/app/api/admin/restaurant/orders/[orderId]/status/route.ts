@@ -58,14 +58,11 @@ export async function PUT(
       );
     }
 
-    // 🔒 Cancelación requiere autorización de supervisor + motivo obligatorio
+    // 🔒 Cancelación requiere autorización de supervisor (solo PIN)
     if (newStatus === "CANCELLED") {
       const supervisorPw = process.env.ADMIN_PASSWORD;
       if (!supervisorPin || supervisorPin !== supervisorPw) {
         return NextResponse.json({ error: "PIN de supervisor incorrecto" }, { status: 403 });
-      }
-      if (!reason || !reason.trim()) {
-        return NextResponse.json({ error: "Se requiere un motivo para cancelar la orden" }, { status: 400 });
       }
     }
 

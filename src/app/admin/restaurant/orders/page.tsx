@@ -136,7 +136,6 @@ export default function OrdersPage() {
   const [selectingPayment, setSelectingPayment] = useState<string | null>(null);
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const [cancelPin, setCancelPin] = useState("");
-  const [cancelReason, setCancelReason] = useState("");
 
   const fetchOrders = async () => {
     try {
@@ -183,17 +182,12 @@ export default function OrdersPage() {
 
   async function handleCancelOrder() {
     if (!cancelOrderId) return;
-    if (!cancelReason.trim()) {
-      setActionError("Escribí un motivo para cancelar la orden");
-      return;
-    }
     setActionLoading(cancelOrderId);
     setActionError(null);
     try {
-      await advanceOrderStatus(cancelOrderId, 'CANCELLED', undefined, cancelPin, cancelReason);
+      await advanceOrderStatus(cancelOrderId, 'CANCELLED', undefined, cancelPin);
       setCancelOrderId(null);
       setCancelPin("");
-      setCancelReason("");
       await fetchOrders();
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Error');
@@ -365,7 +359,7 @@ export default function OrdersPage() {
                         <div className="flex items-center justify-center gap-1">
                           {['DRAFT', 'AWAITING_PAYMENT', 'PLACED', 'IN_KITCHEN', 'READY'].includes(order.status) && (
                         <button
-                          onClick={() => { setCancelOrderId(order.id); setCancelPin(""); setCancelReason(""); }}
+                          onClick={() => { setCancelOrderId(order.id); setCancelPin(""); }}
                           className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 border border-red-300 rounded-md hover:bg-red-200 transition-colors"
                           title="Cancelar orden (requiere supervisor)"
                         >
@@ -501,21 +495,11 @@ export default function OrdersPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
                 />
               </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Motivo de cancelación *</label>
-                <textarea
-                  value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
-                  rows={2}
-                  placeholder='Ej: "Error al tomar la orden", "Cliente canceló"'
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
-                />
-              </div>
             </div>
 
             <div className="flex gap-3 pt-4">
               <button
-                onClick={() => { setCancelOrderId(null); setCancelPin(""); setCancelReason(""); }}
+                onClick={() => { setCancelOrderId(null); setCancelPin(""); }}
                 className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Volver

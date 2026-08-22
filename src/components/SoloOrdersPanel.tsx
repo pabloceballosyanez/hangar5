@@ -328,17 +328,19 @@ function PaymentSheet({
 function OrderCard({
   order,
   onDeliver,
+  onCancel,
   delivering,
 }: {
   order: Order;
   onDeliver: (orderId: string) => void;
+  onCancel?: (orderId: string) => void;
   delivering: boolean;
 }) {
   const st = STATUS_LABELS[order.status] ?? { label: order.status, bg: 'bg-gray-100', text: 'text-gray-600' };
   const items = order.orderItems || [];
   const readyItems = items.filter(i => i.status === 'READY');
   const hasReady = readyItems.length > 0;
-  const isDelivered = order.status === 'SERVED' || order.status === 'PAID';
+  const isDelivered = order.status === 'SERVED' || order.status === 'PAID' || order.status === 'CANCELLED';
   const mins = elapsedMinutes(order.createdAt);
 
   return (
@@ -409,19 +411,31 @@ function OrderCard({
         </div>
       </div>
 
-      {/* Delivery button */}
-      {hasReady && !isDelivered && (
-        <div className="px-4 pb-3">
-          <button
-            onClick={() => onDeliver(order.id)}
-            disabled={delivering}
-            className="w-full py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white text-sm font-bold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
-          >
-            <span>🍽️</span>
-            <span>
-              Entregar orden ({readyItems.length} listo{readyItems.length !== 1 ? 's' : ''})
-            </span>
-          </button>
+      {/* Actions */}
+      {!isDelivered && (
+        <div className="px-4 pb-3 space-y-2">
+          {hasReady && (
+            <button
+              onClick={() => onDeliver(order.id)}
+              disabled={delivering}
+              className="w-full py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white text-sm font-bold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>🍽️</span>
+              <span>
+                Entregar orden ({readyItems.length} listo{readyItems.length !== 1 ? 's' : ''})
+              </span>
+            </button>
+          )}
+          {onCancel && (
+            <button
+              onClick={() => onCancel(order.id)}
+              disabled={delivering}
+              className="w-full py-2 bg-white border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 text-sm font-semibold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>❌</span>
+              <span>Cancelar orden</span>
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -444,6 +458,9 @@ export default function SoloOrdersPanel({
   const [error, setError] = useState<string | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [delivering, setDelivering] = useState(false);
+  const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
+  const [cancelPin, setCancelPin] = useState("");
+  const [cancelling, setCancelling] = useState(false);
 
   // ── New session modal ────────────────────────────────────────────────────
   const [showNewSession, setShowNewSession] = useState(false);
@@ -656,6 +673,39 @@ export default function SoloOrdersPanel({
     }
   };
 
+  // ── Cancel order (supervisor PIN) ─────────────────────────────────────────
+
+  const cancelOrder = (orderId: string) => {
+    setCancelOrderId(orderId);
+    setCancelPin("");
+    setError(null);
+  };
+
+  const confirmCancelOrder = async () => {
+    if (!cancelOrderId) return;
+    setCancelling(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/restaurant/orders/${cancelOrderId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'CANCELLED', supervisorPin: cancelPin }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || 'Error al cancelar');
+      }
+      setCancelOrderId(null);
+      setCancelPin("");
+      await loadSessionDetail(selectedSessionId!, true);
+      onMutate?.();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al cancelar');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   // ── Compute totals ────────────────────────────────────────────────────────
 
   const detailOrders = sessionDetail?.orders || [];
@@ -827,6 +877,7 @@ export default function SoloOrdersPanel({
                     key={o.id}
                     order={o}
                     onDeliver={deliverReadyItems}
+                    onCancel={cancelOrder}
                     delivering={delivering}
                   />
                 ))}
@@ -1027,6 +1078,47 @@ export default function SoloOrdersPanel({
                 className="flex-1 py-2.5 bg-[#b88364] text-white text-sm font-semibold rounded-lg hover:bg-[#8a5d44] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {creatingSession ? 'Creando…' : 'Abrir tab'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Cancel order modal (supervisor PIN) ─────────────────────────────── */}
+      {cancelOrderId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setCancelOrderId(null)}>
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Cancelar orden</h3>
+            <p className="text-sm text-gray-500 mb-4">Ingresá el PIN de supervisor para cancelar.</p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">PIN de supervisor *</label>
+                <input
+                  type="password"
+                  value={cancelPin}
+                  onChange={(e) => setCancelPin(e.target.value)}
+                  autoFocus
+                  placeholder="Clave de supervisor"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                />
+              </div>
+              {error && <p className="text-sm text-red-600">{error}</p>}
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={() => { setCancelOrderId(null); setCancelPin(""); }}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Volver
+              </button>
+              <button
+                onClick={confirmCancelOrder}
+                disabled={cancelling}
+                className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+              >
+                {cancelling ? 'Cancelando...' : 'Confirmar cancelación'}
               </button>
             </div>
           </div>
