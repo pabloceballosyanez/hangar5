@@ -16,6 +16,7 @@ const sidebarLinks = [
   { href: '/solo', label: 'Modo Solo', icon: '🔥' },
   { href: '/kds', label: 'KDS Cocina', icon: '👨‍🍳' },
   { href: '/admin/restaurant/ingredients', label: 'Inventario', icon: '🧂' },
+  { href: '/admin/restaurant/audit', label: 'Auditoría', icon: '🔍' },
   { href: '/admin/restaurant/fixed-expenses', label: 'Gastos Fijos', icon: '💰' },
   { href: '/admin/restaurant/reports', label: 'Reportes', icon: '📊' },
   { href: '/admin/restaurant/staff', label: 'Staff', icon: '👤' },
