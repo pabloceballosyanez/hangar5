@@ -100,6 +100,69 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    if (type === "staff") {
+      const [clocks, staff] = await Promise.all([
+        prisma.staffClock.findMany({
+          orderBy: { timestamp: "desc" },
+          take: 300,
+          include: { staff: { select: { name: true } } },
+        }),
+        prisma.staff.findMany({
+          orderBy: { createdAt: "desc" },
+          take: 100,
+          select: { id: true, name: true, role: true, createdAt: true },
+        }),
+      ]);
+
+      const clockEntries = clocks.map((c) => ({
+        id: c.id,
+        kind: "staff",
+        date: c.timestamp,
+        title: c.staff.name,
+        detail: c.type === "IN" ? "Entrada" : c.type === "OUT" ? "Salida" : c.type,
+        reason: c.type,
+        actor: null,
+        notes: null,
+      }));
+
+      const staffCreated = staff.map((s) => ({
+        id: `staff-${s.id}`,
+        kind: "staff",
+        date: s.createdAt,
+        title: s.name,
+        detail: `Empleado creado (${s.role})`,
+        reason: "CREATED",
+        actor: null,
+        notes: null,
+      }));
+
+      const combined = [...clockEntries, ...staffCreated].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
+      return NextResponse.json(combined);
+    }
+
+    if (type === "customers") {
+      const customers = await prisma.customer.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 200,
+        select: { id: true, name: true, phone: true, email: true, hasCredit: true, createdAt: true },
+      });
+      return NextResponse.json(
+        customers.map((c) => ({
+          id: `cust-${c.id}`,
+          kind: "customer",
+          date: c.createdAt,
+          title: c.name,
+          detail: c.hasCredit ? "Cliente creado (con crédito)" : "Cliente creado",
+          reason: "CREATED",
+          actor: null,
+          notes: c.phone || c.email,
+        }))
+      );
+    }
+
     return NextResponse.json({ error: "Tipo inválido" }, { status: 400 });
   } catch (err) {
     console.error("[GET /api/admin/restaurant/audit]", err);

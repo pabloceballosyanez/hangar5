@@ -19,6 +19,8 @@ const TABS = [
   { key: 'orders', label: '🧾 Órdenes' },
   { key: 'payments', label: '💳 Pagos' },
   { key: 'ledger', label: '📒 Cuentas' },
+  { key: 'staff', label: '👤 Personal' },
+  { key: 'customers', label: '👥 Clientes' },
 ];
 
 function fmtMXN(cents: number) {
@@ -43,6 +45,9 @@ const reasonLabel: Record<string, string> = {
   CHARGE: 'Cargo',
   PAYMENT: 'Pago',
   REFUND: 'Reembolso',
+  IN: 'Entrada',
+  OUT: 'Salida',
+  CREATED: 'Creado',
 };
 
 export default function AuditPage() {
