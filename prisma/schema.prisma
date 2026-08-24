@@ -189,6 +189,7 @@ model StockMovement {
   delta        Float
   reason       String
   unitCost     Int?
+  actorName    String?
   notes        String?
   createdAt    DateTime   @default(now())
 

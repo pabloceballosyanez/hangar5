@@ -48,6 +48,8 @@ const updateIngredientSchema = z.object({
   minStock: z.number().min(0).optional(),
   cost: z.number().int().min(0).optional(),
   isActive: z.boolean().optional(),
+  supervisorPin: z.string().optional(),
+  reason: z.string().optional(),
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {
@@ -72,9 +74,46 @@ export async function PUT(req: NextRequest, { params }: Params) {
       );
     }
 
-    const updated = await prisma.ingredient.update({
-      where: { id: ingredientId },
-      data: parsed.data,
+    const { supervisorPin, reason, ...data } = parsed.data;
+
+    // Detectar ajuste manual de stock (cambio en currentStock)
+    const stockChanged =
+      data.currentStock !== undefined && data.currentStock !== existing.currentStock;
+
+    // 🔒 Ajustes manuales de stock requieren autorización de supervisor + motivo
+    if (stockChanged) {
+      const supervisorPw = process.env.ADMIN_PASSWORD;
+      if (!supervisorPin || supervisorPin !== supervisorPw) {
+        return NextResponse.json(
+          { error: "PIN de supervisor incorrecto" },
+          { status: 403 }
+        );
+      }
+      if (!reason || !reason.trim()) {
+        return NextResponse.json(
+          { error: "Se requiere un motivo para ajustar el stock" },
+          { status: 400 }
+        );
+      }
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      if (stockChanged) {
+        const delta = (data.currentStock as number) - existing.currentStock;
+        await tx.stockMovement.create({
+          data: {
+            ingredientId,
+            delta,
+            reason: "ADJUSTMENT",
+            actorName: "Supervisor",
+            notes: reason?.trim() || null,
+          },
+        });
+      }
+      return tx.ingredient.update({
+        where: { id: ingredientId },
+        data,
+      });
     });
 
     return NextResponse.json(updated);
