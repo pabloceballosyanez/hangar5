@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -36,5 +37,50 @@ export async function GET() {
   } catch (err) {
     console.error("[GET /api/admin/restaurant/customers]", err);
     return NextResponse.json({ error: "Error" }, { status: 500 });
+  }
+}
+
+// ─── POST: create customer ───────────────────────────────────────────────────
+const createCustomerSchema = z.object({
+  name: z.string().min(1, "Nombre requerido"),
+  phone: z.string().nullable().optional(),
+  email: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+});
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const parsed = createCustomerSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    }
+
+    const { name, phone, email, notes } = parsed.data;
+
+    // Email es único: validar antes de crear
+    if (email) {
+      const existing = await prisma.customer.findUnique({ where: { email } });
+      if (existing) {
+        return NextResponse.json(
+          { error: "Ya existe un cliente con ese email" },
+          { status: 409 }
+        );
+      }
+    }
+
+    const customer = await prisma.customer.create({
+      data: {
+        name,
+        phone: phone || null,
+        email: email || null,
+        notes: notes || null,
+      },
+    });
+
+    return NextResponse.json(customer, { status: 201 });
+  } catch (err) {
+    console.error("[POST /api/admin/restaurant/customers]", err);
+    return NextResponse.json({ error: "Error al crear cliente" }, { status: 500 });
   }
 }
