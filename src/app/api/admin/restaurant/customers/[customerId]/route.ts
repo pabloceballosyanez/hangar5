@@ -15,6 +15,11 @@ export async function GET(_req: NextRequest, { params }: Params) {
       where: { id: customerId },
       include: {
         ledgerEntries: { orderBy: { createdAt: "desc" }, take: 50 },
+        bookings: {
+          orderBy: { createdAt: "desc" },
+          take: 50,
+          include: { item: { select: { name: true, type: true } } },
+        },
         sessions: {
           orderBy: { openedAt: "desc" },
           take: 20,
@@ -38,6 +43,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
       ...customer,
       balance: (balanceAgg._sum.amount || 0) / 100,
       ledgerEntries: customer.ledgerEntries.map(e => ({ ...e, amount: e.amount / 100 })),
+      bookings: customer.bookings.map(b => ({ ...b, totalPrice: b.totalPrice / 100 })),
       sessions: customer.sessions.map(s => ({
         ...s,
         orders: s.orders.map(o => ({ ...o, total: o.total / 100 })),

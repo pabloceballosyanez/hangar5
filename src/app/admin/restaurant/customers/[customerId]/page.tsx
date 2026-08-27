@@ -23,6 +23,16 @@ interface Session {
   payments: { amount: number; method: string }[];
 }
 
+interface Booking {
+  id: string;
+  item: { name: string; type: string };
+  startDate: string;
+  endDate: string;
+  totalPrice: number;
+  status: string;
+  guests: number;
+}
+
 interface Customer {
   id: string;
   name: string;
@@ -34,6 +44,7 @@ interface Customer {
   hasCredit: boolean;
   ledgerEntries: LedgerEntry[];
   sessions: Session[];
+  bookings: Booking[];
 }
 
 function formatPrice(p: number) { return `$${p.toFixed(2)}`; }
@@ -348,6 +359,33 @@ export default function CustomerDetailPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* ─── Reservas (hospedaje/actividades) ─── */}
+      {customer.bookings && customer.bookings.length > 0 && (
+        <div className="bg-amber-50 rounded-xl border border-amber-200 p-5">
+          <h2 className="text-lg font-semibold text-amber-900 mb-3">
+            🏨 Reservas ({customer.bookings.length})
+          </h2>
+          <div className="space-y-2">
+            {customer.bookings.map(b => (
+              <div key={b.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-amber-200">
+                <div>
+                  <p className="font-medium text-gray-800 text-sm">{b.item?.name || 'Reserva'}</p>
+                  <p className="text-xs text-gray-400">
+                    {new Date(b.startDate).toLocaleDateString('es-MX')} → {new Date(b.endDate).toLocaleDateString('es-MX')} · {b.guests} {b.guests === 1 ? 'persona' : 'personas'}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-bold text-amber-700">{formatPrice(b.totalPrice)}</span>
+                  <p className={`text-xs ${b.status === 'confirmed' ? 'text-green-600' : b.status === 'cancelled' ? 'text-red-500' : 'text-gray-400'}`}>
+                    {b.status}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
