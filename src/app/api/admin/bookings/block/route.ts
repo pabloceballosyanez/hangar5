@@ -48,9 +48,31 @@ export async function POST(req: NextRequest) {
     const act = isActivity(item.type);
     const totalPrice = act ? item.price * (guests || 1) : item.price * Math.max(Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)), 1);
 
+    // Vincular (o crear) el cliente por email — integración hotel ↔ restaurante
+    // Solo si hay email real (no el fallback "admin@hangar5.mx").
+    let customerId: string | null = null;
+    const realEmail = customerEmail && customerEmail.trim() && customerEmail !== "admin@hangar5.mx"
+      ? customerEmail.trim()
+      : null;
+
+    if (realEmail) {
+      let customer = await prisma.customer.findUnique({ where: { email: realEmail } });
+      if (!customer) {
+        customer = await prisma.customer.create({
+          data: {
+            name: customerName || "Reserva Admin",
+            email: realEmail,
+            phone: customerPhone || null,
+          },
+        });
+      }
+      customerId = customer.id;
+    }
+
     const booking = await prisma.booking.create({
       data: {
         itemId,
+        customerId,
         customerName: customerName || "Reserva Admin",
         customerEmail: customerEmail || "admin@hangar5.mx",
         customerPhone: customerPhone || "",
@@ -63,6 +85,18 @@ export async function POST(req: NextRequest) {
       },
       include: { item: true },
     });
+
+    // Registrar el cargo en la cuenta del cliente (saldo unificado)
+    if (customerId) {
+      await prisma.customerLedgerEntry.create({
+        data: {
+          customerId,
+          amount: totalPrice,
+          type: "CHARGE",
+          note: `Reserva: ${item.name} (${start.toLocaleDateString("es-MX")} → ${effectiveEnd.toLocaleDateString("es-MX")})`,
+        },
+      });
+    }
 
     // Send email in background
     sendConfirmationEmail({
