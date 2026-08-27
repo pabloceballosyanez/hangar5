@@ -210,7 +210,8 @@ model Customer {
   email          String?                @unique
   password       String?
   notes          String?
-  hasCredit      Boolean                @default(false)
+  hasCredit      Boolean                @default(true)
+  creditLimit    Int?                   // límite de crédito en centavos (null = sin límite)
   isActive       Boolean                @default(true)
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt

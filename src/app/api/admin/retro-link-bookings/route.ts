@@ -73,7 +73,24 @@ export async function POST(req: NextRequest) {
       linked++;
     }
 
-    return NextResponse.json({ ok: true, linked, skipped, total: bookings.length });
+    // Habilitar crédito por defecto en clientes con reservas (migración)
+    // Los clientes creados antes del fix tenían hasCredit=false.
+    const withBookings = await prisma.customer.findMany({
+      where: { bookings: { some: {} }, hasCredit: false },
+      select: { id: true },
+    });
+    const enabled = await prisma.customer.updateMany({
+      where: { id: { in: withBookings.map(c => c.id) } },
+      data: { hasCredit: true },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      linked,
+      skipped,
+      total: bookings.length,
+      enabledCredit: enabled.count,
+    });
   } catch (err) {
     console.error("[retro-link-bookings]", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });

@@ -90,7 +90,7 @@ export async function PUT(
     if (newStatus === "PAID" && paymentMethod === "ON_ACCOUNT") {
       const sessionWithCustomer = await prisma.serviceSession.findUnique({
         where: { id: order.serviceSessionId ?? "" },
-        select: { customerId: true, customer: { select: { id: true, name: true, hasCredit: true } } },
+        select: { customerId: true, customer: { select: { id: true, name: true, hasCredit: true, creditLimit: true } } },
       });
       if (!sessionWithCustomer?.customerId) {
         return NextResponse.json(
@@ -103,6 +103,23 @@ export async function PUT(
           { error: "El cliente no tiene crédito habilitado" },
           { status: 400 }
         );
+      }
+      // Validar límite de crédito (si está definido)
+      const creditLimit = sessionWithCustomer.customer.creditLimit;
+      if (creditLimit != null) {
+        const ledgerSum = await prisma.customerLedgerEntry.aggregate({
+          where: { customerId: sessionWithCustomer.customerId },
+          _sum: { amount: true },
+        });
+        const currentBalance = ledgerSum._sum.amount || 0;
+        if (currentBalance + order.total > creditLimit) {
+          return NextResponse.json(
+            {
+              error: `Límite de crédito excedido (saldo actual: $${(currentBalance / 100).toFixed(2)}, límite: $${(creditLimit / 100).toFixed(2)})`,
+            },
+            { status: 400 }
+          );
+        }
       }
     }
 

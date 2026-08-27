@@ -66,6 +66,7 @@ const updateCustomerSchema = z.object({
   notes: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   hasCredit: z.boolean().optional(),
+  creditLimit: z.number().min(0).nullable().optional(), // en pesos; null = sin límite
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {
@@ -81,6 +82,9 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const data: Record<string, unknown> = { ...parsed.data };
     if (data.email !== undefined) data.email = data.email || null;
     if (data.phone !== undefined) data.phone = data.phone || null;
+    if (data.creditLimit !== undefined) {
+      data.creditLimit = data.creditLimit === null ? null : Math.round((data.creditLimit as number) * 100);
+    }
 
     const updated = await prisma.customer.update({ where: { id: customerId }, data });
     return NextResponse.json(updated);

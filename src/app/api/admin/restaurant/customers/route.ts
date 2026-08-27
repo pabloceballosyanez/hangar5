@@ -16,6 +16,7 @@ export async function GET() {
         email: true,
         phone: true,
         hasCredit: true,
+        creditLimit: true,
         _count: { select: { sessions: true } },
       },
     });
@@ -46,6 +47,8 @@ const createCustomerSchema = z.object({
   phone: z.string().nullable().optional(),
   email: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
+  hasCredit: z.boolean().optional(),
+  creditLimit: z.number().min(0).nullable().optional(), // en pesos; null = sin límite
 });
 
 export async function POST(req: NextRequest) {
@@ -56,7 +59,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { name, phone, email, notes } = parsed.data;
+    const { name, phone, email, notes, hasCredit, creditLimit } = parsed.data;
 
     // Email es único: validar antes de crear
     if (email) {
@@ -75,6 +78,8 @@ export async function POST(req: NextRequest) {
         phone: phone || null,
         email: email || null,
         notes: notes || null,
+        hasCredit: hasCredit ?? true,
+        creditLimit: creditLimit != null ? Math.round(creditLimit * 100) : null,
       },
     });
 
