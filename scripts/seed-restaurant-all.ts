@@ -9,6 +9,30 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("🌱 [seed-restaurant-all] Starting...");
 
+  // ── Web items (reservas) — solo si no hay NINGÚN item (preview con DB vacía) ─
+  // Se ejecuta SIEMPRE (antes del check de categorías) para que los previews
+  // que ya tienen menú también reciban las cabañas/actividades de la web.
+  const existingItems = await prisma.item.count();
+  if (existingItems === 0) {
+    const webItems = [
+      { name: "Cabaña El Peñón", slug: "cabana-el-penon", type: "cabana", price: 150000, capacity: "4 personas", description: "Cabaña con vista al valle", featured: true },
+      { name: "Cabaña Vista al Valle", slug: "cabana-vista-valle", type: "cabana", price: 180000, capacity: "2 personas", description: "Cabaña íntima con terraza", featured: true },
+      { name: "Glamping Deluxe", slug: "glamping-deluxe", type: "glamping", price: 220000, capacity: "2 personas", description: "Glamping con cama king y baño privado", featured: true },
+      { name: "Glamping Familiar", slug: "glamping-familiar", type: "glamping", price: 260000, capacity: "4 personas", description: "Glamping amplio para familia", featured: false },
+      { name: "Parapente Tándem", slug: "parapente-tandem", type: "parapente", price: 120000, capacity: "1 persona", description: "Vuelo tándem con piloto certificado", featured: true },
+      { name: "Ala Delta", slug: "ala-delta", type: "aladelta", price: 150000, capacity: "1 persona", description: "Vuelo en ala delta", featured: false },
+      { name: "Hike Guiado", slug: "hike-guiado", type: "hike", price: 50000, capacity: "8 personas", description: "Caminata guiada por El Peñón", featured: false },
+      { name: "Moto Enduro", slug: "moto-enduro", type: "moto", price: 90000, capacity: "1 moto", description: "Renta de moto enduro por día", featured: false },
+      { name: "Bicicleta MTB", slug: "bici-mtb", type: "bici", price: 35000, capacity: "1 bici", description: "Renta de bici de montaña por día", featured: false },
+    ];
+    for (const it of webItems) {
+      await prisma.item.create({ data: { ...it, image: null } });
+    }
+    console.log(`  ✅ Web items (reservas) seeded`);
+  } else {
+    console.log(`  ⏭️  Ya existen ${existingItems} items de reserva, salto web items`);
+  }
+
   // ──────────────────────────────────────────────
   // Idempotency check: do restaurant categories exist?
   // ──────────────────────────────────────────────
@@ -409,29 +433,6 @@ async function main() {
   });
 
   console.log("✅ [seed-restaurant-all] Seed complete — all restaurant data inserted");
-
-  // ── Web items (reservas) — solo si no hay NINGÚN item (preview con DB vacía) ─
-  // Idempotente: si ya existen items reales (producción), no crea los demo.
-  const existingItems = await prisma.item.count();
-  if (existingItems === 0) {
-    const webItems = [
-      { name: "Cabaña El Peñón", slug: "cabana-el-penon", type: "cabana", price: 150000, capacity: "4 personas", description: "Cabaña con vista al valle", featured: true },
-      { name: "Cabaña Vista al Valle", slug: "cabana-vista-valle", type: "cabana", price: 180000, capacity: "2 personas", description: "Cabaña íntima con terraza", featured: true },
-      { name: "Glamping Deluxe", slug: "glamping-deluxe", type: "glamping", price: 220000, capacity: "2 personas", description: "Glamping con cama king y baño privado", featured: true },
-      { name: "Glamping Familiar", slug: "glamping-familiar", type: "glamping", price: 260000, capacity: "4 personas", description: "Glamping amplio para familia", featured: false },
-      { name: "Parapente Tándem", slug: "parapente-tandem", type: "parapente", price: 120000, capacity: "1 persona", description: "Vuelo tándem con piloto certificado", featured: true },
-      { name: "Ala Delta", slug: "ala-delta", type: "aladelta", price: 150000, capacity: "1 persona", description: "Vuelo en ala delta", featured: false },
-      { name: "Hike Guiado", slug: "hike-guiado", type: "hike", price: 50000, capacity: "8 personas", description: "Caminata guiada por El Peñón", featured: false },
-      { name: "Moto Enduro", slug: "moto-enduro", type: "moto", price: 90000, capacity: "1 moto", description: "Renta de moto enduro por día", featured: false },
-      { name: "Bicicleta MTB", slug: "bici-mtb", type: "bici", price: 35000, capacity: "1 bici", description: "Renta de bici de montaña por día", featured: false },
-    ];
-    for (const it of webItems) {
-      await prisma.item.create({ data: { ...it, image: null } });
-    }
-    console.log(`  ✅ Web items (reservas) seeded`);
-  } else {
-    console.log(`  ⏭️  Ya existen ${existingItems} items de reserva, salto web items`);
-  }
 
   await prisma.$disconnect();
 }
