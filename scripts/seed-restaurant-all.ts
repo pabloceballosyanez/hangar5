@@ -9,11 +9,14 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("🌱 [seed-restaurant-all] Starting...");
 
-  // ── Web items (reservas) — solo si no hay NINGÚN item (preview con DB vacía) ─
-  // Se ejecuta SIEMPRE (antes del check de categorías) para que los previews
-  // que ya tienen menú también reciban las cabañas/actividades de la web.
-  const existingItems = await prisma.item.count();
-  if (existingItems === 0) {
+  // ── Web items (reservas) — SOLO en previews, idempotente por slug ──────────
+  // Render establece IS_PREVIEW=true (o nombre de servicio con "pr-") en PR
+  // previews. En producción nunca crea items demo.
+  const isPreview =
+    process.env.IS_PREVIEW === "true" ||
+    (process.env.RENDER_SERVICE_NAME || "").includes("pr-");
+
+  if (isPreview) {
     const webItems = [
       { name: "Cabaña El Peñón", slug: "cabana-el-penon", type: "cabana", price: 150000, capacity: "4 personas", description: "Cabaña con vista al valle", featured: true },
       { name: "Cabaña Vista al Valle", slug: "cabana-vista-valle", type: "cabana", price: 180000, capacity: "2 personas", description: "Cabaña íntima con terraza", featured: true },
@@ -25,12 +28,17 @@ async function main() {
       { name: "Moto Enduro", slug: "moto-enduro", type: "moto", price: 90000, capacity: "1 moto", description: "Renta de moto enduro por día", featured: false },
       { name: "Bicicleta MTB", slug: "bici-mtb", type: "bici", price: 35000, capacity: "1 bici", description: "Renta de bici de montaña por día", featured: false },
     ];
+    let created = 0;
     for (const it of webItems) {
-      await prisma.item.create({ data: { ...it, image: null } });
+      const exists = await prisma.item.findUnique({ where: { slug: it.slug } });
+      if (!exists) {
+        await prisma.item.create({ data: { ...it, image: null } });
+        created++;
+      }
     }
-    console.log(`  ✅ Web items (reservas) seeded`);
+    console.log(`  ✅ Web items (reservas) — ${created} creados en preview`);
   } else {
-    console.log(`  ⏭️  Ya existen ${existingItems} items de reserva, salto web items`);
+    console.log("  ⏭️  No es preview, salto web items demo");
   }
 
   // ──────────────────────────────────────────────
