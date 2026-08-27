@@ -225,13 +225,37 @@ export async function POST(req: NextRequest) {
     let deliveryNote: string | null = null;
 
     if (source === "QR" && tableId) {
-      // QR order: link directly to table — NO session created
+      // QR order: link to table. If a customer is identified (email match / logged in),
+      // create or reuse a session so the customer stays a customer (not walk-in)
+      // and can pay on account.
       const tableInfo = await prisma.table.findUnique({ where: { id: tableId } });
       if (!tableInfo) {
         return NextResponse.json({ error: "Mesa no encontrada" }, { status: 404 });
       }
       resolvedTableId = tableId;
       deliveryNote = `📍 ${tableInfo.name || ("Mesa " + tableInfo.number)}${tableInfo.location ? " · " + tableInfo.location : ""}`;
+
+      if (customerId) {
+        let session = await prisma.serviceSession.findFirst({
+          where: { tableId, status: "OPEN" },
+        });
+        if (!session) {
+          session = await prisma.serviceSession.create({
+            data: {
+              type: "TABLE",
+              label: tableInfo.name || ("Mesa " + tableInfo.number),
+              tableId,
+              customerId,
+            },
+          });
+        } else if (!session.customerId) {
+          session = await prisma.serviceSession.update({
+            where: { id: session.id },
+            data: { customerId },
+          });
+        }
+        sessionId = session.id;
+      }
     } else if (source === "QR" && serviceSessionId) {
       // Legacy: QR order with session (fallback for existing clients)
       const parentSession = await prisma.serviceSession.findUnique({

@@ -53,7 +53,7 @@ interface SessionDetail {
   status: string;
   openedAt: string;
   table: { number: string; name: string | null } | null;
-  customer: { id: string; name: string } | null;
+  customer: { id: string; name: string; hasCredit?: boolean } | null;
   orders: Order[];
 }
 
@@ -176,11 +176,13 @@ async function advanceOrderToPaid(orderId: string, currentStatus: string, paymen
 function PaymentSheet({
   orders,
   sessionLabel,
+  customer,
   onClose,
   onPaid,
 }: {
   orders: Order[];
   sessionLabel: string;
+  customer?: { id: string; name: string; hasCredit?: boolean } | null;
   onClose: () => void;
   onPaid: () => void;
 }) {
@@ -190,6 +192,7 @@ function PaymentSheet({
 
   const activeOrders = orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
   const grandTotal = activeOrders.reduce((s, o) => s + o.total, 0);
+  const canCredit = customer != null && customer.hasCredit === true;
 
   const handlePay = async (method: string) => {
     setPaying(true);
@@ -277,7 +280,7 @@ function PaymentSheet({
                   {payError}
                 </p>
               )}
-              <div className="grid grid-cols-3 gap-3">
+              <div className={`grid gap-3 ${canCredit ? 'grid-cols-3' : 'grid-cols-2'}`}>
                 <button
                   onClick={() => handlePay('CASH')}
                   disabled={paying || activeOrders.length === 0}
@@ -294,14 +297,16 @@ function PaymentSheet({
                   <span className="text-2xl">💳</span>
                   <span className="text-xs">Tarjeta</span>
                 </button>
-                <button
-                  onClick={() => handlePay('ON_ACCOUNT')}
-                  disabled={paying || activeOrders.length === 0}
-                  className="min-h-[64px] bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
-                >
-                  <span className="text-2xl">📒</span>
-                  <span className="text-xs">Cuenta</span>
-                </button>
+                {canCredit && (
+                  <button
+                    onClick={() => handlePay('ON_ACCOUNT')}
+                    disabled={paying || activeOrders.length === 0}
+                    className="min-h-[64px] bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+                  >
+                    <span className="text-2xl">📒</span>
+                    <span className="text-xs">Cuenta</span>
+                  </button>
+                )}
               </div>
               {paying && (
                 <p className="text-center text-sm text-gray-500 mt-3 animate-pulse">
@@ -540,7 +545,10 @@ export default function SoloOrdersPanel({
     if (!label && newTabType === 'WALKIN') {
       setNewTabLabel('Walk-in');
     }
-    const finalLabel = label || 'Walk-in';
+    const finalLabel =
+      newTabType === 'TAB'
+        ? (selectedCustomer?.name || label || 'Cliente')
+        : (label || 'Walk-in');
 
     setCreatingSession(true);
     setNewSessionError(null);
@@ -913,6 +921,7 @@ export default function SoloOrdersPanel({
         <PaymentSheet
           orders={detailOrders}
           sessionLabel={sessionDetail.label}
+          customer={sessionDetail.customer}
           onClose={() => setShowPayment(false)}
           onPaid={() => {
             loadSessionDetail(selectedSessionId!, true);
