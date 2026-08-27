@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "npx prisma generate && next build",
-    "start": "cp -n prisma/dev.db /data/hangar5.db 2>/dev/null; mkdir -p /data/backups; cp /data/hangar5.db /data/backups/hangar5-$(date +%Y%m%d-%H%M%S).db 2>/dev/null; ls -t /data/backups/hangar5-*.db 2>/dev/null | tail -n +11 | xargs rm -f 2>/dev/null; node prisma/migrate-sessions.js /data/hangar5.db; npx prisma db push --accept-data-loss --url=file:/data/hangar5.db 2>/dev/null; npx tsx scripts/seed-restaurant-all.ts 2>/dev/null || true; npx tsx scripts/seed-demo.ts 2>/dev/null || true; npx tsx scripts/seed-images.ts 2>/dev/null || true; next start",
+    "start": "cp -n prisma/dev.db /data/hangar5.db 2>/dev/null; mkdir -p /data/backups; cp /data/hangar5.db /data/backups/hangar5-$(date +%Y%m%d-%H%M%S).db 2>/dev/null; ls -t /data/backups/hangar5-*.db 2>/dev/null | tail -n +11 | xargs rm -f 2>/dev/null; node prisma/migrate-sessions.js /data/hangar5.db; npx prisma db push --accept-data-loss --url=file:/data/hangar5.db 2>/dev/null; npx tsx scripts/seed-restaurant-all.ts 2>/dev/null || true; npx tsx scripts/seed-images.ts 2>/dev/null || true; next start",
     "lint": "eslint"
   },
   "dependencies": {
