@@ -91,9 +91,9 @@ export async function GET(req: NextRequest) {
       const cur = lastActivityMap.get(cid) || 0;
       if (t > cur) lastActivityMap.set(cid, t);
     };
-    for (const g of lastSessions) bump(g.customerId, g._max.openedAt);
-    for (const g of lastBookings) bump(g.customerId, g._max.createdAt);
-    for (const g of lastLedger) bump(g.customerId, g._max.createdAt);
+    for (const g of lastSessions) if (g.customerId) bump(g.customerId, g._max.openedAt);
+    for (const g of lastBookings) if (g.customerId) bump(g.customerId, g._max.createdAt);
+    for (const g of lastLedger) if (g.customerId) bump(g.customerId, g._max.createdAt);
 
     const result = customers.map(c => {
       const isActiveNow = openSet.has(c.id) || activeBookingSet.has(c.id);
