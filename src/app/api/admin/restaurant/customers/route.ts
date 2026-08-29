@@ -23,7 +23,6 @@ export async function GET(req: NextRequest) {
 
     const customers = await prisma.customer.findMany({
       where,
-      orderBy: { name: "asc" },
       select: {
         id: true,
         name: true,
@@ -31,22 +30,86 @@ export async function GET(req: NextRequest) {
         phone: true,
         hasCredit: true,
         creditLimit: true,
+        isActive: true,
         _count: { select: { sessions: true } },
       },
     });
+
+    const customerIds = customers.map(c => c.id);
 
     // Batch aggregate balances in a single query to avoid N+1
     const balances = await prisma.customerLedgerEntry.groupBy({
       by: ["customerId"],
       _sum: { amount: true },
-      where: { customerId: { in: customers.map(c => c.id) } },
+      where: { customerId: { in: customerIds } },
     });
     const balanceMap = new Map(balances.map(b => [b.customerId, b._sum.amount || 0]));
 
-    const result = customers.map(c => ({
-      ...c,
-      balance: (balanceMap.get(c.id) || 0) / 100,
-    }));
+    // Consumiendo ahora: sesión de restaurante abierta
+    const openSessions = await prisma.serviceSession.findMany({
+      where: { status: "OPEN", customerId: { in: customerIds } },
+      select: { customerId: true },
+    });
+    const openSet = new Set(openSessions.map(s => s.customerId));
+
+    // Consumiendo ahora: estadía en curso (reserva activa hoy)
+    const now = new Date();
+    const activeBookings = await prisma.booking.findMany({
+      where: {
+        customerId: { in: customerIds },
+        status: { notIn: ["cancelled", "maintenance"] },
+        startDate: { lte: now },
+        endDate: { gte: now },
+      },
+      select: { customerId: true },
+    });
+    const activeBookingSet = new Set(activeBookings.map(b => b.customerId));
+
+    // Última actividad: max(sesión openedAt, reserva createdAt, movimiento ledger createdAt)
+    const [lastSessions, lastBookings, lastLedger] = await Promise.all([
+      prisma.serviceSession.groupBy({
+        by: ["customerId"],
+        _max: { openedAt: true },
+        where: { customerId: { in: customerIds } },
+      }),
+      prisma.booking.groupBy({
+        by: ["customerId"],
+        _max: { createdAt: true },
+        where: { customerId: { in: customerIds } },
+      }),
+      prisma.customerLedgerEntry.groupBy({
+        by: ["customerId"],
+        _max: { createdAt: true },
+        where: { customerId: { in: customerIds } },
+      }),
+    ]);
+
+    const lastActivityMap = new Map<string, number>();
+    const bump = (cid: string, d: Date | null | undefined) => {
+      if (!d) return;
+      const t = new Date(d).getTime();
+      const cur = lastActivityMap.get(cid) || 0;
+      if (t > cur) lastActivityMap.set(cid, t);
+    };
+    for (const g of lastSessions) bump(g.customerId, g._max.openedAt);
+    for (const g of lastBookings) bump(g.customerId, g._max.createdAt);
+    for (const g of lastLedger) bump(g.customerId, g._max.createdAt);
+
+    const result = customers.map(c => {
+      const isActiveNow = openSet.has(c.id) || activeBookingSet.has(c.id);
+      return {
+        ...c,
+        balance: (balanceMap.get(c.id) || 0) / 100,
+        isActiveNow,
+        lastActivity: lastActivityMap.get(c.id) || 0,
+      };
+    });
+
+    // Ordenar: quienes están consumiendo ahora primero, luego por actividad más reciente
+    result.sort((a, b) => {
+      if (a.isActiveNow !== b.isActiveNow) return a.isActiveNow ? -1 : 1;
+      return b.lastActivity - a.lastActivity;
+    });
 
     return NextResponse.json(result);
   } catch (err) {
