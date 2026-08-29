@@ -5,10 +5,24 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 // ─── GET: list all customers ─────────────────────────────────────────────────
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get("search")?.trim() || "";
+    const includeInactive = searchParams.get("includeInactive") === "true";
+
+    const where: Record<string, unknown> = {};
+    if (!includeInactive) where.isActive = true;
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { email: { contains: search } },
+        { phone: { contains: search } },
+      ];
+    }
+
     const customers = await prisma.customer.findMany({
-      where: { isActive: true },
+      where,
       orderBy: { name: "asc" },
       select: {
         id: true,
