@@ -10,6 +10,8 @@ export default function NuevoClientePage() {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
+  const [hasCredit, setHasCredit] = useState(true);
+  const [creditLimit, setCreditLimit] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,7 +23,14 @@ export default function NuevoClientePage() {
       const res = await fetch('/api/admin/restaurant/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), phone: phone.trim() || null, email: email.trim() || null, notes: notes.trim() || null }),
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim() || null,
+          email: email.trim() || null,
+          notes: notes.trim() || null,
+          hasCredit,
+          creditLimit: creditLimit.trim() ? parseFloat(creditLimit) : null,
+        }),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
@@ -85,6 +94,33 @@ export default function NuevoClientePage() {
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
             placeholder="Cliente frecuente, prefiere terraza..."
           />
+        </div>
+
+        <div className="border border-gray-200 rounded-lg p-4 space-y-3 bg-gray-50/50">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={hasCredit}
+              onChange={e => setHasCredit(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">📋 Habilitar crédito (puede cargar a su cuenta)</span>
+          </label>
+          {hasCredit && (
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Límite de crédito (opcional)</label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={creditLimit}
+                onChange={e => setCreditLimit(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="Ej: 5000 (dejar vacío = sin límite)"
+              />
+              <p className="text-xs text-gray-400 mt-1">En pesos MXN. Dejalo vacío para crédito sin tope.</p>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3 pt-2">

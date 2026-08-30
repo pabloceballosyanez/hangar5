@@ -75,21 +75,48 @@ export async function POST(req: NextRequest) {
     totalPrice = item.price * Math.max(days, 1);
   }
 
-  const booking = await prisma.booking.create({
-    data: {
-      itemId,
-      customerName,
-      customerEmail,
-      customerPhone,
-      startDate: start,
-      endDate: end,
-      guests: guests || 1,
-      totalPrice,
-      paymentMethod: paymentMethod || null,
-      notes,
-      status: "pending",
-    },
+  // Vincular (o crear) el cliente por email — integración hotel ↔ restaurante
+  let customer = await prisma.customer.findUnique({ where: { email: customerEmail } });
+  if (!customer) {
+    customer = await prisma.customer.create({
+      data: {
+        name: customerName,
+        email: customerEmail,
+        phone: customerPhone || null,
+      },
+    });
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    const booking = await tx.booking.create({
+      data: {
+        itemId,
+        customerId: customer!.id,
+        customerName,
+        customerEmail,
+        customerPhone,
+        startDate: start,
+        endDate: end,
+        guests: guests || 1,
+        totalPrice,
+        paymentMethod: paymentMethod || null,
+        notes,
+        status: "pending",
+      },
+    });
+
+    // Registrar el cargo en la cuenta del cliente (saldo unificado)
+    await tx.customerLedgerEntry.create({
+      data: {
+        customerId: customer!.id,
+        amount: totalPrice,
+        type: "CHARGE",
+        note: `Reserva: ${item.name} (${start.toLocaleDateString("es-MX")} → ${end.toLocaleDateString("es-MX")})`,
+      },
+    });
+
+    return booking;
   });
 
-  return NextResponse.json(booking);
+  return NextResponse.json(result);
 }

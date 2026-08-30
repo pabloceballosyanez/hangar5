@@ -15,6 +15,11 @@ export async function GET(_req: NextRequest, { params }: Params) {
       where: { id: customerId },
       include: {
         ledgerEntries: { orderBy: { createdAt: "desc" }, take: 50 },
+        bookings: {
+          orderBy: { createdAt: "desc" },
+          take: 50,
+          include: { item: { select: { name: true, type: true } } },
+        },
         sessions: {
           orderBy: { openedAt: "desc" },
           take: 20,
@@ -38,6 +43,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
       ...customer,
       balance: (balanceAgg._sum.amount || 0) / 100,
       ledgerEntries: customer.ledgerEntries.map(e => ({ ...e, amount: e.amount / 100 })),
+      bookings: customer.bookings.map(b => ({ ...b, totalPrice: b.totalPrice / 100 })),
       sessions: customer.sessions.map(s => ({
         ...s,
         orders: s.orders.map(o => ({ ...o, total: o.total / 100 })),
@@ -60,6 +66,7 @@ const updateCustomerSchema = z.object({
   notes: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   hasCredit: z.boolean().optional(),
+  creditLimit: z.number().min(0).nullable().optional(), // en pesos; null = sin límite
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {
@@ -75,6 +82,9 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const data: Record<string, unknown> = { ...parsed.data };
     if (data.email !== undefined) data.email = data.email || null;
     if (data.phone !== undefined) data.phone = data.phone || null;
+    if (data.creditLimit !== undefined) {
+      data.creditLimit = data.creditLimit === null ? null : Math.round((data.creditLimit as number) * 100);
+    }
 
     const updated = await prisma.customer.update({ where: { id: customerId }, data });
     return NextResponse.json(updated);

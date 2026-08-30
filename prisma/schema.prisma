@@ -28,25 +28,28 @@ model Item {
 }
 
 model Booking {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   itemId          String
-  item            Item     @relation(fields: [itemId], references: [id])
+  item            Item      @relation(fields: [itemId], references: [id])
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id])
   customerName    String
   customerEmail   String
   customerPhone   String?
   startDate       DateTime
   endDate         DateTime
-  guests          Int      @default(1)
+  guests          Int       @default(1)
   totalPrice      Int
-  status          String   @default("pending")
+  status          String    @default("pending")
   stripeSessionId String?
   paymentMethod   String?
   notes           String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([itemId, startDate, endDate])
   @@index([status])
+  @@index([customerId])
 }
 
 // ============================================================
@@ -207,12 +210,14 @@ model Customer {
   email          String?                @unique
   password       String?
   notes          String?
-  hasCredit      Boolean                @default(false)
+  hasCredit      Boolean                @default(true)
+  creditLimit    Int?                   // límite de crédito en centavos (null = sin límite)
   isActive       Boolean                @default(true)
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
   sessions       ServiceSession[]
   ledgerEntries  CustomerLedgerEntry[]
+  bookings       Booking[]
   payments       Payment[]
 }
 
