@@ -23,7 +23,7 @@ function formatPrice(pesos: number) {
 const typeLabel: Record<string, string> = {
   TABLE: 'Mesa',
   TAB: 'Tab',
-  WALKIN: 'Walk-in',
+  WALKIN: 'Sin reserva',
 };
 
 const typeIcon: Record<string, string> = {
@@ -50,12 +50,12 @@ export default function SessionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Tabs y Sesiones</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Cuentas y Sesiones</h1>
         <Link
           href="/admin/restaurant/sessions/nuevo"
           className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
         >
-          + Nuevo tab
+          + Nueva cuenta
         </Link>
       </div>
 
@@ -89,7 +89,7 @@ export default function SessionsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
           <p className="text-gray-400 text-lg">No hay sesiones {filter === 'OPEN' ? 'abiertas' : ''}</p>
           <Link href="/admin/restaurant/sessions/nuevo" className="inline-block mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium">
-            + Abrir primer tab →
+            + Abrir la primera cuenta →
           </Link>
         </div>
       ) : (

@@ -43,7 +43,7 @@ export default function AyudaPage() {
               <tr className="border-b border-[#b88364]/5"><td className="py-2 pr-4">🤵 Mesero</td><td className="py-2 pr-4">Toma órdenes, abre mesas, cobra.</td><td className="py-2">App de Mesero</td></tr>
               <tr className="border-b border-[#b88364]/5"><td className="py-2 pr-4">👨‍🍳 Cocinero</td><td className="py-2 pr-4">Ve órdenes en cocina. Marca listo.</td><td className="py-2">KDS Cocina</td></tr>
               <tr className="border-b border-[#b88364]/5"><td className="py-2 pr-4">🍸 Bartender</td><td className="py-2 pr-4">Ve órdenes de bar. Marca listo.</td><td className="py-2">KDS Bar</td></tr>
-              <tr className="border-b border-[#b88364]/5"><td className="py-2 pr-4">🛎️ Recepción</td><td className="py-2 pr-4">Reservas, check-in/out.</td><td className="py-2">Admin Dashboard</td></tr>
+              <tr className="border-b border-[#b88364]/5"><td className="py-2 pr-4">🛎️ Recepción</td><td className="py-2 pr-4">Reservas de alojamiento y llegadas.</td><td className="py-2">Admin Dashboard</td></tr>
               <tr><td className="py-2 pr-4">💰 Caja</td><td className="py-2 pr-4">Cierres, cobros, reportes.</td><td className="py-2">Reportes</td></tr>
             </tbody>
           </table>
@@ -55,22 +55,30 @@ export default function AyudaPage() {
     },
     {
       id: 'dashboard',
-      title: '2. Admin Dashboard',
+      title: '2. Panel del Restaurante',
       content: <>
-        <p className="mb-4">El Dashboard muestra un resumen de la operación con 4 tarjetas principales:</p>
+        <p className="mb-4">El panel del restaurante muestra el estado de la operación del día con tarjetas de resumen:</p>
         <ul className="list-disc pl-5 space-y-1 mb-4">
-          <li><strong>Reservas este mes</strong> — total de reservas de cabañas, glampings y actividades</li>
-          <li><strong>Ingresos este mes</strong> — ingresos totales</li>
-          <li><strong>Items activos</strong> — número de platillos y productos en el menú</li>
-          <li><strong>Próximos check-ins</strong> — llegadas programadas</li>
+          <li><strong>Órdenes activas hoy</strong> — pedidos que están en preparación o por cobrar</li>
+          <li><strong>Ventas del día</strong> — total cobrado en la fecha</li>
+          <li><strong>Cuentas abiertas</strong> — mesas con consumo en curso</li>
+          <li><strong>Personal presente</strong> — quién está en turno ahora</li>
+          <li><strong>Items del menú</strong> — platillos activos en la carta</li>
         </ul>
-        <h4 className="text-[#b88364] font-medium mt-6 mb-2">Pestañas principales</h4>
+        <h4 className="text-[#b88364] font-medium mt-6 mb-2">Secciones del panel</h4>
         <ul className="list-disc pl-5 space-y-1">
-          <li><strong>📊 Dashboard</strong> — resumen general</li>
-          <li><strong>📋 Reservas</strong> — gestión de reservas</li>
-          <li><strong>🏷️ Items</strong> — cabañas, glampings, actividades, rentas</li>
-          <li><strong>🍽️ Restaurante</strong> — módulo completo de restauración</li>
-          <li><strong>📋 Recetario</strong> — vista pública del recetario</li>
+          <li><strong>Dashboard</strong> — resumen del día, órdenes recientes y mesas activas</li>
+          <li><strong>Categorías</strong> — las secciones de la carta (Desayunos, Horno, Parrilla…)</li>
+          <li><strong>Menú</strong> — los platillos, sus precios y fotos</li>
+          <li><strong>Modificadores</strong> — opciones dentro de un platillo (término, extras)</li>
+          <li><strong>Recetas</strong> — qué lleva cada platillo, para descontar inventario</li>
+          <li><strong>Mesas</strong> — el mapa de mesas del salón</li>
+          <li><strong>Clientes</strong> — historial y crédito de cada cliente</li>
+          <li><strong>Órdenes</strong> — todas las órdenes del día</li>
+          <li><strong>Inventario</strong> — ingredientes, stock y alertas de reposición</li>
+          <li><strong>Reportes</strong> — ventas, márgenes y estado de resultados</li>
+          <li><strong>Staff</strong> — el personal, sus roles y sus PIN</li>
+          <li><strong>Auditoría</strong> — registro de todo lo que pasa en el sistema</li>
         </ul>
       </>
     },

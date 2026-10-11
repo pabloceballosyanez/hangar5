@@ -84,7 +84,7 @@ export default function NuevoTabPage() {
 
   return (
     <div className="max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Abrir tab</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Abrir cuenta</h1>
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
         {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
 
@@ -95,7 +95,7 @@ export default function NuevoTabPage() {
             {[
               { key: 'TABLE', label: '🪑 Mesa', desc: 'Con mesa física' },
               { key: 'TAB', label: '👤 Tab', desc: 'Persona con cuenta' },
-              { key: 'WALKIN', label: '🚶 Walk-in', desc: 'Anónimo rápido' },
+              { key: 'WALKIN', label: 'Sin reserva', desc: 'Cliente sin registro' },
             ].map(t => (
               <button
                 key={t.key}
@@ -233,7 +233,7 @@ export default function NuevoTabPage() {
             disabled={saving}
             className="flex-1 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            {saving ? 'Creando...' : 'Abrir tab'}
+            {saving ? 'Creando...' : 'Abrir cuenta'}
           </button>
         </div>
       </form>
