@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { slugify, tieneHistoria } from '@/lib/carta-historias';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,17 @@ export async function GET() {
       orderBy: { sortOrder: 'asc' }
     });
 
-    return NextResponse.json(categories);
+    // Anota cada platillo con su slug de ficha y si tiene reseña propia
+    const annotated = categories.map((cat) => ({
+      ...cat,
+      menuItems: cat.menuItems.map((item) => ({
+        ...item,
+        slug: slugify(item.name),
+        hasStory: tieneHistoria(item.name),
+      })),
+    }));
+
+    return NextResponse.json(annotated);
   } catch (error) {
     console.error('Error fetching menu:', error);
     return NextResponse.json(
