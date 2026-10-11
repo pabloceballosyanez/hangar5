@@ -127,13 +127,13 @@ export default function OrderTrackerPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900 pb-8">
       {/* Header */}
       <div className="px-4 pt-8 pb-6 text-center">
-        <h1 className="text-3xl font-black text-white mb-2">Tu pedido</h1>
+        <h1 className="text-3xl font-black text-snow mb-2">Tu pedido</h1>
         <p className="text-amber-200/60 text-sm">Mesa · Seguimiento en vivo</p>
       </div>
 
       {/* Status steps */}
       <div className="px-4 mb-8">
-        <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-5 space-y-0">
+        <div className="bg-ink-2/60 border border-hair/50 rounded-2xl p-5 space-y-0">
           {STATUS_STEPS.map((step, i) => {
             const stepIdx = ORDERED_STEPS.indexOf(step.key);
             const isComplete = currentStepIdx >= stepIdx;
@@ -142,19 +142,19 @@ export default function OrderTrackerPage() {
               <div key={step.key} className="flex items-center gap-4 py-3 relative">
                 {/* Connector line */}
                 {i < STATUS_STEPS.length - 1 && (
-                  <div className={`absolute left-[19px] top-[48px] w-0.5 h-[calc(100%-16px)] ${isComplete ? "bg-amber-400/50" : "bg-slate-700"}`} />
+                  <div className={`absolute left-[19px] top-[48px] w-0.5 h-[calc(100%-16px)] ${isComplete ? "bg-amber-400/50" : "bg-ink-3"}`} />
                 )}
                 {/* Circle */}
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-lg z-10 ${
-                  isComplete ? "bg-amber-400 text-slate-900" : "bg-slate-700 text-slate-500"
+                  isComplete ? "bg-amber-400 text-snow" : "bg-ink-3 text-ash"
                 }`}>
                   {isComplete ? step.icon : "○"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`font-bold text-sm ${isComplete ? "text-white" : "text-slate-500"}`}>
+                  <p className={`font-bold text-sm ${isComplete ? "text-snow" : "text-ash"}`}>
                     {step.label}
                   </p>
-                  <p className={`text-xs ${isCurrent ? "text-amber-400" : isComplete ? "text-slate-400" : "text-slate-600"}`}>
+                  <p className={`text-xs ${isCurrent ? "text-amber-400" : isComplete ? "text-smoke" : "text-ash"}`}>
                     {step.desc}
                   </p>
                 </div>
@@ -178,17 +178,17 @@ export default function OrderTrackerPage() {
                 key={item.id}
                 className={`flex items-center gap-3 p-3 rounded-xl ${
                   itemReady ? "bg-emerald-950/40 border border-emerald-500/30" :
-                  itemDone ? "bg-slate-800/40 opacity-60" :
-                  "bg-slate-800/60 border border-slate-700/50"
+                  itemDone ? "bg-ink-2/40 opacity-60" :
+                  "bg-ink-2/60 border border-hair/50"
                 }`}
               >
                 <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold bg-amber-400/10 text-amber-400">
                   {item.quantity}×
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium leading-tight">
+                  <p className="text-snow text-sm font-medium leading-tight">
                     {item.menuItem.name}
-                    {item.variant && <span className="text-slate-400"> · {item.variant.name}</span>}
+                    {item.variant && <span className="text-smoke"> · {item.variant.name}</span>}
                   </p>
                 </div>
                 <span className="text-sm shrink-0">
@@ -206,7 +206,7 @@ export default function OrderTrackerPage() {
           <button
             onClick={handleConfirmDelivery}
             disabled={confirming}
-            className="w-full min-h-[60px] bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-white font-black text-lg rounded-2xl transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2"
+            className="w-full min-h-[60px] bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-snow font-black text-lg rounded-2xl transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2"
           >
             {confirming ? (
               <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -226,7 +226,7 @@ export default function OrderTrackerPage() {
 
         <Link
           href={`/menu/${qrToken}`}
-          className="w-full min-h-[56px] bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2"
+          className="w-full min-h-[56px] bg-ink-2 hover:bg-ink-3 active:scale-[0.98] text-snow font-bold rounded-2xl transition-all flex items-center justify-center gap-2"
         >
           🍴 Pedir algo más
         </Link>

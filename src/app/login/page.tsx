@@ -99,37 +99,37 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b88364]" />
+      <main className="min-h-screen bg-ink flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brass" />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+    <main className="min-h-screen bg-ink flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif text-[#f0ebe3] tracking-wider">Hangar 5</h1>
-          <p className="text-xs text-[#b88364] tracking-[0.3em] uppercase mt-2">El Peñón</p>
+          <h1 className="text-3xl font-serif text-snow tracking-wider">Hangar 5</h1>
+          <p className="text-xs text-brass tracking-[0.3em] uppercase mt-2">El Peñón</p>
         </div>
 
         {!selected ? (
           /* Selección de usuario */
           <div className="space-y-2">
-            <p className="text-xs text-[#f0ebe3]/40 text-center uppercase tracking-widest mb-4">
+            <p className="text-xs text-snow/40 text-center uppercase tracking-widest mb-4">
               ¿Quién eres?
             </p>
             {staff.map(s => (
               <button
                 key={s.id}
                 onClick={() => setSelected(s)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-[#b88364]/10 hover:border-[#b88364]/30 hover:bg-white/8 transition-all text-left"
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-brass/10 hover:border-brass/30 hover:bg-snow/10 transition-all text-left"
               >
                 <span className="text-2xl">{ROLE_EMOJI[s.role] || '👤'}</span>
                 <div>
-                  <p className="text-[#f0ebe3] font-medium text-sm">{s.name}</p>
-                  <p className="text-[10px] text-[#b88364]/60">{ROLE_LABELS[s.role] || s.role}</p>
+                  <p className="text-snow font-medium text-sm">{s.name}</p>
+                  <p className="text-[10px] text-brass/60">{ROLE_LABELS[s.role] || s.role}</p>
                 </div>
               </button>
             ))}
@@ -137,13 +137,13 @@ export default function LoginPage() {
         ) : (
           /* Input de PIN */
           <div className="text-center">
-            <button onClick={handleBack} className="text-xs text-[#b88364]/50 hover:text-[#b88364] mb-6 block mx-auto">
+            <button onClick={handleBack} className="text-xs text-brass/50 hover:text-brass mb-6 block mx-auto">
               ← Cambiar usuario
             </button>
             
             <div className="text-2xl mb-1">{ROLE_EMOJI[selected.role]}</div>
-            <p className="text-[#f0ebe3] font-medium mb-1">{selected.name}</p>
-            <p className="text-[10px] text-[#b88364]/60 mb-6">{ROLE_LABELS[selected.role]}</p>
+            <p className="text-snow font-medium mb-1">{selected.name}</p>
+            <p className="text-[10px] text-brass/60 mb-6">{ROLE_LABELS[selected.role]}</p>
 
             {/* PIN dots */}
             <div className="flex justify-center gap-3 mb-6">
@@ -152,8 +152,8 @@ export default function LoginPage() {
                   key={i}
                   className={`w-4 h-4 rounded-full border-2 transition-all ${
                     pin.length > i
-                      ? 'bg-[#b88364] border-[#b88364]'
-                      : 'border-[#b88364]/30'
+                      ? 'bg-brass border-brass'
+                      : 'border-brass/30'
                   }`}
                 />
               ))}
@@ -170,7 +170,7 @@ export default function LoginPage() {
                   key={n}
                   onClick={() => handlePinInput(String(n))}
                   disabled={pin.length >= 4}
-                  className="aspect-square rounded-xl bg-white/5 border border-[#b88364]/10 hover:bg-white/10 hover:border-[#b88364]/30 text-[#f0ebe3] text-xl font-medium transition-all disabled:opacity-30"
+                  className="aspect-square rounded-xl bg-white/5 border border-brass/10 hover:bg-snow/10 hover:border-brass/30 text-snow text-xl font-medium transition-all disabled:opacity-30"
                 >
                   {n}
                 </button>
@@ -179,13 +179,13 @@ export default function LoginPage() {
               <button
                 onClick={() => handlePinInput('0')}
                 disabled={pin.length >= 4}
-                className="aspect-square rounded-xl bg-white/5 border border-[#b88364]/10 hover:bg-white/10 hover:border-[#b88364]/30 text-[#f0ebe3] text-xl font-medium transition-all disabled:opacity-30"
+                className="aspect-square rounded-xl bg-white/5 border border-brass/10 hover:bg-snow/10 hover:border-brass/30 text-snow text-xl font-medium transition-all disabled:opacity-30"
               >
                 0
               </button>
               <button
                 onClick={() => { setPin(''); setError(''); }}
-                className="aspect-square rounded-xl bg-white/5 border border-[#b88364]/10 hover:bg-white/10 hover:border-[#b88364]/30 text-[#b88364] text-xs font-medium transition-all"
+                className="aspect-square rounded-xl bg-white/5 border border-brass/10 hover:bg-snow/10 hover:border-brass/30 text-brass text-xs font-medium transition-all"
               >
                 ⌫
               </button>
@@ -197,7 +197,7 @@ export default function LoginPage() {
         <div className="mt-8 text-center">
           <a
             href="/ingresar"
-            className="text-[#b88364]/50 hover:text-[#b88364] text-xs transition-colors"
+            className="text-brass/50 hover:text-brass text-xs transition-colors"
           >
             ¿Eres cliente? Ingresa aquí →
           </a>

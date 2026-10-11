@@ -90,8 +90,8 @@ function LoginContent() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col items-center justify-center px-4 py-12">
       {/* Logo */}
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-black text-white tracking-tight">
-          HANGAR<span className="text-amber-400">CINCO</span>
+        <h1 className="text-4xl font-black text-snow tracking-tight">
+          HANGAR<span className="text-brass">CINCO</span>
         </h1>
         <p className="text-amber-100/60 text-sm mt-1">Tu cuenta</p>
       </div>
@@ -104,8 +104,8 @@ function LoginContent() {
             onClick={() => { setTab("login"); setError(null); setSuccess(null); }}
             className={`flex-1 py-4 text-sm font-bold transition-all ${
               tab === "login"
-                ? "text-amber-400 border-b-2 border-amber-400 bg-amber-400/5"
-                : "text-gray-400 hover:text-gray-300"
+                ? "text-brass border-b-2 border-amber-400 bg-amber-400/5"
+                : "text-smoke hover:text-smoke"
             }`}
           >
             Iniciar sesión
@@ -114,8 +114,8 @@ function LoginContent() {
             onClick={() => { setTab("register"); setError(null); setSuccess(null); }}
             className={`flex-1 py-4 text-sm font-bold transition-all ${
               tab === "register"
-                ? "text-amber-400 border-b-2 border-amber-400 bg-amber-400/5"
-                : "text-gray-400 hover:text-gray-300"
+                ? "text-brass border-b-2 border-amber-400 bg-amber-400/5"
+                : "text-smoke hover:text-smoke"
             }`}
           >
             Crear cuenta
@@ -138,31 +138,31 @@ function LoginContent() {
           {tab === "login" ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Email</label>
+                <label className="block text-xs font-semibold text-smoke mb-1">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   autoComplete="email"
-                  className="w-full bg-slate-800 border border-slate-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Contraseña</label>
+                <label className="block text-xs font-semibold text-smoke mb-1">Contraseña</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••"
                   autoComplete="current-password"
-                  className="w-full bg-slate-800 border border-slate-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 disabled:opacity-60 text-slate-900 font-black py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all"
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 disabled:opacity-60 text-snow font-black py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all"
               >
                 {loading ? "Entrando…" : "Entrar"}
               </button>
@@ -170,53 +170,53 @@ function LoginContent() {
           ) : (
             <form onSubmit={handleRegister} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Nombre</label>
+                <label className="block text-xs font-semibold text-smoke mb-1">Nombre</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="¿Cómo te llamas?"
                   autoComplete="name"
-                  className="w-full bg-slate-800 border border-slate-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Email</label>
+                <label className="block text-xs font-semibold text-smoke mb-1">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   autoComplete="email"
-                  className="w-full bg-slate-800 border border-slate-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Teléfono (opcional)</label>
+                <label className="block text-xs font-semibold text-smoke mb-1">Teléfono (opcional)</label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+52 555 000 0000"
                   autoComplete="tel"
-                  className="w-full bg-slate-800 border border-slate-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Contraseña</label>
+                <label className="block text-xs font-semibold text-smoke mb-1">Contraseña</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
                   autoComplete="new-password"
-                  className="w-full bg-slate-800 border border-slate-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 disabled:opacity-60 text-slate-900 font-black py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all"
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 disabled:opacity-60 text-snow font-black py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all"
               >
                 {loading ? "Creando cuenta…" : "Crear cuenta"}
               </button>
@@ -228,14 +228,14 @@ function LoginContent() {
       {/* Skip / Continue as guest */}
       <Link
         href={redirect}
-        className="mt-6 text-sm text-gray-400 hover:text-amber-300 transition-colors"
+        className="mt-6 text-sm text-smoke hover:text-amber-300 transition-colors"
       >
         Continuar como invitado →
       </Link>
 
       <Link
         href="/login"
-        className="mt-2 text-xs text-gray-500 hover:text-gray-400 transition-colors"
+        className="mt-2 text-xs text-smoke hover:text-smoke transition-colors"
       >
         ¿Trabajas aquí? Acceso empleados
       </Link>
@@ -246,7 +246,7 @@ function LoginContent() {
 export default function IngresarPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-ink flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
       </div>
     }>

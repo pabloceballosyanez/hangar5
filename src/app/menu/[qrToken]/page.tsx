@@ -321,7 +321,7 @@ export default function MenuPage() {
         <p className="text-sm text-amber-200/70">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="mt-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-xl min-h-[44px] active:scale-95 transition-all shadow-lg"
+          className="mt-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-snow font-bold rounded-xl min-h-[44px] active:scale-95 transition-all shadow-lg"
         >
           Reintentar
         </button>
@@ -346,7 +346,7 @@ export default function MenuPage() {
             {customerName ? (
               <a
                 href="/cuenta"
-                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm border border-amber-400/20 transition-all"
+                className="inline-flex items-center gap-2 bg-snow/10 hover:bg-snow/10 text-snow px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm border border-amber-400/20 transition-all"
               >
                 <span className="w-6 h-6 rounded-full bg-amber-400/30 flex items-center justify-center text-xs">
                   {customerName.charAt(0).toUpperCase()}
@@ -365,10 +365,10 @@ export default function MenuPage() {
 
           {/* Título principal */}
           <div className="mb-8 animate-fadeIn">
-            <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight leading-tight mb-2">
+            <h1 className="text-5xl md:text-6xl font-black text-snow tracking-tight leading-tight mb-2">
               HANGAR
               <br />
-              <span className="text-amber-400">CINCO</span>
+              <span className="text-brass">CINCO</span>
             </h1>
             <p className="text-lg text-amber-100/80 font-light italic max-w-md">
               Donde la montaña se encuentra con la cocina
@@ -388,7 +388,7 @@ export default function MenuPage() {
               <button
                 onClick={goCheckout}
                 aria-label={`Ver carrito con ${totalItems} artículos`}
-                className="relative inline-flex items-center gap-2 bg-white/95 hover:bg-white text-slate-900 px-5 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-all backdrop-blur-sm"
+                className="relative inline-flex items-center gap-2 bg-snow/10 hover:bg-snow/20 text-snow px-5 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-all backdrop-blur-sm"
               >
                 <span className="text-xl">🛒</span>
                 <span className="text-sm font-semibold">
@@ -402,7 +402,7 @@ export default function MenuPage() {
       </div>
 
       {/* ── Category pills — sticky ── */}
-      <div className="sticky top-0 z-40 bg-slate-800/80 backdrop-blur-lg border-b border-amber-400/10 shadow-lg">
+      <div className="sticky top-0 z-40 bg-ink-2/80 backdrop-blur-lg border-b border-amber-400/10 shadow-lg">
         <div
           className="flex gap-2 overflow-x-auto px-4 py-3"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
@@ -414,8 +414,8 @@ export default function MenuPage() {
               onClick={() => setActiveCategory(cat.id)}
               className={`flex-none px-4 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap min-h-[40px] ${
                 activeCategory === cat.id
-                  ? "bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/40 scale-105"
-                  : "bg-slate-700/50 text-amber-100 hover:bg-slate-700 border border-amber-400/20"
+                  ? "bg-amber-500 text-snow shadow-lg shadow-amber-500/40 scale-105"
+                  : "bg-ink-3/50 text-amber-100 hover:bg-ink-3 border border-amber-400/20"
               }`}
             >
               {cat.kind === "DRINK" ? "🥤" : "🍴"}
@@ -452,9 +452,9 @@ export default function MenuPage() {
         <div className="fixed bottom-0 left-0 right-0 z-30 px-4 pb-6 pt-4 bg-gradient-to-t from-slate-950 via-slate-900 to-transparent pointer-events-none">
           <button
             onClick={goCheckout}
-            className="pointer-events-auto w-full max-w-lg mx-auto flex items-center justify-between bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-[0.98] text-slate-900 font-black py-4 px-5 rounded-xl shadow-2xl shadow-amber-500/30 transition-all"
+            className="pointer-events-auto w-full max-w-lg mx-auto flex items-center justify-between bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-[0.98] text-snow font-black py-4 px-5 rounded-xl shadow-2xl shadow-amber-500/30 transition-all"
           >
-            <span className="bg-slate-900/30 text-amber-100 text-sm px-3 py-1.5 rounded-lg font-bold">
+            <span className="bg-ink/30 text-amber-100 text-sm px-3 py-1.5 rounded-lg font-bold">
               {totalItems} {totalItems === 1 ? "artículo" : "artículos"}
             </span>
             <span className="flex-1 text-center">Ver carrito</span>
@@ -487,14 +487,14 @@ export default function MenuPage() {
           {cart.slice(-3).map((item) => (
             <div
               key={item.cartId}
-              className="flex items-center gap-2 bg-slate-800/95 backdrop-blur-md border border-amber-400/30 shadow-lg rounded-lg px-3 py-2 text-xs animate-slideInRight"
+              className="flex items-center gap-2 bg-ink-2/95 backdrop-blur-md border border-amber-400/30 shadow-lg rounded-lg px-3 py-2 text-xs animate-slideInRight"
             >
               <span className="font-semibold text-amber-100 max-w-[120px] truncate">
                 {item.quantity}× {item.name}
               </span>
               <button
                 onClick={() => removeFromCart(item.cartId)}
-                className="text-amber-400/60 hover:text-red-400 ml-1 leading-none font-bold text-lg"
+                className="text-brass/60 hover:text-red-400 ml-1 leading-none font-bold text-lg"
                 aria-label={`Quitar ${item.name}`}
               >
                 ×
@@ -548,7 +548,7 @@ function MenuItemCard({
       {/* Content */}
       <div className="p-5">
         {/* Name */}
-        <h3 className="font-black text-white text-lg leading-tight mb-2 line-clamp-2">
+        <h3 className="font-black text-snow text-lg leading-tight mb-2 line-clamp-2">
           {item.name}
         </h3>
 
@@ -571,9 +571,9 @@ function MenuItemCard({
 
         {/* Price + Button */}
         <div className="flex items-center justify-between gap-3">
-          <div className="font-mono text-2xl font-black text-amber-400">
+          <div className="font-mono text-2xl font-black text-brass">
             {fmt(item.basePrice).split(".")[0]}
-            <span className="text-xs text-amber-400/60 ml-0.5">
+            <span className="text-xs text-brass/60 ml-0.5">
               {fmt(item.basePrice).split(".")[1]}
             </span>
           </div>
@@ -582,7 +582,7 @@ function MenuItemCard({
               e.stopPropagation();
               onAdd();
             }}
-            className="bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-900 font-black w-12 h-12 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/40 active:scale-90 transition-all text-xl leading-none"
+            className="bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-snow font-black w-12 h-12 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/40 active:scale-90 transition-all text-xl leading-none"
           >
             +
           </button>
@@ -647,7 +647,7 @@ function ItemModal({
             <button
               onClick={onClose}
               aria-label="Cerrar"
-              className="absolute top-5 right-5 bg-slate-900/80 hover:bg-slate-800 w-10 h-10 rounded-full flex items-center justify-center text-amber-400 font-black text-xl shadow-lg backdrop-blur-sm transition-all"
+              className="absolute top-5 right-5 bg-ink/80 hover:bg-ink-2 w-10 h-10 rounded-full flex items-center justify-center text-brass font-black text-xl shadow-lg backdrop-blur-sm transition-all"
             >
               ✕
             </button>
@@ -658,7 +658,7 @@ function ItemModal({
             <button
               onClick={onClose}
               aria-label="Cerrar"
-              className="bg-slate-700/50 hover:bg-slate-600 w-10 h-10 rounded-full flex items-center justify-center text-amber-400 font-black text-lg transition-all"
+              className="bg-ink-3/50 hover:bg-ink-4 w-10 h-10 rounded-full flex items-center justify-center text-brass font-black text-lg transition-all"
             >
               ✕
             </button>
@@ -669,7 +669,7 @@ function ItemModal({
         <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
           {/* Title + description + price */}
           <div className="border-b border-amber-400/10 pb-5">
-            <h2 className="text-3xl font-black text-white leading-tight mb-3">
+            <h2 className="text-3xl font-black text-snow leading-tight mb-3">
               {item.name}
             </h2>
             {item.description && (
@@ -677,7 +677,7 @@ function ItemModal({
                 {item.description}
               </p>
             )}
-            <div className="text-4xl font-black text-amber-400 font-mono">
+            <div className="text-4xl font-black text-brass font-mono">
               {fmt(item.basePrice)}
             </div>
           </div>
@@ -685,7 +685,7 @@ function ItemModal({
           {/* Variants */}
           {item.variants.length > 0 && (
             <section>
-              <h3 className="font-black text-amber-400 mb-3 text-sm uppercase tracking-widest">
+              <h3 className="font-black text-brass mb-3 text-sm uppercase tracking-widest">
                 Elige una variante
               </h3>
               <div className="space-y-2.5">
@@ -695,25 +695,25 @@ function ItemModal({
                     className={`flex items-center justify-between min-h-[52px] px-4 py-3 rounded-lg border-2 cursor-pointer transition-all ${
                       selectedVariantId === v.id
                         ? "border-amber-400 bg-amber-400/10 shadow-lg shadow-amber-400/20"
-                        : "border-slate-700 hover:border-amber-400/50 hover:bg-slate-700/40"
+                        : "border-hair hover:border-brass/50 hover:bg-ink-3/40"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                         selectedVariantId === v.id
                           ? "border-amber-400 bg-amber-400"
-                          : "border-slate-500"
+                          : "border-smoke"
                       }`}>
                         {selectedVariantId === v.id && (
-                          <div className="w-2 h-2 rounded-full bg-slate-900" />
+                          <div className="w-2 h-2 rounded-full bg-ink" />
                         )}
                       </div>
-                      <span className="text-base font-semibold text-white">
+                      <span className="text-base font-semibold text-snow">
                         {v.name}
                       </span>
                     </div>
                     {v.priceDelta !== 0 && (
-                      <span className="text-base font-bold text-amber-400 font-mono">
+                      <span className="text-base font-bold text-brass font-mono">
                         {v.priceDelta > 0 ? "+" : ""}
                         {fmt(v.priceDelta)}
                       </span>
@@ -728,7 +728,7 @@ function ItemModal({
           {item.modifierGroups.map((group) => (
             <section key={group.id}>
               <div className="flex items-center gap-3 mb-3 flex-wrap">
-                <h3 className="font-black text-amber-400 text-sm uppercase tracking-widest">
+                <h3 className="font-black text-brass text-sm uppercase tracking-widest">
                   {group.name}
                 </h3>
                 {group.isRequired && (
@@ -750,27 +750,27 @@ function ItemModal({
                     className={`flex items-center justify-between min-h-[52px] px-4 py-3 rounded-lg border-2 cursor-pointer transition-all ${
                       selectedModIds.has(mod.id)
                         ? "border-amber-400 bg-amber-400/10 shadow-lg shadow-amber-400/20"
-                        : "border-slate-700 hover:border-amber-400/50 hover:bg-slate-700/40"
+                        : "border-hair hover:border-brass/50 hover:bg-ink-3/40"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                         selectedModIds.has(mod.id)
                           ? "border-amber-400 bg-amber-400"
-                          : "border-slate-500"
+                          : "border-smoke"
                       }`}>
                         {selectedModIds.has(mod.id) && (
-                          <svg className="w-3 h-3 text-slate-900" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-3 h-3 text-snow" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         )}
                       </div>
-                      <span className="text-base font-semibold text-white">
+                      <span className="text-base font-semibold text-snow">
                         {mod.name}
                       </span>
                     </div>
                     {mod.priceDelta !== 0 && (
-                      <span className="text-base font-bold text-amber-400 font-mono">
+                      <span className="text-base font-bold text-brass font-mono">
                         +{fmt(mod.priceDelta)}
                       </span>
                     )}
@@ -782,7 +782,7 @@ function ItemModal({
 
           {/* Special instructions */}
           <section>
-            <h3 className="font-black text-amber-400 text-sm uppercase tracking-widest mb-3">
+            <h3 className="font-black text-brass text-sm uppercase tracking-widest mb-3">
               Instrucciones especiales
             </h3>
             <textarea
@@ -790,7 +790,7 @@ function ItemModal({
               onChange={(e) => onNotesChange(e.target.value)}
               placeholder="Sin cilantro, extra picante, sin sal…"
               rows={3}
-              className="w-full bg-slate-700/40 border border-slate-600 text-white placeholder-slate-400 px-4 py-3 rounded-lg text-base focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 resize-none transition-all"
+              className="w-full bg-ink-3/40 border border-hair text-snow placeholder-slate-400 px-4 py-3 rounded-lg text-base focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 resize-none transition-all"
             />
           </section>
         </div>
@@ -802,17 +802,17 @@ function ItemModal({
             <button
               onClick={() => onQuantityChange(Math.max(1, quantity - 1))}
               aria-label="Reducir cantidad"
-              className="w-12 h-12 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-amber-400 font-black text-2xl flex items-center justify-center active:scale-90 transition-all border border-slate-600 hover:border-amber-400/50"
+              className="w-12 h-12 rounded-lg bg-ink-3/50 hover:bg-ink-4 text-brass font-black text-2xl flex items-center justify-center active:scale-90 transition-all border border-hair hover:border-brass/50"
             >
               −
             </button>
-            <span className="text-3xl font-black text-white w-12 text-center tabular-nums">
+            <span className="text-3xl font-black text-snow w-12 text-center tabular-nums">
               {quantity}
             </span>
             <button
               onClick={() => onQuantityChange(quantity + 1)}
               aria-label="Aumentar cantidad"
-              className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-slate-900 font-black text-2xl flex items-center justify-center active:scale-90 transition-all shadow-lg shadow-amber-500/40"
+              className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-snow font-black text-2xl flex items-center justify-center active:scale-90 transition-all shadow-lg shadow-amber-500/40"
             >
               +
             </button>
@@ -821,7 +821,7 @@ function ItemModal({
           {/* Add to cart button */}
           <button
             onClick={onAddToCart}
-            className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-[0.98] text-slate-900 font-black py-4 rounded-lg shadow-xl shadow-amber-500/30 transition-all flex items-center justify-between px-5 text-base min-h-[56px]"
+            className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-[0.98] text-snow font-black py-4 rounded-lg shadow-xl shadow-amber-500/30 transition-all flex items-center justify-between px-5 text-base min-h-[56px]"
           >
             <span>Agregar al carrito</span>
             <span className="font-mono text-lg">{fmt(totalPrice)}</span>

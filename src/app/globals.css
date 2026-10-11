@@ -1,30 +1,294 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #1b4235;
-  --terracota: #b88364;
-  --cream: #edd3c5;
+/* ============================================================
+   HANGAR 5 — Sistema de diseño
+
+   Este archivo es el ÚNICO lugar donde viven los colores, las
+   fuentes y las medidas visuales de la app.
+
+   CÓMO CAMBIAR EL ESTILO
+   ----------------------
+   Para probar un cambio visual, edita los valores de @theme aquí
+   abajo. Toda la app los toma automáticamente: no hay que tocar
+   ninguna página.
+
+   El flujo previsto es: probar en el preview → copiar este archivo
+   a producción. Nada más.
+
+   PALETA ACTUAL: «Plata» (oct-2026)
+   Casi blanco y negro. Los grises hacen el trabajo; el dorado es
+   el único acento y aparece SOLO en dos lugares — precios y
+   acciones. Regla: si algo es dorado, se puede tocar o pagar.
+   ============================================================ */
+
+@theme {
+  /* ---- Neutros: la base ----------------------------------------
+     Grises con una pizca de verde para que no lean "azulados de
+     pantalla". Es un gris cálido, no un gris de laboratorio. */
+  --color-ink:    #0B0C0B;   /* negro base — fondo principal */
+  --color-ink-2:  #151715;   /* superficie / tarjetas */
+  --color-ink-3:  #212421;   /* hover / bordes elevados */
+  --color-ink-4:  #2E322E;   /* divisores marcados */
+
+  /* Texto sobre oscuro */
+  --color-snow:   #F4F3F0;   /* texto principal */
+  --color-snow-2: #DEDDDA;   /* texto secundario claro */
+  --color-ash:    rgba(244, 243, 240, 0.62);  /* texto medio */
+  --color-smoke:  rgba(244, 243, 240, 0.38);  /* texto tenue */
+  --color-hair:   rgba(244, 243, 240, 0.12);  /* hairline */
+
+  /* Texto sobre claro */
+  --color-graphite: #1A1B1A;
+  --color-mid:      #555755;   /* texto secundario en claro (antes "slate":
+                                  el nombre chocaba con la escala slate-500
+                                  nativa de Tailwind, que la app ya usaba) */
+  --color-fog:      #EAE9E6;
+
+  /* ---- El único acento: dorado -------------------------------- */
+  --color-brass:      #C9A44F;   /* precios y acciones */
+  --color-brass-soft: #DFC07A;   /* hover */
+  --color-brass-dim:  #8A7038;   /* bordes atenuados */
+
+  /* ---- Estados (desaturados para no competir con el acento) --- */
+  --color-good: #7E9C82;   /* ok / activo */
+  --color-warn: #C0A055;   /* atención */
+  --color-bad:  #B5695C;   /* error / bajo */
+  --color-info: #7D9490;   /* informativo */
+
+  /* ---- Alias de la paleta anterior ---------------------------
+     Producción usaba estos colores escritos a mano por toda la
+     app (1,500+ veces). Estos alias permiten que las clases que
+     los referencian sigan pintando mientras migramos página por
+     página, SIN romper nada.
+     Cuando la migración termine, se pueden borrar. */
+  --color-night:    var(--color-ink);
+  --color-night-2:  var(--color-ink-2);
+  --color-night-3:  var(--color-ink-3);
+  --color-cream:    var(--color-snow);
+  --color-cream-2:  var(--color-snow-2);
+  --color-gold:     var(--color-brass);
+  --color-gold-dim: var(--color-brass-dim);
+  --color-moss:     var(--color-info);
+  --color-line:     var(--color-hair);
+  --color-muted:    var(--color-ash);
+  --color-faint:    var(--color-smoke);
+  --color-ok:       var(--color-good);
+
+  /* Terracota y verdes del diseño anterior: se conservan como
+     tokens para que las clases viejas apunten a ellos. */
+  --color-terracota: #b88364;
+  --color-pino:      #1b4235;
+  --color-cacao:     #5c3d2e;
+  --color-arena:     #edd3c5;
+  --color-hueso:     #faf7f5;
+
+  /* Tipografía */
+  --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-gloock), Georgia, serif;
+  /* Fotografía — casi monocroma en reposo; el color es la recompensa */
+  --photo-saturate: 0.14;
+  --photo-contrast: 1.10;
+  --photo-brightness: 0.96;
+
+  /* Radios */
+  --radius-card: 14px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
+/* ============================================================
+   BASE
+   ============================================================ */
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--color-ink);
+  color: var(--color-snow);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
-/* Custom focus styles */
 *:focus-visible {
-  outline: 2px solid #b88364;
+  outline: 2px solid var(--color-brass);
   outline-offset: 2px;
+}
+
+/* ============================================================
+   FOTOGRAFÍA
+   ------------------------------------------------------------
+   Las fotos viven casi en blanco y negro: apenas un rescoldo de
+   color. Al pasar el cursor, el color vuelve completo y la foto
+   se acerca un poco — el contraste entre el reposo y la respuesta
+   es el gesto de la app.
+   ============================================================ */
+
+.foto {
+  filter: saturate(var(--photo-saturate)) contrast(var(--photo-contrast))
+          brightness(var(--photo-brightness));
+  transition: filter 900ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .foto,
+.foto:hover {
+  filter: saturate(1.08) contrast(1.02) brightness(1.02);
+  transform: scale(1.04);
+}
+
+/* Foto de fondo (hero): casi monocroma — es ambiente, no protagonista */
+.foto-fondo {
+  filter: saturate(0.55) contrast(1.06) brightness(0.95);
+}
+
+/* Velo: asegura que el texto se lea sobre cualquier foto */
+.velo {
+  background: linear-gradient(
+    to top,
+    var(--color-ink) 0%,
+    rgba(11, 12, 11, 0.55) 45%,
+    rgba(11, 12, 11, 0.30) 100%
+  );
+}
+
+/* ============================================================
+   DISCIPLINA DEL ACENTO
+   ------------------------------------------------------------
+   El dorado solo aparece en tres lugares:
+     .precio       — etiquetas de precio
+     .accion       — enlaces y botones de acción
+     .acento-linea — el hairline corto de los kickers
+   Cualquier otro uso del dorado es un error de sistema.
+   ============================================================ */
+
+.precio {
+  color: var(--color-brass);
+  font-variant-numeric: tabular-nums;
+}
+
+.accion {
+  color: var(--color-brass);
+  transition: color 200ms ease, background-color 200ms ease;
+}
+.accion:hover { color: var(--color-brass-soft); }
+
+/* Botón sólido: el único lugar donde el dorado llena un área */
+.accion-solida {
+  background: var(--color-brass);
+  color: var(--color-ink);
+  transition: background-color 200ms ease;
+}
+.accion-solida:hover { background: var(--color-brass-soft); }
+
+.acento-linea { background: var(--color-brass); }
+
+/* ============================================================
+   CIFRAS
+   Los números del admin, siempre alineados en columna.
+   ============================================================ */
+.cifra {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ============================================================
+   TIPOGRAFÍA UTILITARIA
+   ============================================================ */
+
+/* Títulos display */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+.display em { font-style: italic; color: var(--color-brass); }
+
+/* Sobretítulo */
+.kicker {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-brass);
+}
+
+/* ============================================================
+   COMPONENTES BASE
+   ============================================================ */
+
+/* Tarjeta sobre fondo oscuro */
+.card-night {
+  background: var(--color-ink-2);
+  border: 1px solid var(--color-hair);
+  border-radius: var(--radius-card);
+}
+
+/* Botón contorno */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--color-brass-dim);
+  color: var(--color-brass);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+.btn-outline:hover {
+  background: var(--color-brass);
+  color: var(--color-ink);
+}
+
+/* Botón sólido */
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 24px;
+  border-radius: 999px;
+  background: var(--color-brass);
+  color: var(--color-ink);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: background-color 200ms ease;
+}
+.btn-gold:hover { background: var(--color-brass-soft); }
+
+/* Badges de estado */
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid transparent;
+}
+.badge-ok   { color: var(--color-good); border-color: rgba(126,156,130,.4); background: rgba(126,156,130,.1); }
+.badge-warn { color: var(--color-warn); border-color: rgba(192,160,85,.4);  background: rgba(192,160,85,.1); }
+.badge-bad  { color: var(--color-bad);  border-color: rgba(181,105,92,.4);  background: rgba(181,105,92,.1); }
+.badge-info { color: var(--color-info); border-color: rgba(125,148,144,.4); background: rgba(125,148,144,.1); }
+.badge-gold { color: var(--color-brass); border-color: rgba(201,164,79,.4); background: rgba(201,164,79,.1); }
+
+/* Scrollbar discreta */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-ink); }
+::-webkit-scrollbar-thumb { background: var(--color-ink-3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-brass-dim); }
+
+/* ------------------------------------------------------------
+   TIPOGRAFÍA — clases heredadas
+
+   Las páginas usaban 'font-serif' esperando una serif. Al cambiar
+   la tipografía del sitio, esa clase quedó apuntando a Georgia (la
+   serif por defecto de Tailwind) y los títulos perdieron la voz
+   de la marca. Aquí se reata a Gloock, sin tocar 167 archivos.
+   ------------------------------------------------------------ */
+.font-serif {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }

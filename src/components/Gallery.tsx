@@ -46,7 +46,7 @@ export default function Gallery({ images }: GalleryProps) {
         onClick={() => open(0)}
       >
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-          <span className="opacity-0 group-hover:opacity-100 text-white text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full transition-opacity duration-300">
+          <span className="opacity-0 group-hover:opacity-100 text-snow text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full transition-opacity duration-300">
             Ver galería →
           </span>
         </div>
@@ -76,7 +76,7 @@ export default function Gallery({ images }: GalleryProps) {
           {/* Close button */}
           <button
             onClick={close}
-            className="absolute top-6 right-6 text-white/60 hover:text-white transition-colors z-10"
+            className="absolute top-6 right-6 text-snow/60 hover:text-snow transition-colors z-10"
             aria-label="Cerrar"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,14 +85,14 @@ export default function Gallery({ images }: GalleryProps) {
           </button>
 
           {/* Counter */}
-          <div className="absolute top-6 left-6 text-white/40 text-sm tracking-wider">
+          <div className="absolute top-6 left-6 text-snow/40 text-sm tracking-wider">
             {current + 1} / {images.length}
           </div>
 
           {/* Prev */}
           <button
             onClick={(e) => { e.stopPropagation(); prev(); }}
-            className="absolute left-4 md:left-8 text-white/40 hover:text-white transition-colors"
+            className="absolute left-4 md:left-8 text-snow/40 hover:text-snow transition-colors"
             aria-label="Anterior"
           >
             <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ export default function Gallery({ images }: GalleryProps) {
           {/* Next */}
           <button
             onClick={(e) => { e.stopPropagation(); next(); }}
-            className="absolute right-4 md:right-8 text-white/40 hover:text-white transition-colors"
+            className="absolute right-4 md:right-8 text-snow/40 hover:text-snow transition-colors"
             aria-label="Siguiente"
           >
             <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">

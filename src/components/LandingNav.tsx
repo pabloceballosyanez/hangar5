@@ -26,7 +26,7 @@ export default function LandingNav() {
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 mix-blend-difference text-white">
+      <nav className="fixed top-0 w-full z-50 mix-blend-difference text-snow">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <Link href="/" className="text-lg font-semibold tracking-[0.3em] uppercase">
             Hangar 5
@@ -54,13 +54,13 @@ export default function LandingNav() {
               className="md:hidden flex flex-col gap-1.5 w-6 h-5 justify-center group"
               aria-label="Menú"
             >
-              <span className={`block h-0.5 bg-white transition-all duration-300 ${open ? 'rotate-45 translate-y-2' : ''}`} />
-              <span className={`block h-0.5 bg-white transition-all duration-300 ${open ? 'opacity-0' : ''}`} />
-              <span className={`block h-0.5 bg-white transition-all duration-300 ${open ? '-rotate-45 -translate-y-2' : ''}`} />
+              <span className={`block h-0.5 bg-ink-2 transition-all duration-300 ${open ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`block h-0.5 bg-ink-2 transition-all duration-300 ${open ? 'opacity-0' : ''}`} />
+              <span className={`block h-0.5 bg-ink-2 transition-all duration-300 ${open ? '-rotate-45 -translate-y-2' : ''}`} />
             </button>
-            <Link href="/admin" className="text-xs tracking-[0.2em] uppercase opacity-50 hover:opacity-100 transition-opacity">
-              Admin
-            </Link>
+            {/* El enlace al admin se retiró del sitio público (oct-2026).
+                El panel vive en /admin y se comparte por liga directa
+                solo con quien debe verlo. */}
           </div>
         </div>
       </nav>
@@ -75,7 +75,7 @@ export default function LandingNav() {
                 key={l.href}
                 href={anchorHref(l.href)}
                 onClick={() => setOpen(false)}
-                className="text-white text-2xl font-light tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
+                className="text-snow text-2xl font-light tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
               >
                 {l.label}
               </a>
@@ -85,7 +85,7 @@ export default function LandingNav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="text-white text-2xl font-light tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
+                className="text-snow text-2xl font-light tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
               >
                 {l.label}
               </Link>

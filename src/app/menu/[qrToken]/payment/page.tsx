@@ -184,7 +184,7 @@ function PaymentContent() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Cargando tu orden…</p>
+        <p className="text-sm text-smoke">Cargando tu orden…</p>
       </div>
     );
   }
@@ -194,10 +194,10 @@ function PaymentContent() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
         <span className="text-5xl">😕</span>
-        <p className="font-semibold text-gray-800">{error ?? "Orden no encontrada"}</p>
+        <p className="font-semibold text-snow">{error ?? "Orden no encontrada"}</p>
         <button
           onClick={() => router.push(`/menu/${qrToken}`)}
-          className="px-6 py-3 bg-amber-500 text-white font-bold rounded-2xl min-h-[44px] active:scale-95 transition-transform"
+          className="px-6 py-3 bg-amber-500 text-snow font-bold rounded-2xl min-h-[44px] active:scale-95 transition-transform"
         >
           Volver al menú
         </button>
@@ -212,13 +212,13 @@ function PaymentContent() {
         <button
           onClick={() => router.back()}
           aria-label="Volver"
-          className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 active:scale-90 transition-transform text-lg"
+          className="w-10 h-10 rounded-xl bg-ink-3 flex items-center justify-center text-ash active:scale-90 transition-transform text-lg"
         >
           ←
         </button>
         <div>
-          <h1 className="text-xl font-black text-gray-900">Pagar orden</h1>
-          <p className="text-xs text-gray-500">
+          <h1 className="text-xl font-black text-snow">Pagar orden</h1>
+          <p className="text-xs text-smoke">
             Mesa {order.table?.number || order.serviceSession?.table?.number || "?"}
             {((order.table?.name || order.serviceSession?.table?.name))
               ? ` · ${order.table?.name || order.serviceSession?.table?.name}`
@@ -243,28 +243,28 @@ function PaymentContent() {
 
       {/* ── Order items ── */}
       <section>
-        <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">
+        <h2 className="text-sm font-bold text-smoke uppercase tracking-wide mb-3">
           Resumen
         </h2>
-        <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100 overflow-hidden">
+        <div className="bg-ink-2 rounded-2xl shadow-sm divide-y divide-hair overflow-hidden">
           {order.orderItems.map((item) => (
             <div key={item.id} className="flex justify-between px-4 py-3 gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-900 leading-snug">
+                <p className="text-sm font-semibold text-snow leading-snug">
                   {item.quantity}× {item.menuItem.name}
                   {item.variant && (
-                    <span className="text-gray-500 font-normal">
+                    <span className="text-smoke font-normal">
                       {" "}({item.variant.name})
                     </span>
                   )}
                 </p>
                 {item.modifiers.length > 0 && (
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-smoke mt-0.5">
                     {item.modifiers.map((m) => m.modifierName).join(", ")}
                   </p>
                 )}
                 {item.specialInstructions && (
-                  <p className="text-xs text-gray-400 italic mt-0.5">
+                  <p className="text-xs text-smoke italic mt-0.5">
                     &quot;{item.specialInstructions}&quot;
                   </p>
                 )}
@@ -278,16 +278,16 @@ function PaymentContent() {
       </section>
 
       {/* ── Totals ── */}
-      <section className="bg-white rounded-2xl shadow-sm px-4 py-4 space-y-2">
-        <div className="flex justify-between text-sm text-gray-600">
+      <section className="bg-ink-2 rounded-2xl shadow-sm px-4 py-4 space-y-2">
+        <div className="flex justify-between text-sm text-ash">
           <span>Subtotal</span>
           <span>{fmt(order.subtotal)}</span>
         </div>
-        <div className="flex justify-between text-sm text-gray-400">
+        <div className="flex justify-between text-sm text-smoke">
           <span>IVA</span>
           <span>Incluido</span>
         </div>
-        <div className="flex justify-between font-black text-gray-900 text-lg border-t border-gray-100 pt-2 mt-2">
+        <div className="flex justify-between font-black text-snow text-lg border-t border-hair pt-2 mt-2">
           <span>Total</span>
           <span className="text-amber-600">{fmt(order.total)}</span>
         </div>
@@ -295,7 +295,7 @@ function PaymentContent() {
 
       {/* ── Notes ── */}
       {order.notes && (
-        <div className="bg-gray-50 rounded-2xl px-4 py-3 text-sm text-gray-600 italic">
+        <div className="bg-ink-3 rounded-2xl px-4 py-3 text-sm text-ash italic">
           📝 {order.notes}
         </div>
       )}
@@ -313,7 +313,7 @@ function PaymentContent() {
         <button
           onClick={handlePay}
           disabled={paying || chargingAccount}
-          className="w-full bg-[#009ee3] hover:bg-[#0083c6] disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
+          className="w-full bg-[#009ee3] hover:bg-[#0083c6] disabled:opacity-60 active:scale-[0.98] text-snow font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
         >
           {paying ? (
             <>
@@ -335,7 +335,7 @@ function PaymentContent() {
             onClick={handleChargeToAccount}
             disabled={chargingAccount || paying}
             title="Cargar a tu cuenta para pagar después"
-            className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
+            className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-60 active:scale-[0.98] text-snow font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 text-base min-h-[56px]"
           >
             {chargingAccount ? (
               <>
@@ -353,7 +353,7 @@ function PaymentContent() {
         )}
       </div>
 
-      <p className="text-center text-xs text-gray-400">
+      <p className="text-center text-xs text-smoke">
         Con tarjeta serás redirigido a Mercado Pago. Cargo a cuenta: se agrega a tu saldo para pagar después.
       </p>
     </div>
@@ -368,7 +368,7 @@ export default function PaymentPage() {
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Cargando…</p>
+          <p className="text-sm text-smoke">Cargando…</p>
         </div>
       }
     >

@@ -60,10 +60,10 @@ export default function RestaurantePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#faf7f5] flex items-center justify-center">
+      <main className="min-h-screen bg-ink flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b88364] mx-auto mb-4" />
-          <p className="text-[#5c3d2e]">Cargando menú...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brass mx-auto mb-4" />
+          <p className="text-ash">Cargando menú...</p>
         </div>
       </main>
     );
@@ -71,19 +71,19 @@ export default function RestaurantePage() {
 
   if (categories.length === 0) {
     return (
-      <main className="min-h-screen bg-[#faf7f5]">
+      <main className="min-h-screen bg-ink">
         <section className="pt-32 pb-24 px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-serif text-[#1b4235] mb-4 tracking-[-0.02em] leading-[0.85]">
+            <h1 className="text-5xl md:text-6xl font-serif text-ink mb-4 tracking-[-0.02em] leading-[0.85]">
               Hangar <span className="italic">5</span>
             </h1>
-            <h2 className="text-2xl md:text-3xl font-serif text-[#b88364] italic mb-6">
+            <h2 className="text-2xl md:text-3xl font-serif text-brass italic mb-6">
               Cocina de Montaña
             </h2>
-            <p className="text-lg text-[#5c3d2e] font-light tracking-wide mb-8">
+            <p className="text-lg text-ash font-light tracking-wide mb-8">
               El menú está siendo actualizado. Por favor, intenta de nuevo más tarde.
             </p>
-            <Link href="/" className="inline-block px-8 py-3 bg-[#b88364] hover:bg-[#a07550] text-white rounded-lg font-semibold tracking-widest uppercase transition-all duration-300">
+            <Link href="/" className="inline-block px-8 py-3 bg-brass hover:bg-[#a07550] text-ink rounded-lg font-semibold tracking-widest uppercase transition-all duration-300">
               Volver al inicio
             </Link>
           </div>
@@ -93,12 +93,12 @@ export default function RestaurantePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#faf7f5]">
+    <main className="min-h-screen bg-ink">
       {/* Navigation Sticky */}
-      <nav className="fixed top-0 w-full z-40 bg-[#faf7f5]/90 backdrop-blur-sm border-b border-[#b88364]/10">
+      <nav className="fixed top-0 w-full z-40 bg-fog/90 backdrop-blur-sm border-b border-brass/10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-lg font-semibold tracking-[0.3em] uppercase text-[#1b4235]">
+            <Link href="/" className="text-lg font-semibold tracking-[0.3em] uppercase text-ink">
               Hangar 5
             </Link>
             <div className="hidden md:flex gap-2 overflow-x-auto pb-0 flex-wrap justify-center flex-1 mx-8">
@@ -111,7 +111,7 @@ export default function RestaurantePage() {
                   }}
                   className="px-4 py-2 text-xs font-medium tracking-[0.15em] uppercase whitespace-nowrap transition-all duration-300 rounded-lg"
                   style={{
-                    color: activeCategory === idx ? '#b88364' : '#5c3d2e',
+                    color: activeCategory === idx ? '#b88364' : 'var(--color-ash)',
                     backgroundColor: activeCategory === idx ? '#b88364/10' : 'transparent',
                   }}
                 >
@@ -119,7 +119,7 @@ export default function RestaurantePage() {
                 </button>
               ))}
             </div>
-            <Link href="/" className="text-xs tracking-[0.2em] uppercase text-[#5c3d2e] hover:text-[#b88364] transition-colors">
+            <Link href="/" className="text-xs tracking-[0.2em] uppercase text-ash hover:text-brass transition-colors">
               Inicio
             </Link>
           </div>
@@ -136,19 +136,19 @@ export default function RestaurantePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/40" />
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-          <h1 className="text-5xl md:text-7xl font-serif text-white mb-4 tracking-[-0.02em] leading-[0.85]">
+          <h1 className="text-5xl md:text-7xl font-serif text-snow mb-4 tracking-[-0.02em] leading-[0.85]">
             Hangar <span className="italic">5</span>
           </h1>
-          <p className="text-xl md:text-2xl font-serif text-white/80 italic mb-2">
+          <p className="text-xl md:text-2xl font-serif text-snow/80 italic mb-2">
             Cocina de Montaña
           </p>
-          <p className="text-lg text-white/70 font-light tracking-wider max-w-2xl">
+          <p className="text-lg text-snow/70 font-light tracking-wider max-w-2xl">
             Sabores artesanales al pie del Peñón
           </p>
           <div className="mt-8">
             <Link
               href="/pedir"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-black text-lg rounded-xl shadow-xl shadow-amber-500/30 transition-all active:scale-95"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-snow font-black text-lg rounded-xl shadow-xl shadow-amber-500/30 transition-all active:scale-95"
             >
               🛒 Pedir online
             </Link>
@@ -166,11 +166,11 @@ export default function RestaurantePage() {
           >
             {/* Category Header */}
             <div className="mb-16">
-              <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4 text-center">Menú</p>
-              <h2 className="text-4xl md:text-5xl font-serif text-[#1b4235] tracking-tight mb-6 text-center">
+              <p className="text-brass tracking-[0.3em] uppercase text-sm mb-4 text-center">Menú</p>
+              <h2 className="text-4xl md:text-5xl font-serif text-snow tracking-tight mb-6 text-center">
                 {category.name}
               </h2>
-              <div className="h-px w-24 bg-[#b88364]/30 mx-auto" />
+              <div className="h-px w-24 bg-brass/30 mx-auto" />
             </div>
 
             {/* Items Grid */}
@@ -183,10 +183,10 @@ export default function RestaurantePage() {
                   return (
                     <div
                       key={item.id}
-                      className="group flex flex-col bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-[#b88364]/10 hover:border-[#b88364]/30"
+                      className="group flex flex-col bg-ink-2 rounded-lg overflow-hidden border border-hair hover:border-brass/30 transition-all duration-300"
                     >
                       {/* Image Container */}
-                      <div className="relative w-full bg-[#f5f2ef] aspect-[4/3] overflow-hidden">
+                      <div className="relative w-full bg-ink-3 aspect-[4/3] overflow-hidden">
                         {hasImage ? (
                           <img
                             src={item.imageUrl}
@@ -207,11 +207,11 @@ export default function RestaurantePage() {
                       <div className="flex-1 p-6 flex flex-col">
                         {/* Name & Description */}
                         <div className="mb-4">
-                          <h3 className="text-lg font-serif text-[#1b4235] mb-2 group-hover:text-[#b88364] transition-colors duration-300">
+                          <h3 className="text-lg font-serif text-snow mb-2 group-hover:text-brass transition-colors duration-300">
                             {item.name}
                           </h3>
                           {item.description && (
-                            <p className="text-sm text-[#5c3d2e]/70 leading-relaxed line-clamp-2">
+                            <p className="text-sm text-ash/70 leading-relaxed line-clamp-2">
                               {item.description}
                             </p>
                           )}
@@ -223,13 +223,13 @@ export default function RestaurantePage() {
                             {item.variants.slice(0, 2).map((variant) => (
                               <span
                                 key={variant.id}
-                                className="inline-block px-3 py-1 bg-[#b88364]/10 text-[#b88364] text-xs font-medium rounded-full"
+                                className="inline-block px-3 py-1 bg-brass/10 text-brass text-xs font-medium rounded-full"
                               >
                                 {variant.name}
                               </span>
                             ))}
                             {item.variants.length > 2 && (
-                              <span className="inline-block px-3 py-1 bg-[#b88364]/10 text-[#b88364] text-xs font-medium rounded-full">
+                              <span className="inline-block px-3 py-1 bg-brass/10 text-brass text-xs font-medium rounded-full">
                                 +{item.variants.length - 2} más
                               </span>
                             )}
@@ -240,12 +240,12 @@ export default function RestaurantePage() {
                         <div className="flex-1" />
 
                         {/* Price */}
-                        <div className="pt-4 border-t border-[#b88364]/10">
+                        <div className="pt-4 border-t border-brass/10">
                           <div className="flex items-baseline justify-between">
-                            <span className="text-2xl font-serif text-[#b88364]">
+                            <span className="text-2xl font-serif text-brass">
                               ${formatPrice(item.basePrice)}
                             </span>
-                            <span className="text-xs text-[#5c3d2e]/60 tracking-wider uppercase">MXN</span>
+                            <span className="text-xs text-ash/60 tracking-wider uppercase">MXN</span>
                           </div>
                         </div>
                       </div>
@@ -255,7 +255,7 @@ export default function RestaurantePage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-[#5c3d2e]/60 tracking-widest uppercase text-sm">
+                <p className="text-ash/60 tracking-widest uppercase text-sm">
                   No hay items disponibles en esta categoría
                 </p>
               </div>
@@ -265,16 +265,16 @@ export default function RestaurantePage() {
       </div>
 
       {/* CTA Section */}
-      <section className="py-24 px-6 bg-[#f5f2ef] border-t border-[#b88364]/10">
+      <section className="py-24 px-6 bg-ink-3 border-t border-brass/10">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-serif text-[#1b4235] mb-6">
+          <h2 className="text-3xl md:text-4xl font-serif text-snow mb-6">
             Realiza tu Orden
           </h2>
-          <p className="text-lg text-[#5c3d2e] mb-8 font-light tracking-wide">
+          <p className="text-lg text-ash mb-8 font-light tracking-wide">
             Escanea el código QR en tu mesa para acceder al menú interactivo y realizar tu pedido en tiempo real.
           </p>
-          <div className="w-48 h-48 mx-auto rounded-lg p-6 bg-white shadow-sm border border-[#b88364]/10">
-            <div className="w-full h-full bg-[#f5f2ef] rounded-lg flex items-center justify-center">
+          <div className="w-48 h-48 mx-auto rounded-lg p-6 bg-white/5 border border-hair">
+            <div className="w-full h-full bg-ink-3 rounded-lg flex items-center justify-center">
               <span className="text-[#a07550] text-sm tracking-wider font-light">QR Code</span>
             </div>
           </div>
@@ -282,12 +282,12 @@ export default function RestaurantePage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-[#b88364]/10 bg-[#faf7f5] text-center">
+      <footer className="py-12 px-6 border-t border-hair bg-ink-2 text-center">
         <div className="max-w-7xl mx-auto">
-          <p className="text-sm text-[#1b4235] tracking-wide mb-4 font-serif">
+          <p className="text-sm text-snow tracking-wide mb-4 font-serif">
             Hangar 5 — El Peñón, Temascaltepec
           </p>
-          <p className="text-xs text-[#5c3d2e]/60 font-light">
+          <p className="text-xs text-ash/60 font-light">
             © {new Date().getFullYear()} Todos los derechos reservados
           </p>
         </div>

@@ -40,7 +40,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  DRAFT: "bg-gray-100 text-gray-700",
+  DRAFT: "bg-ink-3 text-snow-2",
   PLACED: "bg-blue-100 text-blue-700",
   IN_KITCHEN: "bg-yellow-100 text-yellow-700",
   READY: "bg-green-100 text-green-700",
@@ -121,10 +121,10 @@ export default function CuentaPage() {
               👤
             </div>
             <div>
-              <h1 className="text-xl font-black text-white">{profile.name}</h1>
-              <p className="text-sm text-gray-400">{profile.email}</p>
+              <h1 className="text-xl font-black text-snow">{profile.name}</h1>
+              <p className="text-sm text-smoke">{profile.email}</p>
               {profile.phone && (
-                <p className="text-sm text-gray-500">{profile.phone}</p>
+                <p className="text-sm text-smoke">{profile.phone}</p>
               )}
             </div>
           </div>
@@ -132,17 +132,17 @@ export default function CuentaPage() {
 
         {/* Order history */}
         <section>
-          <h2 className="text-lg font-black text-white mb-4">📋 Historial de pedidos</h2>
+          <h2 className="text-lg font-black text-snow mb-4">📋 Historial de pedidos</h2>
 
           {orders.length === 0 ? (
             <div className="bg-white/5 border border-amber-400/10 rounded-2xl p-6 text-center">
               <span className="text-4xl">🍽️</span>
-              <p className="text-gray-400 mt-3 text-sm">
+              <p className="text-smoke mt-3 text-sm">
                 Aún no tienes pedidos. Cuando hagas tu primer pedido desde una mesa, aparecerá aquí.
               </p>
               <Link
                 href="/restaurante"
-                className="inline-block mt-4 px-6 py-3 bg-amber-500 text-slate-900 font-bold rounded-xl text-sm"
+                className="inline-block mt-4 px-6 py-3 bg-amber-500 text-snow font-bold rounded-xl text-sm"
               >
                 Ver menú
               </Link>
@@ -155,12 +155,12 @@ export default function CuentaPage() {
                   className="bg-white/5 border border-amber-400/10 rounded-2xl p-4"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_COLORS[order.status] || "bg-gray-100 text-gray-700"}`}>
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_COLORS[order.status] || "bg-ink-3 text-snow-2"}`}>
                       {STATUS_LABELS[order.status] || order.status}
                     </span>
                     <span className="text-sm font-bold text-amber-400">{fmt(order.total)}</span>
                   </div>
-                  <p className="text-sm text-gray-300">
+                  <p className="text-sm text-smoke">
                     {order.orderItems.map((oi) => (
                       <span key={`${oi.menuItem.name}-${oi.variant?.name}`}>
                         {oi.quantity}× {oi.menuItem.name}
@@ -169,7 +169,7 @@ export default function CuentaPage() {
                       </span>
                     ))}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-smoke mt-1">
                     {new Date(order.createdAt).toLocaleDateString("es-MX", {
                       day: "numeric",
                       month: "long",

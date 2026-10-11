@@ -198,10 +198,10 @@ export default function CheckoutPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
         <span className="text-5xl">🛒</span>
-        <p className="font-semibold text-gray-800">Tu carrito está vacío</p>
+        <p className="font-semibold text-snow">Tu carrito está vacío</p>
         <button
           onClick={() => router.push(`/menu/${qrToken}`)}
-          className="px-6 py-3 bg-amber-500 text-white font-bold rounded-2xl min-h-[44px] active:scale-95 transition-transform"
+          className="px-6 py-3 bg-amber-500 text-snow font-bold rounded-2xl min-h-[44px] active:scale-95 transition-transform"
         >
           Ir al menú
         </button>
@@ -216,14 +216,14 @@ export default function CheckoutPage() {
         <button
           onClick={() => router.back()}
           aria-label="Volver"
-          className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 active:scale-90 transition-transform text-lg"
+          className="w-10 h-10 rounded-xl bg-ink-3 flex items-center justify-center text-ash active:scale-90 transition-transform text-lg"
         >
           ←
         </button>
         <div>
-          <h1 className="text-xl font-black text-gray-900">Tu orden</h1>
+          <h1 className="text-xl font-black text-snow">Tu orden</h1>
           {tableInfo && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-smoke">
               Mesa {tableInfo.tableNumber}
               {tableInfo.tableName ? ` · ${tableInfo.tableName}` : ""}
             </p>
@@ -233,10 +233,10 @@ export default function CheckoutPage() {
 
       {/* ── Cart items ── */}
       <section>
-        <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">
+        <h2 className="text-sm font-bold text-smoke uppercase tracking-wide mb-3">
           Artículos
         </h2>
-        <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100 overflow-hidden">
+        <div className="bg-ink-2 rounded-2xl shadow-sm divide-y divide-hair overflow-hidden">
           {cart.map((item) => (
             <CartRow key={item.cartId} item={item} onRemove={removeItem} />
           ))}
@@ -244,16 +244,16 @@ export default function CheckoutPage() {
       </section>
 
       {/* ── Price breakdown ── */}
-      <section className="bg-white rounded-2xl shadow-sm px-4 py-4 space-y-2">
-        <div className="flex justify-between text-sm text-gray-600">
+      <section className="bg-ink-2 rounded-2xl shadow-sm px-4 py-4 space-y-2">
+        <div className="flex justify-between text-sm text-ash">
           <span>Subtotal</span>
           <span>{fmt(subtotal)}</span>
         </div>
-        <div className="flex justify-between text-sm text-gray-400">
+        <div className="flex justify-between text-sm text-smoke">
           <span>IVA</span>
           <span>Incluido</span>
         </div>
-        <div className="flex justify-between font-black text-gray-900 text-base border-t border-gray-100 pt-2 mt-2">
+        <div className="flex justify-between font-black text-snow text-base border-t border-hair pt-2 mt-2">
           <span>Total</span>
           <span className="text-amber-600">{fmt(total)}</span>
         </div>
@@ -270,7 +270,7 @@ export default function CheckoutPage() {
             </div>
           </div>
           {hasCredit && (
-            <div className="bg-white rounded-xl p-3 border border-green-100">
+            <div className="bg-ink-2 rounded-xl p-3 border border-green-100">
               <p className="text-xs font-semibold text-green-700 mb-2">Método de pago</p>
               <div className="flex gap-2">
                 <button
@@ -278,8 +278,8 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod("card")}
                   className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
                     paymentMethod === "card"
-                      ? "bg-amber-500 text-white shadow"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      ? "bg-amber-500 text-snow shadow"
+                      : "bg-ink-3 text-ash hover:bg-ink-4"
                   }`}
                 >
                   💳 Tarjeta
@@ -289,8 +289,8 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod("account")}
                   className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
                     paymentMethod === "account"
-                      ? "bg-purple-600 text-white shadow"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      ? "bg-purple-600 text-snow shadow"
+                      : "bg-ink-3 text-ash hover:bg-ink-4"
                   }`}
                 >
                   📋 A cuenta
@@ -315,12 +315,12 @@ export default function CheckoutPage() {
 
       {/* ── Customer info ── */}
       <section>
-        <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">
+        <h2 className="text-sm font-bold text-smoke uppercase tracking-wide mb-3">
           Tus datos
         </h2>
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-100">
+        <div className="bg-ink-2 rounded-2xl shadow-sm overflow-hidden divide-y divide-hair">
           <div className="px-4 py-3">
-            <label className="block text-xs font-semibold text-gray-500 mb-1">
+            <label className="block text-xs font-semibold text-smoke mb-1">
               Nombre <span className="text-red-500">*</span>
             </label>
             <input
@@ -329,13 +329,13 @@ export default function CheckoutPage() {
               onChange={(e) => updateField("name", e.target.value)}
               placeholder="¿Cómo te llamamos?"
               autoComplete="name"
-              className="w-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+              className="w-full text-sm text-snow placeholder:text-smoke focus:outline-none"
             />
           </div>
 
           <div className="px-4 py-3">
-            <label className="block text-xs font-semibold text-gray-500 mb-1">
-              Email <span className="text-gray-400 font-normal">(opcional)</span>
+            <label className="block text-xs font-semibold text-smoke mb-1">
+              Email <span className="text-smoke font-normal">(opcional)</span>
             </label>
             <input
               type="email"
@@ -343,12 +343,12 @@ export default function CheckoutPage() {
               onChange={(e) => updateField("email", e.target.value)}
               placeholder="Para tu comprobante"
               autoComplete="email"
-              className="w-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+              className="w-full text-sm text-snow placeholder:text-smoke focus:outline-none"
             />
           </div>
 
           <div className="px-4 py-3">
-            <label className="block text-xs font-semibold text-gray-500 mb-1">
+            <label className="block text-xs font-semibold text-smoke mb-1">
               WhatsApp <span className="text-green-600 font-normal">📱 te avisamos cuando tu pedido esté listo</span>
             </label>
             <input
@@ -357,21 +357,21 @@ export default function CheckoutPage() {
               onChange={(e) => updateField("phone", e.target.value)}
               placeholder="722 000 0000"
               autoComplete="tel"
-              className="w-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+              className="w-full text-sm text-snow placeholder:text-smoke focus:outline-none"
             />
           </div>
 
           <div className="px-4 py-3">
-            <label className="block text-xs font-semibold text-gray-500 mb-1">
+            <label className="block text-xs font-semibold text-smoke mb-1">
               Notas para la cocina{" "}
-              <span className="text-gray-400 font-normal">(opcional)</span>
+              <span className="text-smoke font-normal">(opcional)</span>
             </label>
             <textarea
               value={form.notes}
               onChange={(e) => updateField("notes", e.target.value)}
               placeholder="Alergias, preferencias generales…"
               rows={2}
-              className="w-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none resize-none"
+              className="w-full text-sm text-snow placeholder:text-smoke focus:outline-none resize-none"
             />
           </div>
         </div>
@@ -388,7 +388,7 @@ export default function CheckoutPage() {
       <button
         onClick={handleSubmit}
         disabled={submitting || cart.length === 0}
-        className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-60 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-between px-5 text-base min-h-[56px]"
+        className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-60 active:scale-[0.98] text-snow font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-between px-5 text-base min-h-[56px]"
       >
         {submitting ? (
           <>
@@ -404,7 +404,7 @@ export default function CheckoutPage() {
         )}
       </button>
 
-      <p className="text-center text-xs text-gray-400 leading-relaxed">
+      <p className="text-center text-xs text-smoke leading-relaxed">
         {paymentMethod === "account"
           ? "El cargo se aplicará a tu cuenta de cliente."
           : "Pago seguro procesado por Mercado Pago."}
@@ -446,7 +446,7 @@ function CartRow({
       {/* Details */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <p className="font-semibold text-gray-900 text-sm leading-snug line-clamp-1">
+          <p className="font-semibold text-snow text-sm leading-snug line-clamp-1">
             {item.quantity}× {item.name}
           </p>
           <p className="font-bold text-amber-600 text-sm flex-none">{fmt(total)}</p>
@@ -454,19 +454,19 @@ function CartRow({
 
         {/* Variant */}
         {item.variantName && (
-          <p className="text-xs text-gray-500 mt-0.5">{item.variantName}</p>
+          <p className="text-xs text-smoke mt-0.5">{item.variantName}</p>
         )}
 
         {/* Modifiers */}
         {item.modifiers.length > 0 && (
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-smoke mt-0.5">
             {item.modifiers.map((m) => m.name).join(", ")}
           </p>
         )}
 
         {/* Special instructions */}
         {item.specialInstructions && (
-          <p className="text-xs text-gray-400 italic mt-0.5">
+          <p className="text-xs text-smoke italic mt-0.5">
             &quot;{item.specialInstructions}&quot;
           </p>
         )}

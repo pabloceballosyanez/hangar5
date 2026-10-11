@@ -21,14 +21,14 @@ export default async function Home() {
   const hikes = activities.filter(a => a.type === "hike");
 
   return (
-    <main className="min-h-screen bg-[#faf7f5]">
+    <main className="min-h-screen bg-ink">
       <LandingNav />
 
       {/* Hero */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-[url('/img/hero-bg.jpg')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
-        <div className="relative z-10 text-center text-white px-4">
+        <div className="relative z-10 text-center text-snow px-4">
           <p className="tracking-[0.5em] text-sm md:text-base uppercase mb-6 opacity-80">Bienvenidos a</p>
           <h1 className="font-serif text-7xl md:text-[9rem] leading-[0.85] mb-8 tracking-[-0.02em]">
             Hangar <span className="italic">5</span>
@@ -47,11 +47,11 @@ export default async function Home() {
       </section>
 
       {/* Cabañas */}
-      <section id="cabanas" className="py-32 bg-[#faf7f5]">
+      <section id="cabanas" className="py-32 bg-ink">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
-            <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Alojamiento</p>
-            <h2 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em]">Las Cabañas</h2>
+            <p className="text-brass tracking-[0.3em] uppercase text-sm mb-4">Alojamiento</p>
+            <h2 className="font-serif text-5xl md:text-6xl text-snow tracking-[-0.02em]">Las Cabañas</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-12">
             {cabanas.map((item) => (
@@ -60,16 +60,16 @@ export default async function Home() {
                   <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700" style={{ backgroundImage: `url('${item.image}')` }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                    <span className="text-white text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                    <span className="text-snow text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
                       Reservar →
                     </span>
                   </div>
                 </div>
-                <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-2">Cabaña</p>
-                <h3 className="text-2xl font-serif text-[#1b4235] mb-2">{item.name}</h3>
-                <p className="text-sm text-[#5c3d2e] mb-3">{item.capacity}</p>
-                <p className="text-lg font-medium text-[#1b4235]">
-                  ${formatPrice(item.price)} <span className="text-sm text-[#b88364] font-normal">MXN / noche</span>
+                <p className="text-xs text-brass tracking-[0.2em] uppercase mb-2">Cabaña</p>
+                <h3 className="text-2xl font-serif text-snow mb-2">{item.name}</h3>
+                <p className="text-sm text-ash mb-3">{item.capacity}</p>
+                <p className="text-lg font-medium text-snow">
+                  ${formatPrice(item.price)} <span className="text-sm text-brass font-normal">MXN / noche</span>
                 </p>
               </Link>
             ))}
@@ -78,10 +78,10 @@ export default async function Home() {
       </section>
 
       {/* Glampings */}
-      <section id="glampings" className="py-32 bg-[#1b4235] text-white">
+      <section id="glampings" className="py-32 bg-ink text-snow">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
-            <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Bajo las estrellas</p>
+            <p className="text-brass tracking-[0.3em] uppercase text-sm mb-4">Bajo las estrellas</p>
             <h2 className="font-serif text-5xl md:text-6xl tracking-[-0.02em]">Los Glampings</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-12">
@@ -91,11 +91,11 @@ export default async function Home() {
                   <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700" style={{ backgroundImage: `url('${item.image}')` }} />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500" />
                 </div>
-                <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-2">Glamping</p>
+                <p className="text-xs text-brass tracking-[0.2em] uppercase mb-2">Glamping</p>
                 <h3 className="text-2xl font-serif mb-2">{item.name}</h3>
-                <p className="text-sm text-white/60 mb-3">{item.capacity}</p>
+                <p className="text-sm text-snow/60 mb-3">{item.capacity}</p>
                 <p className="text-lg font-medium">
-                  ${formatPrice(item.price)} <span className="text-sm text-white/50 font-normal">MXN / noche</span>
+                  ${formatPrice(item.price)} <span className="text-sm text-snow/50 font-normal">MXN / noche</span>
                 </p>
               </Link>
             ))}
@@ -104,19 +104,19 @@ export default async function Home() {
       </section>
 
       {/* Actividades */}
-      <section id="actividades" className="py-32 bg-[#faf7f5]">
+      <section id="actividades" className="py-32 bg-ink">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
-            <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Experiencias</p>
-            <h2 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em]">Actividades</h2>
+            <p className="text-brass tracking-[0.3em] uppercase text-sm mb-4">Experiencias</p>
+            <h2 className="font-serif text-5xl md:text-6xl text-snow tracking-[-0.02em]">Actividades</h2>
           </div>
 
           {/* Vuelos */}
           <div className="mb-24">
             <div className="flex items-center gap-4 mb-10">
-              <div className="h-px flex-1 bg-[#b88364]/20" />
-              <h3 className="text-lg tracking-[0.3em] uppercase text-[#b88364]">Vuelos</h3>
-              <div className="h-px flex-1 bg-[#b88364]/20" />
+              <div className="h-px flex-1 bg-brass/20" />
+              <h3 className="text-lg tracking-[0.3em] uppercase text-brass">Vuelos</h3>
+              <div className="h-px flex-1 bg-brass/20" />
             </div>
             <div className="grid md:grid-cols-3 gap-8">
               {parapentes.map((item) => (
@@ -125,16 +125,16 @@ export default async function Home() {
                     <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700" style={{ backgroundImage: `url('${item.image}')` }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                      <span className="text-white text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                      <span className="text-snow text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
                         Reservar →
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-2">{getTypeLabel(item.type)}</p>
-                  <h3 className="text-xl font-serif text-[#1b4235] mb-2">{item.name}</h3>
-                  <p className="text-sm text-[#5c3d2e] mb-3 line-clamp-2">{item.description}</p>
-                  <p className="text-lg font-medium text-[#1b4235]">
-                    ${formatPrice(item.price)} <span className="text-sm text-[#b88364] font-normal">MXN / persona</span>
+                  <p className="text-xs text-brass tracking-[0.2em] uppercase mb-2">{getTypeLabel(item.type)}</p>
+                  <h3 className="text-xl font-serif text-snow mb-2">{item.name}</h3>
+                  <p className="text-sm text-ash mb-3 line-clamp-2">{item.description}</p>
+                  <p className="text-lg font-medium text-snow">
+                    ${formatPrice(item.price)} <span className="text-sm text-brass font-normal">MXN / persona</span>
                   </p>
                 </Link>
               ))}
@@ -145,20 +145,20 @@ export default async function Home() {
           {hikes.length > 0 && (
             <div>
               <div className="flex items-center gap-4 mb-10">
-                <div className="h-px flex-1 bg-[#b88364]/20" />
-                <h3 className="text-lg tracking-[0.3em] uppercase text-[#b88364]">Senderismo</h3>
-                <div className="h-px flex-1 bg-[#b88364]/20" />
+                <div className="h-px flex-1 bg-brass/20" />
+                <h3 className="text-lg tracking-[0.3em] uppercase text-brass">Senderismo</h3>
+                <div className="h-px flex-1 bg-brass/20" />
               </div>
               <div className="grid md:grid-cols-2 gap-8">
                 {hikes.map((item) => (
-                  <Link key={item.id} href={`/item/${item.slug}`} className="group flex gap-6 p-6 bg-white hover:shadow-xl transition-all duration-500 rounded-lg border border-transparent hover:border-[#b88364]/20">
+                  <Link key={item.id} href={`/item/${item.slug}`} className="group flex gap-6 p-6 bg-white/5 hover:bg-white/10 transition-all duration-500 rounded-lg border border-transparent hover:border-brass/20">
                     <div className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url('${item.image}')` }} />
                     <div className="flex flex-col justify-center">
-                      <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-1">Hike</p>
-                      <h4 className="text-xl font-serif text-[#1b4235] mb-1">{item.name}</h4>
-                      <p className="text-sm text-[#5c3d2e] mb-2 line-clamp-2">{item.description}</p>
-                      <p className="text-lg font-medium text-[#1b4235]">
-                        ${formatPrice(item.price)} <span className="text-sm text-[#b88364] font-normal">MXN / persona</span>
+                      <p className="text-xs text-brass tracking-[0.2em] uppercase mb-1">Hike</p>
+                      <h4 className="text-xl font-serif text-snow mb-1">{item.name}</h4>
+                      <p className="text-sm text-ash mb-2 line-clamp-2">{item.description}</p>
+                      <p className="text-lg font-medium text-snow">
+                        ${formatPrice(item.price)} <span className="text-sm text-brass font-normal">MXN / persona</span>
                       </p>
                     </div>
                   </Link>
@@ -170,10 +170,10 @@ export default async function Home() {
       </section>
 
       {/* Renta de Equipo */}
-      <section id="renta" className="py-32 bg-[#1b4235] text-white">
+      <section id="renta" className="py-32 bg-ink text-snow">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
-            <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Aventura</p>
+            <p className="text-brass tracking-[0.3em] uppercase text-sm mb-4">Aventura</p>
             <h2 className="font-serif text-5xl md:text-6xl tracking-[-0.02em]">Renta de Equipo</h2>
           </div>
 
@@ -181,19 +181,19 @@ export default async function Home() {
           <div className="mb-24">
             <div className="flex items-center gap-4 mb-10">
               <div className="h-px flex-1 bg-white/10" />
-              <h3 className="text-lg tracking-[0.3em] uppercase text-[#b88364]">Motos</h3>
+              <h3 className="text-lg tracking-[0.3em] uppercase text-brass">Motos</h3>
               <div className="h-px flex-1 bg-white/10" />
             </div>
             <div className="grid md:grid-cols-2 gap-8">
               {motos.map((item) => (
-                <Link key={item.id} href={`/item/${item.slug}`} className="group flex gap-6 p-6 bg-white/5 hover:bg-white/10 transition-all duration-500 rounded-lg border border-white/10 hover:border-[#b88364]/30">
+                <Link key={item.id} href={`/item/${item.slug}`} className="group flex gap-6 p-6 bg-white/5 hover:bg-white/10 transition-all duration-500 rounded-lg border border-white/10 hover:border-brass/30">
                   <div className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url('${item.image}')` }} />
                   <div className="flex flex-col justify-center">
-                    <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-1">Moto</p>
+                    <p className="text-xs text-brass tracking-[0.2em] uppercase mb-1">Moto</p>
                     <h4 className="text-xl font-serif mb-1">{item.name}</h4>
-                    <p className="text-sm text-white/60 mb-2 line-clamp-2">{item.description}</p>
+                    <p className="text-sm text-snow/60 mb-2 line-clamp-2">{item.description}</p>
                     <p className="text-lg font-medium">
-                      ${formatPrice(item.price)} <span className="text-sm text-white/50 font-normal">MXN / día</span>
+                      ${formatPrice(item.price)} <span className="text-sm text-snow/50 font-normal">MXN / día</span>
                     </p>
                   </div>
                 </Link>
@@ -205,18 +205,18 @@ export default async function Home() {
           <div>
             <div className="flex items-center gap-4 mb-10">
               <div className="h-px flex-1 bg-white/10" />
-              <h3 className="text-lg tracking-[0.3em] uppercase text-[#b88364]">Bicicletas</h3>
+              <h3 className="text-lg tracking-[0.3em] uppercase text-brass">Bicicletas</h3>
               <div className="h-px flex-1 bg-white/10" />
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {bikes.map((item) => (
-                <Link key={item.id} href={`/item/${item.slug}`} className="group block p-6 bg-white/5 hover:bg-white/10 transition-all duration-500 rounded-lg border border-white/10 hover:border-[#b88364]/30">
+                <Link key={item.id} href={`/item/${item.slug}`} className="group block p-6 bg-white/5 hover:bg-white/10 transition-all duration-500 rounded-lg border border-white/10 hover:border-brass/30">
                   <div className="w-full h-48 rounded-lg overflow-hidden mb-4 bg-cover bg-center" style={{ backgroundImage: `url('${item.image}')` }} />
-                  <p className="text-xs text-[#b88364] tracking-[0.2em] uppercase mb-1">Bicicleta</p>
+                  <p className="text-xs text-brass tracking-[0.2em] uppercase mb-1">Bicicleta</p>
                   <h4 className="text-lg font-serif mb-1">{item.name}</h4>
-                  <p className="text-sm text-white/60 mb-2 line-clamp-2">{item.description}</p>
+                  <p className="text-sm text-ink/60 mb-2 line-clamp-2">{item.description}</p>
                   <p className="text-base font-medium">
-                    ${formatPrice(item.price)} <span className="text-sm text-white/50 font-normal">MXN / día</span>
+                    ${formatPrice(item.price)} <span className="text-sm text-ink/50 font-normal">MXN / día</span>
                   </p>
                 </Link>
               ))}
@@ -226,21 +226,21 @@ export default async function Home() {
       </section>
 
       {/* Restaurante */}
-      <section id="restaurante" className="py-32 bg-gradient-to-b from-[#faf7f5] to-[#f5f2ef]">
+      <section id="restaurante" className="py-32 bg-gradient-to-b from-ink-2 to-ink">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             {/* Contenido */}
             <div>
-              <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Gastronomía</p>
-              <h2 className="font-serif text-5xl md:text-6xl text-[#1b4235] tracking-[-0.02em] mb-6">
+              <p className="text-brass tracking-[0.3em] uppercase text-sm mb-4">Gastronomía</p>
+              <h2 className="font-serif text-5xl md:text-6xl text-ink tracking-[-0.02em] mb-6">
                 Nuestro Restaurante
               </h2>
-              <p className="text-lg text-[#5c3d2e] leading-relaxed mb-8">
+              <p className="text-lg text-ash leading-relaxed mb-8">
                 Cocina artesanal con vistas a la montaña. Menú fresco con ingredientes locales, preparado con dedicación. Desde entradas hasta postres, una experiencia culinaria completa en el corazón de El Peñón.
               </p>
               <Link
                 href="/restaurante"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-[#b88364] hover:bg-[#a07550] text-white rounded-lg text-sm tracking-widest uppercase transition-all duration-300 font-semibold"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-brass hover:bg-[#a07550] text-ink rounded-lg text-sm tracking-widest uppercase transition-all duration-300 font-semibold"
               >
                 Explorar Menú
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -271,41 +271,41 @@ export default async function Home() {
       </section>
 
       {/* Contacto */}
-      <section id="contacto" className="py-32 bg-[#faf7f5] text-[#1b4235] relative overflow-hidden">
+      <section id="contacto" className="py-32 bg-ink text-ink relative overflow-hidden">
         <div className="absolute inset-0 opacity-5 bg-[url('/img/paisaje.jpg')] bg-cover bg-center" />
         <div className="relative z-10 max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-16">
             <div>
-              <p className="text-[#b88364] tracking-[0.3em] uppercase text-sm mb-4">Contacto</p>
+              <p className="text-brass tracking-[0.3em] uppercase text-sm mb-4">Contacto</p>
               <h2 className="font-serif text-5xl md:text-6xl tracking-[-0.02em] mb-12">Contáctanos</h2>
               <div className="space-y-8">
                 <div>
-                  <p className="text-xs tracking-[0.3em] uppercase text-[#b88364] mb-2">Teléfono</p>
+                  <p className="text-xs tracking-[0.3em] uppercase text-brass mb-2">Teléfono</p>
                   <p className="text-xl font-light">+52 722 455 6628</p>
                 </div>
                 <div>
-                  <p className="text-xs tracking-[0.3em] uppercase text-[#b88364] mb-2">Email</p>
+                  <p className="text-xs tracking-[0.3em] uppercase text-brass mb-2">Email</p>
                   <p className="text-xl font-light">hangar.cinco.mexico@gmail.com</p>
                 </div>
                 <div>
-                  <p className="text-xs tracking-[0.3em] uppercase text-[#b88364] mb-2">Instagram</p>
+                  <p className="text-xs tracking-[0.3em] uppercase text-brass mb-2">Instagram</p>
                   <p className="text-xl font-light">@hangar5_mexico</p>
                 </div>
               </div>
             </div>
             <div className="flex flex-col justify-end">
-              <div className="border border-[#1b4235]/10 rounded-lg p-8 bg-white/50 backdrop-blur-sm">
-                <p className="text-xs tracking-[0.3em] uppercase text-[#b88364] mb-4">Ubicación</p>
+              <div className="border border-ink/10 rounded-lg p-8 bg-white/50 backdrop-blur-sm">
+                <p className="text-xs tracking-[0.3em] uppercase text-brass mb-4">Ubicación</p>
                 <p className="text-2xl font-serif leading-relaxed mb-4">
                   El Peñón Temascaltepec
                 </p>
-                <p className="text-[#5c3d2e]/60 text-sm">
+                <p className="text-ash/60 text-sm">
                   51305 El Peñón, Méx.<br />
                   A 2 horas de CDMX y 45 min de Toluca
                 </p>
-                <div className="mt-6 pt-6 border-t border-[#1b4235]/10">
+                <div className="mt-6 pt-6 border-t border-ink/10">
                   <a href="https://maps.app.goo.gl/Bcb1xeE3wwr4w2xv8" target="_blank" rel="noopener"
-                    className="inline-flex items-center gap-2 text-sm tracking-wider uppercase text-[#b88364] hover:text-[#1b4235] transition-colors">
+                    className="inline-flex items-center gap-2 text-sm tracking-wider uppercase text-brass hover:text-snow transition-colors">
                     Ver en Google Maps →
                   </a>
                 </div>
@@ -316,7 +316,7 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#0f2a20] text-white/30 py-12 text-center">
+      <footer className="bg-ink text-snow/30 py-12 text-center">
         <div className="max-w-7xl mx-auto px-6">
           <p className="text-xs tracking-[0.3em] uppercase mb-2">Hangar 5</p>
           <p className="text-xs">© {new Date().getFullYear()} · Todos los derechos reservados</p>

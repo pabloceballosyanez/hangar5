@@ -63,10 +63,10 @@ function getStatusConfig(status: string | undefined): StatusConfig {
         emoji: "📋",
         title: "Orden registrada",
         subtitle: "Tu orden ha sido recibida.",
-        bgClass: "bg-gray-50",
-        borderClass: "border-gray-200",
-        titleClass: "text-gray-800",
-        subtitleClass: "text-gray-600",
+        bgClass: "bg-ink-3",
+        borderClass: "border-hair",
+        titleClass: "text-snow",
+        subtitleClass: "text-ash",
       };
   }
 }
@@ -99,18 +99,18 @@ export default async function ConfirmationPage({
 
       {/* Order ID */}
       {orderId && (
-        <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 w-full">
-          <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+        <div className="bg-ink-2 rounded-xl border border-hair px-4 py-3 w-full">
+          <p className="text-xs text-smoke font-semibold uppercase tracking-wide mb-1">
             Número de orden
           </p>
-          <p className="text-sm font-mono text-gray-700 break-all">{orderId}</p>
+          <p className="text-sm font-mono text-snow-2 break-all">{orderId}</p>
         </div>
       )}
 
       {/* Steps (for approved/cash) */}
       {(status === "approved" || status === "cash") && (
-        <div className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 space-y-3">
-          <p className="text-sm font-bold text-gray-700 text-left">
+        <div className="w-full bg-ink-2 rounded-2xl border border-hair shadow-sm px-5 py-4 space-y-3">
+          <p className="text-sm font-bold text-snow-2 text-left">
             ¿Qué sigue?
           </p>
           <ol className="space-y-2 text-left">
@@ -123,7 +123,7 @@ export default async function ConfirmationPage({
                 <span className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-base flex-none">
                   {icon}
                 </span>
-                <span className="text-sm text-gray-600">{text}</span>
+                <span className="text-sm text-ash">{text}</span>
               </li>
             ))}
           </ol>
@@ -135,7 +135,7 @@ export default async function ConfirmationPage({
         {status === "rejected" && orderId && (
           <Link
             href={`/menu/${qrToken}/payment?orderId=${orderId}`}
-            className="w-full bg-amber-500 text-white font-black py-4 rounded-2xl text-center text-base min-h-[56px] flex items-center justify-center shadow-md"
+            className="w-full bg-amber-500 text-snow font-black py-4 rounded-2xl text-center text-base min-h-[56px] flex items-center justify-center shadow-md"
           >
             Intentar de nuevo
           </Link>
@@ -144,7 +144,7 @@ export default async function ConfirmationPage({
         {(status === "approved" || status === "cash") && orderId && (
           <Link
             href={`/menu/${qrToken}/tracker?orderId=${orderId}`}
-            className="w-full bg-amber-500 text-slate-900 font-black py-4 rounded-2xl text-center text-base min-h-[56px] flex items-center justify-center shadow-md"
+            className="w-full bg-amber-500 text-snow font-black py-4 rounded-2xl text-center text-base min-h-[56px] flex items-center justify-center shadow-md"
           >
             👀 Seguir mi pedido
           </Link>
@@ -152,13 +152,13 @@ export default async function ConfirmationPage({
 
         <Link
           href={`/menu/${qrToken}`}
-          className="w-full bg-gray-100 text-gray-700 font-bold py-4 rounded-2xl text-center text-base min-h-[56px] flex items-center justify-center"
+          className="w-full bg-ink-3 text-snow-2 font-bold py-4 rounded-2xl text-center text-base min-h-[56px] flex items-center justify-center"
         >
           🍴 Pedir algo más
         </Link>
       </div>
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-smoke">
         Hangar 5 · Mesa {qrToken}
       </p>
     </div>
