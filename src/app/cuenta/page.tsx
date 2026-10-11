@@ -39,14 +39,14 @@ const STATUS_LABELS: Record<string, string> = {
   CANCELLED: "Cancelada",
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  DRAFT: "bg-ink-3 text-snow-2",
-  PLACED: "bg-blue-100 text-blue-700",
-  IN_KITCHEN: "bg-yellow-100 text-yellow-700",
-  READY: "bg-green-100 text-green-700",
-  SERVED: "bg-purple-100 text-purple-700",
-  PAID: "bg-emerald-100 text-emerald-700",
-  CANCELLED: "bg-red-100 text-red-700",
+const STATUS_BADGES: Record<string, string> = {
+  DRAFT: "badge badge-info",
+  PLACED: "badge badge-gold",
+  IN_KITCHEN: "badge badge-warn",
+  READY: "badge badge-ok",
+  SERVED: "badge badge-info",
+  PAID: "badge badge-ok",
+  CANCELLED: "badge badge-bad",
 };
 
 export default function CuentaPage() {
@@ -88,8 +88,8 @@ export default function CuentaPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-night flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -99,32 +99,34 @@ export default function CuentaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-8">
-      <div className="max-w-lg mx-auto space-y-6">
+    <div className="min-h-screen bg-night text-cream px-4 py-10">
+      <div className="max-w-lg mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-amber-400 hover:text-amber-300 text-sm font-bold">
+          <Link href="/" className="text-[11px] tracking-[0.2em] uppercase text-muted hover:text-gold transition-colors">
             ← Volver
           </Link>
           <button
             onClick={handleLogout}
-            className="text-red-400 hover:text-red-300 text-sm font-bold"
+            className="text-[11px] tracking-[0.2em] uppercase text-bad hover:text-cream transition-colors"
           >
             Cerrar sesión
           </button>
         </div>
 
         {/* Profile card */}
-        <div className="bg-white/5 border border-amber-400/10 rounded-2xl p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-amber-400/20 flex items-center justify-center text-2xl">
-              👤
+        <div className="card-night p-7">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-full border border-gold-dim/50 bg-gold/10 flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
             </div>
             <div>
-              <h1 className="text-xl font-black text-snow">{profile.name}</h1>
-              <p className="text-sm text-smoke">{profile.email}</p>
+              <h1 className="display text-2xl">{profile.name}</h1>
+              <p className="text-sm text-muted mt-1">{profile.email}</p>
               {profile.phone && (
-                <p className="text-sm text-smoke">{profile.phone}</p>
+                <p className="text-sm text-faint">{profile.phone}</p>
               )}
             </div>
           </div>
@@ -132,35 +134,35 @@ export default function CuentaPage() {
 
         {/* Order history */}
         <section>
-          <h2 className="text-lg font-black text-snow mb-4">📋 Historial de pedidos</h2>
+          <div className="scene-head mb-8">
+            <span className="scene-num">Escena 01</span>
+            <h2 className="display text-3xl">Tus <em>pedidos</em></h2>
+            <span className="scene-rule" />
+          </div>
 
           {orders.length === 0 ? (
-            <div className="bg-white/5 border border-amber-400/10 rounded-2xl p-6 text-center">
-              <span className="text-4xl">🍽️</span>
-              <p className="text-smoke mt-3 text-sm">
+            <div className="card-night p-8 text-center">
+              <p className="text-muted text-sm leading-relaxed">
                 Aún no tienes pedidos. Cuando hagas tu primer pedido desde una mesa, aparecerá aquí.
               </p>
-              <Link
-                href="/restaurante"
-                className="inline-block mt-4 px-6 py-3 bg-amber-500 text-snow font-bold rounded-xl text-sm"
-              >
+              <Link href="/restaurante" className="btn-gold mt-6">
                 Ver menú
               </Link>
             </div>
           ) : (
-            <div className="space-y-3">
-              {orders.map((order) => (
-                <div
-                  key={order.id}
-                  className="bg-white/5 border border-amber-400/10 rounded-2xl p-4"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_COLORS[order.status] || "bg-ink-3 text-snow-2"}`}>
-                      {STATUS_LABELS[order.status] || order.status}
-                    </span>
-                    <span className="text-sm font-bold text-amber-400">{fmt(order.total)}</span>
+            <div className="space-y-4">
+              {orders.map((order, i) => (
+                <div key={order.id} className="card-night p-5 hover:border-gold-dim/40 transition-colors">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="scene-num">{String(i + 1).padStart(2, "0")}</span>
+                      <span className={STATUS_BADGES[order.status] || "badge badge-info"}>
+                        {STATUS_LABELS[order.status] || order.status}
+                      </span>
+                    </div>
+                    <span className="font-[family-name:var(--font-display)] text-lg text-gold">{fmt(order.total)}</span>
                   </div>
-                  <p className="text-sm text-smoke">
+                  <p className="text-sm text-cream/85">
                     {order.orderItems.map((oi) => (
                       <span key={`${oi.menuItem.name}-${oi.variant?.name}`}>
                         {oi.quantity}× {oi.menuItem.name}
@@ -169,7 +171,7 @@ export default function CuentaPage() {
                       </span>
                     ))}
                   </p>
-                  <p className="text-xs text-smoke mt-1">
+                  <p className="text-[11px] tracking-[0.14em] uppercase text-faint mt-2">
                     {new Date(order.createdAt).toLocaleDateString("es-MX", {
                       day: "numeric",
                       month: "long",

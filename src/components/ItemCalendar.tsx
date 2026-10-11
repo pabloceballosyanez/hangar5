@@ -32,21 +32,21 @@ export function ItemCalendar({ itemId }: { itemId: string }) {
     <div>
       <div className="flex justify-between items-center mb-4">
         <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brass/10 text-brass transition-colors">
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10 text-gold transition-colors">
           ←
         </button>
-        <span className="text-sm font-medium text-snow uppercase tracking-wider">
+        <span className="text-[11px] tracking-[0.3em] uppercase text-cream">
           {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </span>
         <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brass/10 text-brass transition-colors">
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10 text-gold transition-colors">
           →
         </button>
       </div>
 
       <div className="grid grid-cols-7 gap-1 text-center">
         {dayNames.map(d => (
-          <div key={d} className="text-[10px] text-brass/60 font-medium uppercase tracking-wider py-2">{d}</div>
+          <div key={d} className="text-[10px] text-faint uppercase tracking-wider py-2">{d}</div>
         ))}
         {Array.from({ length: startDay }).map((_, i) => (
           <div key={`e-${i}`} className="py-2" />
@@ -56,13 +56,13 @@ export function ItemCalendar({ itemId }: { itemId: string }) {
           const blockedDate = isBlocked(date);
           const past = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
           const todayClass = !past && !blockedDate && date.getDate() === today.getDate() && date.getMonth() === today.getMonth();
-          
+
           return (
             <div key={i} className={`py-2 text-xs rounded transition-colors ${
-              blockedDate ? "bg-bad/15 text-bad/60 line-through cursor-not-allowed" :
-              past ? "text-smoke/50 cursor-not-allowed" :
-              todayClass ? "bg-brass text-ink font-medium" :
-              "hover:bg-brass/10 cursor-pointer text-snow"
+              blockedDate ? "bg-bad/10 text-bad/60 line-through cursor-not-allowed" :
+              past ? "text-faint/50 cursor-not-allowed" :
+              todayClass ? "bg-gold text-night font-semibold" :
+              "text-ok/90 hover:bg-ok/10 cursor-pointer"
             }`}>
               {i + 1}
             </div>
@@ -70,15 +70,15 @@ export function ItemCalendar({ itemId }: { itemId: string }) {
         })}
       </div>
 
-      <div className="flex items-center gap-6 mt-4 text-[10px] text-ash">
+      <div className="flex items-center gap-6 mt-4 text-[10px] uppercase tracking-wider text-faint">
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-bad border border-bad inline-block" /> Reservado
+          <span className="w-2.5 h-2.5 rounded-full bg-bad/60 inline-block" /> Reservado
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-good border border-good inline-block" /> Disponible
+          <span className="w-2.5 h-2.5 rounded-full bg-ok/70 inline-block" /> Disponible
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-brass border border-brass inline-block" /> Hoy
+          <span className="w-2.5 h-2.5 rounded-full bg-gold inline-block" /> Hoy
         </span>
       </div>
     </div>

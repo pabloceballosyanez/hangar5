@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const landingLinks = [
-  { href: '#cabanas', label: 'Cabañas' },
-  { href: '#glampings', label: 'Glampings' },
+  { href: '#restaurante', label: 'Restaurante' },
   { href: '#actividades', label: 'Actividades' },
   { href: '#renta', label: 'Renta' },
-  { href: '#restaurante', label: 'Restaurante' },
+  { href: '#cabanas', label: 'Cabañas' },
+  { href: '#glampings', label: 'Glampings' },
   { href: '#contacto', label: 'Contacto' },
 ];
 
@@ -26,41 +26,57 @@ export default function LandingNav() {
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 mix-blend-difference text-snow">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          <Link href="/" className="text-lg font-semibold tracking-[0.3em] uppercase">
-            Hangar 5
-          </Link>
+      <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-[rgba(11,12,11,0.85)] to-transparent">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+          {/* Izquierda: navegación */}
+          <div className="flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-8">
+              {landingLinks.map(l => (
+                <a
+                  key={l.href}
+                  href={anchorHref(l.href)}
+                  className="text-[11px] tracking-[0.22em] uppercase text-[rgba(244,243,240,0.75)] hover:text-gold transition-colors no-underline"
+                >
+                  {l.label}
+                </a>
+              ))}
+            </div>
+            <button
+              onClick={() => setOpen(!open)}
+              className="md:hidden flex flex-col gap-1.5 w-6 h-5 justify-center"
+              aria-label="Menú"
+            >
+              <span className={`block h-[1.5px] bg-cream transition-all duration-300 ${open ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`block h-[1.5px] bg-cream transition-all duration-300 ${open ? 'opacity-0' : ''}`} />
+              <span className={`block h-[1.5px] bg-cream transition-all duration-300 ${open ? '-rotate-45 -translate-y-2' : ''}`} />
+            </button>
+          </div>
 
-          {/* Desktop links */}
-          <div className="hidden md:flex gap-10 text-xs tracking-[0.2em] uppercase">
-            {landingLinks.map(l => (
-              <a key={l.href} href={anchorHref(l.href)} className="hover:opacity-70 transition-opacity">
-                {l.label}
-              </a>
-            ))}
+          {/* Derecha: logo + acciones */}
+          <div className="flex items-center gap-6">
             {pageLinks.map(l => (
-              <Link key={l.href} href={l.href} className="hover:opacity-70 transition-opacity">
+              <Link
+                key={l.href}
+                href={l.href}
+                className="hidden md:block text-[11px] tracking-[0.22em] uppercase text-[rgba(244,243,240,0.75)] hover:text-gold transition-colors no-underline"
+              >
                 {l.label}
               </Link>
             ))}
-          </div>
-
-          {/* Right side: hamburger (mobile) + admin */}
-          <div className="flex items-center gap-6">
-            {/* Hamburger — visible only on mobile */}
-            <button
-              onClick={() => setOpen(!open)}
-              className="md:hidden flex flex-col gap-1.5 w-6 h-5 justify-center group"
-              aria-label="Menú"
-            >
-              <span className={`block h-0.5 bg-ink-2 transition-all duration-300 ${open ? 'rotate-45 translate-y-2' : ''}`} />
-              <span className={`block h-0.5 bg-ink-2 transition-all duration-300 ${open ? 'opacity-0' : ''}`} />
-              <span className={`block h-0.5 bg-ink-2 transition-all duration-300 ${open ? '-rotate-45 -translate-y-2' : ''}`} />
-            </button>
-            {/* El enlace al admin se retiró del sitio público (oct-2026).
-                El panel vive en /admin y se comparte por liga directa
-                solo con quien debe verlo. */}
+            <a href={anchorHref('#cabanas')} className="hidden md:inline-block btn-outline !py-2.5 !px-5">
+              Reservar
+            </a>
+            {/* El logo, en la esquina superior derecha */}
+            <Link href="/" aria-label="Hangar 5 — inicio" className="no-underline shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/img/logo.png"
+                alt="Hangar 5"
+                width={72}
+                height={72}
+                className="h-14 w-auto md:h-16 opacity-95 transition-opacity hover:opacity-100"
+              />
+            </Link>
           </div>
         </div>
       </nav>
@@ -68,14 +84,14 @@ export default function LandingNav() {
       {/* Mobile overlay */}
       {open && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-lg" onClick={() => setOpen(false)} />
+          <div className="absolute inset-0 bg-night/97 backdrop-blur-lg" onClick={() => setOpen(false)} />
           <div className="relative z-10 flex flex-col items-center justify-center h-full gap-8">
             {landingLinks.map(l => (
               <a
                 key={l.href}
                 href={anchorHref(l.href)}
                 onClick={() => setOpen(false)}
-                className="text-snow text-2xl font-light tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
+                className="font-[family-name:var(--font-display)] text-cream text-3xl font-light tracking-[0.08em] hover:text-gold transition-colors no-underline"
               >
                 {l.label}
               </a>
@@ -85,11 +101,18 @@ export default function LandingNav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="text-snow text-2xl font-light tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
+                className="font-[family-name:var(--font-display)] text-cream text-3xl font-light tracking-[0.08em] hover:text-gold transition-colors no-underline"
               >
                 {l.label}
               </Link>
             ))}
+            <a
+              href={anchorHref('#cabanas')}
+              onClick={() => setOpen(false)}
+              className="btn-gold mt-4"
+            >
+              Reservar
+            </a>
           </div>
         </div>
       )}

@@ -16,6 +16,8 @@ interface MenuItem {
   basePrice: number;
   imageUrl?: string;
   variants: MenuItemVariant[];
+  slug?: string;
+  hasStory?: boolean;
 }
 
 interface Category {
@@ -28,6 +30,16 @@ interface Category {
 function formatPrice(cents: number) {
   const pesos = Math.round(cents / 100);
   return pesos.toString();
+}
+
+function CartIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="9" cy="20" r="1.4" />
+      <circle cx="17" cy="20" r="1.4" />
+      <path d="M3 4h2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h7.9a1.5 1.5 0 0 0 1.5-1.2L20 8H6" />
+    </svg>
+  );
 }
 
 export default function RestaurantePage() {
@@ -58,12 +70,24 @@ export default function RestaurantePage() {
     setImageErrors(prev => new Set([...prev, itemId]));
   };
 
+  // Al volver de una ficha, restaurar el punto exacto del menú donde estabas
+  useEffect(() => {
+    if (loading) return;
+    const saved = sessionStorage.getItem('h5-menu-scroll');
+    if (saved) {
+      sessionStorage.removeItem('h5-menu-scroll');
+      const y = parseInt(saved, 10);
+      // Esperar a que las imágenes acomoden el layout antes de saltar
+      setTimeout(() => window.scrollTo({ top: y, behavior: 'instant' as ScrollBehavior }), 250);
+    }
+  }, [loading]);
+
   if (loading) {
     return (
-      <main className="min-h-screen bg-ink flex items-center justify-center">
+      <main className="min-h-screen bg-night flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brass mx-auto mb-4" />
-          <p className="text-ash">Cargando menú...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-gold border-t-transparent mx-auto mb-4" />
+          <p className="text-sm text-muted tracking-wide">Cargando menú...</p>
         </div>
       </main>
     );
@@ -71,19 +95,17 @@ export default function RestaurantePage() {
 
   if (categories.length === 0) {
     return (
-      <main className="min-h-screen bg-ink">
-        <section className="pt-32 pb-24 px-6 text-center">
+      <main className="min-h-screen bg-night">
+        <section className="min-h-screen flex items-center justify-center px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-serif text-ink mb-4 tracking-[-0.02em] leading-[0.85]">
-              Hangar <span className="italic">5</span>
+            <p className="kicker mb-6">Cocina de Montaña</p>
+            <h1 className="display text-6xl md:text-7xl mb-4">
+              Hangar <em>5</em>
             </h1>
-            <h2 className="text-2xl md:text-3xl font-serif text-brass italic mb-6">
-              Cocina de Montaña
-            </h2>
-            <p className="text-lg text-ash font-light tracking-wide mb-8">
+            <p className="text-lg text-muted font-light tracking-wide mb-10">
               El menú está siendo actualizado. Por favor, intenta de nuevo más tarde.
             </p>
-            <Link href="/" className="inline-block px-8 py-3 bg-brass hover:bg-[#a07550] text-ink rounded-lg font-semibold tracking-widest uppercase transition-all duration-300">
+            <Link href="/" className="btn-gold">
               Volver al inicio
             </Link>
           </div>
@@ -93,13 +115,13 @@ export default function RestaurantePage() {
   }
 
   return (
-    <main className="min-h-screen bg-ink">
+    <main className="min-h-screen bg-night text-cream">
       {/* Navigation Sticky */}
-      <nav className="fixed top-0 w-full z-40 bg-fog/90 backdrop-blur-sm border-b border-brass/10">
+      <nav className="fixed top-0 w-full z-40 bg-night/85 backdrop-blur-md border-b border-line">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-lg font-semibold tracking-[0.3em] uppercase text-ink">
-              Hangar 5
+            <Link href="/" className="font-[family-name:var(--font-display)] text-lg tracking-[0.08em] text-cream no-underline">
+              HANGAR <span className="text-snow-2 not-italic">N°5</span>
             </Link>
             <div className="hidden md:flex gap-2 overflow-x-auto pb-0 flex-wrap justify-center flex-1 mx-8">
               {categories.map((cat, idx) => (
@@ -109,96 +131,98 @@ export default function RestaurantePage() {
                     setActiveCategory(idx);
                     document.getElementById(`category-${cat.id}`)?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="px-4 py-2 text-xs font-medium tracking-[0.15em] uppercase whitespace-nowrap transition-all duration-300 rounded-lg"
-                  style={{
-                    color: activeCategory === idx ? '#b88364' : 'var(--color-ash)',
-                    backgroundColor: activeCategory === idx ? '#b88364/10' : 'transparent',
-                  }}
+                  className={`px-4 py-2 text-[11px] font-medium tracking-[0.18em] uppercase whitespace-nowrap transition-all duration-300 rounded-full ${
+                    activeCategory === idx
+                      ? 'text-gold'
+                      : 'text-muted hover:text-cream'
+                  }`}
                 >
                   {cat.name}
                 </button>
               ))}
             </div>
-            <Link href="/" className="text-xs tracking-[0.2em] uppercase text-ash hover:text-brass transition-colors">
+            <Link href="/" className="text-[11px] tracking-[0.22em] uppercase text-faint hover:text-gold transition-colors">
               Inicio
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative w-full h-[60vh] md:h-[60vh] overflow-hidden pt-16">
+      {/* Hero Section — pantalla de cine */}
+      <section className="relative w-full h-[70vh] overflow-hidden flex items-end">
         <img
-          src="/img/hero-bg.jpg?v=2"
+          src="/img/hero-bg.jpg?v=3"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover foto-fondo"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/40" />
-        
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-          <h1 className="text-5xl md:text-7xl font-serif text-snow mb-4 tracking-[-0.02em] leading-[0.85]">
-            Hangar <span className="italic">5</span>
+        <div className="absolute inset-0 bg-gradient-to-t from-night via-night/35 to-night/55" />
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pb-[12vh]">
+          <div className="flex items-center gap-3.5 kicker mb-6">
+            <span className="w-11 h-px bg-gold inline-block" />
+            Cocina de Montaña · El Peñón
+          </div>
+          <h1 className="display text-[clamp(44px,7vw,96px)]">
+            <span className="line-reveal"><span>Sabores artesanales</span></span>
+            <span className="line-reveal d1"><span>al pie del <em>Peñón.</em></span></span>
           </h1>
-          <p className="text-xl md:text-2xl font-serif text-snow/80 italic mb-2">
-            Cocina de Montaña
-          </p>
-          <p className="text-lg text-snow/70 font-light tracking-wider max-w-2xl">
-            Sabores artesanales al pie del Peñón
-          </p>
-          <div className="mt-8">
-            <Link
-              href="/pedir"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-snow font-black text-lg rounded-xl shadow-xl shadow-amber-500/30 transition-all active:scale-95"
-            >
-              🛒 Pedir online
-            </Link>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mt-10">
+            <p className="text-sm md:text-[15px] text-muted max-w-md leading-relaxed">
+              Hangar 5 — Cocina de Montaña. Ingredientes locales, fuego lento y la mejor vista de Temascaltepec.
+            </p>
+            <div className="flex items-center gap-4">
+              <Link href="/pedir" className="btn-gold inline-flex items-center gap-2.5">
+                <CartIcon />
+                Pedir online
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Menu Sections */}
+      {/* Menu Sections — cada categoría es una escena */}
       <div className="max-w-7xl mx-auto px-6 py-24">
         {categories.map((category, catIdx) => (
           <section
             key={category.id}
             id={`category-${category.id}`}
-            className="mb-32 scroll-mt-32"
+            className="mb-28 scroll-mt-32"
           >
-            {/* Category Header */}
-            <div className="mb-16">
-              <p className="text-brass tracking-[0.3em] uppercase text-sm mb-4 text-center">Menú</p>
-              <h2 className="text-4xl md:text-5xl font-serif text-snow tracking-tight mb-6 text-center">
+            {/* Encabezado de la categoría */}
+            <div className="mb-14">
+              <h2 className="display text-4xl md:text-5xl">
                 {category.name}
               </h2>
-              <div className="h-px w-24 bg-brass/30 mx-auto" />
+              <span className="block w-14 h-px bg-line mt-6" />
             </div>
 
             {/* Items Grid */}
             {category.menuItems && category.menuItems.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {category.menuItems.map((item) => {
                   const hasImageError = imageErrors.has(item.id);
                   const hasImage = item.imageUrl && !hasImageError;
+                  const conFicha = !!(item.hasStory && item.slug);
 
                   return (
                     <div
                       key={item.id}
-                      className="group flex flex-col bg-ink-2 rounded-lg overflow-hidden border border-hair hover:border-brass/30 transition-all duration-300"
+                      onClick={() => { if (conFicha) { sessionStorage.setItem('h5-menu-scroll', String(window.scrollY)); window.location.href = `/carta/${item.slug}?from=menu`; } }}
+                      role={conFicha ? "link" : undefined}
+                      className={`group flex flex-col card-night overflow-hidden hover:border-gold-dim/50 transition-all duration-500 ${conFicha ? 'cursor-pointer' : ''}`}
                     >
                       {/* Image Container */}
-                      <div className="relative w-full bg-ink-3 aspect-[4/3] overflow-hidden">
+                      <div className="relative w-full bg-night-3 aspect-[4/3] overflow-hidden">
                         {hasImage ? (
                           <img
                             src={item.imageUrl}
                             alt={item.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            className="w-full h-full object-cover foto group-hover:scale-105 group-hover:saturate-100 transition-all duration-700"
                             onError={() => handleImageError(item.id)}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <div className="text-center text-[#a07550]">
-                              <div className="text-4xl mb-2">-</div>
-                            </div>
+                            <span className="display italic text-3xl text-gold-dim">H5</span>
                           </div>
                         )}
                       </div>
@@ -207,11 +231,11 @@ export default function RestaurantePage() {
                       <div className="flex-1 p-6 flex flex-col">
                         {/* Name & Description */}
                         <div className="mb-4">
-                          <h3 className="text-lg font-serif text-snow mb-2 group-hover:text-brass transition-colors duration-300">
+                          <h3 className="font-[family-name:var(--font-display)] text-xl mb-2 group-hover:text-gold transition-colors duration-300">
                             {item.name}
                           </h3>
                           {item.description && (
-                            <p className="text-sm text-ash/70 leading-relaxed line-clamp-2">
+                            <p className="text-sm text-muted leading-relaxed line-clamp-2">
                               {item.description}
                             </p>
                           )}
@@ -223,13 +247,13 @@ export default function RestaurantePage() {
                             {item.variants.slice(0, 2).map((variant) => (
                               <span
                                 key={variant.id}
-                                className="inline-block px-3 py-1 bg-brass/10 text-brass text-xs font-medium rounded-full"
+                                className="inline-block px-3 py-1 border border-gold-dim/40 text-gold text-[10px] tracking-[0.12em] uppercase rounded-full"
                               >
                                 {variant.name}
                               </span>
                             ))}
                             {item.variants.length > 2 && (
-                              <span className="inline-block px-3 py-1 bg-brass/10 text-brass text-xs font-medium rounded-full">
+                              <span className="inline-block px-3 py-1 border border-gold-dim/40 text-gold text-[10px] tracking-[0.12em] uppercase rounded-full">
                                 +{item.variants.length - 2} más
                               </span>
                             )}
@@ -240,12 +264,18 @@ export default function RestaurantePage() {
                         <div className="flex-1" />
 
                         {/* Price */}
-                        <div className="pt-4 border-t border-brass/10">
+                        <div className="pt-4 border-t border-line">
                           <div className="flex items-baseline justify-between">
-                            <span className="text-2xl font-serif text-brass">
+                            <span className="font-[family-name:var(--font-display)] text-2xl text-gold">
                               ${formatPrice(item.basePrice)}
                             </span>
-                            <span className="text-xs text-ash/60 tracking-wider uppercase">MXN</span>
+                            {conFicha ? (
+                              <span className="accion text-[10px] tracking-[0.2em] uppercase group-hover:tracking-[0.3em] transition-all duration-300">
+                                Su historia &rarr;
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-faint tracking-[0.2em] uppercase">MXN</span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -255,7 +285,7 @@ export default function RestaurantePage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-ash/60 tracking-widest uppercase text-sm">
+                <p className="text-faint tracking-[0.2em] uppercase text-xs">
                   No hay items disponibles en esta categoría
                 </p>
               </div>
@@ -265,29 +295,30 @@ export default function RestaurantePage() {
       </div>
 
       {/* CTA Section */}
-      <section className="py-24 px-6 bg-ink-3 border-t border-brass/10">
+      <section className="py-24 px-6 bg-night-2 border-t border-line">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-serif text-snow mb-6">
-            Realiza tu Orden
+          <p className="kicker mb-6">En tu mesa</p>
+          <h2 className="display text-4xl md:text-5xl mb-6">
+            Realiza tu <em>orden</em>
           </h2>
-          <p className="text-lg text-ash mb-8 font-light tracking-wide">
+          <p className="text-[15px] text-muted mb-10 font-light leading-relaxed max-w-xl mx-auto">
             Escanea el código QR en tu mesa para acceder al menú interactivo y realizar tu pedido en tiempo real.
           </p>
-          <div className="w-48 h-48 mx-auto rounded-lg p-6 bg-white/5 border border-hair">
-            <div className="w-full h-full bg-ink-3 rounded-lg flex items-center justify-center">
-              <span className="text-[#a07550] text-sm tracking-wider font-light">QR Code</span>
+          <div className="w-48 h-48 mx-auto card-night p-6">
+            <div className="w-full h-full bg-night-3 rounded-lg flex items-center justify-center">
+              <span className="text-faint text-[11px] tracking-[0.25em] uppercase font-light">Código QR</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-hair bg-ink-2 text-center">
+      <footer className="py-12 px-6 border-t border-line bg-night text-center">
         <div className="max-w-7xl mx-auto">
-          <p className="text-sm text-snow tracking-wide mb-4 font-serif">
-            Hangar 5 — El Peñón, Temascaltepec
+          <p className="font-[family-name:var(--font-display)] text-lg mb-3">
+            Hangar <span className="italic text-gold">5</span> — El Peñón, Temascaltepec
           </p>
-          <p className="text-xs text-ash/60 font-light">
+          <p className="text-xs text-faint font-light tracking-wide">
             © {new Date().getFullYear()} Todos los derechos reservados
           </p>
         </div>

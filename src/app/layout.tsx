@@ -2,10 +2,6 @@ import type { Metadata } from "next";
 import { Gloock, Work_Sans } from "next/font/google";
 import "./globals.css";
 
-// Tipografía — definida UNA vez para toda la app.
-// Gloock: voz display (títulos). Work Sans: voz de texto (reemplaza
-// a system-ui desde oct-2026; tiene curvas más humanas y aguanta los
-// textos largos de las fichas).
 const gloock = Gloock({
   weight: "400",
   subsets: ["latin"],
@@ -13,6 +9,10 @@ const gloock = Gloock({
   display: "swap",
 });
 
+// Work Sans — voz de texto. Reemplaza a Inter (sep-2026):
+// Inter es la fuente más usada de internet y no aportaba carácter propio.
+// Work Sans tiene curvas más humanas y aguanta bien los textos largos
+// de las fichas de platillo.
 const workSans = Work_Sans({
   subsets: ["latin"],
   variable: "--font-work-sans",
@@ -22,7 +22,7 @@ const workSans = Work_Sans({
 
 export const metadata: Metadata = {
   title: "Hangar 5 — Reserva tu experiencia",
-  description: "Cabañas, glampings, motos y bicicletas en El Peñón Temascaltepec",
+  description: "Cabañas, glampings, parapente y cocina de montaña en El Peñón, Temascaltepec",
   appleWebApp: {
     capable: true,
     title: "Hangar 5",

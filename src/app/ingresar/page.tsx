@@ -87,35 +87,35 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-night text-cream flex flex-col items-center justify-center px-4 py-12">
       {/* Logo */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-black text-snow tracking-tight">
-          HANGAR<span className="text-brass">CINCO</span>
+      <div className="mb-10 text-center">
+        <h1 className="display text-4xl tracking-[0.06em]">
+          HANGAR <em>N°5</em>
         </h1>
-        <p className="text-amber-100/60 text-sm mt-1">Tu cuenta</p>
+        <p className="kicker mt-3">Tu cuenta</p>
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-md bg-white/5 backdrop-blur-lg border border-amber-400/10 rounded-2xl shadow-2xl overflow-hidden">
+      <div className="w-full max-w-md card-night overflow-hidden">
         {/* Tabs */}
-        <div className="flex border-b border-amber-400/10">
+        <div className="flex border-b border-line">
           <button
             onClick={() => { setTab("login"); setError(null); setSuccess(null); }}
-            className={`flex-1 py-4 text-sm font-bold transition-all ${
+            className={`flex-1 py-4 text-[11px] tracking-[0.2em] uppercase font-semibold transition-all ${
               tab === "login"
-                ? "text-brass border-b-2 border-amber-400 bg-amber-400/5"
-                : "text-smoke hover:text-smoke"
+                ? "text-gold border-b-2 border-gold bg-gold/5"
+                : "text-faint hover:text-muted"
             }`}
           >
             Iniciar sesión
           </button>
           <button
             onClick={() => { setTab("register"); setError(null); setSuccess(null); }}
-            className={`flex-1 py-4 text-sm font-bold transition-all ${
+            className={`flex-1 py-4 text-[11px] tracking-[0.2em] uppercase font-semibold transition-all ${
               tab === "register"
-                ? "text-brass border-b-2 border-amber-400 bg-amber-400/5"
-                : "text-smoke hover:text-smoke"
+                ? "text-gold border-b-2 border-gold bg-gold/5"
+                : "text-faint hover:text-muted"
             }`}
           >
             Crear cuenta
@@ -123,100 +123,100 @@ function LoginContent() {
         </div>
 
         {/* Forms */}
-        <div className="p-6">
+        <div className="p-7">
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 text-sm mb-4">
+            <div className="rounded-[10px] border border-bad/40 bg-bad/10 text-bad px-4 py-3 text-sm mb-5">
               {error}
             </div>
           )}
           {success && (
-            <div className="bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl px-4 py-3 text-sm mb-4">
+            <div className="rounded-[10px] border border-ok/40 bg-ok/10 text-ok px-4 py-3 text-sm mb-5">
               {success}
             </div>
           )}
 
           {tab === "login" ? (
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-smoke mb-1">Email</label>
+                <label className="label-night">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   autoComplete="email"
-                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="input-night"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-smoke mb-1">Contraseña</label>
+                <label className="label-night">Contraseña</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••"
                   autoComplete="current-password"
-                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="input-night"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 disabled:opacity-60 text-snow font-black py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all"
+                className="btn-gold w-full text-center disabled:opacity-60"
               >
                 {loading ? "Entrando…" : "Entrar"}
               </button>
             </form>
           ) : (
-            <form onSubmit={handleRegister} className="space-y-4">
+            <form onSubmit={handleRegister} className="space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-smoke mb-1">Nombre</label>
+                <label className="label-night">Nombre</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="¿Cómo te llamas?"
                   autoComplete="name"
-                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="input-night"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-smoke mb-1">Email</label>
+                <label className="label-night">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   autoComplete="email"
-                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="input-night"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-smoke mb-1">Teléfono (opcional)</label>
+                <label className="label-night">Teléfono (opcional)</label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+52 555 000 0000"
                   autoComplete="tel"
-                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="input-night"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-smoke mb-1">Contraseña</label>
+                <label className="label-night">Contraseña</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
                   autoComplete="new-password"
-                  className="w-full bg-ink-2 border border-hair text-snow placeholder:text-smoke rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="input-night"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 disabled:opacity-60 text-snow font-black py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all"
+                className="btn-gold w-full text-center disabled:opacity-60"
               >
                 {loading ? "Creando cuenta…" : "Crear cuenta"}
               </button>
@@ -228,14 +228,14 @@ function LoginContent() {
       {/* Skip / Continue as guest */}
       <Link
         href={redirect}
-        className="mt-6 text-sm text-smoke hover:text-amber-300 transition-colors"
+        className="mt-7 text-[11px] tracking-[0.2em] uppercase text-muted hover:text-gold transition-colors"
       >
         Continuar como invitado →
       </Link>
 
       <Link
         href="/login"
-        className="mt-2 text-xs text-smoke hover:text-smoke transition-colors"
+        className="mt-3 text-[11px] tracking-[0.18em] uppercase text-faint hover:text-muted transition-colors"
       >
         ¿Trabajas aquí? Acceso empleados
       </Link>
@@ -246,8 +246,8 @@ function LoginContent() {
 export default function IngresarPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-ink flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-night flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin" />
       </div>
     }>
       <LoginContent />

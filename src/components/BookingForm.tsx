@@ -12,9 +12,9 @@ interface BookingFormProps {
 function formatPrice(cents: number) { return (cents / 100).toLocaleString("es-MX"); }
 
 const PAYMENT_METHODS = [
-  { id: "card", label: "💳 Tarjeta de crédito/débito", desc: "Paga con Mercado Pago" },
-  { id: "transfer", label: "🏦 Transferencia bancaria", desc: "Datos para depositar" },
-  { id: "cash", label: "💵 Efectivo al llegar", desc: "Paga cuando estés aquí" },
+  { id: "card", label: "Tarjeta de crédito/débito", desc: "Paga con Mercado Pago" },
+  { id: "transfer", label: "Transferencia bancaria", desc: "Datos para depositar" },
+  { id: "cash", label: "Efectivo al llegar", desc: "Paga cuando estés aquí" },
 ];
 
 export function BookingForm({ item, hasMpToken }: BookingFormProps) {
@@ -92,14 +92,14 @@ export function BookingForm({ item, hasMpToken }: BookingFormProps) {
     : 0);
   const total = isAct ? item.price * guests : days * item.price;
 
-  const inputClass = "w-full border border-hair rounded-lg p-4 bg-ink-2 text-snow placeholder:text-brass/50 focus:outline-none focus:border-brass focus:ring-1 focus:ring-brass/20 transition-all text-sm";
+  const inputClass = "input-night";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Date(s) */}
       {isAct ? (
         <div>
-          <label className="block text-xs tracking-[0.2em] uppercase text-brass mb-2 font-medium">Fecha de la actividad</label>
+          <label className="label-night">Fecha de la actividad</label>
           <input type="date" value={startDate}
             onChange={(e) => { setStartDate(e.target.value); setAvailability({ available: false, checked: false }); }}
             min={new Date().toISOString().split("T")[0]} className={inputClass} required />
@@ -107,7 +107,7 @@ export function BookingForm({ item, hasMpToken }: BookingFormProps) {
       ) : (
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs tracking-[0.2em] uppercase text-brass mb-2 font-medium">
+            <label className="label-night">
               {isRent ? "Inicio" : "Entrada"}
             </label>
             <input type="date" value={startDate}
@@ -115,7 +115,7 @@ export function BookingForm({ item, hasMpToken }: BookingFormProps) {
               min={new Date().toISOString().split("T")[0]} className={inputClass} required />
           </div>
           <div>
-            <label className="block text-xs tracking-[0.2em] uppercase text-brass mb-2 font-medium">
+            <label className="label-night">
               {isRent ? "Fin" : "Salida"}
             </label>
             <input type="date" value={endDate}
@@ -128,7 +128,7 @@ export function BookingForm({ item, hasMpToken }: BookingFormProps) {
       {/* Check availability button */}
       {startDate && (isAct || (startDate < endDate)) && !availability.checked && (
         <button type="button" onClick={checkAvailability} disabled={loading}
-          className="w-full py-3 border-2 border-brass/20 text-brass rounded-lg uppercase tracking-wider text-xs font-medium hover:bg-brass/5 transition-colors disabled:opacity-50">
+          className="btn-outline w-full text-center disabled:opacity-50">
           {loading ? "Verificando..." : "Verificar disponibilidad"}
         </button>
       )}
@@ -136,15 +136,15 @@ export function BookingForm({ item, hasMpToken }: BookingFormProps) {
       {/* Availability result */}
       {availability.checked && (
         availability.available ? (
-          <div className="bg-[#ebf5eb] text-snow rounded-lg p-4 text-sm flex items-center gap-3">
-            <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="rounded-[10px] border border-ok/40 bg-ok/10 text-ok p-4 text-sm flex items-center gap-3">
+            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             Disponible
           </div>
         ) : (
-          <div className="bg-[#fef0ef] text-[#8b1a1a] rounded-lg p-4 text-sm flex items-center gap-3">
-            <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="rounded-[10px] border border-bad/40 bg-bad/10 text-bad p-4 text-sm flex items-center gap-3">
+            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
             No disponible para {isAct ? "esa fecha" : "esas fechas"}. Por favor selecciona {isAct ? "otra fecha" : "otras"}.
@@ -156,43 +156,43 @@ export function BookingForm({ item, hasMpToken }: BookingFormProps) {
       {availability.available && (
         <>
           {/* Price summary */}
-          <div className="bg-[#f7f3f0] rounded-lg p-5">
+          <div className="card-night p-5">
             {isAct ? (
-              <div className="flex justify-between text-sm text-snow mb-2">
+              <div className="flex justify-between text-sm text-muted mb-2">
                 <span>{item.name} × {guests} {guests === 1 ? "persona" : "personas"}</span>
-                <span>${formatPrice(total)} MXN</span>
+                <span className="text-cream">${formatPrice(total)} MXN</span>
               </div>
             ) : (
-              <div className="flex justify-between text-sm text-snow mb-2">
+              <div className="flex justify-between text-sm text-muted mb-2">
                 <span>{item.name} × {days} {isRent ? "día(s)" : "noche(s)"}</span>
-                <span>${formatPrice(total)} MXN</span>
+                <span className="text-cream">${formatPrice(total)} MXN</span>
               </div>
             )}
-            <div className="border-t border-brass/20 mt-3 pt-3 flex justify-between font-semibold text-snow">
-              <span>Total</span>
-              <span>${formatPrice(total)} MXN</span>
+            <div className="border-t border-line mt-3 pt-3 flex justify-between items-baseline">
+              <span className="text-[11px] tracking-[0.2em] uppercase text-muted">Total</span>
+              <span className="font-[family-name:var(--font-display)] text-xl text-gold">${formatPrice(total)} MXN</span>
             </div>
           </div>
 
           {/* Contact fields */}
           <div>
-            <label className="block text-xs tracking-[0.2em] uppercase text-brass mb-2 font-medium">Nombre completo *</label>
+            <label className="label-night">Nombre completo *</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="Tu nombre" required />
           </div>
 
           <div>
-            <label className="block text-xs tracking-[0.2em] uppercase text-brass mb-2 font-medium">Correo electrónico *</label>
+            <label className="label-night">Correo electrónico *</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} placeholder="tu@email.com" required />
           </div>
 
           <div>
-            <label className="block text-xs tracking-[0.2em] uppercase text-brass mb-2 font-medium">Teléfono</label>
+            <label className="label-night">Teléfono</label>
             <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass} placeholder="+52 55 ..." />
           </div>
 
           {/* Guests / Participants */}
           <div>
-            <label className="block text-xs tracking-[0.2em] uppercase text-brass mb-2 font-medium">
+            <label className="label-night">
               {isAct ? "Participantes" : "Huéspedes"}
             </label>
             {isAct ? (
@@ -207,32 +207,32 @@ export function BookingForm({ item, hasMpToken }: BookingFormProps) {
           </div>
 
           <div>
-            <label className="block text-xs tracking-[0.2em] uppercase text-brass mb-2 font-medium">Notas adicionales</label>
+            <label className="label-night">Notas adicionales</label>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
               className={inputClass} placeholder={isAct ? "Horario preferido o cualquier detalle" : "¿Algo que debamos saber?"} />
           </div>
 
           {error && (
-            <div className="bg-[#fef0ef] text-[#8b1a1a] rounded-lg p-4 text-sm">{error}</div>
+            <div className="rounded-[10px] border border-bad/40 bg-bad/10 text-bad p-4 text-sm">{error}</div>
           )}
 
           {/* Payment method */}
           <div>
-            <label className="block text-xs tracking-[0.2em] uppercase text-brass mb-3 font-medium">Método de pago</label>
+            <label className="label-night">Método de pago</label>
             <div className="space-y-2">
               {PAYMENT_METHODS.map(pm => (
-                <label key={pm.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                <label key={pm.id} className={`flex items-center gap-3 p-3.5 rounded-[10px] border cursor-pointer transition-all ${
                   paymentMethod === pm.id
-                    ? "border-ink bg-ink/5"
-                    : "border-hair bg-ink-2 hover:border-brass/30"
+                    ? "border-gold bg-gold/10"
+                    : "border-line bg-night-2 hover:border-gold-dim/50"
                 }`}>
                   <input type="radio" name="paymentMethod" value={pm.id}
                     checked={paymentMethod === pm.id}
                     onChange={() => setPaymentMethod(pm.id)}
-                    className="w-4 h-4 accent-ink" />
+                    className="w-4 h-4 accent-gold" />
                   <div>
-                    <span className="text-sm text-snow font-medium">{pm.label}</span>
-                    <span className="block text-[10px] text-brass/60">{pm.desc}</span>
+                    <span className="text-sm text-cream font-medium">{pm.label}</span>
+                    <span className="block text-[11px] text-faint">{pm.desc}</span>
                   </div>
                 </label>
               ))}
@@ -241,14 +241,14 @@ export function BookingForm({ item, hasMpToken }: BookingFormProps) {
 
           {/* Modo prueba badge (only when MP is not configured) */}
           {isTestMode && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
-              <p className="text-xs uppercase tracking-wider text-amber-700 font-medium">🧪 MODO PRUEBA</p>
-              <p className="text-[11px] text-amber-600/70 mt-1">No hay pasarela configurada. La reserva se confirmará sin cobro real.</p>
+            <div className="rounded-[10px] border border-warn/40 bg-warn/10 p-3 text-center">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-warn font-semibold">Modo prueba</p>
+              <p className="text-[11px] text-muted mt-1">No hay pasarela configurada. La reserva se confirmará sin cobro real.</p>
             </div>
           )}
 
           <button type="submit" disabled={loading || !availability.available}
-            className="w-full py-4 bg-ink text-snow rounded-lg uppercase tracking-wider text-sm font-medium hover:bg-ink transition-colors disabled:opacity-50 shadow-lg shadow-ink/10">
+            className="btn-gold w-full text-center disabled:opacity-50">
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
@@ -261,7 +261,7 @@ export function BookingForm({ item, hasMpToken }: BookingFormProps) {
             )}
           </button>
 
-          <p className="text-xs text-center text-brass/60 mt-3">
+          <p className="text-xs text-center text-faint">
             {paymentMethod === "card" ? "Sin cargos hasta confirmar disponibilidad." :
              paymentMethod === "transfer" ? "Recibirás los datos bancarios después de confirmar." :
              "Paga en efectivo al llegar a Hangar 5."}

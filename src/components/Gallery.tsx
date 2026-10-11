@@ -41,12 +41,12 @@ export default function Gallery({ images }: GalleryProps) {
     <>
       {/* Main image */}
       <div
-        className="aspect-[4/5] rounded-lg overflow-hidden bg-cover bg-center shadow-lg cursor-pointer group relative"
+        className="aspect-[4/5] rounded-md overflow-hidden bg-cover bg-center saturate-[.82] contrast-[1.05] cursor-pointer group relative transition-all duration-700"
         style={{ backgroundImage: `url('${images[0]}')` }}
         onClick={() => open(0)}
       >
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-          <span className="opacity-0 group-hover:opacity-100 text-snow text-sm tracking-widest uppercase bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full transition-opacity duration-300">
+        <div className="absolute inset-0 bg-night/0 group-hover:bg-night/25 transition-colors duration-300 flex items-center justify-center">
+          <span className="opacity-0 group-hover:opacity-100 text-cream text-[11px] tracking-[0.22em] uppercase bg-night/60 backdrop-blur-md border border-line px-4 py-2 rounded-full transition-opacity duration-300">
             Ver galería →
           </span>
         </div>
@@ -59,7 +59,7 @@ export default function Gallery({ images }: GalleryProps) {
           return (
             <div
               key={offset}
-              className="aspect-square rounded bg-cover bg-center opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
+              className="aspect-square rounded bg-cover bg-center saturate-[.75] opacity-70 hover:opacity-100 hover:saturate-100 transition-all cursor-pointer"
               style={{ backgroundImage: `url('${images[idx]}')` }}
               onClick={() => open(idx)}
             />
@@ -70,13 +70,13 @@ export default function Gallery({ images }: GalleryProps) {
       {/* Lightbox */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          className="fixed inset-0 z-50 bg-night/95 flex items-center justify-center"
           onClick={close}
         >
           {/* Close button */}
           <button
             onClick={close}
-            className="absolute top-6 right-6 text-snow/60 hover:text-snow transition-colors z-10"
+            className="absolute top-6 right-6 text-faint hover:text-cream transition-colors z-10"
             aria-label="Cerrar"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,14 +85,14 @@ export default function Gallery({ images }: GalleryProps) {
           </button>
 
           {/* Counter */}
-          <div className="absolute top-6 left-6 text-snow/40 text-sm tracking-wider">
+          <div className="absolute top-6 left-6 text-faint text-[11px] tracking-[0.3em] uppercase tabular-nums">
             {current + 1} / {images.length}
           </div>
 
           {/* Prev */}
           <button
             onClick={(e) => { e.stopPropagation(); prev(); }}
-            className="absolute left-4 md:left-8 text-snow/40 hover:text-snow transition-colors"
+            className="absolute left-4 md:left-8 text-faint hover:text-gold transition-colors"
             aria-label="Anterior"
           >
             <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ export default function Gallery({ images }: GalleryProps) {
           {/* Next */}
           <button
             onClick={(e) => { e.stopPropagation(); next(); }}
-            className="absolute right-4 md:right-8 text-snow/40 hover:text-snow transition-colors"
+            className="absolute right-4 md:right-8 text-faint hover:text-gold transition-colors"
             aria-label="Siguiente"
           >
             <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,9 +124,9 @@ export default function Gallery({ images }: GalleryProps) {
               <button
                 key={i}
                 onClick={(e) => { e.stopPropagation(); setCurrent(i); }}
-                className={`w-16 h-12 rounded flex-shrink-0 bg-cover bg-center border-2 transition-all ${
+                className={`w-16 h-12 rounded flex-shrink-0 bg-cover bg-center border-2 transition-all saturate-[.8] ${
                   i === current
-                    ? "border-white opacity-100"
+                    ? "border-gold opacity-100 saturate-100"
                     : "border-transparent opacity-40 hover:opacity-70"
                 }`}
                 style={{ backgroundImage: `url('${img}')` }}
