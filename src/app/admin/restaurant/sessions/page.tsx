@@ -22,7 +22,7 @@ function formatPrice(pesos: number) {
 
 const typeLabel: Record<string, string> = {
   TABLE: 'Mesa',
-  TAB: 'Tab',
+  TAB: 'Cuenta',
   WALKIN: 'Sin reserva',
 };
 

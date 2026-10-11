@@ -94,7 +94,7 @@ export default function NuevoTabPage() {
           <div className="grid grid-cols-3 gap-2">
             {[
               { key: 'TABLE', label: '🪑 Mesa', desc: 'Con mesa física' },
-              { key: 'TAB', label: '👤 Tab', desc: 'Persona con cuenta' },
+              { key: 'TAB', label: '👤 Cuenta', desc: 'Persona con cuenta' },
               { key: 'WALKIN', label: 'Sin reserva', desc: 'Cliente sin registro' },
             ].map(t => (
               <button
