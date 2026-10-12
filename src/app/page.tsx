@@ -341,8 +341,15 @@ export default async function Home() {
 
       {/* Footer */}
       <footer className="py-16 text-center">
-        <p className="font-[family-name:var(--font-display)] text-lg tracking-[0.08em] text-cream mb-1">
-          HANGAR <span className="text-gold">N°5</span>
+        <p className="mb-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/img/logo.png"
+            alt="Hangar 5"
+            width={96}
+            height={96}
+            className="h-16 w-auto mx-auto opacity-90"
+          />
         </p>
         <p className="text-[11px] tracking-[0.24em] uppercase text-faint">
           © {new Date().getFullYear()} · El Peñón, Temascaltepec

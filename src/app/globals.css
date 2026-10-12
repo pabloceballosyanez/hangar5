@@ -17,25 +17,28 @@
    ============================================================ */
 
 @theme {
-  /* ---- Neutros — la nueva base ------------------------------
-     Grises con una pizca de verde para que no lean "azulados
-     de pantalla". Es un gris cálido, no un gris de laboratorio. */
-  --color-ink:    #0B0C0B;   /* negro base — fondo principal */
-  --color-ink-2:  #151715;   /* superficie / tarjetas */
-  --color-ink-3:  #212421;   /* hover / bordes elevados */
-  --color-ink-4:  #2E322E;   /* divisores marcados */
+  /* ---- Neutros — la base --------------------------------------
+     Grises NEUTROS PUROS: R=G=B en cada tono. Sin tinte verde ni
+     azul ni amarillo. La versión anterior llevaba una pizca de
+     verde (#0B0C0B, #151715…); Pablo la rechazó por leerse verde.
+     Un neutro puro deja que el ÚNICO color de la app sea el
+     dorado del acento. */
+  --color-ink:    #0B0B0B;   /* negro base — fondo principal */
+  --color-ink-2:  #161616;   /* superficie / tarjetas */
+  --color-ink-3:  #222222;   /* hover / bordes elevados */
+  --color-ink-4:  #2F2F2F;   /* divisores marcados */
 
-  /* Texto sobre oscuro */
-  --color-snow:   #F4F3F0;   /* texto principal */
-  --color-snow-2: #DEDDDA;   /* texto secundario claro */
-  --color-ash:    rgba(244, 243, 240, 0.62);  /* texto medio */
-  --color-smoke:  rgba(244, 243, 240, 0.38);  /* texto tenue */
-  --color-hair:   rgba(244, 243, 240, 0.12);  /* hairline */
+  /* Texto sobre oscuro — también neutro puro */
+  --color-snow:   #F4F4F4;   /* texto principal */
+  --color-snow-2: #DEDEDE;   /* texto secundario claro */
+  --color-ash:    rgba(244, 244, 244, 0.62);  /* texto medio */
+  --color-smoke:  rgba(244, 244, 244, 0.38);  /* texto tenue */
+  --color-hair:   rgba(244, 244, 244, 0.12);  /* hairline */
 
   /* Texto sobre claro */
-  --color-graphite: #1A1B1A;
-  --color-slate:    #555755;
-  --color-fog:      #EAE9E6;
+  --color-graphite: #1A1A1A;
+  --color-mid:      #555555;
+  --color-fog:      #EAEAEA;
 
   /* ---- El único acento: dorado ----------------------------- */
   --color-brass:      #C9A44F;   /* precios y acciones */

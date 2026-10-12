@@ -120,8 +120,15 @@ export default function RestaurantePage() {
       <nav className="fixed top-0 w-full z-40 bg-night/85 backdrop-blur-md border-b border-line">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="font-[family-name:var(--font-display)] text-lg tracking-[0.08em] text-cream no-underline">
-              HANGAR <span className="text-snow-2 not-italic">N°5</span>
+            <Link href="/" aria-label="Hangar 5 — inicio" className="no-underline shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/img/logo.png"
+                alt="Hangar 5"
+                width={64}
+                height={64}
+                className="h-11 w-auto opacity-95 transition-opacity hover:opacity-100"
+              />
             </Link>
             <div className="hidden md:flex gap-2 overflow-x-auto pb-0 flex-wrap justify-center flex-1 mx-8">
               {categories.map((cat, idx) => (
@@ -315,8 +322,15 @@ export default function RestaurantePage() {
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-line bg-night text-center">
         <div className="max-w-7xl mx-auto">
-          <p className="font-[family-name:var(--font-display)] text-lg mb-3">
-            Hangar <span className="italic text-gold">5</span> — El Peñón, Temascaltepec
+          <p className="mb-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/img/logo.png"
+              alt="Hangar 5 — El Peñón, Temascaltepec"
+              width={96}
+              height={96}
+              className="h-16 w-auto mx-auto opacity-90"
+            />
           </p>
           <p className="text-xs text-faint font-light tracking-wide">
             © {new Date().getFullYear()} Todos los derechos reservados
