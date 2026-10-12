@@ -26,7 +26,7 @@ export default function LandingNav() {
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-[rgba(11,12,11,0.85)] to-transparent">
+      <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-[rgba(11,11,11,0.85)] to-transparent">
         <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
           {/* Izquierda: navegación */}
           <div className="flex items-center gap-8">
@@ -35,7 +35,7 @@ export default function LandingNav() {
                 <a
                   key={l.href}
                   href={anchorHref(l.href)}
-                  className="text-[11px] tracking-[0.22em] uppercase text-[rgba(244,243,240,0.75)] hover:text-gold transition-colors no-underline"
+                  className="text-[11px] tracking-[0.22em] uppercase text-[rgba(244,244,244,0.75)] hover:text-gold transition-colors no-underline"
                 >
                   {l.label}
                 </a>
@@ -58,7 +58,7 @@ export default function LandingNav() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="hidden md:block text-[11px] tracking-[0.22em] uppercase text-[rgba(244,243,240,0.75)] hover:text-gold transition-colors no-underline"
+                className="hidden md:block text-[11px] tracking-[0.22em] uppercase text-[rgba(244,244,244,0.75)] hover:text-gold transition-colors no-underline"
               >
                 {l.label}
               </Link>
