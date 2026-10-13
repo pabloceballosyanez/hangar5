@@ -90,12 +90,15 @@ export default async function FichaPlatillo({
           -webkit-font-smoothing: antialiased;
         }
         .ficha.oscura {
-          --ink: #F3EEE4; --accent: #C9945E; --hair: #2A3B31;
-          --dot: #4A5B51; --faint: #7E8A81; --paper: #132019;
-          background: #0E1B15;
+          /* Paleta «Plata» — neutros puros + el dorado del sistema.
+             Antes usaba verdes propios (#0E1B15, #2A3B31, #132019)
+             que no pertenecían a la paleta. */
+          --ink: #F4F4F4; --accent: #C9A44F; --hair: #2F2F2F;
+          --dot: #555555; --faint: #8A8A8A; --paper: #161616;
+          background: #0B0B0B;
           font-family: var(--font-sans, 'Inter', sans-serif);
         }
-        .ficha.oscura .plato img { background: #0E1B15; border-color: var(--hair); }
+        .ficha.oscura .plato img { background: #161616; border-color: var(--hair); }
         .ficha.oscura h1 {
           font-family: var(--font-display, Georgia, serif);
           font-weight: 400; letter-spacing: -0.01em;
