@@ -147,6 +147,23 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Lista de personal para la pantalla de acceso.
+  //
+  // La tablet abre la app instalada y cae en /waiter/login → /login.
+  // Ahí tiene que mostrar QUIÉN puede entrar (nombre y rol), y esa
+  // lista vive en /api/admin/restaurant/staff, que estaba detrás del
+  // middleware: pedirla sin sesión devolvía 401, así que el selector
+  // salía vacío y NADIE podía entrar. Un círculo cerrado: para ver
+  // la lista hacía falta haber entrado ya.
+  //
+  // Solo se libera la LECTURA (GET) de la lista. El endpoint en sí
+  // devuelve únicamente id, nombre y rol — nunca el PIN ni datos
+  // personales. Crear o editar personal (POST) sigue protegido, y
+  // el PIN se valida aparte en /api/auth/login.
+  if (pathname === "/api/admin/restaurant/staff" && method === "GET") {
+    return NextResponse.next();
+  }
+
   // ── Admin pages → redirect to login ────────────────────────────────────
   if (pathname.startsWith("/admin")) {
     if (isAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value)) {
