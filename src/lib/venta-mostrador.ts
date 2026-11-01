@@ -76,6 +76,14 @@ export async function crearVentaMostrador(input: VentaInput): Promise<ResultadoV
     };
   }
 
+  /* El nombre es obligatorio. En una barra de café el nombre ES el
+     identificador del pedido: si dos personas piden un latte, hay que
+     saber cuál es cuál. Antes se podía cobrar sin nombre y salían
+     pedidos "Sin nombre" que nadie sabía de quién eran. */
+  if (!input.clienteNombre?.trim()) {
+    return { ok: false, error: "Escribe el nombre de quien pide" };
+  }
+
   // ── Cargar a cuenta: hay que saber de quién ──────────────────────
   let customerId: string | null = null;
   if (input.metodoPago === "CUENTA") {
@@ -123,7 +131,7 @@ export async function crearVentaMostrador(input: VentaInput): Promise<ResultadoV
         tableId: null,
         ubicacionId: ubicacion.id,
         source: "MOSTRADOR",
-        status: pagadoAhora ? "READY" : "IN_KITCHEN",
+        status: "IN_KITCHEN",
         customerName: input.clienteNombre?.trim() || null,
         customerEmail: input.clienteEmail?.trim() || null,
         notes: input.notas?.trim() || null,
@@ -149,7 +157,7 @@ export async function crearVentaMostrador(input: VentaInput): Promise<ResultadoV
       data: {
         orderId: orden.id,
         fromStatus: "DRAFT",
-        toStatus: pagadoAhora ? "READY" : "IN_KITCHEN",
+        toStatus: "IN_KITCHEN",
       },
     });
 

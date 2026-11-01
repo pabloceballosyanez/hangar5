@@ -72,7 +72,7 @@ async function main() {
     where: { id: v1.venta.orderId },
     include: { payments: true },
   });
-  ok(orden1?.status === "READY", "nace listo para preparar", orden1?.status ?? "");
+  ok(orden1?.status === "IN_KITCHEN", "nace en preparación (no se salta el paso)", orden1?.status ?? "");
   ok(orden1?.tableId === null, "sin mesa (es walk-in)");
   ok(orden1?.ubicacionId === cafe.id, "asignado al café");
   ok(orden1?.payments[0]?.status === "COMPLETED", "pago completado");
@@ -90,6 +90,13 @@ async function main() {
   });
   ok(!sinDatos.ok, "sin nombre ni correo se rechaza",
      sinDatos.ok ? "" : sinDatos.error);
+
+  const sinNombre = await crearVentaMostrador({
+    items: [{ menuItemId: prod1.id, cantidad: 1 }],
+    metodoPago: "CASH",
+  });
+  ok(!sinNombre.ok, "sin nombre se rechaza aunque sea en efectivo",
+     sinNombre.ok ? "" : sinNombre.error);
 
   const emailPrueba = `caja-prueba-${Date.now()}@test.local`;
   const v2 = await crearVentaMostrador({
