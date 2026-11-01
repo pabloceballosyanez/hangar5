@@ -59,6 +59,8 @@ const closeSessionSchema = z.object({
     method: z.enum(["CASH", "CARD", "TRANSFER"]),
     amount: z.number().min(0),
   })).optional().default([]),
+  /** Cobrar también el alojamiento vinculado, si queda saldo. */
+  cobrarAlojamiento: z.boolean().optional().default(false),
 });
 
 export async function PUT(req: NextRequest, { params }: Params) {
@@ -71,6 +73,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     }
 
     const paymentInputs = parsed.data.payments;
+    const cobrarAlojamiento = parsed.data.cobrarAlojamiento;
     const totalPaid = paymentInputs.reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
 
     // Run entire close operation inside a transaction to prevent race conditions.
@@ -78,14 +81,40 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const result = await prisma.$transaction(async (tx) => {
       const session = await tx.serviceSession.findUnique({
         where: { id: sessionId },
-        include: { orders: true, customer: true },
+        include: { orders: true, customer: true, booking: true },
       });
 
       if (!session) throw new Error("NOT_FOUND");
       if (session.status === "CLOSED") throw new Error("ALREADY_CLOSED");
 
       const unpaidOrders = session.orders.filter(o => o.status !== "PAID" && o.status !== "CANCELLED");
-      const totalOwed = unpaidOrders.reduce((sum, o) => sum + o.total, 0);
+      const consumo = unpaidOrders.reduce((sum, o) => sum + o.total, 0);
+
+      /* Cuenta unificada: si esta cuenta está vinculada a una reserva y
+         se pidió cobrar el alojamiento, se suma lo que falte pagar de la
+         reserva. Si la reserva ya está pagada, su saldo es 0 y no se
+         vuelve a cobrar — eso es justo lo que hay que evitar. */
+      let saldoAlojamiento = 0;
+      if (session.booking && cobrarAlojamiento) {
+        const b = session.booking;
+        saldoAlojamiento = b.paymentStatus === "paid"
+          ? 0
+          : Math.max(0, b.totalPrice - b.amountPaid);
+
+        if (saldoAlojamiento > 0) {
+          const pagadoAhora = b.amountPaid + saldoAlojamiento;
+          await tx.booking.update({
+            where: { id: b.id },
+            data: {
+              amountPaid: pagadoAhora,
+              paymentStatus: pagadoAhora >= b.totalPrice ? "paid" : "unpaid",
+              status: b.status === "pending" ? "confirmed" : b.status,
+            },
+          });
+        }
+      }
+
+      const totalOwed = consumo + saldoAlojamiento;
 
       const isCustomer = session.customerId && (session.type === "TAB" || session.type === "QR");
       if (!isCustomer && totalPaid < totalOwed) {
@@ -137,7 +166,16 @@ export async function PUT(req: NextRequest, { params }: Params) {
         include: { customer: true },
       });
 
-      return { session: closed, totalOwed, totalPaid, balance };
+      return {
+        session: closed,
+        totalOwed,
+        totalPaid,
+        balance,
+        desglose: {
+          consumoRestaurante: consumo / 100,
+          alojamiento: saldoAlojamiento / 100,
+        },
+      };
     });
 
     return NextResponse.json(result);

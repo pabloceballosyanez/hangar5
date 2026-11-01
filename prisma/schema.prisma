@@ -40,16 +40,30 @@ model Booking {
   endDate         DateTime
   guests          Int       @default(1)
   totalPrice      Int
-  status          String    @default("pending")
-  stripeSessionId String?
-  paymentMethod   String?
+  status          String    @default("pending") // "pending" | "confirmed" | "cancelled"
+
+  /* Cómo va el dinero — separado del estado de la reserva.
+     Una reserva puede estar CONFIRMADA y sin pagar (efectivo al
+     llegar o transferencia), así que "confirmada" no significa
+     "pagada". Sin esta distinción, al juntar la cuenta del
+     restaurante se volvería a cobrar el alojamiento a alguien que
+     ya lo pagó. */
+  paymentStatus   String    @default("unpaid") // "unpaid" | "paid" | "refunded"
+  amountPaid      Int       @default(0)        // lo efectivamente cobrado
+
+  stripeSessionId String?   // nombre heredado: guarda el id de MercadoPago
+  paymentMethod   String?   // "card" | "transfer" | "cash"
   notes           String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  /* Cuentas del restaurante que se cobran junto con esta reserva. */
+  sessions        ServiceSession[]
+
   @@index([itemId, startDate, endDate])
   @@index([status])
   @@index([customerId])
+  @@index([paymentStatus])
 }
 
 // ============================================================
@@ -254,23 +268,35 @@ model Table {
 }
 
 model ServiceSession {
-  id         String    @id @default(cuid())
-  type       String    @default("TABLE") // "TABLE" | "TAB" | "WALKIN"
-  label      String    // e.g. "Mesa 5", "Grupo Juan", "Barra-1"
-  tableId    String?   // FK → Table (null for TAB/WALKIN)
-  table      Table?    @relation(fields: [tableId], references: [id])
-  customerId String?   // FK → Customer (null for anonymous)
-  customer   Customer? @relation(fields: [customerId], references: [id])
-  status     String    @default("OPEN") // "OPEN" | "CLOSED"
-  openedAt   DateTime  @default(now())
-  closedAt   DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  orders     Order[]
-  payments   Payment[]
-  ledgerEntries CustomerLedgerEntry[]
+    id         String    @id @default(cuid())
+    type       String    @default("TABLE") // "TABLE" | "TAB" | "WALKIN"
+    label      String    // e.g. "Mesa 5", "Grupo Juan", "Barra-1"
+    folio      String?   @unique // número corto legible: "MSA-4-001"
+    tableId    String?   // FK → Table (null for TAB/WALKIN)
+    table      Table?    @relation(fields: [tableId], references: [id])
+    customerId String?   // FK → Customer (null for anonymous)
+    customer   Customer? @relation(fields: [customerId], references: [id])
 
-  @@index([status, type])
+    /* Cuenta unificada restaurante + alojamiento.
+       null = cuenta solo de comida (lo normal).
+       Si tiene valor, esta cuenta y esa reserva se cobran juntas,
+       sin importar cuál de las dos se creó primero:
+         · el cliente llega a comer y luego agrega la cabaña
+         · el cliente ya tenía reserva y se le carga la comida          */
+    bookingId  String?
+    booking    Booking?  @relation(fields: [bookingId], references: [id])
+
+    status     String    @default("OPEN") // "OPEN" | "CLOSED"
+    openedAt   DateTime  @default(now())
+    closedAt   DateTime?
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    orders     Order[]
+    payments   Payment[]
+    ledgerEntries CustomerLedgerEntry[]
+
+    @@index([status, type])
+    @@index([bookingId])
 }
 
 // ============================================================

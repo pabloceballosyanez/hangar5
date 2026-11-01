@@ -1,8 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import PanelAlojamiento from '@/components/PanelAlojamiento';
+
+interface CuentaUnificada {
+  sessionId: string;
+  folio: string;
+  etiqueta: string;
+  consumoRestaurante: number;
+  reserva: {
+    id: string;
+    nombre: string;
+    tipo: string;
+    inicio: string;
+    fin: string;
+    huespedes: number;
+    total: number;
+    estado: string;
+    estadoPago: string;
+    montoPagado: number;
+    saldoAlojamiento: number;
+  } | null;
+  totalAlojamiento: number;
+  totalGeneral: number;
+}
 
 interface OrderItem {
   id: string;
@@ -48,27 +71,54 @@ export default function CloseSessionPage() {
   const sessionId = params.sessionId as string;
 
   const [session, setSession] = useState<Session | null>(null);
+  const [cuenta, setCuenta] = useState<CuentaUnificada | null>(null);
   const [loading, setLoading] = useState(true);
   const [closing, setClosing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cobrarAlojamiento, setCobrarAlojamiento] = useState(true);
 
   // Payment inputs
   const [payments, setPayments] = useState<{ method: string; amount: string }[]>([
     { method: 'CASH', amount: '' },
   ]);
 
-  useEffect(() => {
-    fetch(`/api/admin/restaurant/sessions/${sessionId}`)
-      .then(r => r.json())
-      .then(data => {
-        setSession(data);
-        // Pre-fill with total
-        const total = (data.orders || []).reduce((sum: number, o: Order) => sum + o.total, 0);
-        setPayments([{ method: 'CASH', amount: total > 0 ? total.toString() : '' }]);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+  const cargar = useCallback(async () => {
+    const [rSesion, rCuenta] = await Promise.all([
+      fetch(`/api/admin/restaurant/sessions/${sessionId}`),
+      fetch(`/api/admin/restaurant/sessions/${sessionId}/cuenta`),
+    ]);
+
+    const data = await rSesion.json();
+    setSession(data);
+
+    const dataCuenta = await rCuenta.json();
+    const c: CuentaUnificada | null = dataCuenta.cuenta ?? null;
+    setCuenta(c);
+
+    /* El monto inicial a cobrar incluye el alojamiento cuando hay
+       saldo pendiente. Así el cajero no tiene que sumarlo a mano ni
+       olvidarlo — que es justo el error que se quiere evitar. */
+    /* OJO con las unidades: /api/.../sessions devuelve los totales ya
+       en pesos (los divide entre 100 al serializar), mientras que
+       /cuenta trabaja en centavos, igual que la base. Si se suman
+       crudas, el monto sale cien veces más grande. Aquí se pasan las
+       dos a pesos antes de sumar. */
+    const totalComida = (data.orders || []).reduce(
+      (sum: number, o: Order) => sum + o.total,
+      0
+    );
+    const alojamientoPesos = (c?.totalAlojamiento ?? 0) / 100;
+    const conAlojamiento = totalComida + alojamientoPesos;
+    setPayments([
+      { method: 'CASH', amount: conAlojamiento > 0 ? conAlojamiento.toString() : '' },
+    ]);
+
+    setLoading(false);
   }, [sessionId]);
+
+  useEffect(() => {
+    cargar().catch(() => setLoading(false));
+  }, [cargar]);
 
   function addPaymentMethod() {
     setPayments([...payments, { method: 'CASH', amount: '' }]);
@@ -102,6 +152,9 @@ export default function CloseSessionPage() {
             method: p.method,
             amount: Number(p.amount),
           })),
+          // Si la cuenta tiene alojamiento con saldo, se cobra junto.
+          // Si ya estaba pagado, el servidor lo ignora y no lo re-cobra.
+          cobrarAlojamiento,
         }),
       });
       const data = await res.json();
@@ -144,8 +197,13 @@ export default function CloseSessionPage() {
   }
 
   const ordersTotal = session.orders.reduce((sum, o) => sum + o.total, 0);
+  /* El total a cobrar incluye el alojamiento cuando la cuenta tiene una
+     reserva con saldo. Sin esto, el resumen diría "a favor" del monto
+     del alojamiento, como si el cliente hubiera pagado de más. */
+  const alojamientoTotal = (cuenta?.totalAlojamiento ?? 0) / 100;
+  const granTotal = ordersTotal + alojamientoTotal;
   const paidTotal = payments.reduce((sum, p) => sum + (p.amount ? Number(p.amount) : 0), 0);
-  const balance = ordersTotal - paidTotal;
+  const balance = granTotal - paidTotal;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -157,6 +215,13 @@ export default function CloseSessionPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Orders summary */}
         <div className="lg:col-span-2 space-y-4">
+          {/* Alojamiento vinculado — cuenta unificada */}
+          <PanelAlojamiento
+            sessionId={sessionId}
+            cuenta={cuenta}
+            onCambio={cargar}
+          />
+
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Órdenes ({session.orders.length})</h2>
             {session.orders.length === 0 ? (
@@ -234,8 +299,18 @@ export default function CloseSessionPage() {
           {/* Balance summary */}
           <div className="border-t border-gray-200 pt-3 space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">Total órdenes</span>
+              <span className="text-gray-500">Consumo</span>
               <span className="font-medium">{formatPrice(ordersTotal)}</span>
+            </div>
+            {alojamientoTotal > 0 && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Alojamiento</span>
+                <span className="font-medium">{formatPrice(alojamientoTotal)}</span>
+              </div>
+            )}
+            <div className="flex justify-between pt-1 border-t border-gray-100">
+              <span className="font-semibold">Total</span>
+              <span className="font-semibold">{formatPrice(granTotal)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Pagado</span>
