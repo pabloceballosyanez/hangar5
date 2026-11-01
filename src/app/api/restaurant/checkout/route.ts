@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCustomerSession } from "@/lib/auth";
 import { createOrderFromCart } from "@/lib/create-order";
 import { calcularCarrito, aItemsMercadoPago, type CartItemInput } from "@/lib/calcular-carrito";
+import { generarCodigoUnico } from "@/lib/codigo-recogida";
 
 export const dynamic = "force-dynamic";
 
@@ -242,6 +243,8 @@ async function crearOrdenPendiente(args: {
 }) {
   const { tableId, customerName, customerEmail, customerPhone, notes, customerId, carrito, ubicacionId } = args;
 
+  const codigoRecogida = await generarCodigoUnico().catch(() => null);
+
   const tableInfo = await prisma.table.findUnique({ where: { id: tableId } });
   const deliveryNote = tableInfo
     ? `📍 ${tableInfo.name || "Mesa " + tableInfo.number}${tableInfo.location ? " · " + tableInfo.location : ""}`
@@ -258,6 +261,7 @@ async function crearOrdenPendiente(args: {
         notes: deliveryNote ? (notes ? `${notes} | ${deliveryNote}` : deliveryNote) : notes || null,
         status: "PENDING_PAYMENT",
         ubicacionId,
+        codigoRecogida,
         subtotal: carrito.subtotal,
         tax: carrito.tax,
         total: carrito.total,

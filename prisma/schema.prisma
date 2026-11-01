@@ -390,6 +390,16 @@ model Order {
   tax               Int                 @default(0)
   total             Int                 @default(0)
   notes             String?
+
+  /* Código corto para entregar el pedido.
+     Cuatro caracteres sin letras que se confunden (0/O, 1/I), para
+     poder dictarlo por teléfono o leerlo de la pantalla sin errores.
+     En el café es la forma de comprobar que quien recoge es quien
+     pagó: sin esto, cualquiera podría decir "vengo por el pedido de
+     Juan" y llevárselo. */
+  codigoRecogida    String?             @unique
+  entregadoAt       DateTime?
+
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   orderItems        OrderItem[]

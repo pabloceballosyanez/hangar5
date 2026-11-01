@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { calcularCarrito, type CartItemInput } from "@/lib/calcular-carrito";
+import { generarCodigoUnico } from "@/lib/codigo-recogida";
 import { descontarInventarioDeOrden } from "@/lib/descontar-inventario";
 
 /**
@@ -45,6 +46,11 @@ export async function createOrderFromCart(input: CartOrderInput) {
   // ya no existe o está inactivo.
   const carrito = await calcularCarrito(items);
 
+  // Código para entregar el pedido. Si por alguna razón fallara la
+  // generación, el pedido se crea igual sin código: no vale la pena
+  // perder una venta por eso.
+  const codigoRecogida = await generarCodigoUnico().catch(() => null);
+
   const tableInfo = await prisma.table.findUnique({ where: { id: tableId } });
   const deliveryNote = tableInfo
     ? `📍 ${tableInfo.name || "Mesa " + tableInfo.number}${tableInfo.location ? " · " + tableInfo.location : ""}`
@@ -61,6 +67,7 @@ export async function createOrderFromCart(input: CartOrderInput) {
         notes: deliveryNote ? (notes ? `${notes} | ${deliveryNote}` : deliveryNote) : notes || null,
         status: "IN_KITCHEN",
         ubicacionId: ubicacionId ?? null,
+        codigoRecogida,
         subtotal: carrito.subtotal,
         tax: carrito.tax,
         total: carrito.total,

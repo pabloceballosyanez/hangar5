@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -82,6 +83,19 @@ export default async function ConfirmationPage({
 
   const cfg = getStatusConfig(status);
 
+  /* El código de recogida se lee aquí, en el servidor, para que el
+     cliente lo vea al instante sin una llamada extra. Si el pedido
+     todavía no existe (pago con tarjeta pendiente del webhook), se
+     queda vacío y la pantalla lo muestra con un guion. */
+  const codigoRecogida = orderId
+    ? (
+        await prisma.order.findUnique({
+          where: { id: orderId },
+          select: { codigoRecogida: true },
+        })
+      )?.codigoRecogida ?? null
+    : null;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6 text-center px-2">
       {/* Big emoji */}
@@ -97,13 +111,24 @@ export default async function ConfirmationPage({
         </p>
       </div>
 
-      {/* Order ID */}
+      {/* Código de recogida.
+          Antes aquí se mostraba el id de la base (cmvx0zjt00003), que
+          no hay forma de dictar ni de recordar. Ahora va el código de
+          cuatro caracteres, grande, que es lo que el barista va a pedir
+          al entregar. El id queda abajo, pequeño, por si hay que
+          reclamar. */}
       {orderId && (
-        <div className="bg-ink-2 rounded-xl border border-hair px-4 py-3 w-full">
-          <p className="text-xs text-smoke font-semibold uppercase tracking-wide mb-1">
-            Número de orden
+        <div className="bg-ink-2 rounded-xl border border-brass/30 px-4 py-5 w-full text-center">
+          <p className="text-xs text-smoke font-semibold uppercase tracking-wide mb-2">
+            Tu código de recogida
           </p>
-          <p className="text-sm font-mono text-snow-2 break-all">{orderId}</p>
+          <p className="font-mono text-4xl text-brass tracking-[0.3em] mb-2">
+            {codigoRecogida ?? "—"}
+          </p>
+          <p className="text-xs text-smoke">
+            Muéstralo al recoger tu pedido
+          </p>
+          <p className="text-[10px] font-mono text-smoke/60 break-all mt-3">{orderId}</p>
         </div>
       )}
 

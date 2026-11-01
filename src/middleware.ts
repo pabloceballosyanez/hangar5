@@ -164,6 +164,22 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // ── Café del Despegue → login del personal ─────────────────────────────
+  //
+  // El KDS del café lo opera el barista, que entra con su PIN como
+  // cualquier otro. No usa el login de admin porque esa gente no tiene
+  // por qué ver reportes ni menús: solo su barra.
+  if (pathname.startsWith("/cafe") || pathname.startsWith("/api/cafe")) {
+    const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
+    if (isStaffCookie(staffToken)) {
+      return NextResponse.next();
+    }
+    if (pathname.startsWith("/api/cafe")) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
   // ── Admin pages → redirect to login ────────────────────────────────────
   if (pathname.startsWith("/admin")) {
     if (isAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value)) {
@@ -234,5 +250,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/cafe", "/api/cafe/:path*"],
 };
