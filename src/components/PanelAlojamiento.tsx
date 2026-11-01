@@ -219,9 +219,9 @@ export default function PanelAlojamiento({
   // ── Sin alojamiento: ofrecer los dos caminos ──────────────────────
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <h2 className="text-lg font-semibold text-gray-900 mb-1">Alojamiento</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-1">Alojamiento y renta</h2>
       <p className="text-xs text-gray-400 mb-3">
-        Suma una cabaña o glamping a esta cuenta — se cobra todo junto.
+        Suma una cabaña, glamping, moto o bici a esta cuenta — se cobra todo junto.
       </p>
 
       {modo === "cerrado" && (
@@ -254,7 +254,7 @@ export default function PanelAlojamiento({
             required
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white"
           >
-            <option value="">Elige cabaña o glamping…</option>
+            <option value="">Elige qué apartar…</option>
             {alojamientos.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name} — {pesos(a.price)}/noche
