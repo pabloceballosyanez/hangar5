@@ -101,6 +101,7 @@ model MenuItem {
   menuItemModifierGroups MenuItemModifierGroup[]
   recipe                 Recipe?
   orderItems             OrderItem[]
+  ubicaciones            MenuItemUbicacion[]
 
   @@index([categoryId, isActive])
 }
@@ -254,17 +255,82 @@ model CustomerLedgerEntry {
 // ============================================================
 
 model Table {
-  id        String           @id @default(cuid())
-  number    String           @unique
-  name      String?
-  qrToken   String           @unique
-  capacity  Int
-  location  String?
-  isActive  Boolean          @default(true)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  sessions  ServiceSession[]
-  orders    Order[]
+    id        String           @id @default(cuid())
+    number    String           @unique
+    name      String?
+    qrToken   String           @unique
+    capacity  Int
+    location  String?
+    isActive  Boolean          @default(true)
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
+    sessions  ServiceSession[]
+    orders    Order[]
+    ubicacionId String?
+    ubicacion   Ubicacion? @relation(fields: [ubicacionId], references: [id])
+  }
+
+/* ============================================================
+   UBICACIONES — un negocio, varios puntos de venta
+   ============================================================
+   El Hangar 5 tiene el restaurante y ahora el Café del Despegue.
+   Son el MISMO negocio — misma caja, mismo personal, mismos
+   clientes — pero no venden lo mismo ni se surten igual.
+
+   En vez de duplicar el sistema, cada cosa que importa para
+   "dónde" apunta aquí:
+     · qué platillos se venden en cada lugar
+     · de dónde salió cada pedido
+     · qué almacén surte a cuál
+
+   Si el día de mañana abren un tercer punto, es un registro más
+   en esta tabla, no un sistema nuevo.
+   ============================================================ */
+model Ubicacion {
+  id        String   @id @default(cuid())
+  clave     String   @unique   // "restaurante" | "cafe"
+  nombre    String              // "Restaurante" | "Café del Despegue"
+  activa    Boolean  @default(true)
+  orden     Int      @default(0) // para ordenar en listas
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  platillos  MenuItemUbicacion[]
+  pedidos    Order[]
+  mesas      Table[]
+  almacenes  Almacen[]
+}
+
+/* Qué se vende en cada lugar.
+   Un platillo puede estar en uno, en otro, o en los dos.
+   Si no tiene fila aquí, se considera que se vende en el
+   restaurante (así los 63 platillos actuales siguen funcionando
+   sin tocarlos uno por uno). */
+model MenuItemUbicacion {
+  id         String   @id @default(cuid())
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  ubicacionId String
+  ubicacion  Ubicacion @relation(fields: [ubicacionId], references: [id], onDelete: Cascade)
+  disponible Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  @@unique([menuItemId, ubicacionId])
+  @@index([ubicacionId, disponible])
+}
+
+/* Almacén de inventario por ubicación.
+   Fase 1 solo los crea; el inventario separado y los traspasos
+   vienen en la fase 2. */
+model Almacen {
+  id          String    @id @default(cuid())
+  clave       String    @unique   // "cocina" | "barra-cafe"
+  nombre      String
+  ubicacionId String?
+  ubicacion   Ubicacion? @relation(fields: [ubicacionId], references: [id])
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model ServiceSession {
@@ -309,6 +375,12 @@ model Order {
   serviceSession    ServiceSession?     @relation(fields: [serviceSessionId], references: [id])
   tableId           String?             // FK → Table (for QR orders without a session)
   table             Table?              @relation(fields: [tableId], references: [id])
+
+  /* Dónde se prepara y se entrega este pedido. Null = restaurante,
+     que es donde estaban todos los pedidos antes del café. */
+  ubicacionId       String?
+  ubicacion         Ubicacion?          @relation(fields: [ubicacionId], references: [id])
+
   customerName      String?
   customerEmail     String?
   customerPhone     String?

@@ -23,6 +23,8 @@ interface CartOrderInput {
   source?: string;
   customerId?: string | null;
   paymentMethod?: string;
+  /** Punto de venta que prepara el pedido. null = restaurante. */
+  ubicacionId?: string | null;
 }
 
 export async function createOrderFromCart(input: CartOrderInput) {
@@ -36,6 +38,7 @@ export async function createOrderFromCart(input: CartOrderInput) {
     source = "QR",
     customerId,
     paymentMethod,
+    ubicacionId,
   } = input;
 
   // Valida y calcula. Lanza error con mensaje legible si un platillo
@@ -57,6 +60,7 @@ export async function createOrderFromCart(input: CartOrderInput) {
         customerPhone: customerPhone || null,
         notes: deliveryNote ? (notes ? `${notes} | ${deliveryNote}` : deliveryNote) : notes || null,
         status: "IN_KITCHEN",
+        ubicacionId: ubicacionId ?? null,
         subtotal: carrito.subtotal,
         tax: carrito.tax,
         total: carrito.total,

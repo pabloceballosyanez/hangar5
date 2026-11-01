@@ -8,6 +8,7 @@ const sidebarLinks = [
   { href: '/admin/restaurant', label: '🏠 Dashboard', icon: '🏠' },
   { href: '/admin/restaurant/categories', label: 'Categorías', icon: '📂' },
   { href: '/admin/restaurant/menu-items', label: 'Menú', icon: '📋' },
+  { href: '/admin/restaurant/ubicaciones', label: 'Ubicaciones', icon: '📍' },
   { href: '/admin/restaurant/modifier-groups', label: 'Modificadores', icon: '🔧' },
   { href: '/admin/restaurant/recipes', label: 'Recetas', icon: '📖' },
   { href: '/admin/restaurant/tables', label: 'Mesas', icon: '🪑' },

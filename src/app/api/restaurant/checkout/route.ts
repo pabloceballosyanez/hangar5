@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
       customerPhone,
       notes,
       paymentMethod = "card",
+      ubicacion: claveUbicacion = "restaurante",
     } = body as {
       tableId?: string;
       items?: CartItemInput[];
@@ -52,11 +53,19 @@ export async function POST(req: NextRequest) {
       customerPhone?: string | null;
       notes?: string | null;
       paymentMethod?: string;
+      ubicacion?: string;
     };
 
     if (!tableId || !items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "tableId y items[] requeridos" }, { status: 400 });
     }
+
+    // A qué punto de venta va el pedido. Si la clave no existe, se
+    // asume restaurante: es donde estaban todos los pedidos antes.
+    const ubicacion = await prisma.ubicacion.findUnique({
+      where: { clave: claveUbicacion },
+      select: { id: true },
+    });
 
     const table = await prisma.table.findUnique({ where: { id: tableId } });
     if (!table || !table.isActive) {
@@ -104,6 +113,7 @@ export async function POST(req: NextRequest) {
         source: "QR",
         customerId,
         paymentMethod: "ON_ACCOUNT",
+        ubicacionId: ubicacion?.id ?? null,
       });
 
       return NextResponse.json({
@@ -141,6 +151,7 @@ export async function POST(req: NextRequest) {
         source: "QR",
         customerId,
         paymentMethod: "MP",
+        ubicacionId: ubicacion?.id ?? null,
       });
 
       return NextResponse.json({
@@ -168,6 +179,7 @@ export async function POST(req: NextRequest) {
       notes,
       customerId,
       carrito,
+      ubicacionId: ubicacion?.id ?? null,
     });
 
     const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
@@ -226,8 +238,9 @@ async function crearOrdenPendiente(args: {
   notes?: string | null;
   customerId: string | null;
   carrito: Awaited<ReturnType<typeof calcularCarrito>>;
+  ubicacionId: string | null;
 }) {
-  const { tableId, customerName, customerEmail, customerPhone, notes, customerId, carrito } = args;
+  const { tableId, customerName, customerEmail, customerPhone, notes, customerId, carrito, ubicacionId } = args;
 
   const tableInfo = await prisma.table.findUnique({ where: { id: tableId } });
   const deliveryNote = tableInfo
@@ -244,6 +257,7 @@ async function crearOrdenPendiente(args: {
         customerPhone: customerPhone || null,
         notes: deliveryNote ? (notes ? `${notes} | ${deliveryNote}` : deliveryNote) : notes || null,
         status: "PENDING_PAYMENT",
+        ubicacionId,
         subtotal: carrito.subtotal,
         tax: carrito.tax,
         total: carrito.total,

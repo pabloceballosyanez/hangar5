@@ -36,6 +36,8 @@ interface CustomerForm {
   email: string;
   phone: string;
   notes: string;
+  /** Dónde se recoge: "restaurante" o "cafe". */
+  ubicacion: string;
 }
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
@@ -59,6 +61,7 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [tableInfo, setTableInfo] = useState<TableInfo | null>(null);
   const [form, setForm] = useState<CustomerForm>({
+    ubicacion: "restaurante",
     name: "",
     email: "",
     phone: "",
@@ -163,6 +166,9 @@ export default function CheckoutPage() {
           customerPhone: form.phone.trim() || null,
           notes: form.notes.trim() || null,
           paymentMethod,
+          // A qué punto de venta va el pedido. El restaurante es el de
+          // siempre; el café prepara solo lo que se marcó para él.
+          ubicacion: form.ubicacion,
         }),
       });
 
@@ -312,6 +318,43 @@ export default function CheckoutPage() {
           <span className="text-blue-500 text-xs">para guardar tu historial y pagar a cuenta</span>
         </a>
       )}
+
+      {/* ── Dónde recoger ──
+          El Hangar 5 tiene dos puntos: el restaurante y el Café del
+          Despegue. El pedido tiene que decir a cuál va, porque cada uno
+          prepara lo suyo y no comparten cocina al momento de servir. */}
+      <section>
+        <h2 className="text-sm font-bold text-smoke uppercase tracking-wide mb-3">
+          ¿Dónde lo recoges?
+        </h2>
+        <div className="bg-ink-2 rounded-2xl shadow-sm overflow-hidden divide-y divide-hair">
+          {[
+            { clave: "restaurante", nombre: "Restaurante", detalle: "En el Hangar 5" },
+            { clave: "cafe", nombre: "Café del Despegue", detalle: "Junto a la recepción" },
+          ].map((u) => (
+            <button
+              key={u.clave}
+              type="button"
+              onClick={() => updateField("ubicacion", u.clave)}
+              className={`w-full px-4 py-3 flex items-center justify-between text-left transition-colors ${
+                form.ubicacion === u.clave ? "bg-brass/10" : ""
+              }`}
+            >
+              <span>
+                <span className="block text-sm text-snow font-medium">{u.nombre}</span>
+                <span className="block text-xs text-smoke mt-0.5">{u.detalle}</span>
+              </span>
+              <span
+                className={`w-4 h-4 rounded-full border-2 shrink-0 ${
+                  form.ubicacion === u.clave
+                    ? "border-brass bg-brass"
+                    : "border-smoke"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* ── Customer info ── */}
       <section>
