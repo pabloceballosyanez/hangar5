@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import PanelAlojamiento from '@/components/PanelAlojamiento';
+import PanelServicios from '@/components/PanelServicios';
 
 interface CuentaUnificada {
   sessionId: string;
@@ -23,6 +24,14 @@ interface CuentaUnificada {
     montoPagado: number;
     saldoAlojamiento: number;
   } | null;
+  servicios: Array<{
+    id: string;
+    descripcion: string;
+    cantidad: number;
+    total: number;
+    fechaServicio: string | null;
+  }>;
+  totalServicios: number;
   totalAlojamiento: number;
   totalGeneral: number;
 }
@@ -108,7 +117,8 @@ export default function CloseSessionPage() {
       0
     );
     const alojamientoPesos = (c?.totalAlojamiento ?? 0) / 100;
-    const conAlojamiento = totalComida + alojamientoPesos;
+    const serviciosPesos = (c?.totalServicios ?? 0) / 100;
+    const conAlojamiento = totalComida + serviciosPesos + alojamientoPesos;
     setPayments([
       { method: 'CASH', amount: conAlojamiento > 0 ? conAlojamiento.toString() : '' },
     ]);
@@ -201,7 +211,8 @@ export default function CloseSessionPage() {
      reserva con saldo. Sin esto, el resumen diría "a favor" del monto
      del alojamiento, como si el cliente hubiera pagado de más. */
   const alojamientoTotal = (cuenta?.totalAlojamiento ?? 0) / 100;
-  const granTotal = ordersTotal + alojamientoTotal;
+  const serviciosTotal = (cuenta?.totalServicios ?? 0) / 100;
+  const granTotal = ordersTotal + serviciosTotal + alojamientoTotal;
   const paidTotal = payments.reduce((sum, p) => sum + (p.amount ? Number(p.amount) : 0), 0);
   const balance = granTotal - paidTotal;
 
@@ -221,6 +232,8 @@ export default function CloseSessionPage() {
             cuenta={cuenta}
             onCambio={cargar}
           />
+
+          <PanelServicios sessionId={sessionId} onCambio={cargar} />
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Órdenes ({session.orders.length})</h2>
@@ -302,6 +315,12 @@ export default function CloseSessionPage() {
               <span className="text-gray-500">Consumo</span>
               <span className="font-medium">{formatPrice(ordersTotal)}</span>
             </div>
+            {serviciosTotal > 0 && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Servicios</span>
+                <span className="font-medium">{formatPrice(serviciosTotal)}</span>
+              </div>
+            )}
             {alojamientoTotal > 0 && (
               <div className="flex justify-between">
                 <span className="text-gray-500">Alojamiento</span>

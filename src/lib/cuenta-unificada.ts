@@ -36,6 +36,16 @@ export interface CuentaUnificada {
   consumoRestaurante: number;
   pedidos: Array<{ id: string; total: number; status: string; createdAt: Date }>;
 
+  // Servicios: motos, bicis, vuelos (no alojamiento)
+  servicios: Array<{
+    id: string;
+    descripcion: string;
+    cantidad: number;
+    total: number;
+    fechaServicio: Date | null;
+  }>;
+  totalServicios: number;
+
   // Alojamiento (null si la cuenta no tiene reserva vinculada)
   reserva: {
     id: string;
@@ -127,6 +137,7 @@ export async function leerCuentaUnificada(sessionId: string): Promise<CuentaUnif
       table: true,
       orders: { orderBy: { createdAt: "asc" } },
       booking: { include: { item: true } },
+      servicios: { orderBy: { createdAt: "asc" } },
     },
   });
 
@@ -162,6 +173,15 @@ export async function leerCuentaUnificada(sessionId: string): Promise<CuentaUnif
       })()
     : null;
 
+  const servicios = sesion.servicios.map((s) => ({
+    id: s.id,
+    descripcion: s.descripcion,
+    cantidad: s.cantidad,
+    total: s.total,
+    fechaServicio: s.fechaServicio,
+  }));
+  const totalServicios = servicios.reduce((suma, s) => suma + s.total, 0);
+
   const totalAlojamiento = reserva?.saldoAlojamiento ?? 0;
 
   return {
@@ -171,8 +191,10 @@ export async function leerCuentaUnificada(sessionId: string): Promise<CuentaUnif
     consumoRestaurante,
     pedidos,
     reserva,
+    servicios,
+    totalServicios,
     totalAlojamiento,
-    totalGeneral: consumoRestaurante + totalAlojamiento,
+    totalGeneral: consumoRestaurante + totalServicios + totalAlojamiento,
   };
 }
 

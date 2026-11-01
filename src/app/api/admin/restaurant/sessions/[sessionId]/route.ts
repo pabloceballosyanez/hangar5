@@ -90,6 +90,14 @@ export async function PUT(req: NextRequest, { params }: Params) {
       const unpaidOrders = session.orders.filter(o => o.status !== "PAID" && o.status !== "CANCELLED");
       const consumo = unpaidOrders.reduce((sum, o) => sum + o.total, 0);
 
+      /* Servicios vendidos en la cuenta: motos, bicis, vuelos. Se cobran
+         junto con la comida, en el mismo ticket. Antes no existían y la
+         renta no tenía dónde cobrarse. */
+      const serviciosDeLaCuenta = await tx.servicioCuenta.findMany({
+        where: { serviceSessionId: sessionId },
+      });
+      const totalServicios = serviciosDeLaCuenta.reduce((sum, s) => sum + s.total, 0);
+
       /* Cuenta unificada: si esta cuenta está vinculada a una reserva y
          se pidió cobrar el alojamiento, se suma lo que falte pagar de la
          reserva. Si la reserva ya está pagada, su saldo es 0 y no se
@@ -114,7 +122,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
         }
       }
 
-      const totalOwed = consumo + saldoAlojamiento;
+      const totalOwed = consumo + totalServicios + saldoAlojamiento;
 
       const isCustomer = session.customerId && (session.type === "TAB" || session.type === "QR");
       if (!isCustomer && totalPaid < totalOwed) {
@@ -173,6 +181,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
         balance,
         desglose: {
           consumoRestaurante: consumo / 100,
+          servicios: totalServicios / 100,
           alojamiento: saldoAlojamiento / 100,
         },
       };

@@ -25,6 +25,7 @@ model Item {
   updatedAt   DateTime  @updatedAt
   bookings    Booking[]
   calendars   ExternalCalendar[]
+  servicios   ServicioCuenta[]
 }
 
 model Booking {
@@ -333,6 +334,51 @@ model Almacen {
   updatedAt   DateTime  @updatedAt
 }
 
+/* ============================================================
+   SERVICIOS VENDIDOS EN UNA CUENTA
+   ============================================================
+   Una moto rentada un día, dos parapentes el sábado, una bici por la
+   tarde. Se apunta aquí y se cobra junto con la comida, en el mismo
+   ticket.
+
+   ── Por qué un modelo aparte y no reusar Booking ────────────────────
+   Booking sirve para una reserva con fechas y ocupación (cabaña,
+   moto por día). Un vuelo de parapente no ocupa equipo: se agenda a
+   una hora y lo que se limita es el instructor. Meter los dos en la
+   misma tabla habría obligado a llenar campos que no aplican.
+
+   ── El campo esComision ──────────────────────────────────────────────
+   Hay servicios que no son tuyos: el vuelo lo opera un tercero y tú
+   te quedas un porcentaje. Cobras el total al cliente, pero a ti solo
+   te entra la comisión. Sin esto, el reporte diría que ganaste el
+   vuelo completo.
+   ============================================================ */
+model ServicioCuenta {
+  id               String         @id @default(cuid())
+  serviceSessionId String
+  serviceSession   ServiceSession @relation(fields: [serviceSessionId], references: [id], onDelete: Cascade)
+
+  itemId           String
+  item             Item           @relation(fields: [itemId], references: [id])
+
+  descripcion      String         // "Moto Enduro Sherco 2023", congelado al vender
+  cantidad         Int            @default(1)
+  precioUnitario   Int            // centavos, congelado al vender
+  total            Int            // cantidad × precioUnitario
+  fechaServicio    DateTime?      // cuándo se usa (renta: el día; vuelo: la fecha)
+  notas            String?
+
+  /* Si el servicio lo opera un tercero, esto guarda qué parte te
+     queda a ti. null = servicio propio, te queda todo. */
+  esComision       Boolean        @default(false)
+  montoComision    Int?
+
+  createdAt        DateTime       @default(now())
+
+  @@index([serviceSessionId])
+  @@index([itemId])
+}
+
 model ServiceSession {
     id         String    @id @default(cuid())
     type       String    @default("TABLE") // "TABLE" | "TAB" | "WALKIN"
@@ -351,6 +397,15 @@ model ServiceSession {
          · el cliente ya tenía reserva y se le carga la comida          */
     bookingId  String?
     booking    Booking?  @relation(fields: [bookingId], references: [id])
+
+    /* Servicios vendidos en esta cuenta: motos, bicis, vuelos.
+       El alojamiento va por bookingId (arriba), porque una cabaña
+       implica fechas y ocupación. Lo demás —una moto por un día, dos
+       parapentes el sábado— se apunta aquí como una línea más de la
+       cuenta, y se cobra junto con la comida.
+       Antes esto no existía: la cuenta solo aceptaba platillos del
+       menú, así que la renta y los vuelos no tenían dónde cobrarse. */
+    servicios  ServicioCuenta[]
 
     status     String    @default("OPEN") // "OPEN" | "CLOSED"
     openedAt   DateTime  @default(now())
