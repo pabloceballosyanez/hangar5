@@ -63,7 +63,7 @@ export async function GET() {
     estado: p.status === "READY" ? "LISTO" : "PREPARANDO",
     minutos: Math.floor((Date.now() - new Date(p.createdAt).getTime()) / 60000),
     total: p.total / 100,
-    origen: p.source === "MOSTRADOR" ? "Mostrador" : p.table ? "QR" : "En línea",
+    origen: p.source === "MOSTRADOR" ? "Despegue" : p.table ? "QR" : "En línea",
     notaLibre: p.notes,
     items: p.orderItems.map((i) => ({
       id: i.id,

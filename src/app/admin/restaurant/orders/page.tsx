@@ -37,6 +37,36 @@ const sourceLabel: Record<string, string> = {
   WAITER: "Mesero",
   QR: "QR",
   ADMIN: "Admin",
+  MOSTRADOR: "Despegue",
+  TEST: "Prueba",
+};
+
+/* Etiqueta de PREPARACIÓN.
+   Antes había una sola columna "Status" que mezclaba dos cosas
+   distintas: dónde va el pedido y si está pagado. Una venta de
+   mostrador cobrada al momento aparecía como "En cocina" y se leía
+   como si no estuviera pagada, cuando el pago sí estaba registrado.
+   Ahora se muestran separadas. */
+const prepLabel: Record<string, string> = {
+  DRAFT: "Borrador",
+  AWAITING_PAYMENT: "Sin pagar",
+  PLACED: "Recibida",
+  IN_KITCHEN: "En preparación",
+  READY: "Lista",
+  SERVED: "Servida",
+  PAID: "Pagada",
+  CANCELLED: "Cancelada",
+};
+
+const prepColors: Record<string, string> = {
+  DRAFT: "bg-gray-100 text-gray-600 border-gray-300",
+  AWAITING_PAYMENT: "bg-yellow-100 text-yellow-800 border-yellow-300",
+  PLACED: "bg-blue-100 text-blue-800 border-blue-300",
+  IN_KITCHEN: "bg-orange-100 text-orange-800 border-orange-300",
+  READY: "bg-teal-100 text-teal-800 border-teal-300",
+  SERVED: "bg-emerald-100 text-emerald-800 border-emerald-300",
+  PAID: "bg-violet-100 text-violet-700 border-violet-300",
+  CANCELLED: "bg-red-100 text-red-700 border-red-300",
 };
 
 const paymentMethodLabel: Record<string, string> = {
@@ -265,7 +295,7 @@ export default function OrdersPage() {
                     Total
                   </th>
                   <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
-                    Status
+                    Preparación
                   </th>
                   <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
                     Pago
@@ -332,22 +362,26 @@ export default function OrdersPage() {
                     <td className="py-3 px-4 text-center">
                       <span
                         className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full border ${
-                          statusColors[order.status] || "bg-gray-100 text-gray-700"
+                          prepColors[order.status] || "bg-gray-100 text-gray-700"
                         }`}
                       >
-                        {statusLabel[order.status] || order.status}
+                        {prepLabel[order.status] || order.status}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
                       {order.payments && order.payments.length > 0 ? (
-                        <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full border ${
-                          order.payments[0].status === "COMPLETED"
-                            ? "bg-green-100 text-green-700 border-green-300"
-                            : "bg-yellow-100 text-yellow-700 border-yellow-300"
-                        }`}>
-                          {paymentMethodLabel[order.payments[0].method] || order.payments[0].method}
-                          {order.payments[0].status === "COMPLETED" ? " ✓" : " ⏳"}
-                        </span>
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full border ${
+                            order.payments[0].status === "COMPLETED"
+                              ? "bg-green-100 text-green-700 border-green-300"
+                              : "bg-yellow-100 text-yellow-700 border-yellow-300"
+                          }`}>
+                            {order.payments[0].status === "COMPLETED" ? "Pagado" : "Pendiente"}
+                          </span>
+                          <span className="text-[10px] text-gray-400">
+                            {paymentMethodLabel[order.payments[0].method] || order.payments[0].method}
+                          </span>
+                        </div>
                       ) : (
                         <span className="text-xs text-gray-400">—</span>
                       )}

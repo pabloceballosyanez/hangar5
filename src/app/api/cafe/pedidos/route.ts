@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
     minutos: Math.floor((Date.now() - new Date(p.createdAt).getTime()) / 60000),
     total: p.total / 100,
     nota: p.notes,
-    origen: p.table ? `${p.table.name || "Mesa"} (QR)` : "Mostrador",
+    origen: p.table ? `${p.table.name || "Mesa"} (QR)` : "Despegue",
     items: p.orderItems.map((i) => ({
       id: i.id,
       cantidad: i.quantity,
