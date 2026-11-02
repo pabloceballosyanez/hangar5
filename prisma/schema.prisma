@@ -72,21 +72,64 @@ model Booking {
 // ============================================================
 
 model Category {
-  id        String     @id @default(cuid())
-  name      String
-  sortOrder Int        @default(0)
-  kind      String
-  isActive  Boolean    @default(true)
-  imageUrl  String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  menuItems MenuItem[]
+    id        String     @id @default(cuid())
+    name      String
+    sortOrder Int        @default(0)
+    kind      String
+    isActive  Boolean    @default(true)
+    imageUrl  String?
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+    menuItems MenuItem[]
+}
+
+/// Tipo de producto: la lógica, separada de cómo se agrupa en la carta.
+///
+/// ── Por qué existe aparte de Category ───────────────────────────────
+/// Las categorías agrupan el menú PARA EL CLIENTE: "Horno" junta las
+/// pizzas con las empanadas porque se hornean, y "Bebidas sin Alcohol"
+/// junta aguas con Cocas y smoothies. Eso está bien para la carta, pero
+/// no sirve como regla: heredar "Extras Pizza" a la categoría Horno le
+/// pondría pepperoni a las empanadas.
+///
+/// El tipo sí dice qué ES el producto: Pizza, Empanada, Refresco,
+/// Smoothie. Sobre el tipo se aplican los modificadores heredados.
+model TipoProducto {
+    id             String     @id @default(cuid())
+    nombre         String     @unique
+    descripcion    String?
+    /* Si un tipo tiene modificadores heredados, aplican a todos sus
+       platillos. Un tipo sin grupos simplemente no hereda nada. */
+    modifierGroups TipoProductoModifierGroup[]
+    menuItems      MenuItem[]
+    orden          Int        @default(0)
+    createdAt      DateTime   @default(now())
+    updatedAt      DateTime   @updatedAt
+}
+
+/// Grupo de modificadores heredado por un tipo de producto.
+model TipoProductoModifierGroup {
+    id              String        @id @default(cuid())
+    tipoId          String
+    tipo            TipoProducto  @relation(fields: [tipoId], references: [id], onDelete: Cascade)
+    modifierGroupId String
+    modifierGroup   ModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+
+    @@unique([tipoId, modifierGroupId])
+    @@index([tipoId])
 }
 
 model MenuItem {
   id                     String                  @id @default(cuid())
   categoryId             String
   category               Category                @relation(fields: [categoryId], references: [id])
+
+  /* Tipo de producto: qué ES (Pizza, Refresco, Café...). Opcional
+     para no romper los platillos que aún no se clasifiquen. Sobre el
+     tipo se heredan los modificadores. */
+  tipoId                 String?
+  tipo                   TipoProducto?           @relation(fields: [tipoId], references: [id])
+
   name                   String
   description            String?
   basePrice              Int
@@ -129,6 +172,7 @@ model ModifierGroup {
   updatedAt              DateTime                @updatedAt
   modifiers              Modifier[]
   menuItemModifierGroups MenuItemModifierGroup[]
+  tipoModifierGroups     TipoProductoModifierGroup[]
 }
 
 model Modifier {

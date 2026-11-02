@@ -82,6 +82,30 @@ export async function GET(req: NextRequest) {
             prepStation: true,
             estimatedPrepMinutes: true,
             sortOrder: true,
+            /* Tipo de producto: decide qué modificadores hereda. Va
+               aparte de la categoría, que solo agrupa la carta. */
+            tipo: {
+              select: {
+                id: true,
+                nombre: true,
+                modifierGroups: {
+                  select: {
+                    modifierGroup: {
+                      select: {
+                        id: true,
+                        name: true,
+                        minSelections: true,
+                        maxSelections: true,
+                        isRequired: true,
+                        modifiers: {
+                          select: { id: true, name: true, priceDelta: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
             variants: {
               orderBy: { isDefault: "desc" },
               select: {
@@ -127,14 +151,38 @@ export async function GET(req: NextRequest) {
           ...v,
           priceDelta: v.priceDelta / 100,
         })),
-        modifierGroups: item.menuItemModifierGroups.map((rel) => ({
-          ...rel.modifierGroup,
-          pivotId: rel.id,
-          modifiers: rel.modifierGroup.modifiers.map((m) => ({
-            ...m,
-            priceDelta: m.priceDelta / 100,
-          })),
-        })),
+        /* Los modificadores de un platillo salen de dos lados:
+             1. los que hereda de su TIPO (Pizza → Extras Pizza)
+             2. los que tiene asignados directamente (excepciones)
+           El tipo es lo que permite que la Empanada esté en Horno sin
+           recibir pepperoni: es tipo Empanada, no Pizza. */
+        modifierGroups: (() => {
+          const heredados = (item.tipo?.modifierGroups ?? []).map((rel) => ({
+            ...rel.modifierGroup,
+            heredado: true,
+            fuente: item.tipo?.nombre ?? null,
+            modifiers: rel.modifierGroup.modifiers.map((m) => ({
+              ...m,
+              priceDelta: m.priceDelta / 100,
+            })),
+          }));
+
+          const propios = item.menuItemModifierGroups.map((rel) => ({
+            ...rel.modifierGroup,
+            pivotId: rel.id,
+            heredado: false,
+            modifiers: rel.modifierGroup.modifiers.map((m) => ({
+              ...m,
+              priceDelta: m.priceDelta / 100,
+            })),
+          }));
+
+          // Si un grupo está en los dos lados, gana el del platillo
+          const idsPropios = new Set(propios.map((g) => g.id));
+          return [...heredados.filter((g) => !idsPropios.has(g.id)), ...propios];
+        })(),
+        tipoNombre: item.tipo?.nombre ?? null,
+        tipo: undefined,
         menuItemModifierGroups: undefined, // strip raw pivot
       })),
     }));
