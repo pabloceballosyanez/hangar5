@@ -166,9 +166,16 @@ export function middleware(req: NextRequest) {
 
   // ── Café del Despegue → login del personal ─────────────────────────────
   //
-  // El KDS del café lo opera el barista, que entra con su PIN como
-  // cualquier otro. No usa el login de admin porque esa gente no tiene
-  // por qué ver reportes ni menús: solo su barra.
+  // El Despegue lo opera el barista, que entra con su PIN como cualquier
+  // otro. No usa el login de admin porque esa gente no tiene por qué ver
+  // reportes ni menús: solo su barra.
+  //
+  // Se reescribe la ruta /api/admin/restaurant/* como /api/cafe/* antes
+  // de que caiga en el bloque de abajo. Así el barista puede usar las
+  // MISMAS operaciones que el mesero (abrir cuenta, agregar platillos,
+  // cobrar) sin darle permiso de gestión: no toca menú, ni personal, ni
+  // inventario. Es el mismo criterio que ya usa el Modo Solo, pero con
+  // el rol del barista en vez del admin.
   if (pathname.startsWith("/cafe") || pathname.startsWith("/api/cafe")) {
     const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
     if (isStaffCookie(staffToken)) {
@@ -178,6 +185,21 @@ export function middleware(req: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
     return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  /* Operaciones de piso desde el Despegue.
+     El barista necesita abrir cuentas, consultar mesas y cobrar — lo
+     mismo que el mesero. Se permite SOLO lectura de mesas y el ciclo de
+     sesiones; nada de gestión (menú, personal, inventario). */
+  const esOperacionDePiso =
+    /^\/api\/admin\/restaurant\/tables(\/[^/]+)?$/.test(pathname) ||
+    /^\/api\/admin\/restaurant\/sessions(\/[^/]+)?(\/(cuenta|servicios|alojamiento|vincular))?$/.test(pathname);
+
+  if (esOperacionDePiso && req.headers.get("x-despegue") === "1") {
+    const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
+    if (isStaffCookie(staffToken)) {
+      return NextResponse.next();
+    }
   }
 
   // ── Admin pages → redirect to login ────────────────────────────────────

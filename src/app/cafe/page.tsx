@@ -3,74 +3,51 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
- * Barra del Café del Despegue — pantalla única.
+ * Barra del Café del Despegue.
  *
- * ── El problema que resuelve ────────────────────────────────────────
- * Antes había dos pantallas: /cafe/caja para vender y /cafe para
- * entregar. El barista tenía que saltar de una a otra, la caja no pedía
- * el nombre del cliente (salían pedidos "Sin nombre"), y el pedido
- * nacía ya "listo" sin pasar por preparación. Se sentía partido porque
- * lo estaba.
+ * ── El flujo del negocio ────────────────────────────────────────────
+ *   1. ¿Quién pide?   (nombre, o cliente del Hangar)
+ *   2. Productos      (+ modificadores cuando el producto los tiene)
+ *   3. Cobrar
+ *   4. Preparar → Entregar
  *
- * ── El flujo real de una barra ──────────────────────────────────────
- *   1. Tomo el pedido y anoto quién pide
- *   2. Cobro
- *   3. Preparo y entrego → orden cerrada
- *
- * Y eso es exactamente lo que hace esta pantalla, de arriba a abajo.
- *
- * ── Por qué el nombre es obligatorio ────────────────────────────────
- * En una barra el nombre ES el identificador. Si dos personas piden un
- * latte, hay que saber cuál es cuál sin códigos de por medio. El
- * código de recogida solo se usa cuando el cliente pidió en línea y no
- * está ahí para decir su nombre.
+ * ── Regla de negocio ────────────────────────────────────────────────
+ * Nada entra a preparación sin responsable del dinero: o se cobra en el
+ * acto, o se carga a la cuenta de un huésped. El servidor lo impone; la
+ * pantalla lo refleja.
  */
 
+interface Opcion { id: string; nombre: string; delta: number; }
+interface Grupo {
+  id: string; nombre: string; min: number; max: number; obligatorio: boolean;
+  opciones: Opcion[];
+}
+interface Variante { id: string; nombre: string; delta: number; }
 interface Producto {
-  id: string;
-  nombre: string;
-  precio: number;
-  categoria: string;
+  id: string; nombre: string; precio: number; categoria: string;
+  variantes: Variante[]; grupos: Grupo[];
 }
-
 interface ItemPedido {
-  id: string;
-  cantidad: number;
-  nombre: string;
-  variante: string | null;
-  extras: string[];
-  notas: string | null;
+  id: string; cantidad: number; nombre: string;
+  variante: string | null; extras: string[]; notas: string | null;
 }
-
 interface Pedido {
-  id: string;
-  nombre: string;
-  codigo: string | null;
+  id: string; nombre: string; codigo: string | null;
   estado: 'PREPARANDO' | 'LISTO';
-  minutos: number;
-  total: number;
-  origen: string;
-  notaLibre: string | null;
+  minutos: number; total: number; origen: string;
+  notaLibre: string | null; pagado: boolean; aCuenta: boolean;
   items: ItemPedido[];
 }
-
-interface Barra {
-  productos: Producto[];
-  preparando: Pedido[];
-  listos: Pedido[];
-}
-
-interface ClienteHangar {
-  id: string;
-  name: string;
-  email: string | null;
-}
+interface Barra { productos: Producto[]; preparando: Pedido[]; listos: Pedido[]; }
+interface ClienteHangar { id: string; name: string; email: string | null; }
 
 interface Linea {
-  menuItemId: string;
-  nombre: string;
-  precio: number;
+  key: string;
+  producto: Producto;
   cantidad: number;
+  varianteId: string | null;
+  modifierIds: string[];
+  notas: string;
 }
 
 const pesos = (centavos: number) =>
@@ -83,9 +60,12 @@ const METODOS = [
   { valor: 'CUENTA', etiqueta: 'A su cuenta' },
 ] as const;
 
+let contadorLineas = 0;
+
 export default function BarraCafe() {
   const [barra, setBarra] = useState<Barra>({ productos: [], preparando: [], listos: [] });
   const [lineas, setLineas] = useState<Linea[]>([]);
+  const [lineaActiva, setLineaActiva] = useState<string | null>(null);
   const [nombre, setNombre] = useState('');
   const [clienteId, setClienteId] = useState<string | null>(null);
   const [metodo, setMetodo] = useState<string>('CASH');
@@ -94,7 +74,6 @@ export default function BarraCafe() {
   const [cobrando, setCobrando] = useState(false);
   const [ultimaVenta, setUltimaVenta] = useState<{ nombre: string; total: number } | null>(null);
 
-  // Buscador de clientes del Hangar
   const [buscaCliente, setBuscaCliente] = useState('');
   const [sugerencias, setSugerencias] = useState<ClienteHangar[]>([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
@@ -106,24 +85,19 @@ export default function BarraCafe() {
       if (!r.ok) throw new Error();
       setBarra(await r.json());
     } catch {
-      /* silencioso: se reintenta en el siguiente ciclo */
+      /* se reintenta en el siguiente ciclo */
     }
   }, []);
 
   useEffect(() => {
     cargar();
-    // La barra no debería recargar a mano: se refresca sola.
     const t = setInterval(cargar, 12000);
     return () => clearInterval(t);
   }, [cargar]);
 
-  // Buscar clientes mientras escribe
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
-    if (buscaCliente.trim().length < 2) {
-      setSugerencias([]);
-      return;
-    }
+    if (buscaCliente.trim().length < 2) { setSugerencias([]); return; }
     debounce.current = setTimeout(async () => {
       try {
         const r = await fetch(
@@ -132,22 +106,31 @@ export default function BarraCafe() {
         if (!r.ok) return;
         const d = await r.json();
         setSugerencias((Array.isArray(d) ? d : d.customers ?? []).slice(0, 6));
-      } catch {
-        /* silencioso */
-      }
+      } catch { /* silencioso */ }
     }, 250);
   }, [buscaCliente]);
 
-  const total = lineas.reduce((s, l) => s + l.precio * l.cantidad, 0);
+  const precioLinea = useCallback((l: Linea) => {
+    let p = l.producto.precio;
+    const v = l.producto.variantes.find((x) => x.id === l.varianteId);
+    if (v) p += v.delta;
+    for (const g of l.producto.grupos) {
+      for (const m of g.opciones) {
+        if (l.modifierIds.includes(m.id)) p += m.delta;
+      }
+    }
+    return p * l.cantidad;
+  }, []);
+
+  const total = lineas.reduce((s, l) => s + precioLinea(l), 0);
+  const activa = lineas.find((l) => l.key === lineaActiva) ?? null;
 
   const visibles = useMemo(
-    () =>
-      barra.productos.filter((p) =>
-        filtro
-          ? p.nombre.toLowerCase().includes(filtro.toLowerCase()) ||
-            p.categoria.toLowerCase().includes(filtro.toLowerCase())
-          : true
-      ),
+    () => barra.productos.filter((p) => {
+      if (!filtro) return true;
+      const f = filtro.toLowerCase();
+      return p.nombre.toLowerCase().includes(f) || p.categoria.toLowerCase().includes(f);
+    }),
     [barra.productos, filtro]
   );
 
@@ -162,58 +145,85 @@ export default function BarraCafe() {
 
   function agregar(p: Producto) {
     setUltimaVenta(null);
-    setLineas((prev) => {
-      const ya = prev.find((l) => l.menuItemId === p.id);
-      if (ya) {
-        return prev.map((l) => (l.menuItemId === p.id ? { ...l, cantidad: l.cantidad + 1 } : l));
-      }
-      return [...prev, { menuItemId: p.id, nombre: p.nombre, precio: p.precio, cantidad: 1 }];
-    });
+    const key = `l${++contadorLineas}`;
+    const nueva: Linea = {
+      key, producto: p, cantidad: 1, varianteId: null, modifierIds: [], notas: '',
+    };
+    setLineas((prev) => [...prev, nueva]);
+    // Si el producto tiene opciones, se abre para elegirlas
+    if (p.grupos.length > 0 || p.variantes.length > 0) setLineaActiva(key);
   }
 
-  function cambiar(id: string, delta: number) {
+  function cambiar(key: string, delta: number) {
     setLineas((prev) =>
-      prev
-        .map((l) => (l.menuItemId === id ? { ...l, cantidad: l.cantidad + delta } : l))
+      prev.map((l) => (l.key === key ? { ...l, cantidad: l.cantidad + delta } : l))
         .filter((l) => l.cantidad > 0)
     );
   }
 
+  function alternarModificador(key: string, grupo: Grupo, modId: string) {
+    setLineas((prev) => prev.map((l) => {
+      if (l.key !== key) return l;
+      const ya = l.modifierIds.includes(modId);
+      const delGrupo = grupo.opciones.map((o) => o.id);
+      let ids = l.modifierIds.filter((id) => !delGrupo.includes(id));
+
+      if (ya) {
+        ids = l.modifierIds.filter((id) => id !== modId);
+      } else if (grupo.max === 1) {
+        ids = [...ids, modId];
+      } else {
+        const actualesDelGrupo = l.modifierIds.filter((id) => delGrupo.includes(id));
+        if (actualesDelGrupo.length < grupo.max) ids = [...l.modifierIds, modId];
+        else ids = [...ids, modId];
+      }
+      return { ...l, modifierIds: ids };
+    }));
+  }
+
   function limpiar() {
-    setLineas([]);
-    setNombre('');
-    setClienteId(null);
-    setBuscaCliente('');
-    setSugerencias([]);
-    setError('');
+    setLineas([]); setNombre(''); setClienteId(null);
+    setBuscaCliente(''); setSugerencias([]); setError(''); setLineaActiva(null);
   }
 
   async function cobrar() {
     if (lineas.length === 0) return;
-    if (!nombre.trim()) {
-      setError('Escribe el nombre de quien pide');
-      return;
+    if (!nombre.trim()) { setError('Escribe el nombre de quien pide'); return; }
+
+    // Validar grupos obligatorios antes de mandar
+    for (const l of lineas) {
+      for (const g of l.producto.grupos) {
+        if (!g.obligatorio && g.min === 0) continue;
+        const elegidos = l.modifierIds.filter((id) => g.opciones.some((o) => o.id === id));
+        if (elegidos.length < g.min) {
+          setError(`Falta elegir "${g.nombre}" en ${l.producto.nombre}`);
+          setLineaActiva(l.key);
+          return;
+        }
+      }
     }
 
     setError('');
     setCobrando(true);
-
     try {
       const r = await fetch('/api/cafe/barra', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: lineas.map((l) => ({ menuItemId: l.menuItemId, cantidad: l.cantidad })),
+          items: lineas.map((l) => ({
+            menuItemId: l.producto.id,
+            cantidad: l.cantidad,
+            variantId: l.varianteId,
+            modifierIds: l.modifierIds,
+            notas: l.notas || null,
+          })),
           metodoPago: metodo,
           clienteNombre: nombre.trim(),
           clienteId,
         }),
       });
       const d = await r.json();
-      if (!r.ok) {
-        setError(d.error ?? 'No se pudo cobrar');
-        return;
-      }
+      if (!r.ok) { setError(d.error ?? 'No se pudo cobrar'); return; }
       setUltimaVenta({ nombre: nombre.trim(), total: d.total * 100 });
       limpiar();
       await cargar();
@@ -233,14 +243,10 @@ export default function BarraCafe() {
         body: JSON.stringify({ orderId, accion }),
       });
       if (!r.ok) {
-        // Si la sesion caduco el barista tiene que enterarse: antes
-        // tocaba el boton y no pasaba nada, y parecia que estaba roto.
         const d = await r.json().catch(() => ({}));
-        setError(
-          r.status === 401
-            ? 'Tu sesión caducó. Vuelve a entrar con tu PIN.'
-            : d.error ?? 'No se pudo avanzar el pedido'
-        );
+        setError(r.status === 401
+          ? 'Tu sesión caducó. Vuelve a entrar con tu PIN.'
+          : d.error ?? 'No se pudo avanzar el pedido');
         return;
       }
       await cargar();
@@ -253,7 +259,6 @@ export default function BarraCafe() {
 
   return (
     <div className="min-h-screen bg-ink text-snow">
-      {/* Encabezado */}
       <header className="border-b border-hair px-4 py-3 flex items-center justify-between">
         <div>
           <h1 className="font-[family-name:var(--font-display)] text-xl">Café del Despegue</h1>
@@ -261,71 +266,47 @@ export default function BarraCafe() {
             Barra · {activos} {activos === 1 ? 'pedido activo' : 'pedidos activos'}
           </p>
         </div>
-        <button
-          onClick={cargar}
-          className="text-xs px-3 py-2 rounded-lg border border-hair text-ash hover:text-snow"
-        >
+        <button onClick={cargar}
+          className="text-xs px-3 py-2 rounded-lg border border-hair text-ash hover:text-snow">
           Actualizar
         </button>
       </header>
 
       {error && (
-        <div className="bg-bad/15 border-b border-bad/40 px-4 py-2 text-sm text-bad">
-          {error}
-        </div>
+        <div className="bg-bad/15 border-b border-bad/40 px-4 py-2 text-sm text-bad">{error}</div>
       )}
 
-      <div className="grid lg:grid-cols-[1fr_380px]">
-        {/* ══ IZQUIERDA: tomar el pedido ══ */}
+      <div className="grid lg:grid-cols-[1fr_400px]">
+        {/* IZQUIERDA */}
         <div className="p-4 border-r border-hair">
-          {/* 1 · ¿Quién pide? */}
           <section className="mb-4">
-            <h2 className="text-xs uppercase tracking-wide text-brass mb-2">
-              1 · ¿Quién pide?
-            </h2>
-
+            <h2 className="text-xs uppercase tracking-wide text-brass mb-2">1 · ¿Quién pide?</h2>
             <div className="relative">
-              <input
-                value={nombre}
-                onChange={(e) => {
-                  setNombre(e.target.value);
-                  setClienteId(null);
-                }}
+              <input value={nombre}
+                onChange={(e) => { setNombre(e.target.value); setClienteId(null); }}
                 placeholder="Nombre de quien pide"
-                className="w-full px-4 py-3 rounded-xl bg-ink-2 border border-hair text-snow text-lg placeholder:text-smoke focus:outline-none focus:border-brass/60"
-              />
+                className="w-full px-4 py-3 rounded-xl bg-ink-2 border border-hair text-snow text-lg placeholder:text-smoke focus:outline-none focus:border-brass/60" />
               {clienteId && (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-good">
                   cliente del Hangar
                 </span>
               )}
             </div>
-
             <div className="relative mt-2">
-              <input
-                value={buscaCliente}
-                onChange={(e) => {
-                  setBuscaCliente(e.target.value);
-                  setMostrarSugerencias(true);
-                }}
+              <input value={buscaCliente}
+                onChange={(e) => { setBuscaCliente(e.target.value); setMostrarSugerencias(true); }}
                 onFocus={() => setMostrarSugerencias(true)}
                 placeholder="…o busca un cliente del Hangar"
-                className="w-full px-4 py-2 rounded-lg bg-ink-2 border border-hair text-sm text-ash placeholder:text-smoke focus:outline-none"
-              />
+                className="w-full px-4 py-2 rounded-lg bg-ink-2 border border-hair text-sm text-ash placeholder:text-smoke focus:outline-none" />
               {mostrarSugerencias && sugerencias.length > 0 && (
                 <div className="absolute z-20 mt-1 w-full bg-ink-3 border border-hair rounded-lg overflow-hidden">
                   {sugerencias.map((c) => (
-                    <button
-                      key={c.id}
+                    <button key={c.id}
                       onClick={() => {
-                        setNombre(c.name);
-                        setClienteId(c.id);
-                        setBuscaCliente('');
-                        setSugerencias([]);
-                        setMostrarSugerencias(false);
+                        setNombre(c.name); setClienteId(c.id);
+                        setBuscaCliente(''); setSugerencias([]); setMostrarSugerencias(false);
                       }}
-                      className="block w-full text-left px-3 py-2 text-sm hover:bg-ink-4"
-                    >
+                      className="block w-full text-left px-3 py-2 text-sm hover:bg-ink-4">
                       <span className="text-snow">{c.name}</span>
                       {c.email && <span className="text-smoke text-xs ml-2">{c.email}</span>}
                     </button>
@@ -335,17 +316,11 @@ export default function BarraCafe() {
             </div>
           </section>
 
-          {/* 3 · Productos */}
           <section>
             <h2 className="text-xs uppercase tracking-wide text-brass mb-2">2 · Productos</h2>
-
-            <input
-              type="search"
-              placeholder="Buscar producto…"
-              value={filtro}
+            <input type="search" placeholder="Buscar producto…" value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
-              className="w-full mb-3 px-3 py-2 rounded-lg bg-ink-2 border border-hair text-sm text-snow placeholder:text-smoke focus:outline-none"
-            />
+              className="w-full mb-3 px-3 py-2 rounded-lg bg-ink-2 border border-hair text-sm text-snow placeholder:text-smoke focus:outline-none" />
 
             {barra.productos.length === 0 && (
               <p className="text-sm text-smoke bg-ink-2 rounded-xl px-4 py-6 text-center">
@@ -358,13 +333,13 @@ export default function BarraCafe() {
                 <h3 className="text-[11px] uppercase tracking-wide text-smoke mb-1.5">{cat}</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {items.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => agregar(p)}
-                      className="text-left px-3 py-2.5 rounded-lg bg-ink-2 border border-hair hover:border-brass/50 transition-colors"
-                    >
+                    <button key={p.id} onClick={() => agregar(p)}
+                      className="text-left px-3 py-2.5 rounded-lg bg-ink-2 border border-hair hover:border-brass/50 transition-colors">
                       <span className="block text-sm leading-tight">{p.nombre}</span>
                       <span className="block text-xs text-brass mt-0.5">{pesos(p.precio)}</span>
+                      {(p.grupos.length > 0 || p.variantes.length > 0) && (
+                        <span className="block text-[10px] text-smoke mt-0.5">con opciones</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -373,7 +348,7 @@ export default function BarraCafe() {
           </section>
         </div>
 
-        {/* ══ DERECHA: ticket y cobro ══ */}
+        {/* DERECHA: ticket + opciones */}
         <aside className="p-4 lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto">
           <h2 className="text-xs uppercase tracking-wide text-brass mb-2">3 · Cobrar</h2>
 
@@ -395,36 +370,44 @@ export default function BarraCafe() {
             )}
 
             {lineas.length === 0 ? (
-              <p className="text-sm text-smoke py-6 text-center">
-                Toca un producto para empezar
-              </p>
+              <p className="text-sm text-smoke py-6 text-center">Toca un producto para empezar</p>
             ) : (
               <div className="space-y-1.5 mb-3">
-                {lineas.map((l) => (
-                  <div key={l.menuItemId} className="flex items-center gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm truncate">{l.nombre}</p>
-                      <p className="text-xs text-smoke">{pesos(l.precio * l.cantidad)}</p>
+                {lineas.map((l) => {
+                  const v = l.producto.variantes.find((x) => x.id === l.varianteId);
+                  const mods = l.producto.grupos
+                    .flatMap((g) => g.opciones)
+                    .filter((o) => l.modifierIds.includes(o.id));
+                  const isActiva = l.key === lineaActiva;
+                  return (
+                    <div key={l.key}
+                      className={`rounded-lg p-1 -m-1 ${isActiva ? 'bg-brass/5 border border-brass/30' : ''}`}>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => setLineaActiva(isActiva ? null : l.key)}
+                          className="flex-1 min-w-0 text-left">
+                          <p className="text-sm truncate">
+                            {l.producto.nombre}
+                            {v && <span className="text-smoke"> ({v.nombre})</span>}
+                          </p>
+                          <p className="text-xs text-smoke">{pesos(precioLinea(l))}</p>
+                          {mods.length > 0 && (
+                            <p className="text-[10px] text-brass/80 truncate">
+                              + {mods.map((m) => m.nombre).join(', ')}
+                            </p>
+                          )}
+                        </button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button onClick={() => cambiar(l.key, -1)}
+                            className="w-8 h-8 rounded-lg bg-ink-3" aria-label="Quitar uno">−</button>
+                          <span className="w-6 text-center text-sm">{l.cantidad}</span>
+                          <button onClick={() => cambiar(l.key, 1)}
+                            className="w-8 h-8 rounded-lg bg-ink-3" aria-label="Agregar uno">+</button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        onClick={() => cambiar(l.menuItemId, -1)}
-                        className="w-8 h-8 rounded-lg bg-ink-3"
-                        aria-label="Quitar uno"
-                      >
-                        −
-                      </button>
-                      <span className="w-6 text-center text-sm">{l.cantidad}</span>
-                      <button
-                        onClick={() => cambiar(l.menuItemId, 1)}
-                        className="w-8 h-8 rounded-lg bg-ink-3"
-                        aria-label="Agregar uno"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
+
                 <div className="flex justify-between pt-2 border-t border-hair">
                   <span className="text-sm font-medium">Total</span>
                   <span className="text-lg font-bold text-brass">{pesos(total)}</span>
@@ -432,27 +415,80 @@ export default function BarraCafe() {
               </div>
             )}
 
+            {/* Opciones de la línea activa */}
+            {activa && (activa.producto.variantes.length > 0 || activa.producto.grupos.length > 0) && (
+              <div className="mb-3 border-t border-hair pt-2">
+                <p className="text-[11px] text-smoke mb-1.5">
+                  Opciones de <span className="text-snow">{activa.producto.nombre}</span>
+                </p>
+
+                {activa.producto.variantes.length > 0 && (
+                  <div className="mb-2">
+                    <p className="text-[11px] text-brass mb-1">Tamaño</p>
+                    {activa.producto.variantes.map((v) => (
+                      <button key={v.id}
+                        onClick={() => setLineas((prev) => prev.map((l) =>
+                          l.key === activa.key ? { ...l, varianteId: v.id } : l))}
+                        className={`w-full flex justify-between text-xs px-2 py-1.5 rounded mb-0.5 ${
+                          activa.varianteId === v.id
+                            ? 'bg-brass/15 text-snow border border-brass/40'
+                            : 'bg-ink-3 text-ash border border-transparent'
+                        }`}>
+                        <span>{v.nombre}</span>
+                        <span>{v.delta ? `+${pesos(v.delta)}` : '—'}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {activa.producto.grupos.map((g) => (
+                  <div key={g.id} className="mb-2">
+                    <p className="text-[11px] text-brass mb-1">
+                      {g.nombre}
+                      {g.obligatorio && <span className="text-bad"> · obligatorio</span>}
+                      {!g.obligatorio && <span className="text-smoke"> · opcional</span>}
+                    </p>
+                    {g.opciones.map((o) => {
+                      const sel = activa.modifierIds.includes(o.id);
+                      return (
+                        <button key={o.id}
+                          onClick={() => alternarModificador(activa.key, g, o.id)}
+                          className={`w-full flex justify-between text-xs px-2 py-1.5 rounded mb-0.5 ${
+                            sel
+                              ? 'bg-brass/15 text-snow border border-brass/40'
+                              : 'bg-ink-3 text-ash border border-transparent'
+                          }`}>
+                          <span>{sel ? '✓ ' : ''}{o.nombre}</span>
+                          <span>{o.delta ? `+${pesos(o.delta)}` : '—'}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-1.5 mb-3">
               {METODOS.map((m) => (
-                <button
-                  key={m.valor}
-                  onClick={() => setMetodo(m.valor)}
+                <button key={m.valor} onClick={() => setMetodo(m.valor)}
                   className={`py-2 rounded-lg text-xs border transition-colors ${
                     metodo === m.valor
                       ? 'bg-brass/15 border-brass/50 text-brass'
                       : 'border-hair text-ash'
-                  }`}
-                >
+                  }`}>
                   {m.etiqueta}
                 </button>
               ))}
             </div>
 
-            <button
-              onClick={cobrar}
-              disabled={cobrando || lineas.length === 0}
-              className="w-full py-4 rounded-xl bg-brass text-ink font-semibold disabled:opacity-40"
-            >
+            {metodo === 'CUENTA' && (
+              <p className="text-[10px] text-smoke bg-ink-3 rounded px-2 py-1.5 mb-2">
+                Se carga a la cuenta del huésped. Hace falta que tenga correo registrado.
+              </p>
+            )}
+
+            <button onClick={cobrar} disabled={cobrando || lineas.length === 0}
+              className="w-full py-4 rounded-xl bg-brass text-ink font-semibold disabled:opacity-40">
               {cobrando ? 'Cobrando…' : `Cobrar ${pesos(total)}`}
             </button>
 
@@ -465,35 +501,21 @@ export default function BarraCafe() {
         </aside>
       </div>
 
-      {/* ══ ABAJO: preparar y entregar ══ */}
+      {/* Colas */}
       <div className="border-t border-hair grid md:grid-cols-2 gap-4 p-4">
-        <Cola
-          titulo="En preparación"
-          pedidos={barra.preparando}
-          accion={{ texto: 'Listo', tipo: 'listo' }}
-          onAccion={avanzar}
-          vacio="Sin pedidos pendientes"
-        />
-        <Cola
-          titulo="Listos para entregar"
-          pedidos={barra.listos}
-          accion={{ texto: 'Entregado', tipo: 'entregar' }}
-          onAccion={avanzar}
-          vacio="Nada esperando"
-          destacado
-        />
+        <Cola titulo="En preparación" pedidos={barra.preparando}
+          accion={{ texto: 'Listo', tipo: 'listo' }} onAccion={avanzar}
+          vacio="Sin pedidos pendientes" />
+        <Cola titulo="Listos para entregar" pedidos={barra.listos}
+          accion={{ texto: 'Entregado', tipo: 'entregar' }} onAccion={avanzar}
+          vacio="Nada esperando" destacado />
       </div>
     </div>
   );
 }
 
 function Cola({
-  titulo,
-  pedidos,
-  accion,
-  onAccion,
-  vacio,
-  destacado,
+  titulo, pedidos, accion, onAccion, vacio, destacado,
 }: {
   titulo: string;
   pedidos: Pedido[];
@@ -507,35 +529,26 @@ function Cola({
       <h2 className="text-xs uppercase tracking-wide text-smoke mb-2">
         {titulo} ({pedidos.length})
       </h2>
-
       {pedidos.length === 0 ? (
         <p className="text-sm text-smoke bg-ink-2 rounded-xl px-4 py-5 text-center">{vacio}</p>
       ) : (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-2">
           {pedidos.map((p) => (
-            <div
-              key={p.id}
-              className={`bg-ink-2 rounded-xl p-3 border ${
-                destacado ? 'border-good/40' : 'border-hair'
-              }`}
-            >
+            <div key={p.id}
+              className={`bg-ink-2 rounded-xl p-3 border ${destacado ? 'border-good/40' : 'border-hair'}`}>
               <div className="flex justify-between items-start mb-1.5">
                 <div className="min-w-0">
                   <p className="text-sm font-medium truncate">{p.nombre}</p>
                   <p className="text-[11px] text-smoke">
                     {p.origen}
                     {p.codigo && <span className="font-mono text-brass"> · {p.codigo}</span>}
+                    {p.aCuenta && <span className="text-warn"> · a cuenta</span>}
                   </p>
                 </div>
-                <span
-                  className={`text-[11px] shrink-0 ml-2 ${
-                    p.minutos >= 8 ? 'text-warn' : 'text-smoke'
-                  }`}
-                >
+                <span className={`text-[11px] shrink-0 ml-2 ${p.minutos >= 8 ? 'text-warn' : 'text-smoke'}`}>
                   {p.minutos}′
                 </span>
               </div>
-
               <ul className="text-xs space-y-0.5 mb-2">
                 {p.items.map((i) => (
                   <li key={i.id}>
@@ -548,21 +561,15 @@ function Cola({
                   </li>
                 ))}
               </ul>
-
               {p.notaLibre && (
-                <p className="text-[11px] text-warn bg-warn/10 rounded px-2 py-1 mb-2">
-                  {p.notaLibre}
-                </p>
+                <p className="text-[11px] text-warn bg-warn/10 rounded px-2 py-1 mb-2">{p.notaLibre}</p>
               )}
-
-              <button
-                onClick={() => onAccion(p.id, accion.tipo)}
+              <button onClick={() => onAccion(p.id, accion.tipo)}
                 className={`w-full py-2 rounded-lg text-xs font-medium ${
                   accion.tipo === 'entregar'
                     ? 'bg-good/20 text-good border border-good/40'
                     : 'bg-brass/15 text-brass border border-brass/30'
-                }`}
-              >
+                }`}>
                 {accion.texto}
               </button>
             </div>
