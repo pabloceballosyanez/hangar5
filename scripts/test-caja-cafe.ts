@@ -115,7 +115,7 @@ async function main() {
       include: { payments: true },
     });
     ok(orden2?.status === "IN_KITCHEN", "a cuenta queda en cocina hasta cerrar", orden2?.status ?? "");
-    ok(orden2?.payments[0]?.status === "PENDING", "pago pendiente");
+    ok(orden2?.payments[0]?.status === "COMPLETED", "orden pagada (deuda va al libro)");
 
     const cliente = await prisma.customer.findUnique({ where: { email: emailPrueba } });
     ok(!!cliente, "creó el cliente");

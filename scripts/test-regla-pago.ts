@@ -70,7 +70,10 @@ async function main() {
     });
     ok(o?.status === "IN_KITCHEN", "entra a preparación (se le fía)", o?.status ?? "");
     ok(o?.payments[0]?.method === "ON_ACCOUNT", "marcado como cuenta");
-    ok(o?.payments[0]?.status === "PENDING", "queda como deuda pendiente");
+    /* La orden queda PAGADA; la deuda vive en el libro del cliente.
+       Antes esta prueba esperaba PENDING en la orden, que era justo el
+       error: mostraba pendiente algo ya cobrado. */
+    ok(o?.payments[0]?.status === "COMPLETED", "la orden queda pagada");
 
     const cli = await prisma.customer.findUnique({ where: { email } });
     const cargos = cli

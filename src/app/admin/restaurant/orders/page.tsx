@@ -369,20 +369,27 @@ export default function OrdersPage() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      {order.payments && order.payments.length > 0 ? (
-                        <div className="flex flex-col items-center gap-0.5">
-                          <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full border ${
-                            order.payments[0].status === "COMPLETED"
-                              ? "bg-green-100 text-green-700 border-green-300"
-                              : "bg-yellow-100 text-yellow-700 border-yellow-300"
-                          }`}>
-                            {order.payments[0].status === "COMPLETED" ? "Pagado" : "Pendiente"}
-                          </span>
-                          <span className="text-[10px] text-gray-400">
-                            {paymentMethodLabel[order.payments[0].method] || order.payments[0].method}
-                          </span>
-                        </div>
-                      ) : (
+                      {order.payments && order.payments.length > 0 ? (() => {
+                        const p = order.payments[0];
+                        const pagado = p.status === "COMPLETED";
+                        const aCuenta = p.method === "ON_ACCOUNT";
+                        return (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full border ${
+                              pagado
+                                ? "bg-green-100 text-green-700 border-green-300"
+                                : "bg-yellow-100 text-yellow-700 border-yellow-300"
+                            }`}>
+                              {pagado ? "Pagado" : "Pendiente"}
+                            </span>
+                            <span className="text-[10px] text-gray-400">
+                              {aCuenta
+                                ? "a su cuenta (libro)"
+                                : paymentMethodLabel[p.method] || p.method}
+                            </span>
+                          </div>
+                        );
+                      })() : (
                         <span className="text-xs text-gray-400">—</span>
                       )}
                     </td>
@@ -424,15 +431,42 @@ export default function OrdersPage() {
                               );
                             })()
                           )}
-                          {order.status === 'SERVED' && selectingPayment !== order.id && (
-                            <button
-                              onClick={() => setSelectingPayment(order.id)}
-                              className="px-2 py-1 text-xs font-medium bg-violet-100 text-violet-700 border border-violet-300 rounded-md hover:bg-violet-200 transition-colors"
-                              title="Seleccionar método de pago"
-                            >
-                              💰 Pagar
-                            </button>
-                          )}
+                          {order.status === 'SERVED' && selectingPayment !== order.id && (() => {
+                            /* Solo se ofrece cobrar si falta cobrar.
+                               Antes el botón "Pagar" salía en TODAS las
+                               órdenes servidas, incluso en las que ya
+                               estaban pagadas — y eso hacía dudar si el
+                               cobro se había registrado bien o si al
+                               tocarlo se cobraría dos veces.
+                               Un pedido a crédito (ON_ACCOUNT) también
+                               muestra el botón: es justo donde hace
+                               falta, para saldar la deuda del huésped. */
+                            const pago = order.payments?.[0];
+                            const yaPagado = pago?.status === "COMPLETED";
+
+                            if (yaPagado) {
+                              return (
+                                <span
+                                  className="px-2 py-1 text-xs font-medium text-gray-400"
+                                  title={`Pagado con ${paymentMethodLabel[pago.method] || pago.method}`}
+                                >
+                                  Cobrado
+                                </span>
+                              );
+                            }
+
+                            const esCredito = pago?.method === "ON_ACCOUNT";
+
+                            return (
+                              <button
+                                onClick={() => setSelectingPayment(order.id)}
+                                className="px-2 py-1 text-xs font-medium bg-violet-100 text-violet-700 border border-violet-300 rounded-md hover:bg-violet-200 transition-colors"
+                                title={esCredito ? "Saldar la deuda del huésped" : "Seleccionar método de pago"}
+                              >
+                                {esCredito ? "💳 Saldar" : "💰 Pagar"}
+                              </button>
+                            );
+                          })()}
                           {order.status === 'SERVED' && selectingPayment === order.id && (
                             <div className="flex flex-col gap-1">
                               {paymentOptions.map((opt) => {

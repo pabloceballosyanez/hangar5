@@ -147,29 +147,53 @@ export async function PUT(
 
       // When PAID: create payment only if paymentMethod is specified
       if (newStatus === "PAID" && paymentMethod) {
-        // ON_ACCOUNT: create ledger entry for the customer (already validated before transaction)
-        if (paymentMethod === "ON_ACCOUNT") {
-          const customerId = updated.serviceSession?.customerId!;
+        /* Saldar una deuda de crédito.
+           Cuando el pedido se cargó a la cuenta del huésped quedó un
+           pago PENDING con método ON_ACCOUNT, y un cargo en su ledger.
+           Al venir a pagarlo hay que hacer DOS cosas, no una:
+             · cerrar ese pago pendiente con el método real (efectivo,
+               tarjeta…), para que el reporte sepa cómo entró el dinero
+             · registrar un ABONO en el ledger, para que su saldo baje
+           Antes solo se creaba un pago nuevo y la deuda seguía viva:
+           el huésped aparecía debiendo algo que ya había pagado. */
+        const pending = updated.payments.find((p) => p.status === "PENDING");
+        const saldandoCredito = pending?.method === "ON_ACCOUNT";
+
+        if (saldandoCredito && updated.serviceSession?.customerId) {
           await tx.customerLedgerEntry.create({
             data: {
-              customerId,
-              amount: order.total,
-              type: "CHARGE",
+              customerId: updated.serviceSession.customerId,
+              amount: -order.total, // negativo = pago, baja el saldo
+              type: "PAYMENT",
               serviceSessionId: updated.serviceSessionId,
-              note: `Orden #${order.id.slice(-6)}`,
+              note: `Pago de orden #${order.id.slice(-6)}`,
             },
           });
+        } else if (paymentMethod === "ON_ACCOUNT") {
+          const customerId = updated.serviceSession?.customerId;
+          if (customerId) {
+            await tx.customerLedgerEntry.create({
+              data: {
+                customerId,
+                amount: order.total,
+                type: "CHARGE",
+                serviceSessionId: updated.serviceSessionId,
+                note: `Orden #${order.id.slice(-6)}`,
+              },
+            });
+          }
         }
 
         // Complete any pending payment first
-        const pendingPayment = updated.payments.find((p) => p.status === "PENDING");
-        if (pendingPayment) {
+        if (pending) {
           await tx.payment.update({
-            where: { id: pendingPayment.id },
+            where: { id: pending.id },
             data: {
               status: "COMPLETED",
               paidAt: new Date(),
-              method: pendingPayment.method === "MP" ? paymentMethod : pendingPayment.method,
+              // Si se está saldando un crédito, se guarda cómo entró
+              // el dinero de verdad; si no, se respeta el método.
+              method: saldandoCredito ? paymentMethod : pending.method === "MP" ? paymentMethod : pending.method,
             },
           });
         } else {

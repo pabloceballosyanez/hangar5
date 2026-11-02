@@ -199,11 +199,16 @@ export async function crearVentaMostrador(input: VentaInput): Promise<ResultadoV
         orderId: orden.id,
         amount: carrito.total,
         method: esCuenta ? "ON_ACCOUNT" : input.metodoPago,
-        // A cuenta queda PENDING a propósito: es una deuda del huésped
-        // que se liquida al cerrar su cuenta. Todo lo demás es COMPLETED
-        // porque ya entró el dinero.
-        status: esCuenta ? "PENDING" : "COMPLETED",
-        paidAt: esCuenta ? null : new Date(),
+        /* A cuenta: la orden ya está pagada.
+           El cobro se hizo al fiar — el huésped asumió la deuda y esa
+           deuda pasa al LIBRO del cliente (customerLedgerEntry), que es
+           donde se lleva el saldo y donde se liquida al cerrar su
+           cuenta. La orden en sí quedó saldada en el momento.
+           Antes se marcaba PENDING, y el panel de órdenes mostraba
+           "pendiente de pago" algo que ya estaba pagado: la deuda
+           aparecía dos veces y en el lugar equivocado. */
+        status: "COMPLETED",
+        paidAt: new Date(),
         ...(customerId ? { customerId } : {}),
       },
     });
