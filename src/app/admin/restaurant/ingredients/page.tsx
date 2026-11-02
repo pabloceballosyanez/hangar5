@@ -29,6 +29,11 @@ export default function IngredientsPage() {
 
   // Form state
   const [showForm, setShowForm] = useState(false);
+
+  /* Pestaña del inventario. Abre en "conteo" porque es lo que se usa a
+     diario: contar y comprar. "insumos" es dar de alta y editar, que se
+     hace de vez en cuando. */
+  const [pestana, setPestana] = useState<'conteo' | 'insumos'>('conteo');
   const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [unit, setUnit] = useState('');
@@ -187,6 +192,58 @@ export default function IngredientsPage() {
           </button>
         </div>
       </div>
+
+      {/* Pestañas.
+          Inventario mezcla dos ritmos muy distintos: contar y comprar es
+          del día a día, dar de alta insumos es de una vez. Se separan
+          para que quien está en el piso no tenga que pasar por la
+          configuración. Abre en "Conteo", que es lo que se usa a diario. */}
+      <div className="flex gap-1 border-b border-gray-200">
+        {[
+          { id: 'conteo', etiqueta: 'Conteo y compras' },
+          { id: 'insumos', etiqueta: 'Insumos' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setPestana(t.id as 'conteo' | 'insumos')}
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              pestana === t.id
+                ? 'border-[#1b4235] text-[#1b4235]'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t.etiqueta}
+          </button>
+        ))}
+      </div>
+
+      {pestana === 'conteo' && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-gray-900 mb-1">Conteo y compras</h2>
+          <p className="text-xs text-gray-500 mb-4">
+            Lo del día a día: qué falta, cuánto hay y qué se compró.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Link
+              href="/admin/restaurant/inventory/scan"
+              className="block border border-gray-200 rounded-lg p-4 hover:border-[#1b4235]/40 hover:bg-gray-50"
+            >
+              <p className="font-medium text-gray-900 text-sm mb-0.5">📸 Registrar compra</p>
+              <p className="text-xs text-gray-500">Escanea el recibo y actualiza el stock</p>
+            </Link>
+            <Link
+              href="/admin/restaurant/ingredients?filtro=bajo"
+              className="block border border-gray-200 rounded-lg p-4 hover:border-[#1b4235]/40 hover:bg-gray-50"
+            >
+              <p className="font-medium text-gray-900 text-sm mb-0.5">⚠️ Qué falta</p>
+              <p className="text-xs text-gray-500">Insumos por debajo del mínimo</p>
+            </Link>
+          </div>
+          <p className="text-[11px] text-gray-400 mt-3">
+            El stock de cada insumo se ve en la lista de abajo.
+          </p>
+        </div>
+      )}
 
       {/* Search */}
       <div>

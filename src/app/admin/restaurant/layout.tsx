@@ -4,25 +4,103 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const sidebarLinks = [
-  { href: '/admin/restaurant', label: '🏠 Dashboard', icon: '🏠' },
-  { href: '/admin/restaurant/categories', label: 'Categorías', icon: '📂' },
-  { href: '/admin/restaurant/menu-items', label: 'Menú', icon: '📋' },
-  { href: '/admin/restaurant/ubicaciones', label: 'Ubicaciones', icon: '📍' },
-  { href: '/admin/restaurant/modifier-groups', label: 'Modificadores', icon: '🔧' },
-  { href: '/admin/restaurant/recipes', label: 'Recetas', icon: '📖' },
-  { href: '/admin/restaurant/tables', label: 'Mesas', icon: '🪑' },
-  { href: '/admin/restaurant/customers', label: 'Clientes', icon: '👥' },
-  { href: '/admin/restaurant/orders', label: 'Órdenes', icon: '📦' },
-  { href: '/solo', label: 'Modo Solo', icon: '🔥' },
-  { href: '/kds', label: 'KDS Cocina', icon: '👨‍🍳' },
-  { href: '/admin/restaurant/ingredients', label: 'Inventario', icon: '🧂' },
-  { href: '/admin/restaurant/audit', label: 'Auditoría', icon: '🔍' },
-  { href: '/admin/restaurant/fixed-expenses', label: 'Gastos Fijos', icon: '💰' },
-  { href: '/admin/restaurant/reports', label: 'Reportes', icon: '📊' },
-  { href: '/admin/restaurant/staff', label: 'Staff', icon: '👤' },
-  { href: '/admin/ayuda', label: 'Ayuda', icon: '📖' },
+/* Menú del admin, agrupado por para qué sirve cada cosa.
+ *
+ * Antes eran 17 opciones en una lista plana, mezclando lo que el
+ * personal usa todo el día con lo que se configura una vez al mes. Para
+ * llegar a "Órdenes" había que pasar por 8 entradas de configuración.
+ *
+ * Los cuatro grupos cuentan una historia:
+ *   · Operación      → lo que se usa a diario (siempre visible)
+ *   · Menú           → lo que se vende y cómo
+ *   · Configuración  → lo que se ajusta de vez en cuando
+ *   · Análisis       → números para decidir
+ *
+ * Inventario vive en Operación porque contar y comprar es del día a día;
+ * dar de alta insumos, que es configuración, está ahí mismo como
+ * pestaña, para no tener dos entradas parecidas.
+ */
+const sidebarGroups = [
+  {
+    titulo: 'Operación',
+    links: [
+      { href: '/admin/restaurant/orders', label: 'Órdenes', icon: '📦' },
+      { href: '/solo', label: 'Modo Solo', icon: '🔥' },
+      { href: '/kds', label: 'KDS Cocina', icon: '👨‍🍳' },
+      { href: '/admin/restaurant/customers', label: 'Clientes', icon: '👥' },
+      { href: '/admin/restaurant/ingredients', label: 'Inventario', icon: '🧂' },
+    ],
+  },
+  {
+    titulo: 'Menú y productos',
+    links: [
+      { href: '/admin/restaurant/menu-items', label: 'Menú', icon: '📋' },
+      { href: '/admin/restaurant/categories', label: 'Categorías', icon: '📂' },
+      { href: '/admin/restaurant/tipos', label: 'Tipos', icon: '🏷️' },
+      { href: '/admin/restaurant/modifier-groups', label: 'Modificadores', icon: '🔧' },
+    ],
+  },
+  {
+    titulo: 'Configuración',
+    links: [
+      { href: '/admin/restaurant/ubicaciones', label: 'Ubicaciones', icon: '📍' },
+      { href: '/admin/restaurant/tables', label: 'Mesas', icon: '🪑' },
+      { href: '/admin/restaurant/recipes', label: 'Recetas', icon: '📖' },
+      { href: '/admin/restaurant/staff', label: 'Staff', icon: '👤' },
+    ],
+  },
+  {
+    titulo: 'Análisis',
+    links: [
+      { href: '/admin/restaurant/reports', label: 'Reportes', icon: '📊' },
+      { href: '/admin/restaurant/fixed-expenses', label: 'Gastos Fijos', icon: '💰' },
+      { href: '/admin/restaurant/audit', label: 'Auditoría', icon: '🔍' },
+    ],
+  },
 ];
+
+
+/* Renderiza los grupos del menú. Se usa igual en la barra de escritorio
+ * y en el cajón del móvil, para que no se desincronicen. */
+function MenuAgrupado({
+  pathname,
+  onNavigate,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  return (
+    <>
+      {sidebarGroups.map((grupo) => (
+        <div key={grupo.titulo} className="mb-4">
+          <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+            {grupo.titulo}
+          </p>
+          <div className="space-y-0.5">
+            {grupo.links.map((link) => {
+              const isActive = pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={onNavigate}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  <span className="text-base w-5 text-center">{link.icon}</span>
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
 
 export default function RestaurantLayout({
   children,
@@ -101,24 +179,8 @@ export default function RestaurantLayout({
       <div className="flex max-w-7xl mx-auto">
         {/* ===== DESKTOP SIDEBAR ===== */}
         <aside className="hidden md:block w-56 shrink-0 border-r border-gray-200 bg-white min-h-[calc(100vh-3.5rem)]">
-          <nav className="p-3 space-y-1">
-            {sidebarLinks.map((link) => {
-              const isActive = pathname.startsWith(link.href) || (link.href === '/admin/restaurant' && pathname === '/admin/restaurant');
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <span className="text-base">{link.icon}</span>
-                  {link.label}
-                </Link>
-              );
-            })}
+          <nav className="p-3 overflow-y-auto max-h-[calc(100vh-3.5rem)]">
+            <MenuAgrupado pathname={pathname} />
           </nav>
         </aside>
 
@@ -146,25 +208,11 @@ export default function RestaurantLayout({
                 </button>
               </div>
               {/* Drawer links */}
-              <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-3.5rem)]">
-                {sidebarLinks.map((link) => {
-                  const isActive = pathname.startsWith(link.href) || (link.href === '/admin/restaurant' && pathname === '/admin/restaurant');
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`}
-                    >
-                      <span className="text-lg">{link.icon}</span>
-                      {link.label}
-                    </Link>
-                  );
-                })}
+              <nav className="p-3 overflow-y-auto max-h-[calc(100vh-3.5rem)]">
+                <MenuAgrupado
+                  pathname={pathname}
+                  onNavigate={() => setMobileMenuOpen(false)}
+                />
 
                 {/* Divider + back to admin */}
                 <div className="border-t border-gray-200 my-2" />
