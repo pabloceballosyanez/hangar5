@@ -249,7 +249,7 @@ export default function RecipesPage() {
             resetCreateForm();
             setShowCreateForm(true);
           }}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
         >
           + Nueva receta
         </button>
@@ -262,7 +262,7 @@ export default function RecipesPage() {
           value={recipeSearch}
           onChange={e => setRecipeSearch(e.target.value)}
           placeholder="🔍 Buscar receta por nombre de platillo..."
-          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
         />
       </div>
 
@@ -270,7 +270,7 @@ export default function RecipesPage() {
       {showCreateForm && (
         <form onSubmit={handleCreateRecipe} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
           <h2 className="font-semibold text-gray-900">Nueva receta</h2>
-          {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+          {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <label className="block text-xs text-gray-500 mb-1">Tipo de receta</label>
@@ -301,7 +301,7 @@ export default function RecipesPage() {
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Ítem del menú *</label>
                   <select value={selectedMenuItemId} onChange={e => setSelectedMenuItemId(e.target.value)}
-                    required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
                     <option value="">Seleccionar ítem...</option>
                     {availableMenuItems.map(mi => (
                       <option key={mi.id} value={mi.id}>{mi.name}</option>
@@ -314,7 +314,7 @@ export default function RecipesPage() {
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Receta base (opcional)</label>
                   <select value={selectedParentId} onChange={e => setSelectedParentId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
                     <option value="">Ninguna (receta independiente)</option>
                     {recipes.filter(r => r.isTemplate).map(r => (
                       <option key={r.id} value={r.id}>{r.menuItemName}</option>
@@ -328,7 +328,7 @@ export default function RecipesPage() {
                 <label className="block text-xs text-gray-500 mb-1">Nombre de la receta base *</label>
                 <input type="text" value={templateName} onChange={e => setTemplateName(e.target.value)}
                   placeholder='Ej: "Masa de pizza", "Masa de empanadas"'
-                  required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
               </div>
             )}
 
@@ -336,7 +336,7 @@ export default function RecipesPage() {
               <label className="block text-xs text-gray-500 mb-1">Rendimiento (porciones)</label>
               <input type="number" value={yieldQuantity} onChange={e => setYieldQuantity(e.target.value)}
                 step="0.5" min="0.5" required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
 
             {recipeType === 'menu' && (
@@ -344,13 +344,13 @@ export default function RecipesPage() {
                 <label className="block text-xs text-gray-500 mb-1">Notas</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)}
                   rows={2} placeholder="Notas de preparación, instrucciones, etc."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
               </div>
             )}
           </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={saving}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+              className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
               {saving ? 'Guardando...' : 'Crear receta'}
             </button>
             <button type="button" onClick={resetCreateForm}
@@ -407,7 +407,7 @@ export default function RecipesPage() {
                       </div>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${recipe.ingredientCount > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${recipe.ingredientCount > 0 ? 'bg-blue-100 text-[#15352a]' : 'bg-gray-100 text-gray-500'}`}>
                         {recipe.ingredientCount} ingredientes
                       </span>
                     </td>
@@ -415,7 +415,7 @@ export default function RecipesPage() {
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <Link href={`/admin/restaurant/recipes/${recipe.id}`}
-                          className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors">Ver</Link>
+                          className="text-xs text-[#1b4235] hover:text-blue-800 font-medium transition-colors">Ver</Link>
                         <button onClick={() => handleDelete(recipe.id, recipe.menuItemName)}
                           className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">Eliminar</button>
                       </div>
@@ -460,7 +460,7 @@ export default function RecipesPage() {
             {/* Error */}
             {error && (
               <div className="px-6 pt-4">
-                <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>
+                <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>
               </div>
             )}
 
@@ -504,7 +504,7 @@ export default function RecipesPage() {
                             </td>
                             <td className="py-2 px-3 text-center">
                               <button onClick={() => handleRemoveRecipeItem(ri.id)}
-                                className="text-xs text-red-400 hover:text-red-600 transition-colors" title="Quitar">
+                                className="text-xs text-red-400 hover:text-[#b03a2e] transition-colors" title="Quitar">
                                 ✕
                               </button>
                             </td>
@@ -540,7 +540,7 @@ export default function RecipesPage() {
                   <div className="flex-1 min-w-[200px]">
                     <label className="block text-xs text-gray-500 mb-1">Ingrediente</label>
                     <select value={selectedIngredientId} onChange={e => setSelectedIngredientId(e.target.value)}
-                      required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                      required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
                       <option value="">Seleccionar...</option>
                       {availableIngredients.map(ing => (
                         <option key={ing.id} value={ing.id}>
@@ -557,10 +557,10 @@ export default function RecipesPage() {
                     <input type="number" value={itemQuantity} onChange={e => setItemQuantity(e.target.value)}
                       step="0.01" min="0.01" required
                       placeholder="0.5"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
                   </div>
                   <button type="submit" disabled={saving}
-                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                    className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
                     {saving ? '...' : 'Agregar'}
                   </button>
                 </form>

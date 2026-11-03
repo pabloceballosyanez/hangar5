@@ -53,7 +53,7 @@ export default function SessionsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Cuentas y Sesiones</h1>
         <Link
           href="/admin/restaurant/sessions/nuevo"
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
         >
           + Nueva cuenta
         </Link>
@@ -71,7 +71,7 @@ export default function SessionsPage() {
             onClick={() => setFilter(f.key)}
             className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
               filter === f.key
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#1b4235] text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
@@ -88,7 +88,7 @@ export default function SessionsPage() {
       ) : sessions.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
           <p className="text-gray-400 text-lg">No hay sesiones {filter === 'OPEN' ? 'abiertas' : ''}</p>
-          <Link href="/admin/restaurant/sessions/nuevo" className="inline-block mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium">
+          <Link href="/admin/restaurant/sessions/nuevo" className="inline-block mt-4 text-[#1b4235] hover:text-blue-800 text-sm font-medium">
             + Abrir la primera cuenta →
           </Link>
         </div>
@@ -124,7 +124,7 @@ export default function SessionsPage() {
                       </td>
                       <td className="py-3 px-4">
                         {s.customer ? (
-                          <Link href={`/admin/restaurant/customers/${s.customer.id}`} className="text-blue-600 hover:text-blue-800 font-medium">
+                          <Link href={`/admin/restaurant/customers/${s.customer.id}`} className="text-[#1b4235] hover:text-blue-800 font-medium">
                             {s.customer.name}
                           </Link>
                         ) : (
@@ -136,7 +136,7 @@ export default function SessionsPage() {
                         <span className="text-xs text-gray-400 ml-1">({formatPrice(ordersTotal)})</span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className={paidTotal > 0 ? 'text-green-600 font-medium' : 'text-gray-400'}>
+                        <span className={paidTotal > 0 ? 'text-[#1b4235] font-medium' : 'text-gray-400'}>
                           {formatPrice(paidTotal)}
                         </span>
                       </td>
@@ -147,7 +147,7 @@ export default function SessionsPage() {
                         {isOpen ? (
                           <Link
                             href={`/admin/restaurant/sessions/${s.id}`}
-                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            className="text-[#1b4235] hover:text-blue-800 text-sm font-medium"
                           >
                             Cerrar →
                           </Link>

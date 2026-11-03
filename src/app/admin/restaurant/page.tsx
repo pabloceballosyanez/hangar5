@@ -125,7 +125,7 @@ export default async function RestaurantDashboardPage() {
   // ─── Colors for status badges ───────────────────────────────────────────────
   const orderStatusColors: Record<string, string> = {
     DRAFT: "bg-gray-100 text-gray-700",
-    PLACED: "bg-blue-100 text-blue-700",
+    PLACED: "bg-blue-100 text-[#15352a]",
     IN_KITCHEN: "bg-orange-100 text-orange-700",
     READY: "bg-green-100 text-green-700",
     SERVED: "bg-emerald-100 text-emerald-700",
@@ -265,7 +265,7 @@ export default async function RestaurantDashboardPage() {
             <h2 className="text-lg font-semibold text-gray-900">Órdenes recientes</h2>
             <Link
               href="/admin/restaurant/orders"
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-[#1b4235] hover:text-blue-800"
             >
               Ver todas →
             </Link>
@@ -321,7 +321,7 @@ export default async function RestaurantDashboardPage() {
             <h2 className="text-lg font-semibold text-gray-900">Mesas activas</h2>
             <Link
               href="/admin/restaurant/tables"
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-[#1b4235] hover:text-blue-800"
             >
               Ver todas →
             </Link>

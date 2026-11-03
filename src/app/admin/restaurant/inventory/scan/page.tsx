@@ -216,7 +216,7 @@ export default function ScanReceiptPage() {
         </div>
         <Link
           href="/admin/restaurant/ingredients"
-          className="text-sm text-blue-600 hover:text-blue-800"
+          className="text-sm text-[#1b4235] hover:text-blue-800"
         >
           ← Inventario
         </Link>
@@ -281,7 +281,7 @@ export default function ScanReceiptPage() {
           )}
           <button
             onClick={() => { setError(null); setImage(null); setDebugAI(null); }}
-            className="mt-3 text-sm text-red-600 hover:text-red-800 font-medium"
+            className="mt-3 text-sm text-[#b03a2e] hover:text-red-800 font-medium"
           >
             Intentar de nuevo
           </button>
@@ -292,10 +292,10 @@ export default function ScanReceiptPage() {
       {success && (
         <div className="bg-green-50 border border-green-200 rounded-xl p-4">
           <p className="text-sm text-green-700 font-medium mb-1">✅ ¡Inventario actualizado!</p>
-          <p className="text-xs text-green-600">{success}</p>
+          <p className="text-xs text-[#1b4235]">{success}</p>
           <button
             onClick={() => { setSuccess(null); setImage(null); }}
-            className="mt-3 text-sm text-green-600 hover:text-green-800 font-medium"
+            className="mt-3 text-sm text-[#1b4235] hover:text-green-800 font-medium"
           >
             Escanear otro recibo
           </button>
@@ -350,7 +350,7 @@ export default function ScanReceiptPage() {
                             type="text"
                             value={item.name}
                             onChange={(e) => updateItem(idx, 'name', e.target.value)}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                           />
                           <p className="text-xs text-gray-400 mt-0.5">
                             Nuevo: se creará como ingrediente
@@ -373,7 +373,7 @@ export default function ScanReceiptPage() {
                         step="0.01"
                         min="0.01"
                         className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm
-                          focus:ring-2 focus:ring-blue-500 outline-none"
+                          focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                       />
                     </td>
 
@@ -385,7 +385,7 @@ export default function ScanReceiptPage() {
                           value={item.unit}
                           onChange={(e) => updateItem(idx, 'unit', e.target.value)}
                           className="w-14 px-1 py-1 border border-gray-300 rounded text-center text-sm
-                            focus:ring-2 focus:ring-blue-500 outline-none"
+                            focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                         />
                       ) : (
                         <span className="text-gray-600 text-xs">{item.unit}</span>
@@ -404,7 +404,7 @@ export default function ScanReceiptPage() {
                         onChange={(e) =>
                           updateItem(idx, 'matchedIngredientId', e.target.value || null)
                         }
-                        className={`w-full px-1.5 py-1 rounded text-xs border focus:ring-2 focus:ring-blue-500 outline-none ${
+                        className={`w-full px-1.5 py-1 rounded text-xs border focus:ring-2 focus:ring-[#1b4235]/40 outline-none ${
                           item.confidence === 'LOW'
                             ? 'border-red-300 bg-red-50'
                             : 'border-gray-200'
@@ -430,7 +430,7 @@ export default function ScanReceiptPage() {
                     <td className="py-2 px-1 text-center">
                       <button
                         onClick={() => deleteItem(idx)}
-                        className="text-red-400 hover:text-red-600 text-sm"
+                        className="text-red-400 hover:text-[#b03a2e] text-sm"
                       >
                         ✕
                       </button>
@@ -449,8 +449,8 @@ export default function ScanReceiptPage() {
             <button
               onClick={handleSave}
               disabled={saving || items.length === 0}
-              className="px-6 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg
-                hover:bg-green-700 disabled:opacity-50 transition-colors"
+              className="px-6 py-2.5 bg-[#1b4235] text-white text-sm font-medium rounded-lg
+                hover:bg-[#15352a] disabled:opacity-50 transition-colors"
             >
               {saving ? 'Guardando...' : `Guardar ${items.length} productos al inventario`}
             </button>

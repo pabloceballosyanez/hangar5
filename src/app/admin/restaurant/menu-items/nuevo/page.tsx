@@ -122,7 +122,7 @@ export default function NuevoMenuItemPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej: Tacos de pastor"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                 required
               />
             </div>
@@ -140,7 +140,7 @@ export default function NuevoMenuItemPage() {
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
                   required
                 >
                   {categories.length === 0 && (
@@ -165,7 +165,7 @@ export default function NuevoMenuItemPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Descripción del platillo o bebida…"
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent resize-none"
               />
             </div>
 
@@ -186,7 +186,7 @@ export default function NuevoMenuItemPage() {
                     placeholder="0.00"
                     min={0}
                     step={0.01}
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                     required
                   />
                 </div>
@@ -206,7 +206,7 @@ export default function NuevoMenuItemPage() {
                     }
                     placeholder="15"
                     min={1}
-                    className="w-full pr-14 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pr-14 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">min</span>
                 </div>
@@ -221,7 +221,7 @@ export default function NuevoMenuItemPage() {
               <select
                 value={prepStation}
                 onChange={(e) => setPrepStation(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
               >
                 {PREP_STATIONS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -241,7 +241,7 @@ export default function NuevoMenuItemPage() {
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://…"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
               />
             </div>
 
@@ -258,7 +258,7 @@ export default function NuevoMenuItemPage() {
                 }
                 placeholder="0"
                 min={0}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
               />
               <p className="text-xs text-gray-400 mt-1">
                 Número menor aparece primero en el menú.
@@ -283,7 +283,7 @@ export default function NuevoMenuItemPage() {
               <button
                 type="submit"
                 disabled={loading || loadingCategories}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Creando…' : 'Crear item'}
               </button>

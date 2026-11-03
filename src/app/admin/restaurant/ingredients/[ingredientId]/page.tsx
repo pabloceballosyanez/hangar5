@@ -167,7 +167,7 @@ export default function IngredientDetailPage() {
       <div className="text-center py-12">
         <p className="text-gray-500 text-lg">Ingrediente no encontrado</p>
         <button onClick={() => router.push('/admin/restaurant/ingredients')}
-          className="mt-4 text-sm text-blue-600 hover:text-blue-800">
+          className="mt-4 text-sm text-[#1b4235] hover:text-blue-800">
           ← Volver al inventario
         </button>
       </div>
@@ -206,12 +206,12 @@ export default function IngredientDetailPage() {
         </div>
         <div className="flex gap-2">
           <button onClick={() => setShowEditForm(!showEditForm)}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+            className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors">
             {showEditForm ? 'Cancelar edición' : '✏️ Editar'}
           </button>
           {ingredient.recipeUsageCount === 0 && (
             <button onClick={handleDelete}
-              className="px-4 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 border border-red-200 transition-colors">
+              className="px-4 py-2 bg-red-50 text-[#b03a2e] text-sm font-medium rounded-lg hover:bg-red-100 border border-red-200 transition-colors">
               🗑 Eliminar
             </button>
           )}
@@ -222,40 +222,40 @@ export default function IngredientDetailPage() {
       {showEditForm && (
         <form onSubmit={handleUpdate} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
           <h2 className="font-semibold text-gray-900">Editar ingrediente</h2>
-          {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+          {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Nombre</label>
               <input type="text" value={editName} onChange={e => setEditName(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Unidad</label>
               <input type="text" value={editUnit} onChange={e => setEditUnit(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Costo unitario (MXN)</label>
               <input type="number" value={editCost} onChange={e => setEditCost(e.target.value)}
                 step="0.01" min="0" required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Stock actual</label>
               <input type="number" value={editCurrentStock} onChange={e => setEditCurrentStock(e.target.value)}
                 step="0.01" min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Stock mínimo</label>
               <input type="number" value={editMinStock} onChange={e => setEditMinStock(e.target.value)}
                 step="0.01" min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
           </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={saving}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+              className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
               {saving ? 'Guardando...' : 'Actualizar'}
             </button>
             <button type="button" onClick={() => { setShowEditForm(false); setError(null); }}
@@ -270,7 +270,7 @@ export default function IngredientDetailPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <p className="text-xs text-gray-500 uppercase tracking-wider">Stock actual</p>
-          <p className={`text-2xl font-bold mt-1 ${isLowStock ? 'text-red-600' : 'text-gray-900'}`}>
+          <p className={`text-2xl font-bold mt-1 ${isLowStock ? 'text-[#b03a2e]' : 'text-gray-900'}`}>
             {ingredient.currentStock}
           </p>
           <p className="text-xs text-gray-400">{ingredient.unit}</p>
@@ -299,7 +299,7 @@ export default function IngredientDetailPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <h2 className="font-semibold text-gray-900 mb-4">Ajustar stock</h2>
         {error && !showEditForm && (
-          <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg mb-4">{error}</p>
+          <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg mb-4">{error}</p>
         )}
         <form onSubmit={handleStockAdjustment} className="flex flex-wrap items-end gap-3">
           <div className="w-28">
@@ -307,12 +307,12 @@ export default function IngredientDetailPage() {
             <input type="number" value={delta} onChange={e => setDelta(e.target.value)}
               step="0.01" required
               placeholder="-2.5"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
           </div>
           <div className="flex-1 min-w-[150px]">
             <label className="block text-xs text-gray-500 mb-1">Motivo</label>
             <select value={reason} onChange={e => setReason(e.target.value)} required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
               <option value="">Seleccionar...</option>
               <option value="COMPRA">Compra / Reposición</option>
               <option value="MERMA">Merma / Desperdicio</option>
@@ -326,10 +326,10 @@ export default function IngredientDetailPage() {
             <label className="block text-xs text-gray-500 mb-1">Notas (opcional)</label>
             <input type="text" value={movementNotes} onChange={e => setMovementNotes(e.target.value)}
               placeholder="Detalle del ajuste"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
           </div>
           <button type="submit" disabled={saving}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+            className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
             {saving ? '...' : 'Ajustar'}
           </button>
         </form>
@@ -360,14 +360,14 @@ export default function IngredientDetailPage() {
                 {ingredient.stockMovements.map((mov) => (
                   <tr key={mov.id} className="hover:bg-gray-50">
                     <td className="py-2 px-4 text-gray-600 whitespace-nowrap">{formatDate(mov.createdAt)}</td>
-                    <td className={`py-2 px-4 text-right font-semibold whitespace-nowrap ${mov.delta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <td className={`py-2 px-4 text-right font-semibold whitespace-nowrap ${mov.delta >= 0 ? 'text-[#1b4235]' : 'text-[#b03a2e]'}`}>
                       {mov.delta > 0 ? '+' : ''}{mov.delta}
                     </td>
                     <td className="py-2 px-4 text-right text-gray-500 whitespace-nowrap">
                       {mov.unitCost != null ? formatPrice(Math.round(mov.unitCost / 100)) : '—'}
                     </td>
                     <td className="py-2 px-4">
-                      <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-[#15352a]">
                         {mov.reason}
                       </span>
                     </td>
@@ -434,7 +434,7 @@ function PurchaseForm({ ingredientId, onSuccess, unit }: {
         <span className="text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded-full font-medium">Promedio Ponderado</span>
       </div>
 
-      {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg mb-4">{error}</p>}
+      {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg mb-4">{error}</p>}
 
       {result && (
         <div className="bg-white rounded-lg p-4 mb-4 border border-green-300 text-sm space-y-1">
@@ -472,7 +472,7 @@ function PurchaseForm({ ingredientId, onSuccess, unit }: {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none" />
         </div>
         <button type="submit" disabled={loading}
-          className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors">
+          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
           {loading ? '...' : 'Registrar Compra'}
         </button>
       </form>

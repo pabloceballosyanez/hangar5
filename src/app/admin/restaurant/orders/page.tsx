@@ -14,7 +14,7 @@ function formatPrice(pesos: number): string {
 const statusColors: Record<string, string> = {
   DRAFT: "bg-gray-100 text-gray-700 border-gray-300",
   AWAITING_PAYMENT: "bg-yellow-100 text-yellow-700 border-yellow-300",
-  PLACED: "bg-blue-100 text-blue-700 border-blue-300",
+  PLACED: "bg-blue-100 text-[#15352a] border-blue-300",
   IN_KITCHEN: "bg-orange-100 text-orange-700 border-orange-300",
   READY: "bg-green-100 text-green-700 border-green-300",
   SERVED: "bg-emerald-100 text-emerald-800 border-emerald-300",
@@ -79,7 +79,7 @@ const paymentMethodLabel: Record<string, string> = {
 
 const paymentOptions = [
   { method: "CASH", label: "💵 Efectivo", color: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200" },
-  { method: "CARD", label: "💳 Tarjeta", color: "bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200" },
+  { method: "CARD", label: "💳 Tarjeta", color: "bg-blue-100 text-[#15352a] border-blue-300 hover:bg-blue-200" },
   { method: "ON_ACCOUNT", label: "📒 Crédito", color: "bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200", requiresCustomer: true },
 ];
 
@@ -237,14 +237,14 @@ export default function OrdersPage() {
       {actionError && (
         <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 flex items-center justify-between">
           <span>{actionError}</span>
-          <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600">✕</button>
+          <button onClick={() => setActionError(null)} className="text-red-400 hover:text-[#b03a2e]">✕</button>
         </div>
       )}
 
       {actionSuccess && (
         <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700 flex items-center justify-between animate-pulse">
           <span>{actionSuccess}</span>
-          <button onClick={() => setActionSuccess(null)} className="text-green-400 hover:text-green-600">✕</button>
+          <button onClick={() => setActionSuccess(null)} className="text-green-400 hover:text-[#1b4235]">✕</button>
         </div>
       )}
 
@@ -256,7 +256,7 @@ export default function OrdersPage() {
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.key
-                ? "border-blue-600 text-blue-600"
+                ? "border-blue-600 text-[#1b4235]"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
@@ -519,7 +519,7 @@ export default function OrdersPage() {
                                 } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
                                 setActionLoading(null);
                               }}
-                              className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 border border-blue-300 rounded-md hover:bg-blue-200 transition-colors"
+                              className="px-2 py-1 text-xs font-medium bg-blue-100 text-[#15352a] border border-blue-300 rounded-md hover:bg-blue-200 transition-colors"
                               title="Avanzar estado"
                             >
                               ⏭ Avanzar
@@ -575,7 +575,7 @@ export default function OrdersPage() {
               <button
                 onClick={handleCancelOrder}
                 disabled={actionLoading === cancelOrderId}
-                className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                className="flex-1 px-4 py-2 bg-[#b03a2e] text-white text-sm font-medium rounded-lg hover:bg-[#96322a] disabled:opacity-50 transition-colors"
               >
                 {actionLoading === cancelOrderId ? 'Cancelando...' : 'Confirmar cancelación'}
               </button>

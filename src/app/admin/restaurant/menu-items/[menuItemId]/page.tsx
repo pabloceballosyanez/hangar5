@@ -359,8 +359,8 @@ export default function EditMenuItemPage() {
   if (error && !name) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <p className="text-red-600 mb-4">{error}</p>
-        <Link href="/admin/restaurant/menu-items" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+        <p className="text-[#b03a2e] mb-4">{error}</p>
+        <Link href="/admin/restaurant/menu-items" className="text-[#1b4235] hover:text-blue-800 text-sm font-medium">
           ← Volver al menú
         </Link>
       </div>
@@ -388,7 +388,7 @@ export default function EditMenuItemPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                 required
               />
             </div>
@@ -401,7 +401,7 @@ export default function EditMenuItemPage() {
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
                 required
               >
                 {categories.map((cat) => (
@@ -421,7 +421,7 @@ export default function EditMenuItemPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent resize-none"
               />
             </div>
 
@@ -439,7 +439,7 @@ export default function EditMenuItemPage() {
                     onChange={(e) => setBasePricePesos(e.target.value === '' ? '' : Number(e.target.value))}
                     min={0}
                     step={0.01}
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                     required
                   />
                 </div>
@@ -454,7 +454,7 @@ export default function EditMenuItemPage() {
                     value={estimatedPrepMinutes}
                     onChange={(e) => setEstimatedPrepMinutes(e.target.value === '' ? '' : Number(e.target.value))}
                     min={1}
-                    className="w-full pr-14 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pr-14 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">min</span>
                 </div>
@@ -467,7 +467,7 @@ export default function EditMenuItemPage() {
               <select
                 value={prepStation}
                 onChange={(e) => setPrepStation(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
               >
                 {PREP_STATIONS.map((s) => (
                   <option key={s.value} value={s.value}>{s.label}</option>
@@ -485,7 +485,7 @@ export default function EditMenuItemPage() {
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="/img/menu/ejemplo.jpg"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
               />
             </div>
 
@@ -497,7 +497,7 @@ export default function EditMenuItemPage() {
                   id="isActive"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
                 />
                 <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Activo</label>
               </div>
@@ -508,7 +508,7 @@ export default function EditMenuItemPage() {
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value === '' ? '' : Number(e.target.value))}
                   min={0}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                 />
               </div>
             </div>
@@ -520,7 +520,7 @@ export default function EditMenuItemPage() {
                 <button
                   type="button"
                   onClick={addVariant}
-                  className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-xs text-[#1b4235] hover:text-blue-800 font-medium"
                 >
                   + Añadir variante
                 </button>
@@ -536,7 +536,7 @@ export default function EditMenuItemPage() {
                         value={v.name}
                         onChange={(e) => updateVariant(idx, 'name', e.target.value)}
                         placeholder="Nombre"
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#1b4235]/40"
                       />
                       <div className="relative w-24">
                         <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
@@ -545,7 +545,7 @@ export default function EditMenuItemPage() {
                           value={v.priceDelta}
                           onChange={(e) => updateVariant(idx, 'priceDelta', Number(e.target.value))}
                           step={0.01}
-                          className="w-full pl-5 pr-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="w-full pl-5 pr-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#1b4235]/40"
                         />
                       </div>
                       <label className="flex items-center gap-1 text-xs text-gray-500">
@@ -560,7 +560,7 @@ export default function EditMenuItemPage() {
                       <button
                         type="button"
                         onClick={() => removeVariant(idx)}
-                        className="text-red-400 hover:text-red-600 text-xs px-1"
+                        className="text-red-400 hover:text-[#b03a2e] text-xs px-1"
                       >
                         ✕
                       </button>
@@ -579,14 +579,14 @@ export default function EditMenuItemPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium text-gray-700">Modificadores</label>
-                <Link href="/admin/restaurant/modifier-groups" className="text-xs text-blue-600 hover:text-blue-800">
+                <Link href="/admin/restaurant/modifier-groups" className="text-xs text-[#1b4235] hover:text-blue-800">
                   Gestionar grupos →
                 </Link>
               </div>
               {modifierGroups.length === 0 ? (
                 <p className="text-xs text-gray-400">
                   No hay grupos de modificadores.{' '}
-                  <Link href="/admin/restaurant/modifier-groups" className="text-blue-600 underline">Crear grupos</Link>
+                  <Link href="/admin/restaurant/modifier-groups" className="text-[#1b4235] underline">Crear grupos</Link>
                 </p>
               ) : (
                 <div className="space-y-1.5 max-h-80 overflow-y-auto border border-gray-200 rounded-lg p-2">
@@ -607,7 +607,7 @@ export default function EditMenuItemPage() {
                               prev.includes(mg.id) ? prev.filter((id) => id !== mg.id) : [...prev, mg.id]
                             );
                           }}
-                          className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#1b4235] focus:ring-[#1b4235]/40"
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900">{mg.name}</p>
@@ -643,7 +643,7 @@ export default function EditMenuItemPage() {
                   id="hasRecipe"
                   checked={hasRecipe}
                   onChange={handleToggleRecipe}
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
                 />
                 <label htmlFor="hasRecipe" className="text-sm font-semibold text-gray-800">
                   Tiene receta
@@ -665,7 +665,7 @@ export default function EditMenuItemPage() {
                         onChange={(e) => setRecipeYield(e.target.value === '' ? '' : Number(e.target.value))}
                         min={0.5}
                         step={0.5}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                       />
                     </div>
                     <div>
@@ -675,7 +675,7 @@ export default function EditMenuItemPage() {
                         value={recipeNotes}
                         onChange={(e) => setRecipeNotes(e.target.value)}
                         placeholder="Instrucciones, tips..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                       />
                     </div>
                   </div>
@@ -687,7 +687,7 @@ export default function EditMenuItemPage() {
                       <select
                         value={addIngredientId}
                         onChange={(e) => setAddIngredientId(e.target.value)}
-                        className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                        className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-[#1b4235]/40 outline-none bg-white"
                       >
                         <option value="">Seleccionar...</option>
                         {availableIngredients.map((ing) => (
@@ -703,13 +703,13 @@ export default function EditMenuItemPage() {
                         placeholder="Cant."
                         step="0.01"
                         min="0.01"
-                        className="w-20 px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-20 px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                       />
                       <button
                         type="button"
                         onClick={addRecipeItem}
                         disabled={!addIngredientId || !addIngredientQty}
-                        className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                        className="px-3 py-1.5 bg-[#1b4235] text-white text-xs font-medium rounded hover:bg-[#15352a] disabled:opacity-50 transition-colors"
                       >
                         Agregar
                       </button>
@@ -720,7 +720,7 @@ export default function EditMenuItemPage() {
                     {ingredients.length === 0 && (
                       <p className="text-xs text-gray-400 mt-2">
                         No hay ingredientes.{' '}
-                        <Link href="/admin/restaurant/ingredients" className="text-blue-600 underline">
+                        <Link href="/admin/restaurant/ingredients" className="text-[#1b4235] underline">
                           Crear ingredientes
                         </Link>
                       </p>
@@ -759,7 +759,7 @@ export default function EditMenuItemPage() {
                                   <button
                                     type="button"
                                     onClick={() => removeRecipeItem(idx)}
-                                    className="text-red-400 hover:text-red-600 text-xs"
+                                    className="text-red-400 hover:text-[#b03a2e] text-xs"
                                   >
                                     ✕
                                   </button>
@@ -813,13 +813,13 @@ export default function EditMenuItemPage() {
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3 text-center">
                         <p className="text-xs text-gray-500">Margen</p>
-                        <p className={`text-sm font-bold ${margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <p className={`text-sm font-bold ${margin >= 0 ? 'text-[#1b4235]' : 'text-[#b03a2e]'}`}>
                           ${margin.toFixed(2)}
                         </p>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3 text-center">
                         <p className="text-xs text-gray-500">% Rentabilidad</p>
-                        <p className={`text-sm font-bold ${marginPct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <p className={`text-sm font-bold ${marginPct >= 0 ? 'text-[#1b4235]' : 'text-[#b03a2e]'}`}>
                           {marginPct.toFixed(0)}%
                         </p>
                       </div>
@@ -841,7 +841,7 @@ export default function EditMenuItemPage() {
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="px-4 py-2 border border-red-200 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+                className="px-4 py-2 border border-red-200 text-sm font-medium text-[#b03a2e] rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
               >
                 {deleting ? 'Desactivando...' : 'Desactivar'}
               </button>
@@ -849,7 +849,7 @@ export default function EditMenuItemPage() {
                 type="button"
                 disabled={saving}
                 onClick={() => handleSave({ preventDefault: () => {} } as React.FormEvent)}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="flex-1 px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
               >
                 {saving ? 'Guardando...' : 'Guardar cambios'}
               </button>

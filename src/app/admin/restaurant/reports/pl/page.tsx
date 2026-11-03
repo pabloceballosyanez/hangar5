@@ -29,7 +29,7 @@ function formatMXN(cents: number): string {
 }
 
 function negStyle(cents: number): string {
-  return cents < 0 ? "text-red-600" : "text-gray-900";
+  return cents < 0 ? "text-[#b03a2e]" : "text-gray-900";
 }
 
 function monthLabel(month: string): string {
@@ -266,7 +266,7 @@ export default async function PLPage({
           <select
             name="month"
             defaultValue={selectedMonth}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-[#1b4235]/40/20 outline-none"
           >
             {monthOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -276,7 +276,7 @@ export default async function PLPage({
           </select>
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+            className="rounded-lg bg-[#1b4235] px-4 py-2 text-sm font-medium text-white hover:bg-[#15352a] transition-colors"
           >
             Ver
           </button>
@@ -427,7 +427,7 @@ function PLRow({
           bold ? "font-semibold" : ""
         } ${
           typeof value === "number" && value < 0
-            ? "text-red-600"
+            ? "text-[#b03a2e]"
             : colorClass
         }`}
       >

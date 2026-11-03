@@ -44,11 +44,25 @@ async function main() {
   // ──────────────────────────────────────────────
   // Idempotency check: do restaurant categories exist?
   // ──────────────────────────────────────────────
-  const existingCategories = await prisma.category.count({
-    where: { name: { in: ["BEBIDAS NO ALCOHÓLICAS", "BEBIDAS ALCOHÓLICAS", "DESAYUNOS"] } },
-  });
+  /* Esta comprobación estaba mal y provocó grupos de modificadores
+     duplicados en producción (Aderezo, Cocción huevos, Extras Fruta,
+     Extras Pizza aparecían dos veces).
 
-  if (existingCategories >= 3) {
+     Buscaba nombres en MAYÚSCULAS ("DESAYUNOS") pero las categorías
+     reales se llaman "Desayunos". Nunca coincidía, así que el seed corría
+     siempre y volvía a crear todo. Al editar un grupo, se editaba el que
+     los platillos no usaban, y los campos salían en blanco.
+
+     Ahora se compara sin distinguir mayúsculas y se mira también si ya hay
+     categorías, que es la señal real de que esto ya se sembró. */
+  const CATEGORIAS_SEED = ["bebidas no alcohólicas", "bebidas alcohólicas", "desayunos"];
+
+  const todasCategorias = await prisma.category.findMany({ select: { name: true } });
+  const yaSembrado = todasCategorias.some((c) =>
+    CATEGORIAS_SEED.includes(c.name.trim().toLowerCase())
+  );
+
+  if (yaSembrado || todasCategorias.length >= 3) {
     console.log("⚠️  Restaurant data already exists, skipping seed");
     await prisma.$disconnect();
     return;

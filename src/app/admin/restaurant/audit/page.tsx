@@ -91,7 +91,7 @@ export default function AuditPage() {
             onClick={() => setTab(t.key)}
             className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
               tab === t.key
-                ? 'bg-blue-600 text-white border-blue-600'
+                ? 'bg-[#1b4235] text-white border-blue-600'
                 : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
             }`}
           >

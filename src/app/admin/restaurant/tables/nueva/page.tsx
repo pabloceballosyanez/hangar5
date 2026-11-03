@@ -82,7 +82,7 @@ export default function NuevaMessaPage() {
                 value={number}
                 onChange={(e) => setNumber(e.target.value)}
                 placeholder="Ej: T9, M3, Bar-1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                 required
               />
               <p className="text-xs text-gray-400 mt-1">Código único que identifica la mesa.</p>
@@ -98,7 +98,7 @@ export default function NuevaMessaPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej: Mesa del rincón"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
               />
             </div>
 
@@ -115,7 +115,7 @@ export default function NuevaMessaPage() {
                 }
                 placeholder="Número de personas"
                 min={1}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                 required
               />
             </div>
@@ -128,7 +128,7 @@ export default function NuevaMessaPage() {
               <select
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
               >
                 {LOCATIONS.map((loc) => (
                   <option key={loc} value={loc}>
@@ -156,7 +156,7 @@ export default function NuevaMessaPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Creando…' : 'Crear mesa'}
               </button>

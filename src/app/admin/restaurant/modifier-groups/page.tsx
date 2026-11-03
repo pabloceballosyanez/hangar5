@@ -82,7 +82,7 @@ export default function ModifierGroupsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Modificadores</h1>
         <Link
           href="/admin/restaurant/modifier-groups/nuevo"
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
         >
           + Nuevo grupo
         </Link>
@@ -145,7 +145,7 @@ export default function ModifierGroupsPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/admin/restaurant/modifier-groups/${group.id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          className="text-[#1b4235] hover:text-blue-800 text-sm font-medium"
                         >
                           Editar
                         </Link>

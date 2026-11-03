@@ -86,7 +86,7 @@ function MenuAgrupado({
                   onClick={onNavigate}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-blue-50 text-blue-700"
+                      ? "bg-blue-50 text-[#15352a]"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >

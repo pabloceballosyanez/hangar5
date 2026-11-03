@@ -42,7 +42,9 @@ export const viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${gloock.variable} ${workSans.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className={`${workSans.variable} ${gloock.variable} antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }

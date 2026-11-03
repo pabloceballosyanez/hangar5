@@ -189,8 +189,8 @@ export default function CloseSessionPage() {
   if (!session) {
     return (
       <div className="max-w-lg mx-auto text-center py-12">
-        <p className="text-red-600 mb-4">Sesión no encontrada</p>
-        <Link href="/admin/restaurant/sessions" className="text-blue-600 hover:text-blue-800 text-sm">← Volver</Link>
+        <p className="text-[#b03a2e] mb-4">Sesión no encontrada</p>
+        <Link href="/admin/restaurant/sessions" className="text-[#1b4235] hover:text-blue-800 text-sm">← Volver</Link>
       </div>
     );
   }
@@ -201,7 +201,7 @@ export default function CloseSessionPage() {
         <div className="text-4xl mb-4">✅</div>
         <p className="text-xl font-semibold text-gray-900 mb-2">Sesión cerrada</p>
         <p className="text-gray-500 mb-6">{session.label} — {new Date(session.openedAt).toLocaleDateString('es-MX')}</p>
-        <Link href="/admin/restaurant/sessions" className="text-blue-600 hover:text-blue-800 text-sm font-medium">← Volver a tabs</Link>
+        <Link href="/admin/restaurant/sessions" className="text-[#1b4235] hover:text-blue-800 text-sm font-medium">← Volver a tabs</Link>
       </div>
     );
   }
@@ -283,7 +283,7 @@ export default function CloseSessionPage() {
                   ))}
                 </select>
                 {payments.length > 1 && (
-                  <button type="button" onClick={() => removePayment(idx)} className="text-red-400 hover:text-red-600 text-xs">✕</button>
+                  <button type="button" onClick={() => removePayment(idx)} className="text-red-400 hover:text-[#b03a2e] text-xs">✕</button>
                 )}
               </div>
               <div className="relative">
@@ -295,7 +295,7 @@ export default function CloseSessionPage() {
                   placeholder="0.00"
                   min={0}
                   step={0.01}
-                  className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                 />
               </div>
             </div>
@@ -304,7 +304,7 @@ export default function CloseSessionPage() {
           <button
             type="button"
             onClick={addPaymentMethod}
-            className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium mb-4"
+            className="w-full text-sm text-[#1b4235] hover:text-blue-800 font-medium mb-4"
           >
             + Agregar método de pago
           </button>
@@ -333,13 +333,13 @@ export default function CloseSessionPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Pagado</span>
-              <span className="font-medium text-green-600">{formatPrice(paidTotal)}</span>
+              <span className="font-medium text-[#1b4235]">{formatPrice(paidTotal)}</span>
             </div>
             <div className="flex justify-between pt-1 border-t border-gray-100">
               <span className="font-semibold">
                 {balance > 0 ? 'Pendiente' : balance < 0 ? 'A favor' : 'Cuadrado'}
               </span>
-              <span className={`font-bold ${balance > 0 ? 'text-red-600' : balance < 0 ? 'text-green-600' : 'text-gray-600'}`}>
+              <span className={`font-bold ${balance > 0 ? 'text-[#b03a2e]' : balance < 0 ? 'text-[#1b4235]' : 'text-gray-600'}`}>
                 {balance > 0 ? formatPrice(balance) : balance < 0 ? formatPrice(Math.abs(balance)) : '—'}
               </span>
             </div>
@@ -354,7 +354,7 @@ export default function CloseSessionPage() {
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg mt-4">{error}</p>
+            <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg mt-4">{error}</p>
           )}
 
           <button

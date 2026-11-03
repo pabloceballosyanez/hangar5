@@ -21,7 +21,7 @@ export default async function StaffPage() {
 
   const roleColor: Record<string, string> = {
     SUPER_ADMIN: "bg-purple-100 text-purple-700",
-    GERENTE: "bg-blue-100 text-blue-700",
+    GERENTE: "bg-blue-100 text-[#15352a]",
     GERENTE_TURNO: "bg-indigo-100 text-indigo-700",
     MESERO: "bg-green-100 text-green-700",
     COCINERO: "bg-orange-100 text-orange-700",
@@ -36,7 +36,7 @@ export default async function StaffPage() {
         <h1 className="text-2xl font-bold text-gray-900">Staff</h1>
         <Link
           href="/admin/restaurant/staff/nuevo"
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
         >
           + Nuevo staff
         </Link>
@@ -47,7 +47,7 @@ export default async function StaffPage() {
           <p className="text-gray-400 text-lg">No hay personal registrado</p>
           <Link
             href="/admin/restaurant/staff/nuevo"
-            className="inline-block mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium"
+            className="inline-block mt-4 text-[#1b4235] hover:text-blue-800 text-sm font-medium"
           >
             + Agregar primer miembro →
           </Link>
@@ -82,7 +82,7 @@ export default async function StaffPage() {
                 {person.phone && <p>📞 {person.phone}</p>}
                 {person.email && <p>✉️ {person.email}</p>}
                 <p>💰 ${(person.hourlyRate / 100).toFixed(2)}/hora</p>
-                <p className={person.isActive ? "text-green-600" : "text-red-400"}>
+                <p className={person.isActive ? "text-[#1b4235]" : "text-red-400"}>
                   {person.isActive ? "Activo" : "Inactivo"}
                 </p>
               </div>

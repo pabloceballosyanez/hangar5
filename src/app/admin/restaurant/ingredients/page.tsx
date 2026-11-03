@@ -180,13 +180,13 @@ export default function IngredientsPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/admin/restaurant/inventory/scan"
-            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors flex items-center gap-1.5"
           >
             📸 Escanear recibo
           </Link>
           <button
             onClick={() => { resetForm(); setShowForm(true); }}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
           >
             + Nuevo ingrediente
           </button>
@@ -252,7 +252,7 @@ export default function IngredientsPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="🔍 Buscar ingrediente..."
-          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
         />
       </div>
 
@@ -260,42 +260,42 @@ export default function IngredientsPage() {
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
           <h2 className="font-semibold text-gray-900">{editId ? 'Editar ingrediente' : 'Nuevo ingrediente'}</h2>
-          {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+          {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Nombre</label>
               <input type="text" value={name} onChange={e => setName(e.target.value)}
                 placeholder="Ej: Harina de trigo" required autoFocus
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Unidad</label>
               <input type="text" value={unit} onChange={e => setUnit(e.target.value)}
                 placeholder="Ej: kg, L, pza" required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Costo unitario (MXN)</label>
               <input type="number" value={cost} onChange={e => setCost(e.target.value)}
                 step="0.01" min="0" required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Stock actual</label>
               <input type="number" value={currentStock} onChange={e => setCurrentStock(e.target.value)}
                 step="0.01" min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Stock mínimo</label>
               <input type="number" value={minStock} onChange={e => setMinStock(e.target.value)}
                 step="0.01" min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
           </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={saving}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+              className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
               {saving ? 'Guardando...' : editId ? 'Actualizar' : 'Crear ingrediente'}
             </button>
             <button type="button" onClick={resetForm}
@@ -344,7 +344,7 @@ export default function IngredientsPage() {
                           <tr key={ing.id} className={`hover:bg-gray-50 ${isLowStock ? 'bg-red-50' : ''}`}>
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-2">
-                                <Link href={`/admin/restaurant/ingredients/${ing.id}`} className="font-medium text-gray-900 hover:text-blue-600 transition-colors">{ing.name}</Link>
+                                <Link href={`/admin/restaurant/ingredients/${ing.id}`} className="font-medium text-gray-900 hover:text-[#1b4235] transition-colors">{ing.name}</Link>
                                 {isLowStock && (
                                   <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">
                                     Bajo
@@ -353,20 +353,27 @@ export default function IngredientsPage() {
                               </div>
                             </td>
                             <td className="py-3 px-4 text-gray-600">{ing.unit}</td>
-                            <td className={`py-3 px-4 text-right font-semibold ${isLowStock ? 'text-red-600' : 'text-gray-900'}`}>
-                              {ing.currentStock}
+                            <td className={`py-3 px-4 text-right font-semibold tabular-nums ${isLowStock ? 'text-[#b03a2e]' : 'text-gray-900'}`}>
+                              {/* El stock se mostraba con todos sus decimales
+                                  (-0.8500000000000003). Se redondea a 2 como
+                                  mucho y se quitan los ceros sobrantes. */}
+                              {Number(ing.currentStock.toFixed(2))}
                             </td>
-                            <td className="py-3 px-4 text-right text-gray-600">{ing.minStock}</td>
+                            <td className="py-3 px-4 text-right text-gray-600 tabular-nums">
+                              {Number(ing.minStock.toFixed(2))}
+                            </td>
                             <td className="py-3 px-4 text-right text-gray-900">{formatPrice(ing.costDisplay)}</td>
                             <td className="py-3 px-4 text-center text-gray-500">{ing.recipeUsageCount}</td>
                             <td className="py-3 px-4 text-center">
                               <div className="flex items-center justify-center gap-2">
                                 <button onClick={() => startEdit(ing)}
-                                  className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors">Editar</button>
+                                  className="text-xs text-[#1b4235] hover:text-[#15352a] font-medium transition-colors">Editar</button>
                                 <button onClick={() => toggleActive(ing)}
-                                  className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors">Desactivar</button>
+                                  className="text-xs text-gray-600 hover:text-gray-800 font-medium transition-colors">Desactivar</button>
+                                {/* Sobre el fondo rosa de las filas bajas, el rojo
+                                    claro no se leía. Se usa el rojo oscuro. */}
                                 <button onClick={() => handleDelete(ing.id, ing.name)}
-                                  className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">Eliminar</button>
+                                  className="text-xs text-[#b03a2e] hover:text-[#8a2a20] font-medium transition-colors">Eliminar</button>
                               </div>
                             </td>
                           </tr>
@@ -397,7 +404,7 @@ export default function IngredientsPage() {
                           <td className="py-3 px-4 text-center text-gray-400">{ing.recipeUsageCount}</td>
                           <td className="py-3 px-4 text-center">
                             <button onClick={() => toggleActive(ing)}
-                              className="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors">Reactivar</button>
+                              className="text-xs text-blue-500 hover:text-[#15352a] font-medium transition-colors">Reactivar</button>
                           </td>
                         </tr>
                       ))}
@@ -453,7 +460,7 @@ export default function IngredientsPage() {
               <button
                 onClick={confirmAdjust}
                 disabled={saving}
-                className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                className="flex-1 px-4 py-2 bg-[#b03a2e] text-white text-sm font-medium rounded-lg hover:bg-[#96322a] disabled:opacity-50 transition-colors"
               >
                 {saving ? 'Guardando...' : 'Autorizar y guardar'}
               </button>

@@ -133,8 +133,8 @@ export default function EditTablePage() {
   if (error && !number) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <p className="text-red-600 mb-4">{error}</p>
-        <Link href="/admin/restaurant/tables" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+        <p className="text-[#b03a2e] mb-4">{error}</p>
+        <Link href="/admin/restaurant/tables" className="text-[#1b4235] hover:text-blue-800 text-sm font-medium">
           ← Volver a mesas
         </Link>
       </div>
@@ -169,7 +169,7 @@ export default function EditTablePage() {
                   type="text"
                   value={number}
                   onChange={(e) => setNumber(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                   required
                 />
               </div>
@@ -182,7 +182,7 @@ export default function EditTablePage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                 />
               </div>
 
@@ -194,7 +194,7 @@ export default function EditTablePage() {
                     value={capacity}
                     onChange={(e) => setCapacity(e.target.value === '' ? '' : Number(e.target.value))}
                     min={1}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                     required
                   />
                 </div>
@@ -203,7 +203,7 @@ export default function EditTablePage() {
                   <select
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
                   >
                     {LOCATIONS.map((loc) => (
                       <option key={loc} value={loc}>{loc}</option>
@@ -218,7 +218,7 @@ export default function EditTablePage() {
                   id="isActive"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
                 />
                 <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Activa</label>
               </div>
@@ -235,14 +235,14 @@ export default function EditTablePage() {
                   onClick={handleDelete}
                   disabled={deleting || !!openSession}
                   title={openSession ? 'Cierra la sesión activa primero' : 'Desactivar mesa'}
-                  className="px-4 py-2 border border-red-200 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 border border-red-200 text-sm font-medium text-[#b03a2e] rounded-lg hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   {deleting ? 'Desactivando...' : 'Desactivar'}
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  className="flex-1 px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
                 >
                   {saving ? 'Guardando...' : 'Guardar cambios'}
                 </button>

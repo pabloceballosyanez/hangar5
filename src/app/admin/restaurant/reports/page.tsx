@@ -64,7 +64,7 @@ export default async function ReportsPage() {
         <h1 className="text-2xl font-bold text-gray-900">📊 Reportes</h1>
         <Link
           href="/admin/restaurant/reports/pl"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#1b4235] px-4 py-2 text-sm font-medium text-white hover:bg-[#15352a] transition-colors"
         >
           Ver P&L Mensual →
         </Link>
@@ -168,7 +168,7 @@ export default async function ReportsPage() {
             <hr className="border-gray-200" />
             <div className="flex justify-between text-sm font-bold">
               <span className="text-gray-700">Neto (est.)</span>
-              <span className={netAfterLabor >= 0 ? "text-green-600" : "text-red-600"}>
+              <span className={netAfterLabor >= 0 ? "text-[#1b4235]" : "text-[#b03a2e]"}>
                 {formatMXN(netAfterLabor)}
               </span>
             </div>

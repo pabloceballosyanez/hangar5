@@ -113,7 +113,7 @@ export default function UbicacionesPage() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mb-4">{error}</p>
+        <p className="text-sm text-[#b03a2e] bg-red-50 rounded-lg px-3 py-2 mb-4">{error}</p>
       )}
 
       <div className="flex flex-wrap gap-3 items-center mb-4">

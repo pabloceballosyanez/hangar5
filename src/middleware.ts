@@ -206,6 +206,28 @@ export function middleware(req: NextRequest) {
     }
   }
 
+  /* ── KDS y Mesero: mismo trato que el Despegue ──────────────────────
+     Antes no estaban en el matcher: cualquiera con la URL entraba a ver
+     los pedidos sin identificarse. Ahora piden PIN como el resto, y
+     respetan ?from= para volver a donde ibas. */
+  if (
+    pathname.startsWith("/kds") ||
+    pathname.startsWith("/waiter") ||
+    pathname.startsWith("/solo")
+  ) {
+    const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
+    if (isStaffCookie(staffToken)) {
+      return NextResponse.next();
+    }
+    // /waiter/login ya redirige solo; se deja pasar para no hacer bucle
+    if (pathname === "/waiter/login") {
+      return NextResponse.next();
+    }
+    const loginStaff = new URL("/login", req.url);
+    loginStaff.searchParams.set("from", pathname);
+    return NextResponse.redirect(loginStaff);
+  }
+
   // ── Admin pages → redirect to login ────────────────────────────────────
   if (pathname.startsWith("/admin")) {
     if (isAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value)) {
@@ -276,5 +298,17 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/cafe/:path*", "/cafe", "/api/cafe/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/api/admin/:path*",
+    "/cafe/:path*",
+    "/cafe",
+    "/api/cafe/:path*",
+    "/kds/:path*",
+    "/kds",
+    "/waiter/:path*",
+    "/waiter",
+    "/solo/:path*",
+    "/solo",
+  ],
 };

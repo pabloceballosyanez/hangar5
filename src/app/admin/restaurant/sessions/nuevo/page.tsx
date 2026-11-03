@@ -86,7 +86,7 @@ export default function NuevoTabPage() {
     <div className="max-w-lg mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Abrir cuenta</h1>
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+        {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
 
         {/* Type selector */}
         <div>
@@ -122,7 +122,7 @@ export default function NuevoTabPage() {
             value={label}
             onChange={e => setLabel(e.target.value)}
             placeholder={tabType === 'TABLE' ? 'Ej: Mesa terraza' : 'Ej: Grupo Juan'}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
             required
           />
         </div>
@@ -134,7 +134,7 @@ export default function NuevoTabPage() {
             <select
               value={tableId}
               onChange={e => setTableId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
             >
               <option value="">Seleccionar mesa...</option>
               {tables.filter(t => t.isActive).map(t => (
@@ -154,7 +154,7 @@ export default function NuevoTabPage() {
             value={customerSearch}
             onChange={e => { setCustomerSearch(e.target.value); setSelectedCustomer(null); }}
             placeholder="Buscar cliente existente..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none mb-2"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none mb-2"
           />
           {customerSearch && filteredCustomers.length > 0 && !selectedCustomer && (
             <div className="border border-gray-200 rounded-lg divide-y divide-gray-100 mb-2 max-h-40 overflow-y-auto">
@@ -207,7 +207,7 @@ export default function NuevoTabPage() {
                   value={customerName}
                   onChange={e => setCustomerName(e.target.value)}
                   placeholder="Nombre"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                 />
               </div>
               <div>
@@ -217,7 +217,7 @@ export default function NuevoTabPage() {
                   value={customerPhone}
                   onChange={e => setCustomerPhone(e.target.value)}
                   placeholder="+52..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                 />
               </div>
             </div>
@@ -231,7 +231,7 @@ export default function NuevoTabPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="flex-1 py-2.5 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
           >
             {saving ? 'Creando...' : 'Abrir cuenta'}
           </button>

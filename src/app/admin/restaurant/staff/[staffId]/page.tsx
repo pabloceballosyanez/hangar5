@@ -18,7 +18,7 @@ const ROLES = [
 const roleLabel: Record<string, string> = Object.fromEntries(ROLES.map(r => [r.value, r.label]));
 const roleColor: Record<string, string> = {
   SUPER_ADMIN: 'bg-purple-100 text-purple-700',
-  GERENTE: 'bg-blue-100 text-blue-700',
+  GERENTE: 'bg-blue-100 text-[#15352a]',
   GERENTE_TURNO: 'bg-indigo-100 text-indigo-700',
   MESERO: 'bg-green-100 text-green-700',
   COCINERO: 'bg-orange-100 text-orange-700',
@@ -204,8 +204,8 @@ export default function StaffDetailPage() {
   if (!staff) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <p className="text-red-600 mb-4">Staff no encontrado</p>
-        <Link href="/admin/restaurant/staff" className="text-blue-600 text-sm">← Volver</Link>
+        <p className="text-[#b03a2e] mb-4">Staff no encontrado</p>
+        <Link href="/admin/restaurant/staff" className="text-[#1b4235] text-sm">← Volver</Link>
       </div>
     );
   }
@@ -235,7 +235,7 @@ export default function StaffDetailPage() {
           { key: 'clocks' as const, label: `Fichajes (${staff.clocks?.length || 0})` },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key ? 'border-blue-600 text-[#1b4235]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
             {tab.label}
           </button>
         ))}
@@ -245,24 +245,24 @@ export default function StaffDetailPage() {
       {activeTab === 'info' && (
         <form onSubmit={handleSave} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
           <h2 className="font-semibold text-gray-900">Editar información</h2>
-          {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+          {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
           <div>
             <label className="block text-xs text-gray-500 mb-1">Nombre</label>
             <input type="text" value={editName} onChange={e => setEditName(e.target.value)} required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
           </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">PIN (4 dígitos)</label>
             <input type="text" value={editPin} onChange={e => setEditPin(e.target.value.replace(/\D/g,'').slice(0,4))}
               maxLength={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-[0.5em] text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-[0.5em] text-center text-lg focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
               placeholder="0000" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Rol</label>
               <select value={editRole} onChange={e => setEditRole(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
                 {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
             </div>
@@ -270,29 +270,29 @@ export default function StaffDetailPage() {
               <label className="block text-xs text-gray-500 mb-1">Pago/hr (MXN)</label>
               <input type="number" value={editRate} onChange={e => setEditRate(e.target.value === '' ? '' : Number(e.target.value))}
                 min={0} step={0.01}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Teléfono</label>
               <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Email</label>
               <input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
           </div>
           <div className="flex items-center gap-3">
             <input type="checkbox" id="editActive" checked={editActive} onChange={e => setEditActive(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+              className="w-4 h-4 rounded border-gray-300 text-[#1b4235] focus:ring-[#1b4235]/40" />
             <label htmlFor="editActive" className="text-sm text-gray-700">Activo</label>
           </div>
           <div className="flex gap-3 pt-2">
           <button type="submit" disabled={saving}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
+            className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50">
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
           <button type="button" onClick={async () => {
@@ -303,7 +303,7 @@ export default function StaffDetailPage() {
               router.push('/admin/restaurant/staff');
             } catch { alert('No se pudo eliminar'); }
           }}
-            className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700">
+            className="px-4 py-2 bg-[#b03a2e] text-white text-sm font-medium rounded-lg hover:bg-[#96322a]">
             🗑 Eliminar
           </button>
           </div></form>
@@ -319,21 +319,21 @@ export default function StaffDetailPage() {
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Fecha</label>
                 <input type="date" value={shiftDate} onChange={e => setShiftDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Entrada</label>
                 <input type="time" value={shiftStart} onChange={e => setShiftStart(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Salida</label>
                 <input type="time" value={shiftEnd} onChange={e => setShiftEnd(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
               </div>
             </div>
             <button type="submit" disabled={addingShift}
-              className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
+              className="mt-3 px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50">
               {addingShift ? 'Agregando...' : '+ Agregar turno'}
             </button>
           </form>
@@ -396,10 +396,10 @@ export default function StaffDetailPage() {
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Fecha y hora</label>
                 <input type="datetime-local" value={clockTimestamp} onChange={e => setClockTimestamp(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
               </div>
               <button onClick={handleClock} disabled={clocking}
-                className="py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                className="py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50">
                 {clocking ? 'Registrando...' : 'Registrar'}
               </button>
             </div>

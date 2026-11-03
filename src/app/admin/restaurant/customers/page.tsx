@@ -115,7 +115,7 @@ export default function CustomersPage() {
           </button>
           <Link
             href="/admin/restaurant/customers/nuevo"
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
           >
             + Nuevo cliente
           </Link>
@@ -131,7 +131,7 @@ export default function CustomersPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email o teléfono..."
-            className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+            className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none bg-white"
           />
         </div>
         <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
@@ -158,7 +158,7 @@ export default function CustomersPage() {
       ) : customers.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
           <p className="text-gray-400 text-lg">No hay clientes</p>
-          <Link href="/admin/restaurant/customers/nuevo" className="inline-block mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium">
+          <Link href="/admin/restaurant/customers/nuevo" className="inline-block mt-4 text-[#1b4235] hover:text-blue-800 text-sm font-medium">
             + Agregar primer cliente →
           </Link>
         </div>
@@ -191,11 +191,11 @@ export default function CustomersPage() {
 
               {/* Saldo */}
               <div className="text-right shrink-0 w-24">
-                <p className={`text-sm font-bold ${c.balance > 0 ? 'text-red-600' : c.balance < 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                <p className={`text-sm font-bold ${c.balance > 0 ? 'text-[#b03a2e]' : c.balance < 0 ? 'text-[#1b4235]' : 'text-gray-400'}`}>
                   {c.balance > 0 ? `-$${c.balance.toFixed(0)}` : c.balance < 0 ? `+$${Math.abs(c.balance).toFixed(0)}` : '$0'}
                 </p>
                 {c.hasCredit && c.creditLimit != null && (
-                  <p className="text-[10px] text-blue-600">tope ${(c.creditLimit / 100).toFixed(0)}</p>
+                  <p className="text-[10px] text-[#1b4235]">tope ${(c.creditLimit / 100).toFixed(0)}</p>
                 )}
               </div>
 
@@ -229,7 +229,7 @@ export default function CustomersPage() {
                   className={`w-8 h-8 flex items-center justify-center rounded-lg border text-sm transition-all disabled:opacity-50 ${
                     c.isActive
                       ? 'bg-white border-gray-200 text-gray-400 hover:bg-red-50 hover:border-red-200 hover:text-red-500'
-                      : 'bg-white border-gray-200 text-gray-400 hover:bg-green-50 hover:border-green-200 hover:text-green-600'
+                      : 'bg-white border-gray-200 text-gray-400 hover:bg-green-50 hover:border-green-200 hover:text-[#1b4235]'
                   }`}
                 >
                   {c.isActive ? '✕' : '↻'}

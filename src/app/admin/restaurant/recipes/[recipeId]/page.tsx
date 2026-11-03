@@ -126,7 +126,7 @@ export default function RecipeDetailPage() {
   }
 
   if (loading) return <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" /><p className="text-gray-500">Cargando...</p></div>;
-  if (!recipe) return <div className="text-center py-12"><p className="text-gray-500">Receta no encontrada</p><Link href="/admin/restaurant/recipes" className="text-blue-600 text-sm">← Volver</Link></div>;
+  if (!recipe) return <div className="text-center py-12"><p className="text-gray-500">Receta no encontrada</p><Link href="/admin/restaurant/recipes" className="text-[#1b4235] text-sm">← Volver</Link></div>;
 
   // Calculate total cost including inherited ingredients (all in centavos consistently)
   const allItems = [...recipe.recipeItems, ...(recipe.inheritedItems || [])];
@@ -181,7 +181,7 @@ export default function RecipeDetailPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <p className="text-xs text-gray-500 uppercase tracking-wider">Margen estimado</p>
-          <p className={`text-2xl font-bold mt-1 ${margin !== '—' && Number(margin) > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+          <p className={`text-2xl font-bold mt-1 ${margin !== '—' && Number(margin) > 0 ? 'text-emerald-600' : 'text-[#b03a2e]'}`}>
             {margin !== '—' ? `${margin}%` : '—'}
           </p>
         </div>
@@ -190,21 +190,21 @@ export default function RecipeDetailPage() {
       {/* Edit recipe fields */}
       <form onSubmit={handleUpdate} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-3">
         <h2 className="font-semibold text-gray-900 text-sm">Detalles de receta</h2>
-        {error && <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>}
+        {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-2 rounded">{error}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-gray-500 mb-1">Porciones que rinde</label>
             <input type="number" value={yieldQty} onChange={e => setYieldQty(Number(e.target.value))} min={1}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
           </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">Notas</label>
             <input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Ej: Preparación, variaciones..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
           </div>
         </div>
         <button type="submit" disabled={saving}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
+          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50">
           {saving ? 'Guardando...' : 'Guardar'}
         </button>
       </form>
@@ -237,7 +237,7 @@ export default function RecipeDetailPage() {
                   <td className="py-2 px-4 text-right text-gray-600">{fmtMXN(ri.ingredientCostDisplay)}</td>
                   <td className="py-2 px-4 text-right font-semibold text-gray-900">{fmtMXN((ri.ingredientCost * ri.quantity) / 100)}</td>
                   <td className="py-2 px-4 text-center">
-                    <button onClick={() => handleRemoveItem(ri.id)} className="text-red-400 hover:text-red-600 text-sm">✕</button>
+                    <button onClick={() => handleRemoveItem(ri.id)} className="text-red-400 hover:text-[#b03a2e] text-sm">✕</button>
                   </td>
                 </tr>
               ))}
@@ -269,7 +269,7 @@ export default function RecipeDetailPage() {
             <div className="flex-1 min-w-[200px]">
               <label className="block text-xs text-gray-500 mb-1">Ingrediente</label>
               <select value={selectedIngredientId} onChange={e => setSelectedIngredientId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
                 <option value="">Seleccionar...</option>
                 {availableIngredients.map(i => (
                   <option key={i.id} value={i.id}>{i.name} ({i.unit}) — {fmtMXN(i.costDisplay)}</option>
@@ -280,10 +280,10 @@ export default function RecipeDetailPage() {
               <label className="block text-xs text-gray-500 mb-1">Cantidad</label>
               <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)}
                 step="0.01" min="0.01" placeholder="1.0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
             </div>
             <button type="submit" disabled={saving || !selectedIngredientId || !quantity}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
+              className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50">
               {saving ? '...' : '+ Agregar'}
             </button>
           </div>

@@ -165,8 +165,8 @@ export default function CustomerDetailPage() {
   if (!customer) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <p className="text-red-600 mb-4">Cliente no encontrado</p>
-        <Link href="/admin/restaurant/customers" className="text-blue-600 hover:text-blue-800 text-sm">← Volver</Link>
+        <p className="text-[#b03a2e] mb-4">Cliente no encontrado</p>
+        <Link href="/admin/restaurant/customers" className="text-[#1b4235] hover:text-blue-800 text-sm">← Volver</Link>
       </div>
     );
   }
@@ -231,8 +231,8 @@ export default function CustomerDetailPage() {
             disabled={deleting}
             className={`px-3 py-1.5 text-xs font-medium rounded-lg border disabled:opacity-50 transition-colors ${
               customer.isActive
-                ? 'text-red-600 border-red-200 hover:bg-red-50'
-                : 'text-green-600 border-green-200 hover:bg-green-50'
+                ? 'text-[#b03a2e] border-red-200 hover:bg-red-50'
+                : 'text-[#1b4235] border-green-200 hover:bg-green-50'
             }`}
           >
             {deleting ? '⋯' : customer.isActive ? '✕ Desactivar' : '↻ Reactivar'}
@@ -247,14 +247,14 @@ export default function CustomerDetailPage() {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h2 className="text-lg font-semibold text-red-900">💳 Deuda pendiente</h2>
-              <p className="text-sm text-red-600 mt-0.5">
+              <p className="text-sm text-[#b03a2e] mt-0.5">
                 Este cliente debe <span className="font-bold">{formatPrice(customer.balance)}</span>
               </p>
             </div>
             {!showPayForm ? (
               <button
                 onClick={() => { setShowPayForm(true); setPayAmount(customer.balance.toFixed(2)); setPayError(null); }}
-                className="px-5 py-2.5 bg-red-600 hover:bg-red-500 active:scale-95 text-white text-sm font-bold rounded-lg transition-all shadow-sm"
+                className="px-5 py-2.5 bg-[#b03a2e] hover:bg-red-500 active:scale-95 text-white text-sm font-bold rounded-lg transition-all shadow-sm"
               >
                 💵 Registrar pago
               </button>
@@ -271,7 +271,7 @@ export default function CustomerDetailPage() {
           {/* Payment form */}
           {showPayForm && (
             <form onSubmit={handlePay} className="mt-4 bg-white rounded-lg border border-red-200 p-4 space-y-3">
-              {payError && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{payError}</p>}
+              {payError && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{payError}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Monto a cobrar</label>
@@ -323,7 +323,7 @@ export default function CustomerDetailPage() {
               <button
                 type="submit"
                 disabled={paying}
-                className="w-full py-2.5 bg-green-600 hover:bg-green-500 active:scale-95 text-white text-sm font-bold rounded-lg transition-all disabled:opacity-50"
+                className="w-full py-2.5 bg-[#1b4235] hover:bg-green-500 active:scale-95 text-white text-sm font-bold rounded-lg transition-all disabled:opacity-50"
               >
                 {paying ? 'Registrando...' : `✅ Confirmar pago de ${formatPrice(parseFloat(payAmount) || 0)}`}
               </button>
@@ -358,7 +358,7 @@ export default function CustomerDetailPage() {
                     <p className="font-medium text-gray-800 text-sm">{s.label}</p>
                     <p className="text-xs text-gray-400">Abierta {fmtTime(s.openedAt)} · {s.orders.length} órdenes</p>
                   </div>
-                  <span className="text-sm font-bold text-blue-700">{formatPrice(ordersTotal)}</span>
+                  <span className="text-sm font-bold text-[#15352a]">{formatPrice(ordersTotal)}</span>
                 </div>
               );
             })}
@@ -383,7 +383,7 @@ export default function CustomerDetailPage() {
                 </div>
                 <div className="text-right">
                   <span className="text-sm font-bold text-amber-700">{formatPrice(b.totalPrice)}</span>
-                  <p className={`text-xs ${b.status === 'confirmed' ? 'text-green-600' : b.status === 'cancelled' ? 'text-red-500' : 'text-gray-400'}`}>
+                  <p className={`text-xs ${b.status === 'confirmed' ? 'text-[#1b4235]' : b.status === 'cancelled' ? 'text-red-500' : 'text-gray-400'}`}>
                     {b.status}
                   </p>
                 </div>
@@ -398,28 +398,28 @@ export default function CustomerDetailPage() {
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <form onSubmit={handleSave} className="space-y-4">
-              {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+              {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Nombre</label>
-                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" required />
+                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" required />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Teléfono</label>
-                <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Email</label>
-                <input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                <input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Notas</label>
-                <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" />
+                <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none resize-none" />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Límite de crédito (MXN, vacío = sin límite)</label>
-                <input type="number" min="0" step="1" value={editCreditLimit} onChange={e => setEditCreditLimit(e.target.value)} placeholder="Ej: 5000" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                <input type="number" min="0" step="1" value={editCreditLimit} onChange={e => setEditCreditLimit(e.target.value)} placeholder="Ej: 5000" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
               </div>
-              <button type="submit" disabled={saving} className="w-full py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+              <button type="submit" disabled={saving} className="w-full py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
                 {saving ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </form>
@@ -428,7 +428,7 @@ export default function CustomerDetailPage() {
           {/* Balance card */}
           <div className={`rounded-xl p-5 text-center ${customer.balance > 0 ? 'bg-red-50 border border-red-200' : customer.balance < 0 ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
             <p className="text-sm text-gray-500 mb-1">Saldo actual</p>
-            <p className={`text-3xl font-black ${customer.balance > 0 ? 'text-red-600' : customer.balance < 0 ? 'text-green-600' : 'text-gray-600'}`}>
+            <p className={`text-3xl font-black ${customer.balance > 0 ? 'text-[#b03a2e]' : customer.balance < 0 ? 'text-[#1b4235]' : 'text-gray-600'}`}>
               {customer.balance > 0 ? formatPrice(customer.balance) : customer.balance < 0 ? `-${formatPrice(Math.abs(customer.balance))}` : '$0.00'}
             </p>
             <p className="text-xs text-gray-400 mt-1">
@@ -449,13 +449,13 @@ export default function CustomerDetailPage() {
                 {customer.ledgerEntries.map(e => (
                   <div key={e.id} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
                     <div>
-                      <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full mr-2 ${e.type === 'CHARGE' ? 'bg-red-100 text-red-700' : e.type === 'PAYMENT' ? 'bg-green-100 text-green-700' : e.type === 'REFUND' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full mr-2 ${e.type === 'CHARGE' ? 'bg-red-100 text-red-700' : e.type === 'PAYMENT' ? 'bg-green-100 text-green-700' : e.type === 'REFUND' ? 'bg-blue-100 text-[#15352a]' : 'bg-gray-100 text-gray-600'}`}>
                         {typeLabels[e.type] || e.type}
                       </span>
                       {e.note && <span className="text-sm text-gray-600">{e.note}</span>}
                     </div>
                     <div className="text-right">
-                      <span className={`text-sm font-medium ${e.amount > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      <span className={`text-sm font-medium ${e.amount > 0 ? 'text-[#b03a2e]' : 'text-[#1b4235]'}`}>
                         {e.amount > 0 ? `+${formatPrice(e.amount)}` : formatPrice(e.amount)}
                       </span>
                       <p className="text-xs text-gray-400">{new Date(e.createdAt).toLocaleDateString('es-MX')}</p>
@@ -481,7 +481,7 @@ export default function CustomerDetailPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-medium text-gray-800">{s.label}</p>
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${s.status === 'OPEN' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${s.status === 'OPEN' ? 'bg-blue-100 text-[#15352a]' : 'bg-gray-100 text-gray-500'}`}>
                             {s.status === 'OPEN' ? 'Abierta' : 'Cerrada'}
                           </span>
                         </div>
@@ -491,7 +491,7 @@ export default function CustomerDetailPage() {
                       </div>
                       <div className="text-right">
                         {paidTotal > 0 && (
-                          <span className="text-xs font-medium text-green-600">Pagado {formatPrice(paidTotal)}</span>
+                          <span className="text-xs font-medium text-[#1b4235]">Pagado {formatPrice(paidTotal)}</span>
                         )}
                         {s.closedAt && (
                           <p className="text-xs text-gray-400">{new Date(s.closedAt).toLocaleDateString('es-MX')}</p>

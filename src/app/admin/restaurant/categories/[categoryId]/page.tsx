@@ -91,10 +91,10 @@ export default function EditCategoryPage() {
   if (error && !name) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <p className="text-red-600 mb-4">{error}</p>
+        <p className="text-[#b03a2e] mb-4">{error}</p>
         <button
           onClick={() => router.push('/admin/restaurant/categories')}
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          className="text-[#1b4235] hover:text-blue-800 text-sm font-medium"
         >
           ← Volver a categorías
         </button>
@@ -106,7 +106,7 @@ export default function EditCategoryPage() {
     <div className="max-w-md mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Editar categoría</h1>
       <form onSubmit={handleSave} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+        {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
@@ -115,7 +115,7 @@ export default function EditCategoryPage() {
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
           />
         </div>
 
@@ -124,7 +124,7 @@ export default function EditCategoryPage() {
           <select
             value={kind}
             onChange={e => setKind(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
           >
             <option value="FOOD">Comida</option>
             <option value="DRINK">Bebida</option>
@@ -137,7 +137,7 @@ export default function EditCategoryPage() {
             type="number"
             value={sortOrder}
             onChange={e => setSortOrder(Number(e.target.value))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
           />
         </div>
 
@@ -147,7 +147,7 @@ export default function EditCategoryPage() {
             id="isActive"
             checked={isActive}
             onChange={e => setIsActive(e.target.checked)}
-            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
           />
           <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
             Activo
@@ -158,7 +158,7 @@ export default function EditCategoryPage() {
           <button
             type="submit"
             disabled={saving || !name.trim()}
-            className="flex-1 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="flex-1 py-2.5 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
           >
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
@@ -167,7 +167,7 @@ export default function EditCategoryPage() {
             onClick={handleDelete}
             disabled={deleting || menuItemCount > 0}
             title={menuItemCount > 0 ? 'Elimina los items primero' : 'Eliminar categoría'}
-            className="px-4 py-2.5 border border-red-200 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2.5 border border-red-200 text-[#b03a2e] text-sm font-medium rounded-lg hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {deleting ? 'Eliminando...' : 'Eliminar'}
           </button>

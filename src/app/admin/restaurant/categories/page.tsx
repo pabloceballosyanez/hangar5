@@ -22,7 +22,7 @@ export default async function CategoriesPage() {
         <h1 className="text-2xl font-bold text-gray-900">Categorías</h1>
         <Link
           href="/admin/restaurant/categories/nueva"
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
         >
           + Nueva categoría
         </Link>
@@ -81,7 +81,7 @@ export default async function CategoriesPage() {
                         className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
                           cat.kind === "FOOD"
                             ? "bg-orange-100 text-orange-700"
-                            : "bg-blue-100 text-blue-700"
+                            : "bg-blue-100 text-[#15352a]"
                         }`}
                       >
                         {kindLabel[cat.kind] || cat.kind}
@@ -107,7 +107,7 @@ export default async function CategoriesPage() {
                     <td className="py-3 px-4 text-right">
                       <Link
                         href={`/admin/restaurant/categories/${cat.id}`}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        className="text-[#1b4235] hover:text-blue-800 text-sm font-medium"
                       >
                         Editar →
                       </Link>

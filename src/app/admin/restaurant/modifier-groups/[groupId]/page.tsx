@@ -248,10 +248,10 @@ export default function ModifierGroupPage() {
   if (error && !name && !isNew) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <p className="text-red-600 mb-4">{error}</p>
+        <p className="text-[#b03a2e] mb-4">{error}</p>
         <Link
           href="/admin/restaurant/modifier-groups"
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          className="text-[#1b4235] hover:text-blue-800 text-sm font-medium"
         >
           ← Volver a modificadores
         </Link>
@@ -289,7 +289,7 @@ export default function ModifierGroupPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
               placeholder='Ej: "Término de la carne", "Extras"'
             />
           </div>
@@ -304,7 +304,7 @@ export default function ModifierGroupPage() {
                 value={minSelections}
                 onChange={(e) => setMinSelections(Math.max(0, parseInt(e.target.value) || 0))}
                 min={0}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
               />
             </div>
             <div>
@@ -316,7 +316,7 @@ export default function ModifierGroupPage() {
                 value={maxSelections}
                 onChange={(e) => setMaxSelections(Math.max(1, parseInt(e.target.value) || 1))}
                 min={1}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
               />
             </div>
           </div>
@@ -327,7 +327,7 @@ export default function ModifierGroupPage() {
               id="isRequired"
               checked={isRequired}
               onChange={(e) => setIsRequired(e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
             />
             <label htmlFor="isRequired" className="text-sm font-medium text-gray-700">
               Requerido
@@ -348,7 +348,7 @@ export default function ModifierGroupPage() {
               <button
                 type="button"
                 onClick={handleDeleteGroup}
-                className="px-4 py-2 border border-red-200 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors"
+                className="px-4 py-2 border border-red-200 text-[#b03a2e] text-sm font-medium rounded-lg hover:bg-red-50 transition-colors"
               >
                 Eliminar grupo
               </button>
@@ -356,7 +356,7 @@ export default function ModifierGroupPage() {
             <button
               type="submit"
               disabled={saving || !name.trim()}
-              className="flex-1 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              className="flex-1 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
             >
               {saving ? 'Guardando...' : isNew ? 'Crear grupo' : 'Guardar cambios'}
             </button>
@@ -379,7 +379,7 @@ export default function ModifierGroupPage() {
                 value={newModName}
                 onChange={(e) => setNewModName(e.target.value)}
                 placeholder="Nombre del modificador"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
               />
             </div>
             <div className="w-28">
@@ -389,13 +389,13 @@ export default function ModifierGroupPage() {
                 value={newModPrice}
                 onChange={(e) => setNewModPrice(e.target.value)}
                 placeholder="Precio"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
               />
             </div>
             <button
               type="submit"
               disabled={addingMod || !newModName.trim()}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors whitespace-nowrap"
+              className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors whitespace-nowrap"
             >
               {addingMod ? '...' : '+ Agregar'}
             </button>
@@ -435,7 +435,7 @@ export default function ModifierGroupPage() {
                         type="checkbox"
                         checked={mod.deductsInventory}
                         onChange={(e) => updateModifierField(mod.id, 'deductsInventory', e.target.checked)}
-                        className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                        className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
                       />
                       <span className="text-xs font-medium text-gray-700">
                         ☑️ ¿Descuenta inventario?
@@ -449,7 +449,7 @@ export default function ModifierGroupPage() {
                           <select
                             value={mod.inventoryIngredientId || ''}
                             onChange={(e) => updateModifierField(mod.id, 'inventoryIngredientId', e.target.value || null)}
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-[#1b4235]/40 outline-none"
                           >
                             <option value="">Seleccionar...</option>
                             {ingredients.map(ing => (
@@ -467,7 +467,7 @@ export default function ModifierGroupPage() {
                             min="0"
                             value={mod.inventoryQuantity || ''}
                             onChange={(e) => updateModifierField(mod.id, 'inventoryQuantity', parseFloat(e.target.value) || 0)}
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-[#1b4235]/40 outline-none"
                           />
                         </div>
                       </div>

@@ -48,7 +48,7 @@ export default function NuevoClientePage() {
     <div className="max-w-md mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Nuevo cliente</h1>
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+        {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Nombre <span className="text-red-500">*</span></label>
@@ -57,7 +57,7 @@ export default function NuevoClientePage() {
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
             placeholder="Ej: Juan Pérez"
           />
         </div>
@@ -69,7 +69,7 @@ export default function NuevoClientePage() {
               type="tel"
               value={phone}
               onChange={e => setPhone(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
               placeholder="+52..."
             />
           </div>
@@ -79,7 +79,7 @@ export default function NuevoClientePage() {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
               placeholder="correo@..."
             />
           </div>
@@ -91,7 +91,7 @@ export default function NuevoClientePage() {
             value={notes}
             onChange={e => setNotes(e.target.value)}
             rows={2}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none resize-none"
             placeholder="Cliente frecuente, prefiere terraza..."
           />
         </div>
@@ -102,7 +102,7 @@ export default function NuevoClientePage() {
               type="checkbox"
               checked={hasCredit}
               onChange={e => setHasCredit(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="w-4 h-4 rounded border-gray-300 text-[#1b4235] focus:ring-[#1b4235]/40"
             />
             <span className="text-sm font-medium text-gray-700">📋 Habilitar crédito (puede cargar a su cuenta)</span>
           </label>
@@ -115,7 +115,7 @@ export default function NuevoClientePage() {
                 step="1"
                 value={creditLimit}
                 onChange={e => setCreditLimit(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                 placeholder="Ej: 5000 (dejar vacío = sin límite)"
               />
               <p className="text-xs text-gray-400 mt-1">En pesos MXN. Dejalo vacío para crédito sin tope.</p>
@@ -130,7 +130,7 @@ export default function NuevoClientePage() {
           <button
             type="submit"
             disabled={saving || !name.trim()}
-            className="flex-1 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="flex-1 py-2.5 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
           >
             {saving ? 'Creando...' : 'Crear cliente'}
           </button>

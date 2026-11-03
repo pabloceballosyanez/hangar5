@@ -151,7 +151,7 @@ export default function PaginaTipos() {
       />
 
       {error && (
-        <p className="mb-4 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+        <p className="mb-4 text-sm text-[#b03a2e] bg-red-50 rounded-lg px-3 py-2">{error}</p>
       )}
 
       <div className="space-y-2">

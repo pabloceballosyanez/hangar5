@@ -60,7 +60,7 @@ export default function NuevoStaffPage() {
     <div className="max-w-md mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Nuevo miembro del staff</h1>
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+        {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Nombre <span className="text-red-500">*</span></label>
@@ -69,7 +69,7 @@ export default function NuevoStaffPage() {
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
             placeholder="Ej: Ana López"
           />
         </div>
@@ -81,7 +81,7 @@ export default function NuevoStaffPage() {
             value={pin}
             onChange={e => setPin(e.target.value.replace(/\D/g,'').slice(0,4))}
             maxLength={4}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none tracking-[0.5em] text-center text-lg"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none tracking-[0.5em] text-center text-lg"
             placeholder="0000"
           />
         </div>
@@ -91,7 +91,7 @@ export default function NuevoStaffPage() {
           <select
             value={role}
             onChange={e => setRole(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
           >
             {ROLES.map(r => (
               <option key={r.value} value={r.value}>{r.label}</option>
@@ -106,7 +106,7 @@ export default function NuevoStaffPage() {
               type="tel"
               value={phone}
               onChange={e => setPhone(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
               placeholder="+52..."
             />
           </div>
@@ -116,7 +116,7 @@ export default function NuevoStaffPage() {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
               placeholder="correo@..."
             />
           </div>
@@ -132,7 +132,7 @@ export default function NuevoStaffPage() {
               onChange={e => setHourlyRate(e.target.value === '' ? '' : Number(e.target.value))}
               min={0}
               step={0.01}
-              className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
             />
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function NuevoStaffPage() {
           <button
             type="submit"
             disabled={saving || !name.trim()}
-            className="flex-1 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="flex-1 py-2.5 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
           >
             {saving ? 'Creando...' : 'Crear staff'}
           </button>
