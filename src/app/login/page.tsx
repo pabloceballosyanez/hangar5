@@ -75,7 +75,15 @@ export default function LoginPage() {
         const data = await res.json();
         const role = data.staff.role;
         // Redirigir según rol
-        if (role === 'MESERO') router.push('/waiter');
+        /* Volver a donde intentabas entrar.
+           Antes, si abrías /cafe, el middleware te mandaba a /login, y
+           al entrar te dejaba en /admin: nunca llegabas a la barra. Con
+           ?from=... se regresa al destino original. Si no hay destino,
+           se usa el de siempre según el rol. */
+        const destino = new URLSearchParams(window.location.search).get('from');
+        if (destino && destino.startsWith('/')) {
+          router.push(destino);
+        } else if (role === 'MESERO') router.push('/waiter');
         else if (role === 'COCINERO' || role === 'BAR') router.push('/kds');
         else if (role === 'RECEPCION') router.push('/admin');
         else if (role === 'CAJA') router.push('/admin/restaurant/reports');

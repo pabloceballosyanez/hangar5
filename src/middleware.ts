@@ -184,7 +184,11 @@ export function middleware(req: NextRequest) {
     if (pathname.startsWith("/api/cafe")) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/login", req.url));
+    /* Se guarda el destino para que, al entrar con el PIN, el barista
+       vuelva a la barra en vez de caer en /admin. */
+    const loginCafe = new URL("/login", req.url);
+    loginCafe.searchParams.set("from", pathname);
+    return NextResponse.redirect(loginCafe);
   }
 
   /* Operaciones de piso desde el Despegue.

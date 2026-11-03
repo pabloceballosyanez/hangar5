@@ -304,6 +304,13 @@ export default function BarraCafe() {
                     <button key={c.id}
                       onClick={() => {
                         setNombre(c.name); setClienteId(c.id);
+                        /* Si el barista elige un cliente del Hangar, lo
+                           más probable es que quiera cargarlo a su
+                           cuenta: para eso lo buscó. Se preselecciona
+                           "A su cuenta" para que no cobre en efectivo
+                           por descuido — es justo lo que pasó con
+                           Pablo Ceballos. */
+                        setMetodo('CUENTA');
                         setBuscaCliente(''); setSugerencias([]); setMostrarSugerencias(false);
                       }}
                       className="block w-full text-left px-3 py-2 text-sm hover:bg-ink-4">
@@ -468,18 +475,32 @@ export default function BarraCafe() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-1.5 mb-3">
-              {METODOS.map((m) => (
-                <button key={m.valor} onClick={() => setMetodo(m.valor)}
-                  className={`py-2 rounded-lg text-xs border transition-colors ${
-                    metodo === m.valor
-                      ? 'bg-brass/15 border-brass/50 text-brass'
-                      : 'border-hair text-ash'
-                  }`}>
-                  {m.etiqueta}
-                </button>
-              ))}
+            {/* Método de pago. El elegido se marca fuerte: antes todos
+                se veían igual y era fácil cobrar en efectivo sin querer
+                una venta que iba a cuenta. */}
+            <div className="grid grid-cols-2 gap-1.5 mb-2">
+              {METODOS.map((m) => {
+                const activo = metodo === m.valor;
+                return (
+                  <button key={m.valor} onClick={() => setMetodo(m.valor)}
+                    className={`py-2.5 rounded-lg text-xs border font-medium transition-colors ${
+                      activo
+                        ? 'bg-brass text-ink border-brass'
+                        : 'border-hair text-ash hover:border-brass/40'
+                    }`}>
+                    {activo ? '✓ ' : ''}{m.etiqueta}
+                  </button>
+                );
+              })}
             </div>
+
+            {clienteId && metodo !== 'CUENTA' && (
+              <p className="text-[10px] text-warn bg-warn/10 rounded px-2 py-1.5 mb-2">
+                Elegiste un cliente del Hangar pero vas a cobrar en{' '}
+                {METODOS.find((m) => m.valor === metodo)?.etiqueta.toLowerCase()}.
+                Si va a su cuenta, toca “A su cuenta”.
+              </p>
+            )}
 
             {metodo === 'CUENTA' && (
               <p className="text-[10px] text-smoke bg-ink-3 rounded px-2 py-1.5 mb-2">
