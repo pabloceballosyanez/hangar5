@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { puede, zonaDeRuta, inicioDe } from "@/lib/permisos";
 
 // ─── Edge-compatible JWT helpers ─────────────────────────────────────────────
 // Middleware runs on Edge runtime where Node.js crypto isn't available.
@@ -66,20 +67,9 @@ function getStaffRole(token: string | undefined): string | null {
 // ─── Role permissions (must match auth.ts) ───────────────────────────────────
 
 /** Roles that can manage restaurant (menu, orders, sessions, etc.) */
-const RESTAURANT_ROLES = ["SUPER_ADMIN", "GERENTE", "GERENTE_TURNO"];
-
-/** Admin-level roles (can access all /api/admin routes) */
-const ADMIN_ROLES = ["SUPER_ADMIN", "GERENTE"];
-
-function staffCanManageRestaurant(role: string | null): boolean {
-  if (!role) return false;
-  return RESTAURANT_ROLES.includes(role);
-}
-
-function staffIsAdmin(role: string | null): boolean {
-  if (!role) return false;
-  return ADMIN_ROLES.includes(role);
-}
+/* La tabla de roles vive en src/lib/permisos.ts. Aquí se borró a
+   propósito: tener los roles definidos en dos lados fue justo lo que
+   dejó entrar a un mesero a endpoints de admin. */
 
 // ─── Route config ─────────────────────────────────────────────────────────────
 
@@ -95,24 +85,21 @@ const RESTAURANT_API_PREFIX = "/api/admin/restaurant";
  * Restaurant management endpoints that require restaurant-level permissions.
  * Staff with MESERO/COCINERO/BAR roles cannot access these.
  */
-const RESTAURANT_MANAGEMENT_PATHS = [
-  /^\/api\/admin\/restaurant\/menu-items/,
-  /^\/api\/admin\/restaurant\/categories/,
-  /^\/api\/admin\/restaurant\/modifier-groups/,
-  /^\/api\/admin\/restaurant\/staff/,
-  /^\/api\/admin\/restaurant\/customers/,
-  /^\/api\/admin\/restaurant\/recipes/,
-  /^\/api\/admin\/restaurant\/ingredients/,
-  /^\/api\/admin\/restaurant\/inventory/,
-  /^\/api\/admin\/restaurant\/reports/,
-  /^\/api\/admin\/restaurant\/fixed-expenses/,
-  /^\/api\/admin\/restaurant\/stock-movements/,
-  /^\/api\/admin\/restaurant\/tables/,       // table CRUD
-  /^\/api\/admin\/restaurant\/sessions/,      // session CRUD
-];
+/* Antes había aquí una lista de regex con los endpoints "de gestión".
+   Duplicaba la tabla de permisos y se desincronizó: Cheny no veía la
+   pantalla de Staff pero sí podía llamar a su API. Ahora se traduce la
+   ruta de API a la de pantalla y se pregunta a la misma tabla.
 
+   Solo se listan las excepciones que no tienen pantalla propia. */
+function zonaDeApiRestaurant(pathname: string) {
+  return zonaDeRuta(pathname.replace("/api/admin/restaurant", "/admin/restaurant"));
+}
+
+/** ¿Este endpoint toca gestión (menú, personal, inventario, dinero)? */
 function isRestaurantManagementPath(pathname: string): boolean {
-  return RESTAURANT_MANAGEMENT_PATHS.some((r) => r.test(pathname));
+  const zona = zonaDeApiRestaurant(pathname);
+  // Operación diaria no es gestión: mesero y caja la necesitan
+  return zona !== null && zona !== "operacion" && zona !== "preparacion";
 }
 
 /**
@@ -228,71 +215,113 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(loginStaff);
   }
 
-  // ── Admin pages → redirect to login ────────────────────────────────────
-  if (pathname.startsWith("/admin")) {
-    if (isAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value)) {
-      return NextResponse.next();
-    }
-    const loginUrl = new URL("/admin/login", req.url);
-    loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // ── Restaurant APIs ────────────────────────────────────────────────────
-  if (pathname.startsWith(RESTAURANT_API_PREFIX)) {
-    const adminToken = req.cookies.get(ADMIN_COOKIE)?.value;
-    const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
-
-    // Admin session → full access
-    if (isAdminCookie(adminToken)) {
-      return NextResponse.next();
-    }
-
-    // Staff session → role-based access
-    if (isStaffCookie(staffToken)) {
-      const role = getStaffRole(staffToken);
-
-      // Restaurant management endpoints → only restaurant-level roles
-      if (isRestaurantManagementPath(pathname)) {
-        if (staffCanManageRestaurant(role)) {
+  // ── Panel de admin: entra quien tenga sesión y permiso ─────────────────
+      /* Antes /admin exigía la contraseña maestra, así que Cheny (gerente)
+         tenía que teclear dos cosas para la misma puerta. Ahora entra con
+         su PIN como todo el mundo y el ROL decide qué ve. La contraseña
+         maestra sigue funcionando solo como llave de emergencia. */
+      if (pathname.startsWith("/admin")) {
+        if (isAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value)) {
           return NextResponse.next();
         }
-        return NextResponse.json(
-          { error: "No autorizado — permiso insuficiente" },
-          { status: 403 }
-        );
+
+        const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
+        const rol = isStaffCookie(staffToken) ? getStaffRole(staffToken) : null;
+
+        if (rol && puede(rol, "admin")) {
+          const zona = zonaDeRuta(pathname);
+          if (!zona || puede(rol, zona)) {
+            return NextResponse.next();
+          }
+          /* Tiene sesión pero no permiso para ESTA pantalla. Se le manda a
+             su inicio en vez de un 403 muerto. Si el inicio es la misma
+             ruta que pidió, se deja pasar: si no, el proxy redirige a sí
+             mismo en bucle y el navegador acaba en el login. */
+          const inicio = inicioDe(rol);
+          if (inicio === pathname || pathname === "/admin" || pathname === "/admin/restaurant") {
+            return NextResponse.next();
+          }
+          return NextResponse.redirect(new URL(inicio, req.url));
+        }
+
+        /* Personal sin acceso al panel (mesero, cocina). No se le manda al
+           login a teclear el PIN otra vez: ya sabemos quién es. Se le
+           regresa a su pantalla, que es donde tiene que estar. */
+        if (rol) {
+          return NextResponse.redirect(new URL(inicioDe(rol), req.url));
+        }
+
+        const loginUrl = new URL("/login", req.url);
+        loginUrl.searchParams.set("from", pathname);
+        return NextResponse.redirect(loginUrl);
       }
 
-      // Order/session operational endpoints → any valid staff role
-      if (role) {
-        return NextResponse.next();
+  // ── Restaurant APIs ────────────────────────────────────────────────────
+      if (pathname.startsWith(RESTAURANT_API_PREFIX)) {
+        const adminToken = req.cookies.get(ADMIN_COOKIE)?.value;
+        const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
+
+        // Llave de emergencia → acceso completo
+        if (isAdminCookie(adminToken)) {
+          return NextResponse.next();
+        }
+
+        /* Personal con PIN. Antes bastaba con tener sesión válida para
+           tocar los endpoints operativos, así que un mesero podía llegar a
+           datos de más. Ahora se mira el ROL contra la misma tabla de
+           permisos que usan las pantallas. */
+        if (isStaffCookie(staffToken)) {
+          const rol = getStaffRole(staffToken);
+          if (!rol) {
+            return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+          }
+
+          /* Los endpoints de gestión del restaurante piden la zona de menú
+             o configuración según lo que toquen; los de operación, la zona
+             de operación. */
+          if (isRestaurantManagementPath(pathname)) {
+            const zona = zonaDeRuta(pathname.replace("/api/admin/restaurant", "/admin/restaurant"));
+            const permitido = zona ? puede(rol, zona) : puede(rol, "menu");
+            if (permitido) return NextResponse.next();
+            return NextResponse.json(
+              { error: "No autorizado — permiso insuficiente" },
+              { status: 403 }
+            );
+          }
+
+          // Operación diaria: cualquier rol con acceso a operación o preparación
+          if (puede(rol, "operacion") || puede(rol, "preparacion")) {
+            return NextResponse.next();
+          }
+
+          return NextResponse.json(
+            { error: "No autorizado — permiso insuficiente" },
+            { status: 403 }
+          );
+        }
+
+        return NextResponse.json({ error: "No autorizado" }, { status: 401 });
       }
 
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
-
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
-  // ── Other admin APIs → admin or admin-level staff only ─────────────────
-  if (pathname.startsWith("/api/admin")) {
-    if (isAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value)) {
-      return NextResponse.next();
-    }
-    // Staff with admin-level role can also access other admin APIs
-    const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
-    if (isStaffCookie(staffToken)) {
-      const role = getStaffRole(staffToken);
-      if (staffIsAdmin(role)) {
-        return NextResponse.next();
+      // ── Other admin APIs → admin or admin-level staff only ─────────────────
+      if (pathname.startsWith("/api/admin")) {
+        if (isAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value)) {
+          return NextResponse.next();
+        }
+        // Staff con acceso al panel también entra a las APIs de admin
+        const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
+        if (isStaffCookie(staffToken)) {
+          const rol = getStaffRole(staffToken);
+          if (rol && puede(rol, "admin")) {
+            return NextResponse.next();
+          }
+          return NextResponse.json(
+            { error: "No autorizado — permiso insuficiente" },
+            { status: 403 }
+          );
+        }
+        return NextResponse.json({ error: "No autorizado" }, { status: 401 });
       }
-      return NextResponse.json(
-        { error: "No autorizado — permiso insuficiente" },
-        { status: 403 }
-      );
-    }
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
 
   return NextResponse.next();
 }

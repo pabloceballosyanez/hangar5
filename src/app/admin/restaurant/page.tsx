@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { validateAdminSession } from "@/lib/auth";
+import { validateAdminSession, leerStaffDesdeToken, STAFF_COOKIE } from "@/lib/auth";
+import { puede } from "@/lib/permisos";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -25,8 +26,22 @@ function getTodayBounds() {
 export default async function RestaurantDashboardPage() {
   const cookieStore = await cookies();
   const session = cookieStore.get("hangar5_admin_session")?.value;
-  if (!session || (session !== "true" && !validateAdminSession(session))) {
-    redirect("/admin/login");
+
+  /* Dos formas de estar aquí:
+       · la contraseña maestra (llave de emergencia)
+       · el PIN de alguien con rol que da acceso al panel (Cheny, caja)
+     Antes solo valía la primera, así que el gerente entraba por el proxy
+     y esta pantalla lo rebotaba al login. */
+  const llaveMaestra = !!session && (session === "true" || validateAdminSession(session));
+
+  let rolPersonal: string | null = null;
+  if (!llaveMaestra) {
+    const staff = leerStaffDesdeToken(cookieStore.get(STAFF_COOKIE)?.value);
+    if (staff && puede(staff.role, "admin")) rolPersonal = staff.role;
+  }
+
+  if (!llaveMaestra && !rolPersonal) {
+    redirect("/login?from=/admin/restaurant");
   }
 
   const { start: todayStart, end: todayEnd } = getTodayBounds();

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { inicioDe } from '@/lib/permisos';
 
 interface Staff {
   id: string;
@@ -74,20 +75,12 @@ export default function LoginPage() {
       if (res.ok) {
         const data = await res.json();
         const role = data.staff.role;
-        // Redirigir según rol
-        /* Volver a donde intentabas entrar.
-           Antes, si abrías /cafe, el middleware te mandaba a /login, y
-           al entrar te dejaba en /admin: nunca llegabas a la barra. Con
-           ?from=... se regresa al destino original. Si no hay destino,
-           se usa el de siempre según el rol. */
+
+        /* A dónde entrar. El destino lo decide el ROL (ver
+           src/lib/permisos.ts), no una cadena de ifs repetida aquí.
+           Si venías de una pantalla concreta, se respeta esa. */
         const destino = new URLSearchParams(window.location.search).get('from');
-        if (destino && destino.startsWith('/')) {
-          router.push(destino);
-        } else if (role === 'MESERO') router.push('/waiter');
-        else if (role === 'COCINERO' || role === 'BAR') router.push('/kds');
-        else if (role === 'RECEPCION') router.push('/admin');
-        else if (role === 'CAJA') router.push('/admin/restaurant/reports');
-        else router.push('/admin');
+        router.push(destino?.startsWith('/') ? destino : inicioDe(role));
       } else {
         const data = await res.json();
         setError(data.error || 'PIN incorrecto');

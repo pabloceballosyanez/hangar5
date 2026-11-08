@@ -180,10 +180,22 @@ export default async function MenuItemsPage({
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-gray-600">{item.category.name}</span>
-                      <span className="text-xs text-gray-400 ml-1">
-                        ({item.category.kind === "FOOD" ? "Comida" : "Bebida"})
-                      </span>
+                      {/* Hay platillos sin categoría y la pantalla reventaba
+                          con "Cannot read properties of null". Se muestran
+                          como "Sin categoría" para poder arreglarlos desde
+                          aquí en vez de que la pantalla se caiga. */}
+                      {item.category ? (
+                        <>
+                          <span className="text-gray-600">{item.category.name}</span>
+                          <span className="text-xs text-gray-400 ml-1">
+                            ({item.category.kind === "FOOD" ? "Comida" : "Bebida"})
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-[#b03a2e] bg-[#b03a2e]/10 px-2 py-0.5 rounded">
+                          Sin categoría
+                        </span>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-right font-semibold text-gray-900">
                       {formatPrice(item.basePrice)}

@@ -119,10 +119,11 @@ export function signStaffSession(staff: StaffSession): string {
   return signJWT({ type: "staff", payload: staff });
 }
 
-export function getStaffSession(req: NextRequest): StaffSession | null {
+/** Lee la sesión de personal desde el token, sin NextRequest.
+ *  Sirve en server components, donde solo hay `cookies()` de next/headers. */
+export function leerStaffDesdeToken(token: string | undefined): StaffSession | null {
+  if (!token) return null;
   try {
-    const token = req.cookies.get(STAFF_COOKIE)?.value;
-    if (!token) return null;
     const payload = verifyJWT(token);
     if (!payload || typeof payload !== "object") return null;
     const p = payload as Record<string, unknown>;
@@ -138,6 +139,10 @@ export function getStaffSession(req: NextRequest): StaffSession | null {
   } catch {
     return null;
   }
+}
+
+export function getStaffSession(req: NextRequest): StaffSession | null {
+  return leerStaffDesdeToken(req.cookies.get(STAFF_COOKIE)?.value);
 }
 
 // Legacy: leer sesión desde cookie (staff) — mantiene compatibilidad con sesiones base64 viejas
