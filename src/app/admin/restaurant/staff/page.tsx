@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { BotonPin } from "./BotonPin";
 
 export const dynamic = "force-dynamic";
 
@@ -9,25 +10,25 @@ export default async function StaffPage() {
   });
 
   const roleLabel: Record<string, string> = {
-    SUPER_ADMIN: "👑 Admin",
-    GERENTE: "💼 Gerente",
-    GERENTE_TURNO: "🕐 Gte Turno",
-    MESERO: "🤵 Mesero",
-    COCINERO: "👨‍🍳 Cocinero",
-    BAR: "🍸 Bar",
-    RECEPCION: "🛎️ Recepción",
-    CAJA: "💰 Caja",
+    SUPER_ADMIN: "Admin",
+    GERENTE: "Gerente",
+    GERENTE_TURNO: "Gte Turno",
+    MESERO: "Mesero",
+    COCINERO: "Cocinero",
+    BAR: "Bar",
+    RECEPCION: "Recepción",
+    CAJA: "Caja",
   };
 
   const roleColor: Record<string, string> = {
-    SUPER_ADMIN: "bg-purple-100 text-purple-700",
-    GERENTE: "bg-blue-100 text-[#15352a]",
-    GERENTE_TURNO: "bg-indigo-100 text-indigo-700",
-    MESERO: "bg-green-100 text-green-700",
-    COCINERO: "bg-orange-100 text-orange-700",
-    BAR: "bg-emerald-100 text-emerald-700",
-    RECEPCION: "bg-yellow-100 text-yellow-700",
-    CAJA: "bg-gray-100 text-gray-700",
+    SUPER_ADMIN: "bg-[#8a7038]/15 text-[#8a7038]",
+    GERENTE: "bg-[#1b4235]/10 text-[#1b4235]",
+    GERENTE_TURNO: "bg-[#1b4235]/10 text-[#1b4235]",
+    MESERO: "bg-gray-100 text-gray-600",
+    COCINERO: "bg-gray-100 text-gray-600",
+    BAR: "bg-gray-100 text-gray-600",
+    RECEPCION: "bg-gray-100 text-gray-600",
+    CAJA: "bg-gray-100 text-gray-600",
   };
 
   return (
@@ -55,38 +56,46 @@ export default async function StaffPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {staff.map((person) => (
-            <Link
+            /* El botón de PIN va fuera del Link: un botón dentro de un
+               enlace se dispara al navegar y no deja confirmar nada. */
+            <div
               key={person.id}
-              href={`/admin/restaurant/staff/${person.id}`}
-              className="block bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow group"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#b88364] to-[#1b4235] flex items-center justify-center text-white font-bold text-lg">
-                  {person.name.charAt(0)}
+              <Link href={`/admin/restaurant/staff/${person.id}`} className="block group">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#b88364] to-[#1b4235] flex items-center justify-center text-white font-bold text-lg">
+                    {person.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 group-hover:text-[#b88364] transition-colors">
+                      {person.name}
+                    </p>
+                    <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${roleColor[person.role] || "bg-gray-100 text-gray-600"}`}>
+                      {roleLabel[person.role] || person.role}
+                    </span>
+                  </div>
+                  <div className="ml-auto text-gray-300 group-hover:text-gray-400 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-gray-900 group-hover:text-[#b88364] transition-colors">
-                    {person.name}
+                <div className="space-y-1 text-sm text-gray-500">
+                  {person.phone && <p>{person.phone}</p>}
+                  {person.email && <p>{person.email}</p>}
+                  <p>${(person.hourlyRate / 100).toFixed(2)}/hora</p>
+                  <p className={person.isActive ? "text-[#1b4235]" : "text-[#b03a2e]"}>
+                    {person.isActive ? "Activo" : "Inactivo"}
                   </p>
-                  <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${roleColor[person.role] || "bg-gray-100"}`}>
-                    {roleLabel[person.role] || person.role}
-                  </span>
+                  {person.debeCambiarPin && (
+                    <p className="text-[11px] text-[#8a7038]">PIN temporal — sin elegir</p>
+                  )}
                 </div>
-                <div className="ml-auto text-gray-300 group-hover:text-gray-400 transition-colors">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="space-y-1 text-sm text-gray-500">
-                {person.phone && <p>📞 {person.phone}</p>}
-                {person.email && <p>✉️ {person.email}</p>}
-                <p>💰 ${(person.hourlyRate / 100).toFixed(2)}/hora</p>
-                <p className={person.isActive ? "text-[#1b4235]" : "text-red-400"}>
-                  {person.isActive ? "Activo" : "Inactivo"}
-                </p>
-              </div>
-            </Link>
+              </Link>
+
+              <BotonPin staffId={person.id} nombre={person.name} />
+            </div>
           ))}
         </div>
       )}

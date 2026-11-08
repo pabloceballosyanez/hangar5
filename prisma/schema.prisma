@@ -589,8 +589,15 @@ model Payment {
 model Staff {
   id         String       @id @default(cuid())
   name       String
-  role       String        @default("MESERO")
+  role       String       @default("MESERO")
   pin        String?
+  /* Si está en true, al entrar la persona no llega a su pantalla: tiene
+     que elegir un PIN nuevo antes. Se pone al dar de alta y al
+     restablecer; se quita cuando ya eligió el suyo. */
+  debeCambiarPin Boolean  @default(true)
+  /* Último cambio de PIN. Sirve para saber si hay PINs repartidos con
+     meses de antigüedad que convenga renovar. */
+  pinActualizadoAt DateTime?
   phone      String?
   email      String?
   hourlyRate Int          @default(0)

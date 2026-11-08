@@ -74,6 +74,9 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({
       success: true,
       staff: { id: staff.id, name: staff.name, role: staff.role },
+      /* Si el PIN lo generó el sistema (alta nueva o restablecimiento),
+         la persona no llega a su pantalla: primero elige el suyo. */
+      debeCambiarPin: staff.debeCambiarPin,
     });
 
     response.cookies.set("hangar5_session", token, {

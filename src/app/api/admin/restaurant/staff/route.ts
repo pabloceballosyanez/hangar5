@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { generarPin, hashearPin, pinEsValido } from "@/lib/pines";
 
 export const dynamic = "force-dynamic";
 
@@ -49,9 +50,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(u);
     }
 
-    const c = await prisma.staff.create({
-      data: { name, role, pin, phone: phone ?? null, email: email || null, hourlyRate },
+    /* Alta nueva. Si no viene PIN, se genera uno único y se devuelve en
+       claro UNA vez para que se lo des. La persona tendrá que elegir el
+       suyo al entrar. Antes se guardaba '0000' para todos. */
+    const otros = await prisma.staff.findMany({
+      where: { pin: { not: null } },
+      select: { pin: true },
     });
-    return NextResponse.json(c, { status: 201 });
-  } catch { return NextResponse.json({ error: "Error" }, { status: 500 }); }
-}
+    const hashes = otros.map((o) => o.pin!).filter(Boolean);
+
+    const pinFinal = pin && pinEsValido(pin).ok ? pin : generarPin(hashes);
+
+    const c = await prisma.staff.create({
+      data: {
+        name,
+        role,
+        pin: hashearPin(pinFinal),
+        debeCambiarPin: !pin, // si no lo eligió el admin, que lo elija quien lo use
+        pinActualizadoAt: new Date(),
+        phone: phone ?? null,
+        email: email || null,
+        hourlyRate,
+      },
+    });
+
+    /* El PIN en claro solo viaja aquí. No se guarda ni se puede volver a
+       consultar. */
+    return NextResponse.json({ ...c, pinTemporal: pin ? undefined : pinFinal }, { status: 201 });
+    } catch { return NextResponse.json({ error: "Error" }, { status: 500 }); }
+    }

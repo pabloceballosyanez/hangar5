@@ -78,7 +78,13 @@ export default function LoginPage() {
 
         /* A dónde entrar. El destino lo decide el ROL (ver
            src/lib/permisos.ts), no una cadena de ifs repetida aquí.
-           Si venías de una pantalla concreta, se respeta esa. */
+           Si venías de una pantalla concreta, se respeta esa — salvo que
+           el PIN lo haya puesto el sistema, en cuyo caso se pasa primero
+           por /mi-pin. */
+        if (data.debeCambiarPin) {
+          router.push('/mi-pin');
+          return;
+        }
         const destino = new URLSearchParams(window.location.search).get('from');
         router.push(destino?.startsWith('/') ? destino : inicioDe(role));
       } else {

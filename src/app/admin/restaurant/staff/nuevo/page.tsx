@@ -37,7 +37,10 @@ export default function NuevoStaffPage() {
         body: JSON.stringify({
           name: name.trim(),
           role,
-          pin: pin.trim() || '0000',
+          /* Sin PIN: lo genera el sistema y se muestra una vez. Antes
+             caía en '0000' para todo el mundo, así que cualquiera podía
+             entrar como cualquiera. */
+          pin: pin.trim() || undefined,
           phone: phone.trim() || null,
           email: email.trim() || null,
           hourlyRate: hourlyRate === '' ? 0 : Number(hourlyRate),
