@@ -44,3 +44,14 @@ export function rateLimit(
     resetIn: Math.ceil((entry.resetAt - now) / 1000),
   };
 }
+
+/**
+ * Borra el conteo de intentos de una clave.
+ *
+ * Se usa cuando alguien entra bien: el que teclea su PIN correcto no
+ * debe seguir acarreando los fallos anteriores, o acaba bloqueado sin
+ * haber fallado seis veces seguidas.
+ */
+export function limpiarIntentos(key: string): void {
+  store.delete(key);
+}

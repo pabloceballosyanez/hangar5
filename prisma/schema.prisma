@@ -204,6 +204,43 @@ model MenuItemModifierGroup {
 // === RECETAS E INVENTARIO ===================================
 // ============================================================
 
+/// Cuánto hay de un insumo en un almacén concreto.
+model StockAlmacen {
+  id           String     @id @default(cuid())
+  almacenId    String
+  almacen      Almacen    @relation(fields: [almacenId], references: [id], onDelete: Cascade)
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  cantidad     Float      @default(0)
+  /* Mínimo propio del almacén. El café no necesita los mismos kilos que
+     la cocina del restaurante. Si es null se usa el del insumo. */
+  minimo       Float?
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([almacenId, ingredientId])
+  @@index([almacenId])
+  @@index([ingredientId])
+}
+
+/// Paso de un insumo de un almacén a otro.
+model Traspaso {
+  id            String   @id @default(cuid())
+  folio         String   @unique
+  ingredientId  String
+  ingredient    Ingredient @relation(fields: [ingredientId], references: [id])
+  origenId      String
+  origen        Almacen  @relation("TraspasoOrigen", fields: [origenId], references: [id])
+  destinoId     String
+  destino       Almacen  @relation("TraspasoDestino", fields: [destinoId], references: [id])
+  cantidad      Float
+  actorName     String?
+  notas         String?
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([ingredientId])
+}
+
 model Ingredient {
   id             String          @id @default(cuid())
   name           String
@@ -217,6 +254,8 @@ model Ingredient {
   recipeItems    RecipeItem[]
   stockMovements StockMovement[]
   modifiers      Modifier[]         @relation("ModifierInventoryIngredient")
+  stocks         StockAlmacen[]
+  traspasos      Traspaso[]
 }
 
 model Recipe {
@@ -367,6 +406,14 @@ model MenuItemUbicacion {
 /* Almacén de inventario por ubicación.
    Fase 1 solo los crea; el inventario separado y los traspasos
    vienen en la fase 2. */
+/// Un almacén: cocina del restaurante, barra del Despegue, o bodega.
+///
+/// ── Por qué existe ──────────────────────────────────────────────────
+/// Antes Ingredient tenía un solo `currentStock` para todo el Hangar, así
+/// que el café y el restaurante se pisaban: si el barista contaba leche,
+/// el restaurante veía ese número. Ahora el stock es por almacén y
+/// moverse entre ellos es un traspaso (sale de uno y entra en otro, la
+/// suma no cambia).
 model Almacen {
   id          String    @id @default(cuid())
   clave       String    @unique   // "cocina" | "barra-cafe"
@@ -374,6 +421,9 @@ model Almacen {
   ubicacionId String?
   ubicacion   Ubicacion? @relation(fields: [ubicacionId], references: [id])
   activo      Boolean   @default(true)
+  stocks      StockAlmacen[]
+  traspasosOrigen  Traspaso[] @relation("TraspasoOrigen")
+  traspasosDestino Traspaso[] @relation("TraspasoDestino")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }

@@ -29,6 +29,7 @@ const sidebarGroups = [
       { href: '/kds', label: 'KDS Cocina', icon: '👨‍🍳' },
       { href: '/admin/restaurant/customers', label: 'Clientes', icon: '👥' },
       { href: '/admin/restaurant/ingredients', label: 'Inventario', icon: '🧂' },
+      { href: '/admin/restaurant/almacenes', label: 'Almacenes', icon: '📦' },
     ],
   },
   {

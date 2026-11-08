@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit, limpiarIntentos } from "@/lib/rate-limit";
 import { hashPassword, verifyPassword, signStaffSession } from "@/lib/auth";
 import type { StaffRole } from "@/lib/auth";
 
@@ -21,15 +21,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "ID y PIN requeridos" }, { status: 400 });
     }
 
-    // Rate limit: 5 attempts per 15 min per IP
-    const limit = rateLimit(`staff-login:${ip}`, 5, 900);
-    if (!limit.allowed) {
+    /* Dos límites, no uno.
+       ────────────────────────────────────────────────────────────────
+       Antes solo se contaba por IP. En el Hangar todos salen por la
+       misma IP pública, así que el bloqueo de una persona dejaba fuera a
+       todo el equipo: Nina se equivocaba cinco veces y Cheny no podía
+       entrar. Y yo, probando desde la Mac, tumbé el acceso de Pablo.
+
+         · Por PERSONA: 6 intentos. Es el límite que de verdad protege:
+           un PIN de 4 dígitos con 6 pruebas por ventana es inatacable.
+         · Por IP: 40. Solo para frenar a un robot que barra nombres.
+
+       Así, quien se equivoque solo se bloquea a sí mismo. */
+    const limitePersona = rateLimit(`pin:${staffId}`, 6, 900);
+    if (!limitePersona.allowed) {
       return NextResponse.json(
-        { error: `Demasiados intentos. Intenta en ${limit.resetIn} segundos.` },
-        {
-          status: 429,
-          headers: { "Retry-After": String(limit.resetIn) },
-        }
+        { error: `Demasiados intentos para este usuario. Intenta en ${limitePersona.resetIn} segundos.` },
+        { status: 429, headers: { "Retry-After": String(limitePersona.resetIn) } }
+      );
+    }
+
+    const limiteIp = rateLimit(`staff-login:${ip}`, 40, 900);
+    if (!limiteIp.allowed) {
+      return NextResponse.json(
+        { error: `Demasiados intentos desde esta red. Intenta en ${limiteIp.resetIn} segundos.` },
+        { status: 429, headers: { "Retry-After": String(limiteIp.resetIn) } }
       );
     }
 
@@ -63,6 +79,11 @@ export async function POST(req: NextRequest) {
     if (!pinValid) {
       return NextResponse.json({ error: "PIN incorrecto" }, { status: 401 });
     }
+
+    /* Entró bien: se le perdona el intento. Si no, quien teclea bien
+       después de dos equivocaciones sigue acarreando el conteo y termina
+       bloqueado sin haber fallado seis veces seguidas. */
+    limpiarIntentos(`pin:${staffId}`);
 
     // Crear cookie de sesión firmada con JWT
     const token = signStaffSession({
