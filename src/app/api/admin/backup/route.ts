@@ -27,6 +27,14 @@ export async function GET(req: NextRequest) {
 
   if (format === "json") {
     try {
+      /* Este export se rompió cuando el modelo cambió: pedía
+         `include: { items: true }` pero la relación se llama
+         `orderItems`. Por eso devolvía {"error":"Backup failed"} con
+         HTTP 500 y los respaldos JSON quedaban vacíos desde agosto.
+
+         También sobraban los `(prisma as any).x` — son campos que ya
+         existen en el cliente tipado. Con `any` un error de nombre como
+         el de `items` no lo ve el compilador y revienta en producción. */
       const [
         categories,
         menuItems,
@@ -46,11 +54,11 @@ export async function GET(req: NextRequest) {
         prisma.recipe.findMany({ include: { recipeItems: true } }),
         prisma.staff.findMany({ select: { id: true, name: true, role: true, pin: true, isActive: true } }),
         prisma.table.findMany(),
-        (prisma as any).order?.findMany({ include: { items: true } }) ?? [],
-        (prisma as any).customer?.findMany({ select: { id: true, name: true, email: true, hasCredit: true } }) ?? [],
-        (prisma as any).fixedExpense?.findMany() ?? [],
-        (prisma as any).modifierGroup?.findMany({ include: { modifiers: true } }) ?? [],
-        (prisma as any).stockMovement?.findMany() ?? [],
+        prisma.order.findMany({ include: { orderItems: true } }),
+        prisma.customer.findMany({ select: { id: true, name: true, email: true, hasCredit: true } }),
+        prisma.fixedExpense.findMany(),
+        prisma.modifierGroup.findMany({ include: { modifiers: true } }),
+        prisma.stockMovement.findMany(),
       ]);
 
       return NextResponse.json({
