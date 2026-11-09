@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { SalirOPanel } from '@/components/SalirOPanel';
 
 interface SessionOrderItem { id: string; status: string; }
 interface SessionOrder {
@@ -67,6 +69,8 @@ function fmtTime(iso: string) {
 export default function WaiterHomePage() {
   const router = useRouter();
   const [waiterName, setWaiterName] = useState('');
+  /* Mesero no tiene acceso al panel: su botón de salida cierra sesión. */
+  const [puedeAdmin, setPuedeAdmin] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,11 +94,20 @@ export default function WaiterHomePage() {
     fetch('/api/auth/login')
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (!data?.staff || data.staff.role !== 'MESERO') {
+        if (!data?.staff) {
+          router.replace('/login');
+          return;
+        }
+        /* Antes exigía ser MESERO y nadie más podía usar el mesero, ni el
+           gerente para cubrir un turno. Ahora entra quien tenga acceso a
+           operación; el resto se va a su pantalla. */
+        const rol = data.staff.role as string;
+        if (!['MESERO', 'GERENTE', 'SUPER_ADMIN', 'CAJA'].includes(rol)) {
           router.replace('/login');
           return;
         }
         setWaiterName(data.staff.name);
+        setPuedeAdmin(rol !== 'MESERO');
         loadSessions();
       })
       .catch(() => router.replace('/login'));
@@ -121,25 +134,27 @@ export default function WaiterHomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 pb-6">
-      {/* Header */}
-      <header className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="font-black text-white text-xl leading-tight">Tabs</h1>
-          <p className="text-xs text-amber-400/80">👋 {waiterName}</p>
+    <div className="min-h-screen bg-ink pb-6 text-snow">
+      {/* Header. Antes era slate y no había forma de volver al admin: en
+          pantalla bloqueada el mesero quedaba atrapado. */}
+      <header className="sticky top-0 z-20 bg-ink/95 backdrop-blur border-b border-hair px-4 py-3 flex items-center justify-between">
+        <div className="min-w-0">
+          <h1 className="font-[family-name:var(--font-display)] text-xl leading-tight text-snow">Mesero</h1>
+          <p className="text-xs text-smoke truncate">{waiterName}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => loadSessions(true)} className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+        <div className="flex items-center gap-2 shrink-0">
+          <button onClick={() => loadSessions(true)} className="w-10 h-10 flex items-center justify-center text-ash hover:text-snow transition-colors" title="Actualizar">
             <span className="text-xl">↺</span>
           </button>
-          <button onClick={handleLogout} className="text-sm text-slate-400 hover:text-white bg-slate-800 px-3 py-2 rounded-lg transition-all active:scale-95">
+          <SalirOPanel puedeAdmin={puedeAdmin} />
+          <button onClick={handleLogout} className="text-sm text-ash hover:text-snow bg-ink-2 px-3 py-2 rounded-lg transition-all active:scale-95">
             Salir
           </button>
         </div>
       </header>
 
       {/* Summary */}
-      <div className="flex gap-3 px-4 py-3 border-b border-slate-800/50 text-sm text-slate-400">
+      <div className="flex gap-3 px-4 py-3 border-b border-hair text-sm text-ash">
         <span>{sessions.length} tabs abiertos</span>
       </div>
 

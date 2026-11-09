@@ -266,7 +266,9 @@ export default async function RestaurantDashboardPage() {
           <div className="mt-2 flex flex-wrap gap-2">
             {lowStockIngredients.map((ing) => (
               <span key={ing.id} className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full font-medium">
-                {ing.name}: {ing.currentStock}/{ing.minStock} {ing.unit}
+                {/* Los números salían con todos sus decimales
+                    (-1.0600000000000005). Se redondean a dos. */}
+                {ing.name}: {Number(ing.currentStock.toFixed(2))}/{Number(ing.minStock.toFixed(2))} {ing.unit}
               </span>
             ))}
           </div>
