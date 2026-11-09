@@ -126,11 +126,40 @@ function getSessionUrgency(session: SessionSummary): Urgency {
 
 const URGENCY_CONFIG: Record<Urgency, { bg: string; border: string; badge: string; label: string; }> = {
   empty:         { bg: 'bg-white',             border: 'border-gray-200', badge: 'bg-gray-100 text-gray-400', label: 'Vacío' },
-  active:        { bg: 'bg-amber-50',          border: 'border-amber-200', badge: 'bg-amber-100 text-amber-700', label: 'En cocina' },
-  partial_ready: { bg: 'bg-amber-50',          border: 'border-orange-300 border-l-orange-500 border-l-[3px]', badge: 'bg-orange-100 text-orange-700', label: 'Parcial' },
-  all_ready:     { bg: 'bg-green-50',          border: 'border-green-400 border-l-green-500 border-l-[3px]', badge: 'bg-green-500 text-white animate-pulse', label: '¡Listo!' },
+  active:        { bg: 'bg-amber-50/40',       border: 'border-gray-200', badge: 'bg-amber-100 text-amber-700', label: 'En cocina' },
+  partial_ready: { bg: 'bg-amber-50/60',       border: 'border-gray-200', badge: 'bg-orange-100 text-orange-700', label: 'Parcial' },
+  all_ready:     { bg: 'bg-green-50',          border: 'border-green-300', badge: 'bg-green-600 text-white animate-pulse', label: '¡Listo!' },
   served:        { bg: 'bg-gray-50 opacity-60', border: 'border-gray-200', badge: 'bg-gray-100 text-gray-400', label: 'Entregado' },
 };
+
+/**
+ * Un color fijo por cuenta.
+ *
+ * Antes el único color del tab era el del estado (ámbar = en cocina,
+ * verde = listo), así que tres pedidos abiertos se veían idénticos y
+ * había que leer el nombre para saber de quién era cada uno. En una
+ * tablet, con prisa, eso no se lee.
+ *
+ * Ahora cada cuenta recibe un color por su posición y lo conserva
+ * mientras esté abierta. El estado sigue existiendo, pero como acento,
+ * no como único identificador.
+ */
+const COLORES_CUENTA = [
+  { barra: 'bg-[#2F6F8F]', punto: 'bg-[#2F6F8F]' }, // azul
+  { barra: 'bg-[#8A5A2B]', punto: 'bg-[#8A5A2B]' }, // café
+  { barra: 'bg-[#5C6B3A]', punto: 'bg-[#5C6B3A]' }, // verde oliva
+  { barra: 'bg-[#7A3E5C]', punto: 'bg-[#7A3E5C]' }, // vino
+  { barra: 'bg-[#4A5A7A]', punto: 'bg-[#4A5A7A]' }, // gris azulado
+  { barra: 'bg-[#8A6A2B]', punto: 'bg-[#8A6A2B]' }, // mostaza
+  { barra: 'bg-[#3A6B6B]', punto: 'bg-[#3A6B6B]' }, // petróleo
+  { barra: 'bg-[#6B4A3A]', punto: 'bg-[#6B4A3A]' }, // tierra
+];
+
+/** Color estable por cuenta: mientras siga abierta, no cambia. */
+function colorDeCuenta(id: string, todas: Array<{ id: string }>): number {
+  const i = todas.findIndex((s) => s.id === id);
+  return i >= 0 ? i % COLORES_CUENTA.length : 0;
+}
 
 // ── Payment: advance order status step by step ────────────────────────────────
 
@@ -747,6 +776,7 @@ export default function SoloOrdersPanel({
               const isSelected = s.id === selectedSessionId;
               const urgency = getSessionUrgency(s);
               const cfg = URGENCY_CONFIG[urgency];
+              const color = COLORES_CUENTA[colorDeCuenta(s.id, sessions)];
               const activeOrders = (s.orders || []).filter(o => !['PAID', 'CANCELLED'].includes(o.status));
               const sessTotal = activeOrders.reduce((sum, o) => sum + (o.total || 0), 0);
               const activeCount = activeOrders.length;
@@ -754,19 +784,27 @@ export default function SoloOrdersPanel({
                 <button
                   key={s.id}
                   onClick={() => onSelectSession(s.id)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-left transition-all border ${cfg.border} ${cfg.bg} ${
+                  title={s.table ? `Mesa ${s.table.number}` : s.label || ''}
+                  className={`relative flex items-center gap-1.5 pl-3 pr-2.5 py-1.5 rounded-lg text-left transition-all border overflow-hidden ${cfg.bg} ${
                     isSelected
-                      ? 'ring-2 ring-[#b88364] ring-offset-1 shadow-sm scale-[1.02]'
-                      : 'hover:shadow-sm hover:scale-[1.01]'
+                      ? 'border-[#b88364] ring-2 ring-[#b88364] ring-offset-1 shadow-md'
+                      : `${cfg.border} hover:shadow-sm`
                   }`}
                 >
+                  {/* Barra de color de la cuenta: es lo que la hace
+                      reconocible de un vistazo. Va pegada al borde
+                      izquierdo, así el tab no cambia de ancho. */}
+                  <span className={`absolute left-0 top-0 bottom-0 w-1.5 ${color.barra}`} />
+
                   {/* Type icon */}
                   <span className="text-xs shrink-0">
                     {s.type === 'TABLE' ? '🪑' : s.type === 'TAB' ? '👤' : '🚶'}
                   </span>
 
                   {/* Label */}
-                  <span className="text-xs font-semibold text-gray-800 leading-tight max-w-[100px] truncate">
+                  <span className={`text-xs leading-tight max-w-[110px] truncate ${
+                    isSelected ? 'font-bold text-gray-900' : 'font-semibold text-gray-800'
+                  }`}>
                     {s.table ? `Mesa ${s.table.number}` : s.label || '…'}
                   </span>
 
