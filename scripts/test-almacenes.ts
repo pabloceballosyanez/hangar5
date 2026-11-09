@@ -31,18 +31,34 @@ async function main() {
   ok(cocina?.ubicacionId !== cafe?.ubicacionId, "apuntan a ubicaciones distintas");
   if (!cocina || !cafe) return;
 
-  // Un insumo que sí tenga stock en cocina. Se mira el stock del almacén,
-  // no Ingredient.currentStock: ese campo quedó como histórico de la
-  // migración y el número real vive por almacén.
-  const conStock = await prisma.stockAlmacen.findFirst({
+  // Un insumo con existencia en cocina. Si no hay ninguno, se le pone
+  // existencia a uno para poder probar: de lo contrario la prueba se
+  // saltaría en una base recién instalada, que es justo cuando hace falta.
+  let conStock = await prisma.stockAlmacen.findFirst({
     where: { almacenId: cocina.id, cantidad: { gt: 1 }, ingredient: { isActive: true } },
     include: { ingredient: { select: { id: true, name: true, unit: true } } },
   });
-  const ing = conStock?.ingredient;
-  if (!ing) {
-    console.log("  (no hay insumos con stock para probar)");
-    return;
+
+  if (!conStock) {
+    const cualquiera = await prisma.ingredient.findFirst({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, unit: true },
+    });
+    if (!cualquiera) {
+      console.log("  (no hay insumos en la base)");
+      return;
+    }
+    conStock = await prisma.stockAlmacen.upsert({
+      where: { almacenId_ingredientId: { almacenId: cocina.id, ingredientId: cualquiera.id } },
+      create: { almacenId: cocina.id, ingredientId: cualquiera.id, cantidad: 50 },
+      update: { cantidad: 50 },
+      include: { ingredient: { select: { id: true, name: true, unit: true } } },
+    });
+    console.log(`  (se le dieron 50 ${cualquiera.unit} a ${cualquiera.name} para poder probar)`);
   }
+
+  const ing = conStock.ingredient;
 
   console.log(`\n── Traspaso de ${ing.name} ──`);
 

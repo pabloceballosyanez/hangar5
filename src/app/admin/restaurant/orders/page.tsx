@@ -400,7 +400,7 @@ export default function OrdersPage() {
                         <div className="flex items-center justify-center gap-1">
                           {['DRAFT', 'AWAITING_PAYMENT', 'PLACED', 'IN_KITCHEN', 'READY'].includes(order.status) && (
                         <button
-                          onClick={() => { setCancelOrderId(order.id); setCancelPin(""); }}
+                          onClick={() => { setCancelOrderId(order.id); setCancelPin(""); setActionError(null); }}
                           className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 border border-red-300 rounded-md hover:bg-red-200 transition-colors"
                           title="Cancelar orden (requiere supervisor)"
                         >
@@ -548,19 +548,29 @@ export default function OrdersPage() {
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-gray-900 mb-1">Cancelar orden</h3>
             <p className="text-sm text-gray-500 mb-4">
-              Esta acción requiere autorización de supervisor y quedará registrada en la auditoría.
+              Esta acción requiere autorización de un gerente o del dueño, y quedará registrada en la auditoría.
             </p>
+
+            {/* El error se guardaba pero nunca se veía: el botón parecía
+                no hacer nada. Ahora se muestra aquí mismo. */}
+            {actionError && (
+              <p className="mb-3 text-sm text-[#b03a2e] bg-[#b03a2e]/10 rounded-lg px-3 py-2">
+                {actionError}
+              </p>
+            )}
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">PIN de supervisor *</label>
+                <label className="block text-xs text-gray-500 mb-1">
+                  PIN del gerente (4 dígitos) o clave del dueño
+                </label>
                 <input
                   type="password"
                   value={cancelPin}
                   onChange={(e) => setCancelPin(e.target.value)}
                   autoFocus
-                  placeholder="Clave de supervisor"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                  placeholder="Ej. 5043"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#b03a2e]/40 outline-none"
                 />
               </div>
             </div>

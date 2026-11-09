@@ -3,8 +3,38 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { notifyOrderReady } from "@/lib/whatsapp";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/restaurant-types";
+import { verifyPassword } from "@/lib/auth";
+import { puede } from "@/lib/permisos";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * ¿La clave que escribieron autoriza una cancelación?
+ *
+ * Vale la contraseña maestra del dueño, o el PIN de alguien con acceso al
+ * panel (gerente). Se compara contra el hash, nunca en claro.
+ */
+async function autorizarCancelacion(clave: string | undefined): Promise<boolean> {
+  if (!clave) return false;
+
+  // La llave del dueño
+  const maestra = process.env.ADMIN_PASSWORD;
+  if (maestra && clave === maestra) return true;
+
+  // Solo un PIN de 4 dígitos puede ser el de alguien del equipo
+  if (!/^\d{4}$/.test(clave)) return false;
+
+  const candidatos = await prisma.staff.findMany({
+    where: { isActive: true, pin: { not: null } },
+    select: { role: true, pin: true },
+  });
+
+  return candidatos.some(
+    (c) =>
+      puede(c.role, "admin") &&
+      (c.pin!.includes(":") ? verifyPassword(clave, c.pin!) : c.pin === clave)
+  );
+}
 
 // Valid status transitions
 const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
@@ -58,11 +88,22 @@ export async function PUT(
       );
     }
 
-    // 🔒 Cancelación requiere autorización de supervisor (solo PIN)
+    /* 🔒 Cancelar una orden pide la autorización de alguien que manda.
+       Antes se comparaba contra ADMIN_PASSWORD, la contraseña maestra
+       completa: el campo decía "PIN de supervisor", así que el gerente
+       tecleaba sus 4 dígitos y no pasaba nada.
+
+       Ahora vale cualquiera de las dos:
+         · la contraseña maestra (el dueño)
+         · el PIN de un SUPER_ADMIN o GERENTE (Cheny)
+       Y se revisa contra el hash, no en claro. */
     if (newStatus === "CANCELLED") {
-      const supervisorPw = process.env.ADMIN_PASSWORD;
-      if (!supervisorPin || supervisorPin !== supervisorPw) {
-        return NextResponse.json({ error: "PIN de supervisor incorrecto" }, { status: 403 });
+      const autorizado = await autorizarCancelacion(supervisorPin);
+      if (!autorizado) {
+        return NextResponse.json(
+          { error: "Se necesita la clave de un gerente o del dueño" },
+          { status: 403 }
+        );
       }
     }
 
