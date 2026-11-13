@@ -369,7 +369,17 @@ export default function OrdersPage() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      {order.payments && order.payments.length > 0 ? (() => {
+                      {order.status === "CANCELLED" ? (
+                        /* Una orden cancelada no se cobra: decir "Pendiente"
+                           hace pensar que falta dinero, cuando en realidad
+                           ya no hay nada que cobrar. */
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span className="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-300">
+                            No se cobra
+                          </span>
+                          <span className="text-[10px] text-gray-400">cancelada</span>
+                        </div>
+                      ) : order.payments && order.payments.length > 0 ? (() => {
                         const p = order.payments[0];
                         const pagado = p.status === "COMPLETED";
                         const aCuenta = p.method === "ON_ACCOUNT";
