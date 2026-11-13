@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { slugify, tieneHistoria } from "@/lib/carta-historias";
 import type { Prisma } from "@prisma/client";
@@ -19,12 +19,48 @@ function mxn(cents: number) {
   return (cents / 100).toLocaleString("es-MX", { maximumFractionDigits: 0 });
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  /* Qué carta se está pidiendo.
+     /carta            → la del restaurante (clave "restaurante")
+     /carta?lugar=cafe → la del Despegue
+
+     El filtro sale de Admin → Ubicaciones: un producto aparece en la
+     carta de un punto de venta solo si está marcado ahí. Así la misma
+     configuración que decide qué se vende en línea decide qué se imprime,
+     y no hay que mantener dos listas.
+
+     Las claves son las de la tabla Ubicacion: "restaurante" y "cafe". */
+  const lugar = (req.nextUrl.searchParams.get("lugar") || "restaurante").toLowerCase();
+
+  const ubicacion = await prisma.ubicacion.findFirst({
+    where: { clave: lugar },
+    select: { id: true, nombre: true },
+  });
+
+  if (!ubicacion) {
+    return new NextResponse("Ubicación no encontrada", { status: 404 });
+  }
+
+  const esDespegue = lugar === "cafe";
+
   const categories = await prisma.category.findMany({
-    where: { isActive: true, menuItems: { some: { isActive: true } } },
+    where: {
+      isActive: true,
+      menuItems: {
+        some: {
+          isActive: true,
+          ubicaciones: { some: { ubicacionId: ubicacion.id, disponible: true } },
+        },
+      },
+    },
     include: {
       menuItems: {
-        where: { isActive: true },
+        where: {
+          isActive: true,
+          /* Sin fila en MenuItemUbicacion = no se vende ahí. El café
+             arranca vacío a propósito y se va armando a mano. */
+          ubicaciones: { some: { ubicacionId: ubicacion.id, disponible: true } },
+        },
         include: { variants: true },
         orderBy: { sortOrder: "asc" },
       },
@@ -65,7 +101,7 @@ export async function GET() {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hangar 5 — Carta</title>
+<title>${esc(ubicacion.nombre)} — Carta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -250,9 +286,9 @@ export async function GET() {
       <div class="coords"><span>N 19.18&deg; &middot; W 99.97&deg;</span><span>ALT 2,800 M</span></div>
       <!-- El logo original tal cual, sin reconstruir. -->
     <div class="marca"><img src="/img/logo-hangar.gif" alt="Hangar Cinco"></div>
-      <div class="sub">Restaurante de monta&ntilde;a</div>
+      <div class="sub">${esDespegue ? "Caf&eacute; del Despegue" : "Restaurante de monta&ntilde;a"}</div>
     </div>
-    <div class="fig">Fig. 01 &mdash; El Pe&ntilde;&oacute;n &middot; Temascaltepec</div>
+    <div class="fig">Fig. 01 &mdash; ${esDespegue ? "Barra del Despegue" : "El Pe&ntilde;&oacute;n"} &middot; Temascaltepec</div>
   </header>
 
   <div class="cols">${sections}
