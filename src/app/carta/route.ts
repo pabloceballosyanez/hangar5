@@ -32,16 +32,35 @@ export async function GET(req: NextRequest) {
      Las claves son las de la tabla Ubicacion: "restaurante" y "cafe". */
   const lugar = (req.nextUrl.searchParams.get("lugar") || "restaurante").toLowerCase();
 
-  const ubicacion = await prisma.ubicacion.findFirst({
+  /* Se busca por clave y, si no aparece, por id. Sirve para diagnosticar
+     cuando dos bases tienen ids distintos para la misma ubicación. */
+  let ubicacion = await prisma.ubicacion.findFirst({
     where: { clave: lugar },
-    select: { id: true, nombre: true },
+    select: { id: true, nombre: true, clave: true },
   });
+
+  if (!ubicacion) {
+    ubicacion = await prisma.ubicacion.findFirst({
+      where: { id: lugar },
+      select: { id: true, nombre: true, clave: true },
+    });
+  }
+
+  /* Si no hay parámetro y no se encontró nada, se usa la primera
+     ubicación para no dejar la carta en blanco. */
+  if (!ubicacion && !req.nextUrl.searchParams.get("lugar")) {
+    ubicacion = await prisma.ubicacion.findFirst({
+      where: { activa: true },
+      orderBy: { orden: "asc" },
+      select: { id: true, nombre: true, clave: true },
+    });
+  }
 
   if (!ubicacion) {
     return new NextResponse("Ubicación no encontrada", { status: 404 });
   }
 
-  const esDespegue = lugar === "cafe";
+  const esDespegue = ubicacion.clave === "cafe";
 
   const categories = await prisma.category.findMany({
     where: {
