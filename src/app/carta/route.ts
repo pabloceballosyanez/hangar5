@@ -109,6 +109,67 @@ export async function GET() {
     font-size: 7pt; letter-spacing: 0.3em; text-transform: uppercase;
     font-weight: 600; color: var(--accent); margin-top: 6pt;
   }
+  /* ===== PORTADA =====
+     La foto del hero va de fondo, a todo el ancho, con el tratamiento de
+     puntos que le da el SVG. El logo en blanco flota encima del cielo,
+     que es la zona limpia de la foto.
+
+     Antes la foto iba en una franja de 0.56in y salía truncada. Ahora la
+     banda mide lo que necesita la portada y la foto se recorta sola. */
+  .portada {
+    position: relative;
+    margin: -0.36in -0.42in 0;   /* sangra hasta el borde de la hoja */
+    padding: 0 0.42in 6pt;
+    overflow: hidden;
+  }
+  .portada-foto {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center 32%;
+    filter: grayscale(1) contrast(1.3) brightness(0.85);
+  }
+
+  /* Rejilla de puntos: puntos opacos separados por huecos transparentes.
+     Al pasar sobre la foto, la deja ver solo a través de los puntos, que
+     es exactamente el efecto de grabado. */
+  .portada-puntos {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at center,
+      rgba(255,255,255,0.92) 0.9px, transparent 1.1px);
+    background-size: 4.5px 4.5px;
+    mix-blend-mode: overlay;
+    opacity: 0.85;
+  }
+
+  /* Velo: oscurece arriba y abajo, deja respirar el centro. Sin esto el
+     logo blanco se pierde contra el cielo claro. */
+  .portada-velo {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg,
+      rgba(8,8,8,0.62) 0%,
+      rgba(8,8,8,0.18) 45%,
+      rgba(8,8,8,0.55) 100%);
+  }
+  .portada-contenido {
+    position: relative;
+    padding: 0.30in 0 0.34in;
+  }
+  /* Sobre la foto, las coordenadas van en claro */
+  .portada .coords { color: rgba(255,255,255,0.72); }
+
+  .marca { margin-top: 10pt; }
+  .marca img { display: block; width: 2.15in; height: auto; }
+
+  .portada .sub { color: #E8C77E; }
+
+  .fig {
+    position: relative;
+    font-family: 'IBM Plex Mono', monospace; font-size: 6.4pt;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    padding-top: 4pt;
+  }
+
   /* Emblema con alto FIJO: no crece con la hoja */
   /* El logo reemplaza al texto "Hangar 5". Se controla por ancho, no por
      altura, para que la marca quede del tamaño correcto sin deformarse. */
@@ -185,19 +246,23 @@ export async function GET() {
 <body>
 <button class="print-btn" onclick="window.print()">Imprimir</button>
 <div class="page">
-  <header>
-    <div class="coords"><span>N 19.18&deg; &middot; W 99.97&deg;</span><span>ALT 2,800 M</span></div>
-    <!-- El logo real del Hangar en lugar del nombre escrito: es la marca,
-         no un texto. Se usa la versión oscura, que es la que funciona
-         sobre papel blanco. -->
-    <div class="marca"><img src="/img/logo-oscuro-512.png" alt="Hangar 5"></div>
-    <div class="sub">Restaurante de monta&ntilde;a</div>
-    <!-- El perfil del macizo ahora es la foto del hero, no el puntillismo.
-         Va en blanco y negro y con la misma proporción que el dibujo, para
-         que el encabezado no se descomponga. -->
-    <div class="emblem"><img src="/img/hero-bg.jpg" alt="El Pe&ntilde;&oacute;n de Temascaltepec"></div>
+  <!-- Encabezado: la foto del hero como banda de fondo con efecto de
+       grabado, y el logo encima. Antes la foto iba en una franja aparte
+       y quedaba truncada; ahora respira a todo el ancho y el logo flota
+       sobre el cielo. -->
+  <header class="portada">
+    <!-- La foto del hero y, encima, una rejilla de puntos. El puntillismo
+         se consigue con la máscara CSS, no con una imagen procesada: pesa
+         nada y el navegador lo compone al vuelo. -->
+    <img class="portada-foto" src="/img/hero-bg.jpg" alt="El Pe&ntilde;&oacute;n de Temascaltepec">
+    <div class="portada-puntos"></div>
+    <div class="portada-velo"></div>
+    <div class="portada-contenido">
+      <div class="coords"><span>N 19.18&deg; &middot; W 99.97&deg;</span><span>ALT 2,800 M</span></div>
+      <div class="marca"><img src="/img/logo-claro-512.png" alt="Hangar 5"></div>
+      <div class="sub">Restaurante de monta&ntilde;a</div>
+    </div>
     <div class="fig">Fig. 01 &mdash; El Pe&ntilde;&oacute;n &middot; Temascaltepec</div>
-    <div class="rule"></div>
   </header>
 
   <div class="cols">${sections}
