@@ -248,19 +248,12 @@ export default function AyudaPage() {
         
         <div className="space-y-3 mb-4">
           <div className="bg-white/5 rounded-lg p-3 border border-[#b88364]/10">
-            <p className="text-[#b88364] font-medium">🎬 Épico</p>
-            <p className="text-xs text-[#f0ebe3]/60">Fondo cinematográfico con parapente, moto, bici y montañas</p>
+            <p className="text-[#b88364] font-medium">Carta del Hangar</p>
+            <p className="text-xs text-[#f0ebe3]/60">
+              Fondo blanco, foto de El Peñón y logo. Es la única: la que se imprime
+              y la que ve el cliente. Los experimentos van en el preview.
+            </p>
             <code className="text-xs text-[#b88364]/60">/carta</code>
-          </div>
-          <div className="bg-white/5 rounded-lg p-3 border border-[#b88364]/10">
-            <p className="text-[#b88364] font-medium">🔷 Geométrico</p>
-            <p className="text-xs text-[#f0ebe3]/60">Diseño Bauhaus con formas geométricas</p>
-            <code className="text-xs text-[#b88364]/60">/carta/sobria</code>
-          </div>
-          <div className="bg-white/5 rounded-lg p-3 border border-[#b88364]/10">
-            <p className="text-[#b88364] font-medium">📖 Wanderlust</p>
-            <p className="text-xs text-[#f0ebe3]/60">Estilo diario de viaje con acuarelas</p>
-            <code className="text-xs text-[#b88364]/60">/carta/aventura</code>
           </div>
         </div>
 

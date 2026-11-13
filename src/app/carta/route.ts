@@ -1,351 +1,218 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { slugify, tieneHistoria } from "@/lib/carta-historias";
+import type { Prisma } from "@prisma/client";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
-const HTML = `<!DOCTYPE html>
+type CatConItems = Prisma.CategoryGetPayload<{
+  include: { menuItems: { include: { variants: true } } };
+}>;
+type ItemConVariantes = CatConItems["menuItems"][number];
+type Variante = ItemConVariantes["variants"][number];
+
+function esc(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function mxn(cents: number) {
+  return (cents / 100).toLocaleString("es-MX", { maximumFractionDigits: 0 });
+}
+
+export async function GET() {
+  const categories = await prisma.category.findMany({
+    where: { isActive: true, menuItems: { some: { isActive: true } } },
+    include: {
+      menuItems: {
+        where: { isActive: true },
+        include: { variants: true },
+        orderBy: { sortOrder: "asc" },
+      },
+    },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  const sections = categories
+    .map((cat: CatConItems) => {
+      const items = cat.menuItems
+        .map((item: ItemConVariantes) => {
+          const variants = item.variants
+            .map(
+              (v: Variante) => `
+        <div class="item variant">
+          <span class="name">${esc(v.name)}</span><span class="leader"></span><span class="price">${v.priceDelta >= 0 ? "+" : "−"}${mxn(Math.abs(v.priceDelta))}</span>
+        </div>`
+            )
+            .join("");
+          const fila = `<span class="name">${esc(item.name)}</span><span class="leader"></span><span class="price">${mxn(item.basePrice)}</span>`;
+          const conHistoria = tieneHistoria(item.name);
+          return conHistoria
+            ? `
+        <a class="item" href="/carta/${slugify(item.name)}">${fila}</a>${variants}`
+            : `
+        <div class="item">${fila}</div>${variants}`;
+        })
+        .join("");
+      return `
+      <section class="cat">
+        <h3>${esc(cat.name)}</h3>${items}
+      </section>`;
+    })
+    .join("\n");
+
+  const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hangar 5 — Carta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  @page { size: letter; margin: 0; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  
+  :root {
+    --ink: #17150F; --accent: #9A7434; --hair: #DDD8CC;
+    --dot: #B5AE9E; --faint: #98917F;
+  }
+  /* ===== Hoja CARTA 8.5 x 11 in — optimizada para impresion ===== */
+  @page { size: letter portrait; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html {
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    background: #FFFFFF;
+  }
   body {
-    font-family: 'Helvetica Neue', 'Inter', 'SF Pro Display', sans-serif;
-    background: #0a0a0a;
-    color: #f0ebe3;
-    max-width: 8.5in;
-    margin: 0 auto;
-    font-size: 7.5pt;
-    line-height: 1.35;
-    letter-spacing: 0.02em;
-    position: relative;
-    overflow-x: hidden;
+    font-family: 'Inter', sans-serif;
+    background: #FFFFFF; color: var(--ink);
+    font-size: 9pt; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
-  
-  /* Epic adventure background */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url('/img/cartas/carta-epico-cinematografico.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    opacity: 0.35;
-    z-index: 0;
-    pointer-events: none;
-  }
-  
-  /* Dark overlay for readability */
-  body::after {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.75) 100%);
-    z-index: 0;
-    pointer-events: none;
-  }
-  
+  /* Ancho util completo de la hoja (antes 7in: dejaba 1.5in de aire) */
   .page {
-    position: relative;
-    z-index: 1;
-    padding: 0.35in 0.3in 0.3in;
+    width: 8.5in; min-height: 11in;
+    padding: 0.36in 0.42in 0.30in;
+    margin: 0 auto;
+    display: flex; flex-direction: column;
   }
-  
-  /* Geometric line header */
-  .geo-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid rgba(240,235,227,0.25);
+
+  /* Encabezado expedición */
+  .coords {
+    display: flex; justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace; font-size: 6.4pt;
+    letter-spacing: 0.12em; color: var(--faint); text-transform: uppercase;
   }
-  .geo-header .lines {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    flex: 1;
+  h1 {
+    font-family: 'Archivo', sans-serif; font-weight: 800;
+    font-size: 40pt; letter-spacing: -0.025em; margin-top: 7pt; line-height: 0.95;
   }
-  .geo-header .lines span {
-    display: block;
-    height: 0.5px;
-    background: rgba(240,235,227,0.5);
+  .sub {
+    font-size: 7pt; letter-spacing: 0.3em; text-transform: uppercase;
+    font-weight: 600; color: var(--accent); margin-top: 6pt;
   }
-  .geo-header .lines span:nth-child(1) { width: 100%; }
-  .geo-header .lines span:nth-child(2) { width: 80%; }
-  .geo-header .lines span:nth-child(3) { width: 60%; }
-  .geo-header .lines span:nth-child(4) { width: 40%; }
-  .geo-header .lines span:nth-child(5) { width: 20%; }
-  
-  .geo-header .title-block {
-    text-align: right;
-    white-space: nowrap;
+  /* Emblema con alto FIJO: no crece con la hoja */
+  /* El logo reemplaza al texto "Hangar 5". Se controla por ancho, no por
+     altura, para que la marca quede del tamaño correcto sin deformarse. */
+  .marca { margin-top: 8pt; }
+  .marca img { display: block; width: 2.05in; height: auto; }
+
+  /* La foto del hero en lugar del dibujo de puntos. Misma altura que el
+     emblema anterior para que la retícula de abajo no se mueva.
+     En gris para que imprima bien y no pelee con la tipografía. */
+  .emblem { margin-top: 10pt; overflow: hidden; }
+  .emblem img {
+    display: block; width: 100%; height: 1.05in;
+    object-fit: cover; object-position: center 55%;
+    filter: grayscale(1) contrast(1.08);
   }
-  .geo-header .title-block .brand {
-    font-size: 18pt;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    line-height: 1;
-    color: #f0ebe3;
-    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  .fig {
+    font-family: 'IBM Plex Mono', monospace; font-size: 6.6pt;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); margin-top: 5pt;
   }
-  .geo-header .title-block .sub {
-    font-size: 5.5pt;
-    text-transform: uppercase;
-    letter-spacing: 0.35em;
-    color: rgba(240,235,227,0.7);
-    margin-top: 2px;
+  .rule { height: 1px; background: var(--hair); margin-top: 9pt; }
+
+  /* Cuerpo: 3 columnas para llenar la hoja */
+  .cols {
+    column-count: 3; column-gap: 20pt;
+    column-fill: balance;
+    margin-top: 4pt; flex: 1;
   }
-  
-  /* Main grid layout */
-  .menu-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px 16px;
+  .cat { break-inside: avoid; margin-top: 9pt; }
+  .cat:first-child { margin-top: 10pt; }
+  .cat h3 {
+    font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 8.6pt;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+    border-bottom: 1px solid var(--hair); padding-bottom: 3.5pt; margin-bottom: 3pt;
   }
-  
-  .grid-section { break-inside: avoid; }
-  .grid-section.full { grid-column: 1 / -1; }
-  .grid-section.span2 { grid-column: span 2; }
-  
-  .section-head {
-    font-size: 5pt;
-    text-transform: uppercase;
-    letter-spacing: 0.3em;
-    color: rgba(240,235,227,0.6);
-    border-bottom: 0.5px solid rgba(240,235,227,0.15);
-    padding-bottom: 2px;
-    margin-bottom: 4px;
+  /* Renglones: mas altos = mas legibles en papel */
+  .item { display: flex; align-items: baseline; gap: 5pt; padding: 2.4pt 0; text-decoration: none; color: inherit; border-radius: 2pt; }
+  a.item:hover { background: #F6F3EA; }
+  a.item:hover .name { color: var(--accent); }
+  a.item::after { content: "→"; font-size: 6.5pt; color: var(--accent); opacity: 0; margin-left: 2pt; transition: opacity .15s; }
+  a.item:hover::after { opacity: 1; }
+  .item .name { font-weight: 300; font-size: 9pt; }
+  .item .leader { flex: 1; border-bottom: 1px dotted var(--dot); transform: translateY(-2pt); }
+  .item .price {
+    font-family: 'IBM Plex Mono', monospace; font-weight: 500;
+    font-size: 9pt; font-variant-numeric: tabular-nums; white-space: nowrap;
   }
-  
-  .menu-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 1px 0;
+  .item .price::before { content: "$"; font-size: 85%; margin-right: 1pt; color: var(--faint); }
+  .item.variant .name { font-size: 8pt; color: var(--faint); padding-left: 8pt; }
+  .item.variant .price { font-size: 8pt; color: var(--faint); font-weight: 400; }
+
+  .foot {
+    margin-top: 10pt; padding-top: 6pt; border-top: 1px solid var(--hair);
+    display: flex; justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace; font-size: 6.8pt;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint);
   }
-  .menu-item .name { 
-    font-weight: 400;
-    color: #f0ebe3;
+
+  /* Elementos solo-pantalla */
+  .print-btn {
+    position: fixed; bottom: 22px; right: 22px; z-index: 10;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    background: var(--ink); color: #FFFFFF; border: none; border-radius: 999px;
+    padding: 12px 22px; cursor: pointer;
   }
-  .menu-item .dots {
-    flex: 1;
-    border-bottom: 1px dotted rgba(240,235,227,0.2);
-    margin: 0 6px;
-    height: 0;
-    align-self: flex-end;
-    margin-bottom: 3px;
-  }
-  .menu-item .price {
-    font-weight: 400;
-    color: rgba(240,235,227,0.75);
-    white-space: nowrap;
-  }
-  .menu-item .variant {
-    font-size: 6pt;
-    color: rgba(240,235,227,0.45);
-    padding-left: 0;
-  }
-  
-  .note {
-    font-size: 5.5pt;
-    color: rgba(240,235,227,0.45);
-    font-style: italic;
-    padding: 0 0 1px 0;
-  }
-  
-  /* Bottom geometric */
-  .geo-footer {
-    margin-top: 8px;
-    padding-top: 4px;
-    border-top: 1px solid rgba(240,235,227,0.25);
-    display: flex;
-    justify-content: space-between;
-    font-size: 5pt;
-    text-transform: uppercase;
-    letter-spacing: 0.25em;
-    color: rgba(240,235,227,0.45);
-  }
-  
-  /* Concentric circles decoration top-right */
-  .circles {
-    position: absolute;
-    top: 0.2in;
-    right: 0.15in;
-    opacity: 0.08;
-  }
-  .circles svg { width: 120px; height: 120px; }
-  
-  /* Diagonal lines decoration bottom-left */
-  .diagonals {
-    position: absolute;
-    bottom: 0.15in;
-    left: 0.2in;
-    opacity: 0.06;
+  .print-btn:hover { opacity: 0.85; }
+
+  @media print {
+    /* El tamano ya esta afinado para la hoja: no se re-escala al imprimir */
+    .print-btn, .hint-screen { display: none !important; }
+    a.item::after { display: none !important; }
   }
 </style>
 </head>
 <body>
+<button class="print-btn" onclick="window.print()">Imprimir</button>
 <div class="page">
-  <div class="circles">
-    <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="55" fill="none" stroke="#000" stroke-width="0.5"/><circle cx="60" cy="60" r="40" fill="none" stroke="#000" stroke-width="0.5"/><circle cx="60" cy="60" r="25" fill="none" stroke="#000" stroke-width="0.5"/><circle cx="60" cy="60" r="10" fill="none" stroke="#000" stroke-width="0.5"/></svg>
-  </div>
-  <div class="diagonals">
-    <svg width="80" height="80"><line x1="0" y1="80" x2="80" y2="0" stroke="#000" stroke-width="0.3"/><line x1="0" y1="60" x2="60" y2="0" stroke="#000" stroke-width="0.3"/><line x1="0" y1="40" x2="40" y2="0" stroke="#000" stroke-width="0.3"/><line x1="0" y1="20" x2="20" y2="0" stroke="#000" stroke-width="0.3"/></svg>
+  <header>
+    <div class="coords"><span>N 19.18&deg; &middot; W 99.97&deg;</span><span>ALT 2,800 M</span></div>
+    <!-- El logo real del Hangar en lugar del nombre escrito: es la marca,
+         no un texto. Se usa la versión oscura, que es la que funciona
+         sobre papel blanco. -->
+    <div class="marca"><img src="/img/logo-oscuro-512.png" alt="Hangar 5"></div>
+    <div class="sub">Restaurante de monta&ntilde;a</div>
+    <!-- El perfil del macizo ahora es la foto del hero, no el puntillismo.
+         Va en blanco y negro y con la misma proporción que el dibujo, para
+         que el encabezado no se descomponga. -->
+    <div class="emblem"><img src="/img/hero-bg.jpg" alt="El Pe&ntilde;&oacute;n de Temascaltepec"></div>
+    <div class="fig">Fig. 01 &mdash; El Pe&ntilde;&oacute;n &middot; Temascaltepec</div>
+    <div class="rule"></div>
+  </header>
+
+  <div class="cols">${sections}
   </div>
 
-  <div class="geo-header">
-    <div class="lines">
-      <span></span><span></span><span></span><span></span><span></span>
-    </div>
-    <div class="title-block">
-      <div class="brand">Hangar 5</div>
-      <div class="sub">Cocina de Montaña &middot; Peñón de Temascaltepec</div>
-    </div>
-  </div>
-  
-  <div class="menu-grid">
-    <div class="grid-section">
-      <div class="section-head">Cafetería</div>
-      <div class="menu-item"><span class="name">Café</span><span class="dots"></span><span class="price">30</span></div>
-      <div class="menu-item"><span class="name">Americano</span><span class="dots"></span><span class="price">50</span></div>
-      <div class="menu-item"><span class="name">Espresso</span><span class="dots"></span><span class="price">50</span></div>
-      <div class="menu-item"><span class="name">Latte</span><span class="dots"></span><span class="price">60</span></div>
-    </div>
-    
-    <div class="grid-section">
-      <div class="section-head">Sin Alcohol</div>
-      <div class="menu-item"><span class="name">Agua de Fruta</span><span class="dots"></span><span class="price">10</span></div>
-      <div class="menu-item"><span class="name">Smoothie Berry</span><span class="dots"></span><span class="price">60</span></div>
-      <div class="menu-item"><span class="name">Smoothie ChocoBanana</span><span class="dots"></span><span class="price">60</span></div>
-      <div class="menu-item"><span class="name">Piña Colada</span><span class="dots"></span><span class="price">100</span></div>
-      <div class="menu-item"><span class="name">Coca Cola</span><span class="dots"></span><span class="price">30</span></div>
-      <div class="note">Light &middot; Zero disponibles</div>
-      <div class="menu-item"><span class="name">Agua Mineral</span><span class="dots"></span><span class="price">30</span></div>
-      <div class="menu-item"><span class="name">Agua 1L</span><span class="dots"></span><span class="price">30</span></div>
-      <div class="menu-item"><span class="name">Agua 500ml</span><span class="dots"></span><span class="price">15</span></div>
-      <div class="menu-item"><span class="name">Jugo Naranja</span><span class="dots"></span><span class="price">35</span></div>
-      <div class="menu-item"><span class="name">Suero</span><span class="dots"></span><span class="price">35</span></div>
-      <div class="menu-item"><span class="name">Clamato</span><span class="dots"></span><span class="price">40</span></div>
-      <div class="menu-item"><span class="name">Té Infusión</span><span class="dots"></span><span class="price">30</span></div>
-    </div>
-    
-    <div class="grid-section">
-      <div class="section-head">Con Alcohol</div>
-      <div class="menu-item"><span class="name">Copa Vino</span><span class="dots"></span><span class="price">100</span></div>
-      <div class="menu-item"><span class="name">Mezcalina</span><span class="dots"></span><span class="price">90</span></div>
-      <div class="menu-item"><span class="name">Piña Colada</span><span class="dots"></span><span class="price">150</span></div>
-      <div class="menu-item"><span class="name">Margarita</span><span class="dots"></span><span class="price">130</span></div>
-      <div class="menu-item"><span class="name">Mojito</span><span class="dots"></span><span class="price">150</span></div>
-      <div class="menu-item"><span class="name">Paloma Tequila</span><span class="dots"></span><span class="price">130</span></div>
-      <div class="menu-item"><span class="name">Carajillo</span><span class="dots"></span><span class="price">150</span></div>
-      <div class="menu-item"><span class="name">Cerveza</span><span class="dots"></span><span class="price">35</span></div>
-      <div class="note">Chelada 40 &middot; Michelada 50</div>
-      <div class="menu-item"><span class="name">Shot Tequila</span><span class="dots"></span><span class="price">100</span></div>
-      <div class="menu-item"><span class="name">Shot Mezcal</span><span class="dots"></span><span class="price">100</span></div>
-      <div class="menu-item"><span class="name">Whisky</span><span class="dots"></span><span class="price">100</span></div>
-      <div class="menu-item"><span class="name">Whisky Soda</span><span class="dots"></span><span class="price">130</span></div>
-      <div class="menu-item"><span class="name">Botella Vino</span><span class="dots"></span><span class="price">550</span></div>
-    </div>
-    
-    <!-- Desayunos full width -->
-    <div class="grid-section full">
-      <div class="section-head">Desayunos &middot; Todo el día</div>
-      <div style="display:flex;gap:20px;">
-        <div style="flex:1">
-          <div class="menu-item"><span class="name">Chilaquiles</span><span class="dots"></span><span class="price">70</span></div>
-          <div class="note">Salsa verde o roja &middot; Con pollo 90</div>
-          <div class="menu-item"><span class="name">Huevos a la Mexicana</span><span class="dots"></span><span class="price">70</span></div>
-          <div class="menu-item"><span class="name">Huevos Rancheros</span><span class="dots"></span><span class="price">70</span></div>
-        </div>
-        <div style="flex:1">
-          <div class="menu-item"><span class="name">Huevo Champiñones</span><span class="dots"></span><span class="price">70</span></div>
-          <div class="menu-item"><span class="name">Huevos con Jamón</span><span class="dots"></span><span class="price">80</span></div>
-          <div class="menu-item"><span class="name">Fruta de Temporada</span><span class="dots"></span><span class="price">65</span></div>
-          <div class="note">Miel de abeja y chile piquín</div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Entradas + Ensaladas full -->
-    <div class="grid-section full">
-      <div class="section-head">Entradas &amp; Ensaladas</div>
-      <div style="display:flex;gap:20px;">
-        <div style="flex:1">
-          <div class="menu-item"><span class="name">Guacamole</span><span class="dots"></span><span class="price">110</span></div>
-          <div class="menu-item"><span class="name">Aceitunas</span><span class="dots"></span><span class="price">75</span></div>
-          <div class="menu-item"><span class="name">Quesadillas</span><span class="dots"></span><span class="price">25</span></div>
-          <div class="menu-item"><span class="name">Empanadas</span><span class="dots"></span><span class="price">35</span></div>
-          <div class="menu-item"><span class="name">Flautas</span><span class="dots"></span><span class="price">40</span></div>
-          <div class="menu-item"><span class="name">Verduras Preparadas</span><span class="dots"></span><span class="price">75</span></div>
-        </div>
-        <div style="flex:1">
-          <div class="menu-item"><span class="name">Ensalada Caprese</span><span class="dots"></span><span class="price">130</span></div>
-          <div class="note">Mozzarella fresca, albahaca, jitomate</div>
-          <div class="menu-item"><span class="name">Ensalada Tropical</span><span class="dots"></span><span class="price">130</span></div>
-          <div class="note">Mango, fresa, aguacate, nuez</div>
-          <div class="menu-item"><span class="name">Ensalada Mixta</span><span class="dots"></span><span class="price">90</span></div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Parrilla + Horno -->
-    <div class="grid-section">
-      <div class="section-head">Parrilla</div>
-      <div class="menu-item"><span class="name">Hamburguesa Wagyu</span><span class="dots"></span><span class="price">250</span></div>
-      <div class="note">200g carne premium, pan artesanal</div>
-      <div class="menu-item"><span class="name">Taco</span><span class="dots"></span><span class="price">30</span></div>
-      <div class="note">Pollo deshebrado, cilantro, salsa</div>
-    </div>
-    
-    <div class="grid-section span2">
-      <div class="section-head">Horno de Leña</div>
-      <div style="display:flex;gap:16px;">
-        <div style="flex:1">
-          <div class="menu-item"><span class="name">Margarita</span><span class="dots"></span><span class="price">200</span></div>
-          <div class="menu-item"><span class="name">Pepperoni</span><span class="dots"></span><span class="price">240</span></div>
-          <div class="menu-item"><span class="name">Prosciutto</span><span class="dots"></span><span class="price">240</span></div>
-        </div>
-        <div style="flex:1">
-          <div class="menu-item"><span class="name">Champiñones</span><span class="dots"></span><span class="price">220</span></div>
-          <div class="menu-item"><span class="name">Tomate Deshidratado</span><span class="dots"></span><span class="price">240</span></div>
-          <div class="menu-item"><span class="name">Vegetariana</span><span class="dots"></span><span class="price">240</span></div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Postres + Cafetería -->
-    <div class="grid-section">
-      <div class="section-head">Postres</div>
-      <div class="menu-item"><span class="name">Flan Napolitano</span><span class="dots"></span><span class="price">40</span></div>
-      <div class="menu-item"><span class="name">Panqué Plátano</span><span class="dots"></span><span class="price">40</span></div>
-      <div class="menu-item"><span class="name">Panqué Queso</span><span class="dots"></span><span class="price">40</span></div>
-      <div class="menu-item"><span class="name">Pay de Queso</span><span class="dots"></span><span class="price">40</span></div>
-      <div class="menu-item"><span class="name">Pizza Nutella</span><span class="dots"></span><span class="price">200</span></div>
-    </div>
-    
-    <div class="grid-section">
-      <div class="section-head">Cafetería</div>
-      <div class="menu-item"><span class="name">Panqué del día</span><span class="dots"></span><span class="price">40</span></div>
-      <div class="menu-item"><span class="name">Sándwich</span><span class="dots"></span><span class="price">70</span></div>
-    </div>
-  </div>
-  
-  <div class="geo-footer">
-    <span>Hangar 5 &middot; Peñón de Temascaltepec</span>
-    <span>Precios MXN &middot; IVA incluido</span>
-  </div>
+  <footer class="foot">
+    <span>Precios en MXN &middot; IVA incluido</span>
+    <span class="hint-screen">Toca un platillo para conocer su historia</span>
+    <span>Hangar 5 &middot; El Pe&ntilde;&oacute;n, Temascaltepec</span>
+  </footer>
 </div>
 </body>
 </html>`;
 
-export async function GET() {
-  return new NextResponse(HTML, {
+  return new NextResponse(html, {
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 }
