@@ -122,51 +122,45 @@ export async function GET() {
     padding: 0 0.42in 6pt;
     overflow: hidden;
   }
+  /* La imagen ya viene con el puntillismo y con el cielo desvanecido a
+     blanco en el borde superior, así que se funde con el papel sin
+     necesidad de velo ni máscaras. Solo se recorta. */
   .portada-foto {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
-    object-fit: cover; object-position: center 32%;
-    filter: grayscale(1) contrast(1.3) brightness(0.85);
+    object-fit: cover; object-position: center bottom;
   }
 
-  /* Rejilla de puntos: puntos opacos separados por huecos transparentes.
-     Al pasar sobre la foto, la deja ver solo a través de los puntos, que
-     es exactamente el efecto de grabado. */
-  .portada-puntos {
-    position: absolute; inset: 0;
-    background-image: radial-gradient(circle at center,
-      rgba(255,255,255,0.92) 0.9px, transparent 1.1px);
-    background-size: 4.5px 4.5px;
-    mix-blend-mode: overlay;
-    opacity: 0.85;
-  }
-
-  /* Velo: oscurece arriba y abajo, deja respirar el centro. Sin esto el
-     logo blanco se pierde contra el cielo claro. */
-  .portada-velo {
-    position: absolute; inset: 0;
+  /* Fundido inferior: la foto se disuelve en el papel en vez de cortar
+     seco contra la primera sección. */
+  .portada-funde {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 42%;
     background: linear-gradient(180deg,
-      rgba(8,8,8,0.62) 0%,
-      rgba(8,8,8,0.18) 45%,
-      rgba(8,8,8,0.55) 100%);
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.55) 45%,
+      rgba(255,255,255,0.96) 82%,
+      #FFFFFF 100%);
+    pointer-events: none;
   }
   .portada-contenido {
     position: relative;
     padding: 0.30in 0 0.34in;
   }
   /* Sobre la foto, las coordenadas van en claro */
-  .portada .coords { color: rgba(255,255,255,0.72); }
+  .portada .coords { color: rgba(23,21,15,0.55); }
 
-  .marca { margin-top: 10pt; }
-  .marca img { display: block; width: 2.15in; height: auto; }
+  /* SVG: escala limpio a cualquier tamaño, no se pixela al imprimir. */
+  .marca { margin-top: 16pt; color: var(--ink); }
+  .marca img { display: block; width: 1.95in; height: auto; }
 
-  .portada .sub { color: #E8C77E; }
+  .portada .sub { color: var(--accent); }
 
   .fig {
     position: relative;
     font-family: 'IBM Plex Mono', monospace; font-size: 6.4pt;
     letter-spacing: 0.14em; text-transform: uppercase;
-    color: rgba(255,255,255,0.55);
+    color: var(--faint);
     padding-top: 4pt;
   }
 
@@ -254,12 +248,14 @@ export async function GET() {
     <!-- La foto del hero y, encima, una rejilla de puntos. El puntillismo
          se consigue con la máscara CSS, no con una imagen procesada: pesa
          nada y el navegador lo compone al vuelo. -->
-    <img class="portada-foto" src="/img/hero-bg.jpg" alt="El Pe&ntilde;&oacute;n de Temascaltepec">
-    <div class="portada-puntos"></div>
-    <div class="portada-velo"></div>
+    <!-- La portada ya trae el puntillismo y el cielo difuminado hecho
+         imagen: pintarla de nuevo con CSS la ensuciaba. El logo va en SVG
+         porque el PNG de 512 se estiraba y salía pixelado a 300 dpi. -->
+    <img class="portada-foto" src="/img/carta-portada.png" alt="El Pe&ntilde;&oacute;n de Temascaltepec">
+    <div class="portada-funde"></div>
     <div class="portada-contenido">
       <div class="coords"><span>N 19.18&deg; &middot; W 99.97&deg;</span><span>ALT 2,800 M</span></div>
-      <div class="marca"><img src="/img/logo-claro-512.png" alt="Hangar 5"></div>
+      <div class="marca"><img src="/img/logo-cinco.svg" alt="Hangar Cinco"></div>
       <div class="sub">Restaurante de monta&ntilde;a</div>
     </div>
     <div class="fig">Fig. 01 &mdash; El Pe&ntilde;&oacute;n &middot; Temascaltepec</div>
