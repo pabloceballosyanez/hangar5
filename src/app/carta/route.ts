@@ -145,7 +145,7 @@ export async function GET() {
   }
   .portada-contenido {
     position: relative;
-    padding: 0.30in 0 0.34in;
+    padding: 0.26in 0 0.30in;
   }
   /* Sobre la foto, las coordenadas van en claro */
   .portada .coords { color: rgba(23,21,15,0.55); }
@@ -153,10 +153,13 @@ export async function GET() {
   /* El GIF original mide 256x256 y el dibujo ocupa 246x104 dentro.
      A 1.45in en papel queda a ~176 dpi: suficiente para que se lea
      bien sin que la falta de resolución se note. */
-  .marca { margin-top: 14pt; }
+  /* Logo discreto: la portada la lleva la montana, no la marca. Va
+     chico y en la zona clara de arriba, donde no estorba. */
+  .marca { margin-top: 12pt; }
   .marca img {
-    display: block; width: 1.45in; height: auto;
+    display: block; width: 1.05in; height: auto;
     image-rendering: auto;
+    opacity: 0.92;
   }
 
   .portada .sub { color: var(--accent); }
@@ -169,21 +172,6 @@ export async function GET() {
     padding-top: 4pt;
   }
 
-  /* Emblema con alto FIJO: no crece con la hoja */
-  /* El logo reemplaza al texto "Hangar 5". Se controla por ancho, no por
-     altura, para que la marca quede del tamaño correcto sin deformarse. */
-  .marca { margin-top: 8pt; }
-  .marca img { display: block; width: 2.05in; height: auto; }
-
-  /* La foto del hero en lugar del dibujo de puntos. Misma altura que el
-     emblema anterior para que la retícula de abajo no se mueva.
-     En gris para que imprima bien y no pelee con la tipografía. */
-  .emblem { margin-top: 10pt; overflow: hidden; }
-  .emblem img {
-    display: block; width: 100%; height: 1.05in;
-    object-fit: cover; object-position: center 55%;
-    filter: grayscale(1) contrast(1.08);
-  }
   .fig {
     font-family: 'IBM Plex Mono', monospace; font-size: 6.6pt;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); margin-top: 5pt;
