@@ -47,11 +47,14 @@ export async function GET(req: NextRequest) {
   const items = platillos.map((p) => {
     const porUbicacion: Record<string, boolean> = {};
     for (const u of ubicaciones) {
-      const marcado = indice.get(p.id)?.get(u.id);
-      // Sin fila = se vende en el restaurante (comportamiento histórico)
-      porUbicacion[u.id] = marcado === undefined
-        ? u.clave === "restaurante"
-        : marcado;
+      /* Antes, si un platillo no tenía fila, se daba por marcado en el
+         restaurante ("comportamiento histórico"). Eso hacía que la
+         pantalla dijera 56 marcados cuando en la base no había ni una
+         fila, y la carta —que sí exige fila— salía vacía.
+         Ahora se dice la verdad: sin fila, no está marcado. Las filas
+         del restaurante las crea scripts/materializar-marcas.ts al
+         arrancar, así que lo que se ve es lo que hay. */
+      porUbicacion[u.id] = indice.get(p.id)?.get(u.id) === true;
     }
     return {
       id: p.id,
