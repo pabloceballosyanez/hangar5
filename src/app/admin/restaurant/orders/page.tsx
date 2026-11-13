@@ -400,7 +400,19 @@ export default function OrdersPage() {
                           </div>
                         );
                       })() : (
-                        <span className="text-xs text-gray-400">—</span>
+                        /* Pagada sin registro de pago: son órdenes de
+                           antes de que existiera el registro. Decir "—"
+                           hace dudar si falta cobrar. */
+                        order.status === "PAID" ? (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-300">
+                              Sin registro
+                            </span>
+                            <span className="text-[10px] text-gray-400">orden vieja</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )
                       )}
                     </td>
                     <td className="py-3 px-2 text-center">
@@ -417,7 +429,12 @@ export default function OrdersPage() {
                           ❌ Cancelar
                         </button>
                       )}
-                      {(order.orderItems.some(i => i.status === 'READY')) && (
+                      {/* Entregar solo tiene sentido si la orden sigue
+                          viva. Antes bastaba con que hubiera ítems en
+                          READY: al cancelar una orden con platillos ya
+                          listos, el botón seguía ahí y se podía
+                          "entregar" algo cancelado. */}
+                      {order.status !== 'CANCELLED' && (order.orderItems.some(i => i.status === 'READY')) && (
                             (() => {
                               const readyCount = order.orderItems.filter(i => i.status === 'READY').length;
                               return (
