@@ -60,6 +60,33 @@ export async function GET(req: NextRequest) {
     return new NextResponse("Ubicación no encontrada", { status: 404 });
   }
 
+  /* Diagnóstico temporal: si la carta sale vacía pero los datos existen,
+     hace falta saber qué ve el servidor. Se accede con ?diag=1 y no
+     afecta la carta normal. */
+  if (req.nextUrl.searchParams.get("diag") === "1") {
+    const todas = await prisma.ubicacion.findMany({
+      select: { id: true, clave: true, activa: true },
+    });
+    const conteos = [];
+    for (const u of todas) {
+      const marcas = await prisma.menuItemUbicacion.count({
+        where: { ubicacionId: u.id, disponible: true },
+      });
+      const filtrados = await prisma.menuItem.count({
+        where: { isActive: true, ubicaciones: { some: { ubicacionId: u.id, disponible: true } } },
+      });
+      conteos.push({ clave: u.clave, id: u.id, activa: u.activa, marcas, filtrados });
+    }
+    const totalItems = await prisma.menuItem.count({ where: { isActive: true } });
+    const totalCats = await prisma.category.count({ where: { isActive: true } });
+    return NextResponse.json({
+      elegida: ubicacion,
+      totalItems,
+      totalCats,
+      ubicaciones: conteos,
+    });
+  }
+
   const esDespegue = ubicacion.clave === "cafe";
 
   const categories = await prisma.category.findMany({
