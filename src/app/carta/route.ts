@@ -150,9 +150,14 @@ export async function GET() {
   /* Sobre la foto, las coordenadas van en claro */
   .portada .coords { color: rgba(23,21,15,0.55); }
 
-  /* SVG: escala limpio a cualquier tamaño, no se pixela al imprimir. */
-  .marca { margin-top: 16pt; color: var(--ink); }
-  .marca img { display: block; width: 1.95in; height: auto; }
+  /* El GIF original mide 256x256 y el dibujo ocupa 246x104 dentro.
+     A 1.45in en papel queda a ~176 dpi: suficiente para que se lea
+     bien sin que la falta de resolución se note. */
+  .marca { margin-top: 14pt; }
+  .marca img {
+    display: block; width: 1.45in; height: auto;
+    image-rendering: auto;
+  }
 
   .portada .sub { color: var(--accent); }
 
@@ -255,7 +260,8 @@ export async function GET() {
     <div class="portada-funde"></div>
     <div class="portada-contenido">
       <div class="coords"><span>N 19.18&deg; &middot; W 99.97&deg;</span><span>ALT 2,800 M</span></div>
-      <div class="marca"><img src="/img/logo-cinco.svg" alt="Hangar Cinco"></div>
+      <!-- El logo original tal cual, sin reconstruir. -->
+    <div class="marca"><img src="/img/logo-hangar.gif" alt="Hangar Cinco"></div>
       <div class="sub">Restaurante de monta&ntilde;a</div>
     </div>
     <div class="fig">Fig. 01 &mdash; El Pe&ntilde;&oacute;n &middot; Temascaltepec</div>
