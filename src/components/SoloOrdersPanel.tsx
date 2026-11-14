@@ -234,11 +234,15 @@ function PaymentSheet({
          ABIERTA: el cliente se iba y su nombre seguía en los tabs para
          siempre, sin nada activo. Ahora se usa el endpoint de cuenta, que
          cobra todo el consumo y cierra la sesión en una sola transacción. */
+      /* Los montos que llegan del API ya vienen en PESOS (serializeOrder
+         divide entre 100). Aquí NO se vuelve a dividir: hacerlo mandaba
+         un pago de $1.90 por una cuenta de $190, el endpoint veía que no
+         cuadraba y rechazaba el cobro. */
       const res = await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          payments: [{ method, amount: grandTotal / 100 }],
+          payments: [{ method, amount: grandTotal }],
         }),
       });
 

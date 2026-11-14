@@ -56,7 +56,10 @@ export async function GET(_req: NextRequest, { params }: Params) {
 // ─── PUT: close session with payment ─────────────────────────────────────────
 const closeSessionSchema = z.object({
   payments: z.array(z.object({
-    method: z.enum(["CASH", "CARD", "TRANSFER"]),
+    /* ON_ACCOUNT incluido: el Modo Solo lo ofrece para clientes con
+       crédito. Sin esto, cobrar a cuenta devolvía 400 aunque los otros
+       dos métodos funcionaran. */
+    method: z.enum(["CASH", "CARD", "TRANSFER", "ON_ACCOUNT"]),
     amount: z.number().min(0),
   })).optional().default([]),
   /** Cobrar también el alojamiento vinculado, si queda saldo. */
@@ -138,6 +141,25 @@ export async function PUT(req: NextRequest, { params }: Params) {
             customerId: session.customerId,
             amount: cents,
             method: p.method,
+            status: "COMPLETED",
+            paidAt: new Date(),
+          },
+        });
+      }
+
+      /* Registrar el pago TAMBIÉN en cada orden.
+         Antes el pago quedaba solo a nivel sesión, y las órdenes se
+         marcaban PAID sin ninguna fila en Payment. En el panel de
+         Órdenes eso se ve como "Pagada / —": el cajero no sabe con qué
+         se cobró. Ahora cada orden guarda su parte con el método real. */
+      for (const order of unpaidOrders) {
+        await tx.payment.create({
+          data: {
+            orderId: order.id,
+            serviceSessionId: sessionId,
+            customerId: session.customerId,
+            amount: order.total,
+            method: paymentInputs[0]?.method ?? "CASH",
             status: "COMPLETED",
             paidAt: new Date(),
           },
