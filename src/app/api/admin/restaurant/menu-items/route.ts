@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
           category: true,
           variants: true,
           menuItemModifierGroups: {
-            include: { modifierGroup: { include: { modifiers: true } } },
+            include: { modifierGroup: { include: { modifiers: { where: { isActive: true } } } } },
           },
         },
       });

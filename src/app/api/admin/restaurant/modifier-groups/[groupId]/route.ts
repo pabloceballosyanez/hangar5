@@ -220,21 +220,49 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     }
 
     if (modifierId) {
-      // Delete a single modifier
-      const modifier = await prisma.modifier.findUnique({ where: { id: modifierId } });
-      if (!modifier || modifier.modifierGroupId !== groupId) {
-        return NextResponse.json({ error: "Modificador no encontrado en este grupo" }, { status: 404 });
+        // Delete a single modifier
+        const modifier = await prisma.modifier.findUnique({ where: { id: modifierId } });
+        if (!modifier || modifier.modifierGroupId !== groupId) {
+          return NextResponse.json({ error: "Modificador no encontrado en este grupo" }, { status: 404 });
+        }
+
+        /* Si ya se vendió, no se borra: se desactiva.
+           Cuando un extra aparece en una orden, OrderItemModifier apunta a
+           él. Borrarlo viola la clave foránea y la base devuelve un 500 —
+           el mensaje "error al eliminar" sin explicación.
+           Desactivándolo deja de ofrecerse en la barra y en el menú, pero
+           las órdenes viejas conservan su detalle y su precio. */
+        const usos = await prisma.orderItemModifier.count({ where: { modifierId } });
+
+        if (usos > 0) {
+          await prisma.modifier.update({
+            where: { id: modifierId },
+            data: { isActive: false },
+          });
+
+          const group = await prisma.modifierGroup.findUnique({
+            where: { id: groupId },
+            include: { modifiers: true },
+          });
+
+          return NextResponse.json({
+            ...serializeGroup(group as unknown as Record<string, unknown>),
+            desactivado: true,
+            usos,
+            mensaje: `Se desactivó "${modifier.name}" porque ya se vendió ${usos} vez(ces). Deja de ofrecerse, pero el historial queda intacto.`,
+          });
+        }
+
+        // Nunca se usó: se puede borrar sin consecuencias.
+        await prisma.modifier.delete({ where: { id: modifierId } });
+
+        const group = await prisma.modifierGroup.findUnique({
+          where: { id: groupId },
+          include: { modifiers: true },
+        });
+
+        return NextResponse.json(serializeGroup(group as unknown as Record<string, unknown>));
       }
-
-      await prisma.modifier.delete({ where: { id: modifierId } });
-
-      const group = await prisma.modifierGroup.findUnique({
-        where: { id: groupId },
-        include: { modifiers: true },
-      });
-
-      return NextResponse.json(serializeGroup(group as unknown as Record<string, unknown>));
-    }
 
     // Delete entire group
     await prisma.$transaction(async (tx) => {

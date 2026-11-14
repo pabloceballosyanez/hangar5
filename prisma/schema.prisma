@@ -185,6 +185,10 @@ model Modifier {
   inventoryIngredientId String?
   inventoryIngredient  Ingredient?         @relation("ModifierInventoryIngredient", fields: [inventoryIngredientId], references: [id])
   inventoryQuantity    Float               @default(0)
+  /* Un extra que ya se vendió no se puede borrar: la orden lo
+     referencia. Se desactiva y deja de ofrecerse, pero el historial
+     queda intacto. */
+  isActive             Boolean             @default(true)
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
   orderItemModifiers   OrderItemModifier[]

@@ -98,6 +98,7 @@ export async function GET(req: NextRequest) {
                         maxSelections: true,
                         isRequired: true,
                         modifiers: {
+                          where: { isActive: true },
                           select: { id: true, name: true, priceDelta: true },
                         },
                       },
