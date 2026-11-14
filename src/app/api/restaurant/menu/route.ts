@@ -127,6 +127,9 @@ export async function GET(req: NextRequest) {
                     maxSelections: true,
                     isRequired: true,
                     modifiers: {
+                      /* Solo activos: un extra desactivado no debe
+                         ofrecerse al tomar el pedido. */
+                      where: { isActive: true },
                       select: {
                         id: true,
                         name: true,
