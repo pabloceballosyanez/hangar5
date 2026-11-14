@@ -167,12 +167,12 @@ export default function PaginaTipos() {
                 onClick={() => setAbierto(expandido ? null : t.id)}
                 className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50"
               >
-                <span className="text-gray-400 text-xs">{expandido ? '▾' : '▸'}</span>
+                <span className="text-gray-500 text-xs">{expandido ? '▾' : '▸'}</span>
                 <span className="font-medium text-gray-900 flex-1">{t.nombre}</span>
                 <span className="text-xs text-gray-500">{t.platillos.length} platillos</span>
                 <div className="flex gap-1 flex-wrap justify-end max-w-[45%]">
                   {t.hereda.length === 0 ? (
-                    <span className="text-xs text-gray-400">sin modificadores</span>
+                    <span className="text-xs text-gray-500">sin modificadores</span>
                   ) : (
                     t.hereda.map((h) => (
                       <span
@@ -189,7 +189,7 @@ export default function PaginaTipos() {
               {expandido && (
                 <div className="border-t border-gray-100 px-4 py-3 bg-gray-50/50">
                   <div className="mb-3">
-                    <p className="text-[11px] uppercase tracking-wide text-gray-400 mb-1.5">
+                    <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-1.5">
                       Platillos de este tipo
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -199,24 +199,24 @@ export default function PaginaTipos() {
                           className={`text-xs px-2 py-1 rounded border ${
                             p.activo
                               ? 'bg-white border-gray-200 text-gray-700'
-                              : 'bg-gray-100 border-gray-200 text-gray-400 line-through'
+                              : 'bg-gray-100 border-gray-200 text-gray-500 line-through'
                           }`}
                           title={p.categoria}
                         >
                           {p.nombre}
-                          <span className="text-gray-400 ml-1">· {p.categoria}</span>
+                          <span className="text-gray-500 ml-1">· {p.categoria}</span>
                         </span>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-[11px] uppercase tracking-wide text-gray-400 mb-1.5">
+                    <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-1.5">
                       Modificadores que hereda
                     </p>
                     <div className="space-y-1.5 mb-2">
                       {t.hereda.length === 0 && (
-                        <p className="text-xs text-gray-400">Ninguno. Sus platillos no llevan opciones.</p>
+                        <p className="text-xs text-gray-500">Ninguno. Sus platillos no llevan opciones.</p>
                       )}
                       {t.hereda.map((h) => (
                         <div

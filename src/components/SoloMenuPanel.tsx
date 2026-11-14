@@ -152,7 +152,7 @@ function ItemModal({
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+            className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition-colors"
           >
             ✕
           </button>
@@ -211,7 +211,7 @@ function ItemModal({
                   </span>
                 )}
                 {group.maxSelections > 1 && (
-                  <span className="text-xs text-gray-400">Máx {group.maxSelections}</span>
+                  <span className="text-xs text-gray-500">Máx {group.maxSelections}</span>
                 )}
               </div>
               <div className="space-y-2">
@@ -520,7 +520,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
       <div className="h-full flex flex-col bg-white"
         style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
         <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3 text-gray-400">
+          <div className="flex flex-col items-center gap-3 text-gray-500">
             <svg className="animate-spin w-8 h-8 text-[#b88364]" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -542,7 +542,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
           <div className="flex flex-col items-center gap-3 text-center px-6">
             <div className="text-4xl">⚠️</div>
             <p className="text-sm text-red-600 font-medium">Error al cargar el menú</p>
-            <p className="text-xs text-gray-400">{loadError}</p>
+            <p className="text-xs text-gray-500">{loadError}</p>
           </div>
         </div>
       </div>
@@ -559,7 +559,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
           <div className="flex flex-col items-center gap-3 text-center px-6">
             <div className="text-4xl">📋</div>
             <p className="text-sm text-gray-500 font-medium">No hay platillos disponibles</p>
-            <p className="text-xs text-gray-400">El menú está vacío o no se ha configurado</p>
+            <p className="text-xs text-gray-500">El menú está vacío o no se ha configurado</p>
           </div>
         </div>
       </div>
@@ -574,7 +574,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
       {/* Header */}
       <div className="px-4 pt-4 pb-2 border-b border-gray-100 flex-shrink-0">
         <h2 className="text-lg font-bold text-[#1b4235]">Menú</h2>
-        <p className="text-xs text-gray-400 mt-0.5">Tocá un platillo para elegir opciones</p>
+        <p className="text-xs text-gray-500 mt-0.5">Tocá un platillo para elegir opciones</p>
       </div>
 
       {/* Search */}
@@ -629,7 +629,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                         {item.name}
                       </h3>
                       {item.description && (
-                        <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
                           {item.description}
                         </p>
                       )}
@@ -648,7 +648,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                       {formatPrice(item.basePrice)}
                     </span>
                     {hasOptions && (
-                      <span className="text-[10px] text-gray-400">
+                      <span className="text-[10px] text-gray-500">
                         {item.variants.length > 0 && `${item.variants.length} var.`}
                         {item.variants.length > 0 && item.modifierGroups.length > 0 && ' · '}
                         {item.modifierGroups.length > 0 && 'opciones'}
@@ -663,7 +663,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
           <div className="h-full flex items-center justify-center">
             <div className="flex flex-col items-center gap-2 text-center">
               <div className="text-3xl">{search.trim() ? '🔍' : '🍽️'}</div>
-              <p className="text-sm text-gray-400 font-medium">
+              <p className="text-sm text-gray-500 font-medium">
                 {search.trim()
                   ? `Sin resultados para "${search}"`
                   : activeCategory
@@ -707,10 +707,10 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                 <div className="flex-1 min-w-0">
                   <span className="text-xs text-[#1b4235] font-medium leading-tight">
                     {entry.name}
-                    {entry.variantName && <span className="text-gray-400"> · {entry.variantName}</span>}
+                    {entry.variantName && <span className="text-gray-500"> · {entry.variantName}</span>}
                   </span>
                   {entry.modifiers.map((m) => (
-                    <p key={m.id} className="text-[10px] text-gray-400 leading-tight">+ {m.name}</p>
+                    <p key={m.id} className="text-[10px] text-gray-500 leading-tight">+ {m.name}</p>
                   ))}
                   {entry.specialInstructions && (
                     <p className="text-[10px] text-amber-600 italic leading-tight">&ldquo;{entry.specialInstructions}&rdquo;</p>
@@ -726,7 +726,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                 <button
                   type="button"
                   onClick={() => removeFromCart(entry.id)}
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
                   title="Quitar del pedido"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
@@ -740,7 +740,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
           {/* Total + Send button */}
           <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between gap-3">
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wider">
+              <span className="text-[10px] text-gray-500 uppercase tracking-wider">
                 Total · {cartItemCount} {cartItemCount === 1 ? 'item' : 'items'}
               </span>
               <span className="text-lg font-bold text-green-700">

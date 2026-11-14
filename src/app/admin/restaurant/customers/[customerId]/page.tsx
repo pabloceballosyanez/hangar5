@@ -276,7 +276,7 @@ export default function CustomerDetailPage() {
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Monto a cobrar</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
                     <input
                       type="number"
                       value={payAmount}
@@ -356,7 +356,7 @@ export default function CustomerDetailPage() {
                 <div key={s.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-blue-200">
                   <div>
                     <p className="font-medium text-gray-800 text-sm">{s.label}</p>
-                    <p className="text-xs text-gray-400">Abierta {fmtTime(s.openedAt)} · {s.orders.length} órdenes</p>
+                    <p className="text-xs text-gray-500">Abierta {fmtTime(s.openedAt)} · {s.orders.length} órdenes</p>
                   </div>
                   <span className="text-sm font-bold text-[#15352a]">{formatPrice(ordersTotal)}</span>
                 </div>
@@ -377,13 +377,13 @@ export default function CustomerDetailPage() {
               <div key={b.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-amber-200">
                 <div>
                   <p className="font-medium text-gray-800 text-sm">{b.item?.name || 'Reserva'}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-500">
                     {new Date(b.startDate).toLocaleDateString('es-MX')} → {new Date(b.endDate).toLocaleDateString('es-MX')} · {b.guests} {b.guests === 1 ? 'persona' : 'personas'}
                   </p>
                 </div>
                 <div className="text-right">
                   <span className="text-sm font-bold text-amber-700">{formatPrice(b.totalPrice)}</span>
-                  <p className={`text-xs ${b.status === 'confirmed' ? 'text-[#1b4235]' : b.status === 'cancelled' ? 'text-red-500' : 'text-gray-400'}`}>
+                  <p className={`text-xs ${b.status === 'confirmed' ? 'text-[#1b4235]' : b.status === 'cancelled' ? 'text-red-500' : 'text-gray-500'}`}>
                     {b.status}
                   </p>
                 </div>
@@ -431,7 +431,7 @@ export default function CustomerDetailPage() {
             <p className={`text-3xl font-black ${customer.balance > 0 ? 'text-[#b03a2e]' : customer.balance < 0 ? 'text-[#1b4235]' : 'text-gray-600'}`}>
               {customer.balance > 0 ? formatPrice(customer.balance) : customer.balance < 0 ? `-${formatPrice(Math.abs(customer.balance))}` : '$0.00'}
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               {customer.balance > 0 ? 'Pendiente de pago' : customer.balance < 0 ? 'Crédito a favor' : 'Cuenta al día'}
             </p>
           </div>
@@ -443,7 +443,7 @@ export default function CustomerDetailPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Libro contable</h2>
             {customer.ledgerEntries.length === 0 ? (
-              <p className="text-gray-400 text-sm">Sin movimientos</p>
+              <p className="text-gray-500 text-sm">Sin movimientos</p>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {customer.ledgerEntries.map(e => (
@@ -458,7 +458,7 @@ export default function CustomerDetailPage() {
                       <span className={`text-sm font-medium ${e.amount > 0 ? 'text-[#b03a2e]' : 'text-[#1b4235]'}`}>
                         {e.amount > 0 ? `+${formatPrice(e.amount)}` : formatPrice(e.amount)}
                       </span>
-                      <p className="text-xs text-gray-400">{new Date(e.createdAt).toLocaleDateString('es-MX')}</p>
+                      <p className="text-xs text-gray-500">{new Date(e.createdAt).toLocaleDateString('es-MX')}</p>
                     </div>
                   </div>
                 ))}
@@ -470,7 +470,7 @@ export default function CustomerDetailPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Historial de sesiones</h2>
             {closedSessions.length === 0 && openSessions.length === 0 ? (
-              <p className="text-gray-400 text-sm">Sin sesiones</p>
+              <p className="text-gray-500 text-sm">Sin sesiones</p>
             ) : (
               <div className="space-y-2">
                 {[...openSessions, ...closedSessions].slice(0, 15).map(s => {
@@ -485,7 +485,7 @@ export default function CustomerDetailPage() {
                             {s.status === 'OPEN' ? 'Abierta' : 'Cerrada'}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-500">
                           {new Date(s.openedAt).toLocaleDateString('es-MX')} · {s.orders.length} órdenes · {formatPrice(ordersTotal)}
                         </p>
                       </div>
@@ -494,7 +494,7 @@ export default function CustomerDetailPage() {
                           <span className="text-xs font-medium text-[#1b4235]">Pagado {formatPrice(paidTotal)}</span>
                         )}
                         {s.closedAt && (
-                          <p className="text-xs text-gray-400">{new Date(s.closedAt).toLocaleDateString('es-MX')}</p>
+                          <p className="text-xs text-gray-500">{new Date(s.closedAt).toLocaleDateString('es-MX')}</p>
                         )}
                       </div>
                     </div>

@@ -87,7 +87,7 @@ export default function SessionsPage() {
         </div>
       ) : sessions.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg">No hay sesiones {filter === 'OPEN' ? 'abiertas' : ''}</p>
+          <p className="text-gray-500 text-lg">No hay sesiones {filter === 'OPEN' ? 'abiertas' : ''}</p>
           <Link href="/admin/restaurant/sessions/nuevo" className="inline-block mt-4 text-[#1b4235] hover:text-blue-800 text-sm font-medium">
             + Abrir la primera cuenta →
           </Link>
@@ -116,11 +116,11 @@ export default function SessionsPage() {
                     <tr key={s.id} className={`hover:bg-gray-50 transition-colors ${isOpen ? 'bg-amber-50/30' : ''}`}>
                       <td className="py-3 px-4">
                         <span className="text-lg">{typeIcon[s.type] || '❓'}</span>
-                        <span className="text-xs text-gray-400 ml-1">{typeLabel[s.type] || s.type}</span>
+                        <span className="text-xs text-gray-500 ml-1">{typeLabel[s.type] || s.type}</span>
                       </td>
                       <td className="py-3 px-4">
                         <p className="font-medium text-gray-900">{s.label}</p>
-                        {s.table && <p className="text-xs text-gray-400">Mesa {s.table.number} · {s.table.location}</p>}
+                        {s.table && <p className="text-xs text-gray-500">Mesa {s.table.number} · {s.table.location}</p>}
                       </td>
                       <td className="py-3 px-4">
                         {s.customer ? (
@@ -128,19 +128,19 @@ export default function SessionsPage() {
                             {s.customer.name}
                           </Link>
                         ) : (
-                          <span className="text-gray-400">—</span>
+                          <span className="text-gray-500">—</span>
                         )}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span className="font-medium text-gray-700">{s.orders.length}</span>
-                        <span className="text-xs text-gray-400 ml-1">({formatPrice(ordersTotal)})</span>
+                        <span className="text-xs text-gray-500 ml-1">({formatPrice(ordersTotal)})</span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className={paidTotal > 0 ? 'text-[#1b4235] font-medium' : 'text-gray-400'}>
+                        <span className={paidTotal > 0 ? 'text-[#1b4235] font-medium' : 'text-gray-500'}>
                           {formatPrice(paidTotal)}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right text-xs text-gray-400">
+                      <td className="py-3 px-4 text-right text-xs text-gray-500">
                         {new Date(s.openedAt).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-3 px-4 text-right">
@@ -154,7 +154,7 @@ export default function SessionsPage() {
                         ) : (
                           <Link
                             href={`/admin/restaurant/sessions/${s.id}`}
-                            className="text-gray-400 hover:text-gray-600 text-sm"
+                            className="text-gray-500 hover:text-gray-600 text-sm"
                           >
                             Ver →
                           </Link>

@@ -273,22 +273,22 @@ export default function IngredientDetailPage() {
           <p className={`text-2xl font-bold mt-1 ${isLowStock ? 'text-[#b03a2e]' : 'text-gray-900'}`}>
             {ingredient.currentStock}
           </p>
-          <p className="text-xs text-gray-400">{ingredient.unit}</p>
+          <p className="text-xs text-gray-500">{ingredient.unit}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <p className="text-xs text-gray-500 uppercase tracking-wider">Stock mínimo</p>
           <p className="text-2xl font-bold mt-1 text-gray-900">{ingredient.minStock}</p>
-          <p className="text-xs text-gray-400">{ingredient.unit}</p>
+          <p className="text-xs text-gray-500">{ingredient.unit}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <p className="text-xs text-gray-500 uppercase tracking-wider">Costo unitario</p>
           <p className="text-2xl font-bold mt-1 text-gray-900">{formatPrice(ingredient.costDisplay)}</p>
-          <p className="text-xs text-gray-400">por {ingredient.unit}</p>
+          <p className="text-xs text-gray-500">por {ingredient.unit}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <p className="text-xs text-gray-500 uppercase tracking-wider">Recetas</p>
           <p className="text-2xl font-bold mt-1 text-gray-900">{ingredient.recipeUsageCount}</p>
-          <p className="text-xs text-gray-400">usos</p>
+          <p className="text-xs text-gray-500">usos</p>
         </div>
       </div>
 
@@ -342,7 +342,7 @@ export default function IngredientDetailPage() {
         </div>
         {ingredient.stockMovements.length === 0 ? (
           <div className="p-6 text-center">
-            <p className="text-sm text-gray-400">Sin movimientos registrados</p>
+            <p className="text-sm text-gray-500">Sin movimientos registrados</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -444,7 +444,7 @@ function PurchaseForm({ ingredientId, onSuccess, unit }: {
           </p>
           <p className="text-gray-600">
             Costo:{' '}
-            <span className="line-through text-gray-400">${result.costBeforeDisplay}</span>{' '}
+            <span className="line-through text-gray-500">${result.costBeforeDisplay}</span>{' '}
             → <strong className="text-green-700">${result.costAfterDisplay}</strong>/{unit}
           </p>
         </div>

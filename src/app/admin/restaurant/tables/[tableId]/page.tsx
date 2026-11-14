@@ -176,7 +176,7 @@ export default function EditTablePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre <span className="text-gray-400 font-normal">(opcional)</span>
+                  Nombre <span className="text-gray-500 font-normal">(opcional)</span>
                 </label>
                 <input
                   type="text"
@@ -277,7 +277,7 @@ export default function EditTablePage() {
                         <span className={s.status === 'OPEN' ? 'text-amber-600 font-medium' : 'text-gray-500'}>
                           {s.status === 'OPEN' ? 'Abierta' : 'Cerrada'}
                         </span>
-                        <span className="text-gray-400">
+                        <span className="text-gray-500">
                           {new Date(s.openedAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
                         </span>
                       </div>

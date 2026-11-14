@@ -133,7 +133,7 @@ export default function NuevoMenuItemPage() {
                 Categoría <span className="text-red-500">*</span>
               </label>
               {loadingCategories ? (
-                <div className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-400 bg-gray-50">
+                <div className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-500 bg-gray-50">
                   Cargando categorías…
                 </div>
               ) : (
@@ -158,7 +158,7 @@ export default function NuevoMenuItemPage() {
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Descripción <span className="text-gray-400 font-normal">(opcional)</span>
+                Descripción <span className="text-gray-500 font-normal">(opcional)</span>
               </label>
               <textarea
                 value={description}
@@ -176,7 +176,7 @@ export default function NuevoMenuItemPage() {
                   Precio base <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
                   <input
                     type="number"
                     value={basePricePesos}
@@ -190,7 +190,7 @@ export default function NuevoMenuItemPage() {
                     required
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">En pesos MXN</p>
+                <p className="text-xs text-gray-500 mt-1">En pesos MXN</p>
               </div>
 
               <div>
@@ -208,7 +208,7 @@ export default function NuevoMenuItemPage() {
                     min={1}
                     className="w-full pr-14 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">min</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">min</span>
                 </div>
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function NuevoMenuItemPage() {
             {/* Image URL */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL de imagen <span className="text-gray-400 font-normal">(opcional)</span>
+                URL de imagen <span className="text-gray-500 font-normal">(opcional)</span>
               </label>
               <input
                 type="url"
@@ -248,7 +248,7 @@ export default function NuevoMenuItemPage() {
             {/* Sort order */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Orden <span className="text-gray-400 font-normal">(opcional)</span>
+                Orden <span className="text-gray-500 font-normal">(opcional)</span>
               </label>
               <input
                 type="number"
@@ -260,7 +260,7 @@ export default function NuevoMenuItemPage() {
                 min={0}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 Número menor aparece primero en el menú.
               </p>
             </div>

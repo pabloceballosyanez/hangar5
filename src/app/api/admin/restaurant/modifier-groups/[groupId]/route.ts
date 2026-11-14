@@ -37,7 +37,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     }
 
     // Only allow specific fields
-    const allowed = ["deductsInventory", "inventoryIngredientId", "inventoryQuantity", "name", "priceDelta"];
+    /* isActive incluido: reactivar un extra desactivado pasa por aquí. */
+    const allowed = ["deductsInventory", "inventoryIngredientId", "inventoryQuantity", "name", "priceDelta", "isActive"];
     const updates: Record<string, unknown> = {};
     for (const key of allowed) {
       if (key in fields) updates[key] = fields[key];

@@ -108,7 +108,7 @@ export default function NuevoTabPage() {
                 }`}
               >
                 <p className="font-medium">{t.label}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{t.desc}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t.desc}</p>
               </button>
             ))}
           </div>
@@ -170,7 +170,7 @@ export default function NuevoTabPage() {
                   className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
                 >
                   <span className="font-medium">{c.name}</span>
-                  {c.phone && <span className="text-gray-400 ml-2">{c.phone}</span>}
+                  {c.phone && <span className="text-gray-500 ml-2">{c.phone}</span>}
                   {c.balance !== 0 && (
                     <span className={`ml-2 text-xs font-medium ${c.balance > 0 ? 'text-red-500' : 'text-green-500'}`}>
                       {c.balance > 0 ? `Debe $${c.balance}` : `Crédito $${Math.abs(c.balance)}`}
@@ -190,7 +190,7 @@ export default function NuevoTabPage() {
                   </span>
                 )}
               </span>
-              <button type="button" onClick={() => { setSelectedCustomer(null); setCustomerSearch(''); }} className="text-gray-400 hover:text-gray-600">✕</button>
+              <button type="button" onClick={() => { setSelectedCustomer(null); setCustomerSearch(''); }} className="text-gray-500 hover:text-gray-600">✕</button>
             </div>
           )}
         </div>

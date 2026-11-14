@@ -239,7 +239,7 @@ export default function IngredientsPage() {
               <p className="text-xs text-gray-500">Insumos por debajo del mínimo</p>
             </Link>
           </div>
-          <p className="text-[11px] text-gray-400 mt-3">
+          <p className="text-[11px] text-gray-500 mt-3">
             El stock de cada insumo se ve en la lista de abajo.
           </p>
         </div>
@@ -314,8 +314,8 @@ export default function IngredientsPage() {
         </div>
       ) : ingredients.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg">No hay ingredientes registrados</p>
-          <p className="text-sm text-gray-400 mt-1">Agrega ingredientes para empezar a crear recetas</p>
+          <p className="text-gray-500 text-lg">No hay ingredientes registrados</p>
+          <p className="text-sm text-gray-500 mt-1">Agrega ingredientes para empezar a crear recetas</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -389,7 +389,7 @@ export default function IngredientsPage() {
           {/* Inactive */}
           {inactiveIngredients.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Inactivos</h2>
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Inactivos</h2>
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden opacity-60">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -397,11 +397,11 @@ export default function IngredientsPage() {
                       {inactiveIngredients.map(ing => (
                         <tr key={ing.id} className="hover:bg-gray-50">
                           <td className="py-3 px-4 font-medium text-gray-500">{ing.name}</td>
-                          <td className="py-3 px-4 text-gray-400">{ing.unit}</td>
-                          <td className="py-3 px-4 text-right text-gray-400">{ing.currentStock}</td>
-                          <td className="py-3 px-4 text-right text-gray-400">{ing.minStock}</td>
-                          <td className="py-3 px-4 text-right text-gray-400">{formatPrice(ing.costDisplay)}</td>
-                          <td className="py-3 px-4 text-center text-gray-400">{ing.recipeUsageCount}</td>
+                          <td className="py-3 px-4 text-gray-500">{ing.unit}</td>
+                          <td className="py-3 px-4 text-right text-gray-500">{ing.currentStock}</td>
+                          <td className="py-3 px-4 text-right text-gray-500">{ing.minStock}</td>
+                          <td className="py-3 px-4 text-right text-gray-500">{formatPrice(ing.costDisplay)}</td>
+                          <td className="py-3 px-4 text-center text-gray-500">{ing.recipeUsageCount}</td>
                           <td className="py-3 px-4 text-center">
                             <button onClick={() => toggleActive(ing)}
                               className="text-xs text-blue-500 hover:text-[#15352a] font-medium transition-colors">Reactivar</button>

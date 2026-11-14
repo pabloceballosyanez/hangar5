@@ -45,7 +45,7 @@ export default async function StaffPage() {
 
       {staff.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg">No hay personal registrado</p>
+          <p className="text-gray-500 text-lg">No hay personal registrado</p>
           <Link
             href="/admin/restaurant/staff/nuevo"
             className="inline-block mt-4 text-[#1b4235] hover:text-blue-800 text-sm font-medium"
@@ -75,7 +75,7 @@ export default async function StaffPage() {
                       {roleLabel[person.role] || person.role}
                     </span>
                   </div>
-                  <div className="ml-auto text-gray-300 group-hover:text-gray-400 transition-colors">
+                  <div className="ml-auto text-gray-500 group-hover:text-gray-500 transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>

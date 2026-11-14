@@ -125,7 +125,7 @@ export default function CustomersPage() {
       {/* Búsqueda + filtros */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
           <input
             type="text"
             value={search}
@@ -157,7 +157,7 @@ export default function CustomersPage() {
         </div>
       ) : customers.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg">No hay clientes</p>
+          <p className="text-gray-500 text-lg">No hay clientes</p>
           <Link href="/admin/restaurant/customers/nuevo" className="inline-block mt-4 text-[#1b4235] hover:text-blue-800 text-sm font-medium">
             + Agregar primer cliente →
           </Link>
@@ -186,12 +186,12 @@ export default function CustomersPage() {
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-gray-400 truncate">{c.email || c.phone || '—'}</p>
+                <p className="text-xs text-gray-500 truncate">{c.email || c.phone || '—'}</p>
               </Link>
 
               {/* Saldo */}
               <div className="text-right shrink-0 w-24">
-                <p className={`text-sm font-bold ${c.balance > 0 ? 'text-[#b03a2e]' : c.balance < 0 ? 'text-[#1b4235]' : 'text-gray-400'}`}>
+                <p className={`text-sm font-bold ${c.balance > 0 ? 'text-[#b03a2e]' : c.balance < 0 ? 'text-[#1b4235]' : 'text-gray-500'}`}>
                   {c.balance > 0 ? `-$${c.balance.toFixed(0)}` : c.balance < 0 ? `+$${Math.abs(c.balance).toFixed(0)}` : '$0'}
                 </p>
                 {c.hasCredit && c.creditLimit != null && (
@@ -216,7 +216,7 @@ export default function CustomersPage() {
                   className={`w-8 h-8 flex items-center justify-center rounded-lg border text-sm transition-all disabled:opacity-50 ${
                     c.hasCredit
                       ? 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-red-50 hover:border-red-200'
-                      : 'bg-white border-gray-200 text-gray-400 hover:bg-amber-50 hover:border-amber-200'
+                      : 'bg-white border-gray-200 text-gray-500 hover:bg-amber-50 hover:border-amber-200'
                   }`}
                 >
                   📋
@@ -228,8 +228,8 @@ export default function CustomersPage() {
                   title={c.isActive ? 'Desactivar' : 'Reactivar'}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg border text-sm transition-all disabled:opacity-50 ${
                     c.isActive
-                      ? 'bg-white border-gray-200 text-gray-400 hover:bg-red-50 hover:border-red-200 hover:text-red-500'
-                      : 'bg-white border-gray-200 text-gray-400 hover:bg-green-50 hover:border-green-200 hover:text-[#1b4235]'
+                      ? 'bg-white border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500'
+                      : 'bg-white border-gray-200 text-gray-500 hover:bg-green-50 hover:border-green-200 hover:text-[#1b4235]'
                   }`}
                 >
                   {c.isActive ? '✕' : '↻'}

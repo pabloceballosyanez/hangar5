@@ -85,13 +85,13 @@ export default function NuevaMessaPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                 required
               />
-              <p className="text-xs text-gray-400 mt-1">Código único que identifica la mesa.</p>
+              <p className="text-xs text-gray-500 mt-1">Código único que identifica la mesa.</p>
             </div>
 
             {/* Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre <span className="text-gray-400 font-normal">(opcional)</span>
+                Nombre <span className="text-gray-500 font-normal">(opcional)</span>
               </label>
               <input
                 type="text"

@@ -169,7 +169,7 @@ export default function UbicacionesPage() {
             ))}
             {visibles.length === 0 && (
               <tr>
-                <td colSpan={3 + ubicaciones.length} className="px-4 py-6 text-center text-gray-400">
+                <td colSpan={3 + ubicaciones.length} className="px-4 py-6 text-center text-gray-500">
                   Ningún platillo coincide.
                 </td>
               </tr>

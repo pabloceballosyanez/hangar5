@@ -238,7 +238,7 @@ export default function CloseSessionPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Órdenes ({session.orders.length})</h2>
             {session.orders.length === 0 ? (
-              <p className="text-gray-400 text-sm">Sin órdenes en esta sesión</p>
+              <p className="text-gray-500 text-sm">Sin órdenes en esta sesión</p>
             ) : (
               <div className="space-y-2">
                 {session.orders.map(o => (
@@ -247,11 +247,11 @@ export default function CloseSessionPage() {
                       {o.orderItems.slice(0, 3).map((item, i) => (
                         <p key={i} className="text-sm text-gray-700 truncate">
                           {item.quantity}x {item.menuItem.name}
-                          {item.variant && <span className="text-gray-400"> ({item.variant.name})</span>}
+                          {item.variant && <span className="text-gray-500"> ({item.variant.name})</span>}
                         </p>
                       ))}
                       {o.orderItems.length > 3 && (
-                        <p className="text-xs text-gray-400">+{o.orderItems.length - 3} items más</p>
+                        <p className="text-xs text-gray-500">+{o.orderItems.length - 3} items más</p>
                       )}
                     </div>
                     <span className="font-medium text-gray-900 shrink-0 ml-4">{formatPrice(o.total)}</span>
@@ -287,7 +287,7 @@ export default function CloseSessionPage() {
                 )}
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                 <input
                   type="number"
                   value={p.amount}

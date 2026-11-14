@@ -94,8 +94,8 @@ export default function ModifierGroupsPage() {
 
       {groups.length === 0 && !loading ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg mb-2">No hay grupos de modificadores</p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-500 text-lg mb-2">No hay grupos de modificadores</p>
+          <p className="text-gray-500 text-sm">
             Crea tu primer grupo de modificadores para personalizar los platillos.
           </p>
         </div>

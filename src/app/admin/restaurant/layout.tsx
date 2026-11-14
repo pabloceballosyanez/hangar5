@@ -74,7 +74,7 @@ function MenuAgrupado({
     <>
       {sidebarGroups.map((grupo) => (
         <div key={grupo.titulo} className="mb-4">
-          <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+          <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
             {grupo.titulo}
           </p>
           <div className="space-y-0.5">
@@ -200,7 +200,7 @@ export default function RestaurantLayout({
                 <span className="text-lg font-bold text-gray-900">🍽️ Restaurante</span>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 -mr-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="p-2 -mr-2 rounded-lg text-gray-500 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                   aria-label="Cerrar menú"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -219,7 +219,7 @@ export default function RestaurantLayout({
                 <div className="border-t border-gray-200 my-2" />
                 <Link
                   href="/admin"
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-600 transition-colors"
                 >
                   <span className="text-lg">←</span>
                   Volver al admin

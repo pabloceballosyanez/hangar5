@@ -76,7 +76,7 @@ export default async function MenuItemsPage({
       <div className="flex items-center gap-3 flex-wrap">
         <label className="text-sm font-medium text-gray-600">Filtrar por categoría:</label>
         <CategoryFilter categories={categories} currentCategoryId={categoryFilter} />
-        <span className="text-gray-300">|</span>
+        <span className="text-gray-500">|</span>
         <span className="text-sm font-medium text-gray-600">Estado:</span>
         <div className="flex gap-1">
           {[
@@ -116,8 +116,8 @@ export default async function MenuItemsPage({
 
       {items.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg mb-2">No hay items en el menú</p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-500 text-lg mb-2">No hay items en el menú</p>
+          <p className="text-gray-500 text-sm">
             {categoryFilter
               ? "Esta categoría no tiene items todavía."
               : "Agrega tu primer platillo o bebida."}
@@ -172,7 +172,7 @@ export default async function MenuItemsPage({
                             )}
                           </p>
                           {item.description && (
-                            <p className="text-xs text-gray-400 line-clamp-1">
+                            <p className="text-xs text-gray-500 line-clamp-1">
                               {item.description}
                             </p>
                           )}
@@ -187,7 +187,7 @@ export default async function MenuItemsPage({
                       {item.category ? (
                         <>
                           <span className="text-gray-600">{item.category.name}</span>
-                          <span className="text-xs text-gray-400 ml-1">
+                          <span className="text-xs text-gray-500 ml-1">
                             ({item.category.kind === "FOOD" ? "Comida" : "Bebida"})
                           </span>
                         </>

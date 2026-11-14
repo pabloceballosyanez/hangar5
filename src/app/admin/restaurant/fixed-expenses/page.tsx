@@ -192,8 +192,8 @@ export default function FixedExpensesPage() {
         </div>
       ) : expenses.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg">No hay gastos fijos registrados</p>
-          <p className="text-sm text-gray-400 mt-1">Agrega renta, servicios, mantenimiento, etc.</p>
+          <p className="text-gray-500 text-lg">No hay gastos fijos registrados</p>
+          <p className="text-sm text-gray-500 mt-1">Agrega renta, servicios, mantenimiento, etc.</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -240,7 +240,7 @@ export default function FixedExpensesPage() {
           {/* Inactive */}
           {inactiveExpenses.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Inactivos</h2>
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Inactivos</h2>
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden opacity-60">
                 <table className="w-full text-sm">
                   <tbody className="divide-y divide-gray-50">
@@ -252,7 +252,7 @@ export default function FixedExpensesPage() {
                             {categoryLabels[e.category] || e.category}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right font-semibold text-gray-400">{formatPrice(e.amountDisplay)}</td>
+                        <td className="py-3 px-4 text-right font-semibold text-gray-500">{formatPrice(e.amountDisplay)}</td>
                         <td className="py-3 px-4 text-center">
                           <button onClick={() => startEdit(e)}
                             className="text-xs text-blue-500 hover:text-[#15352a] font-medium">Reactivar</button>

@@ -27,7 +27,7 @@ export default function SoloPage() {
       <header className="shrink-0 h-11 bg-white border-b border-gray-200 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-[#1b4235]">🔥 Modo Solo</span>
-          <span className="text-[10px] text-gray-400 hidden sm:inline">
+          <span className="text-[10px] text-gray-500 hidden sm:inline">
             Mesero · Cocina · Cobro en una pantalla
           </span>
         </div>
@@ -52,7 +52,7 @@ export default function SoloPage() {
             />
           ) : (
             <div className="h-full flex items-center justify-center bg-white">
-              <div className="text-center text-gray-400">
+              <div className="text-center text-gray-500">
                 <div className="text-5xl mb-3">👈</div>
                 <p className="text-sm font-medium">Seleccioná un tab</p>
                 <p className="text-xs mt-1">para empezar a tomar pedidos</p>

@@ -419,7 +419,7 @@ function PLRow({
           {label}
         </span>
         {subtitle && (
-          <span className="text-xs text-gray-400 ml-2">{subtitle}</span>
+          <span className="text-xs text-gray-500 ml-2">{subtitle}</span>
         )}
       </div>
       <span

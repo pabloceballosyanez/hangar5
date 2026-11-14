@@ -109,13 +109,13 @@ export default function AuditPage() {
         ) : entries.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-3xl mb-2">🗂️</div>
-            <p className="text-sm text-gray-400">No hay registros en esta vista.</p>
+            <p className="text-sm text-gray-500">No hay registros en esta vista.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wider">
+                <tr className="border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
                   <th className="py-3 px-4 font-medium">Fecha</th>
                   <th className="py-3 px-4 font-medium">Concepto</th>
                   <th className="py-3 px-4 font-medium">Detalle</th>
@@ -140,7 +140,7 @@ export default function AuditPage() {
                         </span>
                       )}
                       {e.notes && (
-                        <span className="block text-xs text-gray-400 mt-0.5">{e.notes}</span>
+                        <span className="block text-xs text-gray-500 mt-0.5">{e.notes}</span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-xs text-gray-500">

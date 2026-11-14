@@ -215,7 +215,7 @@ export default function RecipeDetailPage() {
           <h2 className="font-semibold text-gray-900">Ingredientes ({recipe.recipeItems.length})</h2>
         </div>
         {recipe.recipeItems.length === 0 && (recipe.inheritedItems || []).length === 0 ? (
-          <div className="p-6 text-center text-gray-400 text-sm">Sin ingredientes — agrega abajo</div>
+          <div className="p-6 text-center text-gray-500 text-sm">Sin ingredientes — agrega abajo</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -263,7 +263,7 @@ export default function RecipeDetailPage() {
       <form onSubmit={handleAddIngredient} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <h2 className="font-semibold text-gray-900 mb-3">Agregar ingrediente</h2>
         {availableIngredients.length === 0 ? (
-          <p className="text-sm text-gray-400">Todos los ingredientes disponibles ya están en la receta.</p>
+          <p className="text-sm text-gray-500">Todos los ingredientes disponibles ya están en la receta.</p>
         ) : (
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[200px]">

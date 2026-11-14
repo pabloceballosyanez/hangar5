@@ -185,7 +185,7 @@ export default async function RestaurantDashboardPage() {
               <span className="w-2 h-2 rounded-full bg-blue-500" />
             </div>
             <p className="mt-2 text-3xl font-bold text-gray-900">{activeOrdersCount}</p>
-            <p className="mt-1 text-xs text-gray-400">pendientes</p>
+            <p className="mt-1 text-xs text-gray-500">pendientes</p>
           </div>
         </Link>
 
@@ -200,7 +200,7 @@ export default async function RestaurantDashboardPage() {
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
             </div>
             <p className="mt-2 text-3xl font-bold text-gray-900">{formatPesos(dailySales)}</p>
-            <p className="mt-1 text-xs text-gray-400">MXN</p>
+            <p className="mt-1 text-xs text-gray-500">MXN</p>
           </div>
         </Link>
 
@@ -217,7 +217,7 @@ export default async function RestaurantDashboardPage() {
             <p className="mt-2 text-3xl font-bold text-gray-900">
               {occupiedSessionsCount}
             </p>
-            <p className="mt-1 text-xs text-gray-400">activos ahora</p>
+            <p className="mt-1 text-xs text-gray-500">activos ahora</p>
           </div>
         </Link>
 
@@ -232,7 +232,7 @@ export default async function RestaurantDashboardPage() {
               <span className="w-2 h-2 rounded-full bg-violet-500" />
             </div>
             <p className="mt-2 text-3xl font-bold text-gray-900">{staffPresentCount}</p>
-            <p className="mt-1 text-xs text-gray-400">en turno</p>
+            <p className="mt-1 text-xs text-gray-500">en turno</p>
           </div>
         </Link>
         {/* Menu items */}
@@ -246,7 +246,7 @@ export default async function RestaurantDashboardPage() {
               <span className="w-2 h-2 rounded-full bg-cyan-500" />
             </div>
             <p className="mt-2 text-3xl font-bold text-gray-900">{totalMenuItems}</p>
-            <p className="mt-1 text-xs text-gray-400">activos</p>
+            <p className="mt-1 text-xs text-gray-500">activos</p>
           </div>
         </Link>
       </div>
@@ -289,7 +289,7 @@ export default async function RestaurantDashboardPage() {
           </div>
           <div className="p-5">
             {recentOrders.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-8">No hay órdenes hoy</p>
+              <p className="text-sm text-gray-500 text-center py-8">No hay órdenes hoy</p>
             ) : (
               <div className="space-y-3">
                 {recentOrders.map((order) => (
@@ -298,14 +298,14 @@ export default async function RestaurantDashboardPage() {
                     className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="font-bold text-lg text-gray-400 shrink-0">
+                      <span className="font-bold text-lg text-gray-500 shrink-0">
                         {order.table?.number || order.serviceSession?.table?.number}
                       </span>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {order.orderItems.map((i) => i.menuItem.name).join(", ")}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-500">
                           {order.createdAt.toLocaleTimeString("es-MX", {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -345,7 +345,7 @@ export default async function RestaurantDashboardPage() {
           </div>
           <div className="p-5">
             {activeTables.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-8">
+              <p className="text-sm text-gray-500 text-center py-8">
                 No hay mesas ocupadas
               </p>
             ) : (

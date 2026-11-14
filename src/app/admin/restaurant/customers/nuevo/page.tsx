@@ -118,7 +118,7 @@ export default function NuevoClientePage() {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                 placeholder="Ej: 5000 (dejar vacío = sin límite)"
               />
-              <p className="text-xs text-gray-400 mt-1">En pesos MXN. Dejalo vacío para crédito sin tope.</p>
+              <p className="text-xs text-gray-500 mt-1">En pesos MXN. Dejalo vacío para crédito sin tope.</p>
             </div>
           )}
         </div>

@@ -270,7 +270,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                         className="w-full rounded-t bg-[#b88364] hover:bg-[#1b4235] transition-colors cursor-pointer"
                         style={{ height: `${Math.max(4, (r.revenue / maxRev) * 80)}px` }}
                       />
-                      <span className="text-[9px] text-gray-400 uppercase">{r.label}</span>
+                      <span className="text-[9px] text-gray-500 uppercase">{r.label}</span>
                     </div>
                   ))}
                 </div>
@@ -280,14 +280,14 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
               <div className="bg-white border border-[#e0d6cf] rounded-lg p-5">
                 <h3 className="text-sm font-medium text-[#1b4235] mb-4 uppercase tracking-wider">Próximas reservas</h3>
                 {upcoming.length === 0 ? (
-                  <p className="text-sm text-gray-400">No hay reservas próximas</p>
+                  <p className="text-sm text-gray-500">No hay reservas próximas</p>
                 ) : (
                   <div className="space-y-2 max-h-40 overflow-y-auto">
                     {upcoming.map(b => (
                       <div key={b.id} className="flex justify-between items-center text-xs py-1 border-b border-gray-50 last:border-0">
                         <div>
                           <span className="font-medium text-[#1b4235]">{b.item.name}</span>
-                          <span className="text-gray-400 ml-2">{b.customerName}</span>
+                          <span className="text-gray-500 ml-2">{b.customerName}</span>
                         </div>
                         <span className="text-[#b88364]">{new Date(b.startDate).toLocaleDateString("es-MX")}</span>
                       </div>
@@ -469,9 +469,9 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                         <td className="py-3 pr-4 font-medium">{b.item.name}</td>
                         <td className="py-3 pr-4">
                           {maint ? (
-                            <span className="text-gray-400 italic">{b.customerName}</span>
+                            <span className="text-gray-500 italic">{b.customerName}</span>
                           ) : (
-                            <>{b.customerName}<br /><span className="text-xs text-gray-400">{b.customerEmail}</span></>
+                            <>{b.customerName}<br /><span className="text-xs text-gray-500">{b.customerEmail}</span></>
                           )}
                         </td>
                         <td className="py-3 pr-4 text-xs">{maint ? "Manto" : isAct ? "Actividad" : "Reserva"}</td>
@@ -483,7 +483,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                         </td>
                         <td className="py-3 pr-4">{b.guests}</td>
                         <td className="py-3 pr-4 font-medium">
-                          {b.totalPrice > 0 ? `$${(b.totalPrice / 100).toLocaleString()}` : <span className="text-gray-400">—</span>}
+                          {b.totalPrice > 0 ? `$${(b.totalPrice / 100).toLocaleString()}` : <span className="text-gray-500">—</span>}
                         </td>
                         <td className="py-3 pr-4">
                           <span className="text-xs whitespace-nowrap">{paymentLabels[b.paymentMethod || ""] || "—"}</span>
@@ -533,7 +533,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                     );
                   })}
                   {data.bookings.length === 0 && (
-                    <tr><td colSpan={8} className="py-12 text-center text-gray-400">No hay reservas todavía</td></tr>
+                    <tr><td colSpan={8} className="py-12 text-center text-gray-500">No hay reservas todavía</td></tr>
                   )}
                 </tbody>
               </table>
@@ -594,7 +594,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                       <div>
                         <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Precio (centavos) *</label>
                         <input type="number" value={newItem.price} onChange={e => setNewItem(f => ({ ...f, price: parseInt(e.target.value) || 0 }))} className={inputClass} />
-                        <p className="text-xs text-gray-400 mt-1">${formatPrice(newItem.price)} MXN</p>
+                        <p className="text-xs text-gray-500 mt-1">${formatPrice(newItem.price)} MXN</p>
                       </div>
                       <div>
                         <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Capacidad</label>
@@ -672,7 +672,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                       <div>
                         <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Precio (centavos)</label>
                         <input type="number" value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: parseInt(e.target.value) || 0 }))} className={inputClass} />
-                        <p className="text-xs text-gray-400 mt-1">${formatPrice(editForm.price)} MXN</p>
+                        <p className="text-xs text-gray-500 mt-1">${formatPrice(editForm.price)} MXN</p>
                       </div>
                       <div>
                         <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Capacidad</label>

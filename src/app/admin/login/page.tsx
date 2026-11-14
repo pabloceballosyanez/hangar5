@@ -59,7 +59,7 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
             </button>
           </form>
 
-          <p className="text-[10px] text-gray-300 text-center mt-6">
+          <p className="text-[10px] text-gray-500 text-center mt-6">
             Panel administrativo Hangar 5
           </p>
         </div>

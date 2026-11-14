@@ -320,7 +320,7 @@ export default function RecipesPage() {
                       <option key={r.id} value={r.id}>{r.menuItemName}</option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-400 mt-1">Hereda ingredientes de la receta base. Agregá solo los ingredientes extra.</p>
+                  <p className="text-xs text-gray-500 mt-1">Hereda ingredientes de la receta base. Agregá solo los ingredientes extra.</p>
                 </div>
               </>
             ) : (
@@ -369,8 +369,8 @@ export default function RecipesPage() {
         </div>
       ) : recipes.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg">No hay recetas registradas</p>
-          <p className="text-sm text-gray-400 mt-1">Crea recetas vinculando ítems del menú con ingredientes</p>
+          <p className="text-gray-500 text-lg">No hay recetas registradas</p>
+          <p className="text-sm text-gray-500 mt-1">Crea recetas vinculando ítems del menú con ingredientes</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -436,14 +436,14 @@ export default function RecipesPage() {
             {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">{detailRecipe.menuItem?.name ?? <span className="text-gray-400">(sin ítem)</span>}</h2>
+                <h2 className="text-lg font-bold text-gray-900">{detailRecipe.menuItem?.name ?? <span className="text-gray-500">(sin ítem)</span>}</h2>
                 <p className="text-xs text-gray-500">
                   Rinde {detailRecipe.yieldQuantity} porciones
                   {detailRecipe.menuItem?.basePrice ? ` · Precio: ${formatPrice(detailRecipe.menuItem.basePrice / 100)}` : ''}
                 </p>
               </div>
               <button onClick={() => { setDetailRecipe(null); setError(null); }}
-                className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+                className="p-2 rounded-lg text-gray-500 hover:text-gray-600 hover:bg-gray-100 transition-colors">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -468,13 +468,13 @@ export default function RecipesPage() {
             <div className="p-6 space-y-4">
               <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                 📋 Ingredientes
-                <span className="text-xs text-gray-400 font-normal">
+                <span className="text-xs text-gray-500 font-normal">
                   ({detailRecipe.recipeItems.length})
                 </span>
               </h3>
 
               {detailRecipe.recipeItems.length === 0 ? (
-                <p className="text-sm text-gray-400">No hay ingredientes en esta receta aún.</p>
+                <p className="text-sm text-gray-500">No hay ingredientes en esta receta aún.</p>
               ) : (
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
                   <table className="w-full text-sm">

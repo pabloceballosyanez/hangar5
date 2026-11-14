@@ -235,7 +235,7 @@ export default function ScanReceiptPage() {
           <p className="text-lg font-medium text-gray-700 mb-2">
             Toca para tomar foto o arrastra una imagen
           </p>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-500">
             JPG, PNG o HEIC • Recibos, tickets, facturas
           </p>
           <input
@@ -256,7 +256,7 @@ export default function ScanReceiptPage() {
           <p className="text-lg font-medium text-gray-700 mb-2">
             Analizando recibo con IA...
           </p>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-500">
             Extrayendo productos, cantidades y precios
           </p>
           {image && (
@@ -352,14 +352,14 @@ export default function ScanReceiptPage() {
                             onChange={(e) => updateItem(idx, 'name', e.target.value)}
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
                           />
-                          <p className="text-xs text-gray-400 mt-0.5">
+                          <p className="text-xs text-gray-500 mt-0.5">
                             Nuevo: se creará como ingrediente
                           </p>
                         </div>
                       ) : (
                         <div>
                           <p className="font-medium text-gray-900">{item.name}</p>
-                          <p className="text-xs text-gray-400">{item.rawText}</p>
+                          <p className="text-xs text-gray-500">{item.rawText}</p>
                         </div>
                       )}
                     </td>

@@ -347,7 +347,7 @@ export default function ModifierGroupPage() {
             <label htmlFor="isRequired" className="text-sm font-medium text-gray-700">
               Requerido
             </label>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-500">
               (el cliente debe seleccionar al menos una opción)
             </span>
           </div>
@@ -418,7 +418,7 @@ export default function ModifierGroupPage() {
 
           {/* Modifiers list with inline inventory controls */}
           {modifiers.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">
+            <p className="text-sm text-gray-500 text-center py-4">
               No hay modificadores. Agrega uno usando el formulario de arriba.
             </p>
           ) : (
@@ -499,7 +499,7 @@ export default function ModifierGroupPage() {
                         </div>
                         <div className="w-24">
                           <label className="block text-[10px] text-gray-500 mb-0.5">
-                            Cantidad <span className="text-gray-400">({ingredients.find(ing => ing.id === mod.inventoryIngredientId)?.unit || '?'})</span>
+                            Cantidad <span className="text-gray-500">({ingredients.find(ing => ing.id === mod.inventoryIngredientId)?.unit || '?'})</span>
                           </label>
                           <input
                             type="number"

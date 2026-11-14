@@ -307,7 +307,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
       <div className="h-full flex items-center justify-center bg-white">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1b4235] mx-auto mb-3" />
-          <p className="text-sm text-gray-400">Cargando cocina...</p>
+          <p className="text-sm text-gray-500">Cargando cocina...</p>
         </div>
       </div>
     );
@@ -323,7 +323,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
           <h1 className="text-sm font-bold text-[#1b4235] uppercase tracking-wider">
             Cocina
           </h1>
-          <span className="text-[10px] text-gray-400">
+          <span className="text-[10px] text-gray-500">
             {lastRefresh.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
@@ -331,8 +331,8 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center">
             <div className="text-4xl mb-3">✅</div>
-            <p className="text-sm font-medium text-gray-400">No hay órdenes activas</p>
-            <p className="text-xs text-gray-300 mt-1">Todo está al día en cocina</p>
+            <p className="text-sm font-medium text-gray-500">No hay órdenes activas</p>
+            <p className="text-xs text-gray-500 mt-1">Todo está al día en cocina</p>
           </div>
         </div>
       </div>
@@ -353,7 +353,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
             LIVE
           </span>
         </div>
-        <span className="text-[10px] text-gray-400">
+        <span className="text-[10px] text-gray-500">
           {lastRefresh.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </span>
       </div>
@@ -364,7 +364,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
           <div key={station}>
             {/* Station Header */}
             <div className="flex items-center gap-2 mb-2 px-1">
-              <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              <h2 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                 {STATION_LABELS[station] || station}
               </h2>
               <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">
@@ -392,7 +392,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
                               {order.table.number}
                             </span>
                             {order.table.name && (
-                              <span className="text-[10px] text-gray-400 truncate max-w-[80px]">
+                              <span className="text-[10px] text-gray-500 truncate max-w-[80px]">
                                 {order.table.name}
                               </span>
                             )}
@@ -431,17 +431,29 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
                     {/* Items */}
                     <div className="px-3 py-2 space-y-1.5">
                       {order.items.map((item) => (
-                        <div key={item.id} className="flex items-start gap-2 group">
-                          {/* Individual mark-ready button */}
+                        <div key={item.id} className="flex items-start gap-2">
+                          {/* Botón para marcar SOLO este platillo.
+                              Antes era opacity-0 y solo se veía con
+                              group-hover: en una tablet no hay mouse, así
+                              que era invisible y había que entregar la
+                              orden completa. Ahora se ve siempre, con
+                              tamaño para dedo. */}
                           <button
                             onClick={() => markItemReady(order.orderId, item.id)}
                             disabled={optimisticReadyItems.has(item.id)}
-                            className="shrink-0 mt-0.5 w-4 h-4 rounded border border-gray-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-green-50 hover:border-green-400 disabled:opacity-50 disabled:bg-green-50 disabled:border-green-400"
-                            title="Marcar listo"
+                            className={`shrink-0 mt-0.5 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all active:scale-95 ${
+                              optimisticReadyItems.has(item.id)
+                                ? 'bg-green-600 border-green-700 text-white'
+                                : 'bg-white border-gray-400 text-gray-500 hover:border-green-600 hover:bg-green-50'
+                            }`}
+                            title="Marcar este platillo como listo"
+                            aria-label={`Marcar ${item.menuItem} como listo`}
                           >
                             {optimisticReadyItems.has(item.id) ? (
-                              <span className="text-[10px] text-green-600 leading-none">✓</span>
-                            ) : null}
+                              <span className="text-sm font-bold leading-none">✓</span>
+                            ) : (
+                              <span className="text-[10px] font-bold leading-none">✓</span>
+                            )}
                           </button>
 
                           <div className="flex-1 min-w-0">
@@ -450,7 +462,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
                                 {item.quantity}× {item.menuItem}
                               </span>
                               {item.variant && (
-                                <span className="text-[10px] text-gray-400">
+                                <span className="text-[10px] text-gray-500">
                                   · {item.variant}
                                 </span>
                               )}
@@ -491,7 +503,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
                               order.items.map((i) => i.id)
                             )
                           }
-                          className="w-full text-center text-[11px] font-medium text-gray-400 py-1.5 rounded-md bg-gray-50 hover:bg-green-50 hover:text-green-600 transition-colors"
+                          className="w-full text-center text-[11px] font-medium text-gray-500 py-1.5 rounded-md bg-gray-50 hover:bg-green-50 hover:text-green-600 transition-colors"
                         >
                           ✓ Marcar listo ({order.items.filter((i) => !optimisticReadyItems.has(i.id)).length})
                         </button>
@@ -510,19 +522,19 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
         <div className="flex gap-2">
           <div className="flex-1 text-center px-2 py-1.5 bg-white rounded border border-gray-100">
             <div className="text-xs font-bold text-[#1b4235]">{totalItems}</div>
-            <div className="text-[9px] text-gray-400">Pendientes</div>
+            <div className="text-[9px] text-gray-500">Pendientes</div>
           </div>
           <div className={`flex-1 text-center px-2 py-1.5 bg-white rounded border ${urgentCount > 0 ? 'border-red-200' : 'border-gray-100'}`}>
             <div className={`text-xs font-bold ${urgentCount > 0 ? 'text-red-600' : 'text-[#1b4235]'}`}>
               {urgentCount}
             </div>
-            <div className="text-[9px] text-gray-400">Urgentes</div>
+            <div className="text-[9px] text-gray-500">Urgentes</div>
           </div>
           <div className="flex-1 text-center px-2 py-1.5 bg-white rounded border border-gray-100">
             <div className="text-xs font-bold text-[#1b4235]">
               {formatElapsed(avgWaitSeconds)}
             </div>
-            <div className="text-[9px] text-gray-400">Promedio</div>
+            <div className="text-[9px] text-gray-500">Promedio</div>
           </div>
         </div>
       </div>

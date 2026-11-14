@@ -415,7 +415,7 @@ export default function EditMenuItemPage() {
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Descripción <span className="text-gray-400 font-normal">(opcional)</span>
+                Descripción <span className="text-gray-500 font-normal">(opcional)</span>
               </label>
               <textarea
                 value={description}
@@ -432,7 +432,7 @@ export default function EditMenuItemPage() {
                   Precio base <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
                   <input
                     type="number"
                     value={basePricePesos}
@@ -443,7 +443,7 @@ export default function EditMenuItemPage() {
                     required
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">En pesos MXN</p>
+                <p className="text-xs text-gray-500 mt-1">En pesos MXN</p>
               </div>
 
               <div>
@@ -456,7 +456,7 @@ export default function EditMenuItemPage() {
                     min={1}
                     className="w-full pr-14 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">min</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">min</span>
                 </div>
               </div>
             </div>
@@ -478,7 +478,7 @@ export default function EditMenuItemPage() {
             {/* Image URL */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL de imagen <span className="text-gray-400 font-normal">(opcional)</span>
+                URL de imagen <span className="text-gray-500 font-normal">(opcional)</span>
               </label>
               <input
                 type="text"
@@ -526,7 +526,7 @@ export default function EditMenuItemPage() {
                 </button>
               </div>
               {variants.length === 0 ? (
-                <p className="text-xs text-gray-400">Sin variantes. Ej: "Chico", "Grande"</p>
+                <p className="text-xs text-gray-500">Sin variantes. Ej: "Chico", "Grande"</p>
               ) : (
                 <div className="space-y-2">
                   {variants.map((v, idx) => (
@@ -539,7 +539,7 @@ export default function EditMenuItemPage() {
                         className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#1b4235]/40"
                       />
                       <div className="relative w-24">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">$</span>
                         <input
                           type="number"
                           value={v.priceDelta}
@@ -584,7 +584,7 @@ export default function EditMenuItemPage() {
                 </Link>
               </div>
               {modifierGroups.length === 0 ? (
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-500">
                   No hay grupos de modificadores.{' '}
                   <Link href="/admin/restaurant/modifier-groups" className="text-[#1b4235] underline">Crear grupos</Link>
                 </p>
@@ -611,7 +611,7 @@ export default function EditMenuItemPage() {
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900">{mg.name}</p>
-                          <p className="text-xs text-gray-400 mb-1">
+                          <p className="text-xs text-gray-500 mb-1">
                             {mg.modifiers?.length || 0} opciones
                             {mg.isRequired && ' · Obligatorio'}
                             {mg.minSelections > 0 && ` · Mín ${mg.minSelections}`}
@@ -622,7 +622,7 @@ export default function EditMenuItemPage() {
                               <span key={i} className="text-xs text-gray-500">
                                 • {mod.name}
                                 {mod.priceDelta !== undefined && mod.priceDelta !== 0 && (
-                                  <span className="text-gray-400"> (+${mod.priceDelta.toFixed(2)})</span>
+                                  <span className="text-gray-500"> (+${mod.priceDelta.toFixed(2)})</span>
                                 )}
                               </span>
                             ))}
@@ -649,7 +649,7 @@ export default function EditMenuItemPage() {
                   Tiene receta
                 </label>
               </div>
-              <p className="text-xs text-gray-400 ml-7 mb-3">
+              <p className="text-xs text-gray-500 ml-7 mb-3">
                 Actívala para calcular el costo de ingredientes y margen del platillo
               </p>
 
@@ -718,7 +718,7 @@ export default function EditMenuItemPage() {
                       <p className="text-xs text-amber-600 mt-2">Todos los ingredientes ya están en la receta.</p>
                     )}
                     {ingredients.length === 0 && (
-                      <p className="text-xs text-gray-400 mt-2">
+                      <p className="text-xs text-gray-500 mt-2">
                         No hay ingredientes.{' '}
                         <Link href="/admin/restaurant/ingredients" className="text-[#1b4235] underline">
                           Crear ingredientes
@@ -807,7 +807,7 @@ export default function EditMenuItemPage() {
                     <div className="grid grid-cols-3 gap-3">
                       <div className="bg-gray-50 rounded-lg p-3 text-center">
                         <p className="text-xs text-gray-500">Costo / porción</p>
-                        <p className={`text-sm font-bold ${costPerPortion > 0 ? 'text-amber-600' : 'text-gray-400'}`}>
+                        <p className={`text-sm font-bold ${costPerPortion > 0 ? 'text-amber-600' : 'text-gray-500'}`}>
                           ${costPerPortion.toFixed(2)}
                         </p>
                       </div>

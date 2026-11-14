@@ -34,8 +34,8 @@ export default async function TablesPage() {
 
       {tables.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg mb-2">No hay mesas registradas</p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-500 text-lg mb-2">No hay mesas registradas</p>
+          <p className="text-gray-500 text-sm">
             Agrega las mesas del restaurante para empezar a tomar órdenes.
           </p>
         </div>
@@ -87,7 +87,7 @@ export default async function TablesPage() {
                     {table.name && (
                       <p className="text-sm text-gray-600">{table.name}</p>
                     )}
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
                       {table.location && (
                         <span>{table.location}</span>
                       )}

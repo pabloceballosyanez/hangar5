@@ -278,7 +278,7 @@ function PaymentSheet({
         {/* Order summary */}
         <div className="overflow-y-auto flex-1 px-5 py-4">
           {activeOrders.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">Sin pedidos pendientes</p>
+            <p className="text-sm text-gray-500 text-center py-4">Sin pedidos pendientes</p>
           ) : (
             <div className="space-y-3">
               {activeOrders.map((o, oIdx) => (
@@ -297,7 +297,7 @@ function PaymentSheet({
                         </span>
                         <span className="text-gray-700 flex-1 leading-tight">
                           {item.menuItem.name}
-                          {item.variant && <span className="text-gray-400"> · {item.variant.name}</span>}
+                          {item.variant && <span className="text-gray-500"> · {item.variant.name}</span>}
                         </span>
                         <span className="text-gray-900 font-mono text-xs shrink-0">
                           {fmt(item.unitPrice * item.quantity / 100)}
@@ -384,13 +384,17 @@ function OrderCard({
   order,
   onDeliver,
   onCancel,
+  onItemReady,
   delivering,
 }: {
   order: Order;
   onDeliver: (orderId: string) => void;
   onCancel?: (orderId: string) => void;
+  /** Marca un platillo como listo sin entregar la orden completa. */
+  onItemReady?: (orderId: string, itemId: string) => Promise<void>;
   delivering: boolean;
 }) {
+  const [markingItem, setMarkingItem] = useState<string | null>(null);
   const st = STATUS_LABELS[order.status] ?? { label: order.status, bg: 'bg-gray-100', text: 'text-gray-600' };
   const items = order.orderItems || [];
   const readyItems = items.filter(i => i.status === 'READY');
@@ -423,37 +427,69 @@ function OrderCard({
       {/* Order items */}
       <div className="px-4 py-3 space-y-2">
         {items.map(item => {
-          const itemSt = ITEM_STATUS_LABELS[item.status] ?? { label: item.status, color: 'text-gray-400', icon: '' };
+          const itemSt = ITEM_STATUS_LABELS[item.status] ?? { label: item.status, color: 'text-gray-500', icon: '' };
+          const listo = item.status === 'READY' || item.status === 'SERVED';
+          const cancelado = item.status === 'CANCELLED';
+
+          /* Cada platillo se marca por separado.
+             Antes solo se veía su estado como texto gris: para marcar uno
+             había que entregar la orden completa. En una barra con varios
+             pedidos encimados eso no sirve — el que está listo debe poder
+             avisarse solo. El renglón entero es el botón. */
           return (
-            <div key={item.id} className="flex gap-3">
-              <div className="w-7 h-7 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center text-gray-700 font-bold text-xs shrink-0">
-                {item.quantity}×
+            <button
+              key={item.id}
+              type="button"
+              disabled={cancelado || listo || markingItem === item.id}
+              onClick={async () => {
+                if (!onItemReady) return;
+                setMarkingItem(item.id);
+                try {
+                  await onItemReady(order.id, item.id);
+                } finally {
+                  setMarkingItem(null);
+                }
+              }}
+              className={`w-full text-left flex gap-3 rounded-xl px-2 py-2 -mx-2 transition-colors ${
+                cancelado
+                  ? 'opacity-40 cursor-not-allowed'
+                  : listo
+                    ? 'bg-green-50 border border-green-300'
+                    : 'border border-gray-200 hover:border-green-400 hover:bg-green-50/50 active:scale-[0.99]'
+              }`}
+            >
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                listo
+                  ? 'bg-green-600 text-white border border-green-700'
+                  : 'bg-gray-100 border border-gray-300 text-gray-700'
+              }`}>
+                {listo ? '✓' : `${item.quantity}×`}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 leading-tight">
                   {item.menuItem.name}
                   {item.variant && (
-                    <span className="text-gray-400 font-normal"> · {item.variant.name}</span>
+                    <span className="text-gray-500 font-normal"> · {item.variant.name}</span>
                   )}
                 </p>
                 {item.modifiers.map(m => (
-                  <p key={m.id} className="text-xs text-gray-400">
+                  <p key={m.id} className="text-xs text-gray-500">
                     + {m.modifierName}
                   </p>
                 ))}
                 {item.specialInstructions && (
-                  <p className="text-xs text-amber-600 italic mt-0.5">
+                  <p className="text-xs text-amber-700 italic mt-0.5">
                     &ldquo;{item.specialInstructions}&rdquo;
                   </p>
                 )}
-                <span className={`text-xs ${itemSt.color}`}>
+                <span className={`text-xs font-medium ${itemSt.color}`}>
                   {itemSt.icon} {itemSt.label}
                 </span>
               </div>
-              <span className="text-sm font-mono text-gray-500 shrink-0">
+              <span className="text-sm font-mono text-gray-600 shrink-0">
                 {fmt(item.unitPrice * item.quantity / 100)}
               </span>
-            </div>
+            </button>
           );
         })}
 
@@ -731,6 +767,22 @@ export default function SoloOrdersPanel({
     }
   };
 
+  // ── Marcar un platillo como listo, sin entregar la orden ────────────
+  const marcarPlatilloListo = async (orderId: string, itemId: string) => {
+    const res = await fetch(`/api/admin/restaurant/orders/${orderId}/items/${itemId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'READY' }),
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      setError(typeof d.error === 'string' ? d.error : 'No se pudo marcar el platillo');
+      return;
+    }
+    await loadSessionDetail(selectedSessionId!, true);
+    onMutate?.();
+  };
+
   // ── Cancel order (supervisor PIN) ─────────────────────────────────────────
 
   const cancelOrder = (orderId: string) => {
@@ -779,11 +831,11 @@ export default function SoloOrdersPanel({
         {loadingSessions ? (
           <div className="flex items-center justify-center py-3">
             <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-            <span className="ml-2 text-sm text-gray-400">Cargando sesiones…</span>
+            <span className="ml-2 text-sm text-gray-500">Cargando sesiones…</span>
           </div>
         ) : sessions.length === 0 ? (
           <div className="text-center py-4">
-            <p className="text-sm text-gray-400 mb-2">No hay sesiones abiertas</p>
+            <p className="text-sm text-gray-500 mb-2">No hay sesiones abiertas</p>
             <button
               onClick={openNewSessionModal}
               className="inline-block text-sm text-[#b88364] hover:text-[#8a5d44] font-medium"
@@ -849,7 +901,7 @@ export default function SoloOrdersPanel({
             {/* + Nuevo tab button */}
             <button
               onClick={openNewSessionModal}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-dashed border-gray-300 bg-white hover:bg-gray-50 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-dashed border-gray-300 bg-white hover:bg-gray-50 text-xs text-gray-500 hover:text-gray-600 transition-colors"
             >
               <span className="text-base leading-none">+</span>
             </button>
@@ -876,7 +928,7 @@ export default function SoloOrdersPanel({
           /* No session selected */
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="text-4xl mb-3">📋</div>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-500 text-sm">
               Seleccioná un tab para ver sus órdenes
             </p>
           </div>
@@ -889,7 +941,7 @@ export default function SoloOrdersPanel({
           /* Detail error */
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="text-4xl mb-3">⚠️</div>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-500 text-sm">
               {error || 'No se pudo cargar la sesión'}
             </p>
             <button
@@ -907,7 +959,7 @@ export default function SoloOrdersPanel({
                 <h2 className="text-lg font-bold text-gray-900">
                   {sessionDetail.label}
                   {sessionDetail.table && (
-                    <span className="text-gray-400 font-normal text-sm ml-2">
+                    <span className="text-gray-500 font-normal text-sm ml-2">
                       Mesa {sessionDetail.table.number}
                     </span>
                   )}
@@ -935,7 +987,7 @@ export default function SoloOrdersPanel({
             {activeOrders.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-3xl mb-2">📋</div>
-                <p className="text-sm text-gray-400">Sin pedidos activos</p>
+                <p className="text-sm text-gray-500">Sin pedidos activos</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -945,6 +997,7 @@ export default function SoloOrdersPanel({
                     order={o}
                     onDeliver={deliverReadyItems}
                     onCancel={cancelOrder}
+                    onItemReady={marcarPlatilloListo}
                     delivering={delivering}
                   />
                 ))}
@@ -954,7 +1007,7 @@ export default function SoloOrdersPanel({
             {/* ── Paid/delivered orders ───────────────────────────────────── */}
             {detailOrders.filter(o => o.status === 'PAID' || o.status === 'SERVED').length > 0 && (
               <div className="mt-6">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   Entregadas / Pagadas
                 </p>
                 <div className="space-y-3">
@@ -1023,7 +1076,7 @@ export default function SoloOrdersPanel({
                     }`}
                   >
                     <p className="font-bold text-[#1b4235] text-sm">{t.icon} {t.label}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{t.desc}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{t.desc}</p>
                   </button>
                 ))}
               </div>
@@ -1034,7 +1087,7 @@ export default function SoloOrdersPanel({
               <div className="mb-4">
                 <label className="block text-sm text-gray-500 mb-1">Mesa</label>
                 {availableTables.length === 0 ? (
-                  <p className="text-sm text-gray-400 text-center py-3">No hay mesas disponibles</p>
+                  <p className="text-sm text-gray-500 text-center py-3">No hay mesas disponibles</p>
                 ) : (
                   <div className="space-y-1 max-h-40 overflow-y-auto">
                     {availableTables.map(t => (
@@ -1048,7 +1101,7 @@ export default function SoloOrdersPanel({
                         }`}
                       >
                         🪑 Mesa {t.number}
-                        {t.name && <span className="text-gray-400 ml-1 text-xs">· {t.name}</span>}
+                        {t.name && <span className="text-gray-500 ml-1 text-xs">· {t.name}</span>}
                       </button>
                     ))}
                   </div>
@@ -1070,7 +1123,7 @@ export default function SoloOrdersPanel({
                       {selectedCustomer.phone && <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>}
                     </div>
                     <button type="button" onClick={() => { setSelectedCustomer(null); setCustomerSearch(''); }}
-                      className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors">
+                      className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors">
                       ✕
                     </button>
                   </div>
@@ -1083,7 +1136,7 @@ export default function SoloOrdersPanel({
                         onChange={e => { setCustomerSearch(e.target.value); searchCustomers(e.target.value); }}
                         onFocus={() => { if (customers.length > 0) setShowCustomerDropdown(true); }}
                         placeholder="Buscar cliente por nombre o teléfono..."
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-[#1b4235] placeholder:text-gray-400 focus:outline-none focus:border-[#b88364] text-sm"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-[#1b4235] placeholder:text-gray-500 focus:outline-none focus:border-[#b88364] text-sm"
                       />
                       {loadingCustomers && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -1103,7 +1156,7 @@ export default function SoloOrdersPanel({
                             <span className="text-lg shrink-0">👤</span>
                             <div className="flex-1 min-w-0">
                               <p className="text-[#1b4235] font-medium text-sm truncate">{c.name}</p>
-                              {c.phone && <p className="text-xs text-gray-400">{c.phone}</p>}
+                              {c.phone && <p className="text-xs text-gray-500">{c.phone}</p>}
                             </div>
                           </button>
                         ))}
@@ -1123,7 +1176,7 @@ export default function SoloOrdersPanel({
                   value={newTabLabel}
                   onChange={e => setNewTabLabel(e.target.value)}
                   placeholder="Ej: Pareja terraza, Juan..."
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-[#1b4235] placeholder:text-gray-400 focus:outline-none focus:border-[#b88364] text-sm"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-[#1b4235] placeholder:text-gray-500 focus:outline-none focus:border-[#b88364] text-sm"
                   autoFocus
                 />
               </div>

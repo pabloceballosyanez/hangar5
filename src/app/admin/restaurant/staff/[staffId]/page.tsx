@@ -341,7 +341,7 @@ export default function StaffDetailPage() {
           {/* Shifts list */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             {(!staff.shifts || staff.shifts.length === 0) ? (
-              <div className="p-8 text-center text-gray-400">Sin turnos registrados</div>
+              <div className="p-8 text-center text-gray-500">Sin turnos registrados</div>
             ) : (
               <table className="w-full text-sm">
                 <thead>
@@ -408,7 +408,7 @@ export default function StaffDetailPage() {
           {/* Clocks list */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             {(!staff.clocks || staff.clocks.length === 0) ? (
-              <div className="p-8 text-center text-gray-400">Sin fichajes registrados</div>
+              <div className="p-8 text-center text-gray-500">Sin fichajes registrados</div>
             ) : (
               <table className="w-full text-sm">
                 <thead>

@@ -207,18 +207,18 @@ export default function PaginaAlmacenes() {
           </tbody>
         </table>
         {visibles.length === 0 && (
-          <p className="text-center text-sm text-gray-400 py-8">Sin insumos que coincidan</p>
+          <p className="text-center text-sm text-gray-500 py-8">Sin insumos que coincidan</p>
         )}
       </div>
 
       <h2 className="text-sm font-semibold text-gray-900 mb-2">Últimos traspasos</h2>
       <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
         {traspasos.length === 0 && (
-          <p className="text-sm text-gray-400 px-4 py-6 text-center">Todavía no hay traspasos</p>
+          <p className="text-sm text-gray-500 px-4 py-6 text-center">Todavía no hay traspasos</p>
         )}
         {traspasos.map((t) => (
           <div key={t.id} className="px-4 py-3 flex items-center gap-3 text-sm">
-            <span className="font-mono text-xs text-gray-400">{t.folio}</span>
+            <span className="font-mono text-xs text-gray-500">{t.folio}</span>
             <span className="text-gray-900 flex-1">
               {num(t.cantidad)} {t.unidad} de <b>{t.insumo}</b>
             </span>

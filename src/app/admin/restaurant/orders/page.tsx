@@ -231,7 +231,7 @@ export default function OrdersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Órdenes</h1>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-gray-500">
           Actualización automática cada 30s
         </span>
       </div>
@@ -271,12 +271,12 @@ export default function OrdersPage() {
       {loading ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-          <p className="text-gray-400 text-sm">Cargando órdenes...</p>
+          <p className="text-gray-500 text-sm">Cargando órdenes...</p>
         </div>
       ) : orders.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-400 text-lg">No hay órdenes</p>
-          <p className="text-gray-400 text-sm mt-1">{emptyMessage}</p>
+          <p className="text-gray-500 text-lg">No hay órdenes</p>
+          <p className="text-gray-500 text-sm mt-1">{emptyMessage}</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -336,7 +336,7 @@ export default function OrdersPage() {
                               {mesa || (esWalkIn ? "Walk-in" : esTab ? "Cliente" : "—")}
                             </span>
                             {mesaNombre && (
-                              <span className="text-xs text-gray-400 ml-1">· {mesaNombre}</span>
+                              <span className="text-xs text-gray-500 ml-1">· {mesaNombre}</span>
                             )}
                             {cliente && cliente !== mesa && (
                               <p className="text-xs text-gray-500">{cliente}</p>
@@ -361,13 +361,13 @@ export default function OrdersPage() {
                               <span className="text-gray-500"> ({item.variant.name})</span>
                             )}
                             {item.modifiers && item.modifiers.length > 0 && (
-                              <span className="text-gray-400">
+                              <span className="text-gray-500">
                                 {" "}
                                 · {item.modifiers.map((m) => m.modifierName).join(", ")}
                               </span>
                             )}
                             {item.specialInstructions && (
-                              <p className="text-gray-400 italic pl-2">
+                              <p className="text-gray-500 italic pl-2">
                                 Nota: {item.specialInstructions}
                               </p>
                             )}
@@ -396,7 +396,7 @@ export default function OrdersPage() {
                           <span className="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-300">
                             No se cobra
                           </span>
-                          <span className="text-[10px] text-gray-400">cancelada</span>
+                          <span className="text-[10px] text-gray-500">cancelada</span>
                         </div>
                       ) : order.payments && order.payments.length > 0 ? (() => {
                         const p = order.payments[0];
@@ -411,7 +411,7 @@ export default function OrdersPage() {
                             }`}>
                               {pagado ? "Pagado" : "Pendiente"}
                             </span>
-                            <span className="text-[10px] text-gray-400">
+                            <span className="text-[10px] text-gray-500">
                               {aCuenta
                                 ? "a su cuenta (libro)"
                                 : paymentMethodLabel[p.method] || p.method}
@@ -427,10 +427,10 @@ export default function OrdersPage() {
                             <span className="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-300">
                               Sin registro
                             </span>
-                            <span className="text-[10px] text-gray-400">orden vieja</span>
+                            <span className="text-[10px] text-gray-500">orden vieja</span>
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-400">—</span>
+                          <span className="text-xs text-gray-500">—</span>
                         )
                       )}
                     </td>
@@ -493,7 +493,7 @@ export default function OrdersPage() {
                             if (yaPagado) {
                               return (
                                 <span
-                                  className="px-2 py-1 text-xs font-medium text-gray-400"
+                                  className="px-2 py-1 text-xs font-medium text-gray-500"
                                   title={`Pagado con ${paymentMethodLabel[pago.method] || pago.method}`}
                                 >
                                   Cobrado
@@ -534,7 +534,7 @@ export default function OrdersPage() {
                                     }}
                                     className={`px-2 py-1 text-xs font-medium border rounded-md transition-colors ${
                                       disabled
-                                        ? 'bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed'
+                                        ? 'bg-gray-50 text-gray-500 border-gray-200 cursor-not-allowed'
                                         : opt.color
                                     }`}
                                     title={disabled ? 'Cliente sin crédito habilitado' : opt.label}
@@ -545,7 +545,7 @@ export default function OrdersPage() {
                               })}
                               <button
                                 onClick={() => setSelectingPayment(null)}
-                                className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-600"
+                                className="px-2 py-0.5 text-xs text-gray-500 hover:text-gray-600"
                               >
                                 Cancelar
                               </button>
@@ -574,7 +574,7 @@ export default function OrdersPage() {
                         </div>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-right text-xs text-gray-400 whitespace-nowrap">
+                    <td className="py-3 px-4 text-right text-xs text-gray-500 whitespace-nowrap">
                       {new Date(order.createdAt).toLocaleTimeString("es-MX", {
                         hour: "2-digit",
                         minute: "2-digit",

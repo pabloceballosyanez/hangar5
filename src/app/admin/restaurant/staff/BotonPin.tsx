@@ -44,7 +44,7 @@ export function BotonPin({ staffId, nombre }: { staffId: string; nombre: string 
         <p className="text-[10px] text-gray-500 mt-1.5">
           Apúntalo. No se puede volver a ver.
         </p>
-        <p className="text-[10px] text-gray-400 mt-1">
+        <p className="text-[10px] text-gray-500 mt-1">
           Al entrar, {nombre} tendrá que cambiarlo por uno propio.
         </p>
         <button

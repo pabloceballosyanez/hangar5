@@ -108,7 +108,7 @@ export default async function ReportsPage() {
         <Card title="Ingresos por Método">
           <div className="space-y-2 mt-2">
             {Object.entries(report.revenueByMethod).length === 0 && (
-              <p className="text-sm text-gray-400">Sin cobros hoy</p>
+              <p className="text-sm text-gray-500">Sin cobros hoy</p>
             )}
             {Object.entries(report.revenueByMethod).map(([method, amount]) => {
               const pct = report.totalRevenue > 0 ? ((amount / report.totalRevenue) * 100) : 0;
@@ -131,7 +131,7 @@ export default async function ReportsPage() {
         <Card title="Órdenes por Origen">
           <div className="space-y-2 mt-2">
             {Object.entries(report.ordersBySource).length === 0 && (
-              <p className="text-sm text-gray-400">Sin órdenes hoy</p>
+              <p className="text-sm text-gray-500">Sin órdenes hoy</p>
             )}
             {Object.entries(report.ordersBySource).map(([source, count]) => {
               const pct = report.totalOrders > 0 ? ((count / report.totalOrders) * 100) : 0;
@@ -179,7 +179,7 @@ export default async function ReportsPage() {
       {/* Top 10 Items */}
       <Card title="Top 10 Items Vendidos">
         {report.topItems.length === 0 ? (
-          <p className="text-sm text-gray-400 mt-2">Sin ventas hoy</p>
+          <p className="text-sm text-gray-500 mt-2">Sin ventas hoy</p>
         ) : (
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-sm">
@@ -194,7 +194,7 @@ export default async function ReportsPage() {
               <tbody>
                 {report.topItems.map((item, idx) => (
                   <tr key={item.menuItemId} className="border-b border-gray-100">
-                    <td className="py-2 text-gray-400">{idx + 1}</td>
+                    <td className="py-2 text-gray-500">{idx + 1}</td>
                     <td className="py-2 font-medium text-gray-800">{item.name}</td>
                     <td className="py-2 text-right text-gray-600">{item.quantity}</td>
                     <td className="py-2 text-right font-medium text-gray-900">
@@ -209,7 +209,7 @@ export default async function ReportsPage() {
       </Card>
 
       {/* Cancelled */}
-      <div className="text-sm text-gray-400">
+      <div className="text-sm text-gray-500">
         {report.cancelledOrders > 0 && (
           <p>⚠️ {report.cancelledOrders} órdenes canceladas hoy</p>
         )}
@@ -268,7 +268,7 @@ function SummaryCard({
         <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">{title}</span>
       </div>
       <p className="mt-2 text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-400 mt-1">{subtitle}</p>
+      <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
     </div>
   );
 }
