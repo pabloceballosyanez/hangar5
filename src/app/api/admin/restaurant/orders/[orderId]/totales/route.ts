@@ -47,11 +47,17 @@ export async function PATCH(
   }
 
   const vivos = orden.orderItems.filter((i) => i.status !== "CANCELLED");
+
+  /* Todos los montos de la orden viven en CENTAVOS: unitPrice,
+     subtotal, tax y total. Mezclar unidades deja órdenes de $1.90 donde
+     debería decir $190. */
   const subtotal = vivos.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
 
-  const tasa = orden.subtotal > 0 ? orden.tax / orden.subtotal : 0;
-  const tax = Math.round(subtotal * tasa);
-  const total = subtotal + tax;
+  /* El precio ya incluye IVA: el impuesto se desglosa del subtotal, no se
+     suma encima. Igual que calcular-carrito.ts, que es la fuente de
+     verdad para las órdenes nuevas. */
+  const tax = Math.round(subtotal - subtotal / 1.16);
+  const total = subtotal;
 
   const actualizada = await prisma.order.update({
     where: { id: orderId },

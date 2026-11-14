@@ -114,6 +114,9 @@ console.log("\n=== 7. EL TOTAL NO DEBE INCLUIR LO CANCELADO ===");
   ];
   const r = repartirCancelacion(items);
   check("lo cobrable es $190, no $470", r.montoCobrable === 19000, `fue $${r.montoCobrable / 100}`);
+  // Los montos van en centavos: 19000 = $190. Si sale 190 en vez de 19000
+  // la orden se muestra a $1.90.
+  check("el monto va en centavos (19000, no 190)", r.montoCobrable === 19000);
   check("la pizza no entra al cobro", r.seCobran.every(i => i.id !== "pizza"));
   check("se cobran 2 ítems", r.seCobran.length === 2);
 }
