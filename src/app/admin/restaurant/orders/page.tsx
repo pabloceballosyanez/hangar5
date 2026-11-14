@@ -112,6 +112,8 @@ interface OrderItem {
 interface Order {
   id: string;
   serviceSession: {
+    label: string;
+    type: string;
     table: { number: string; name: string | null } | null;
     customer: { id: string; name: string; hasCredit: boolean } | null;
   } | null;
@@ -312,19 +314,36 @@ export default function OrdersPage() {
                 {orders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                     <td className="py-3 px-4">
-                      <div>
-                        <span className="font-bold text-gray-900">
-                          {order.table?.number || order.serviceSession?.table?.number || "—"}
-                        </span>
-                        {(order.table?.name || order.serviceSession?.table?.name) && (
-                          <span className="text-xs text-gray-400 ml-1">
-                            · {order.table?.name || order.serviceSession?.table?.name}
-                          </span>
-                        )}
-                      </div>
-                      {order.customerName && (
-                        <p className="text-xs text-gray-400">{order.customerName}</p>
-                      )}
+                      {/* Quién es el pedido.
+                          Antes solo se mostraba customerName, que casi
+                          nunca se llena: el nombre real vive en la sesión
+                          (cliente registrado, walk-in o el label del tab).
+                          Por eso "desapareció" el nombre del walk-in. */}
+                      {(() => {
+                        const mesa = order.table?.number || order.serviceSession?.table?.number;
+                        const mesaNombre = order.table?.name || order.serviceSession?.table?.name;
+                        const cliente =
+                          order.serviceSession?.customer?.name ||
+                          order.customerName ||
+                          order.serviceSession?.label ||
+                          null;
+                        const esWalkIn = order.serviceSession?.type === "WALKIN";
+                        const esTab = order.serviceSession?.type === "TAB";
+
+                        return (
+                          <div>
+                            <span className="font-bold text-gray-900">
+                              {mesa || (esWalkIn ? "Walk-in" : esTab ? "Cliente" : "—")}
+                            </span>
+                            {mesaNombre && (
+                              <span className="text-xs text-gray-400 ml-1">· {mesaNombre}</span>
+                            )}
+                            {cliente && cliente !== mesa && (
+                              <p className="text-xs text-gray-500">{cliente}</p>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="py-3 px-4">
                       <span className="text-xs text-gray-500">
@@ -577,6 +596,31 @@ export default function OrdersPage() {
             <p className="text-sm text-gray-500 mb-4">
               Esta acción requiere autorización de un gerente o del dueño, y quedará registrada en la auditoría.
             </p>
+
+            {/* Qué se cobra y qué se cancela.
+                Si la orden ya tiene platillos entregados, no se cancela
+                todo: lo que el cliente ya consumió se cobra. Sin este
+                aviso, el cajero cancela creyendo que no queda nada por
+                pagar y luego aparece una cuenta viva. */}
+            {(() => {
+              const o = orders.find(x => x.id === cancelOrderId);
+              if (!o) return null;
+              const vivios = o.orderItems.filter(i => i.status !== 'CANCELLED');
+              const cobran = vivios.filter(i => i.status === 'SERVED' || i.status === 'READY');
+              const cancelan = vivios.filter(i => i.status === 'PENDING');
+              if (cobran.length === 0) return null;
+              return (
+                <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-left">
+                  <p className="text-xs font-semibold text-amber-900 mb-1">
+                    Esta orden ya tiene {cobran.length} ítem(s) entregado(s)
+                  </p>
+                  <p className="text-xs text-amber-800">
+                    Solo se cancelarán los {cancelan.length} pendiente(s).
+                    Lo entregado se queda y hay que cobrarlo.
+                  </p>
+                </div>
+              );
+            })()}
 
             {/* El error se guardaba pero nunca se veía: el botón parecía
                 no hacer nada. Ahora se muestra aquí mismo. */}

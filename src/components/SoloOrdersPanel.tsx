@@ -204,12 +204,14 @@ async function advanceOrderToPaid(orderId: string, currentStatus: string, paymen
 
 function PaymentSheet({
   orders,
+  sessionId,
   sessionLabel,
   customer,
   onClose,
   onPaid,
 }: {
   orders: Order[];
+  sessionId: string;
   sessionLabel: string;
   customer?: { id: string; name: string; hasCredit?: boolean } | null;
   onClose: () => void;
@@ -227,9 +229,24 @@ function PaymentSheet({
     setPaying(true);
     setPayError(null);
     try {
-      for (const order of activeOrders) {
-        await advanceOrderToPaid(order.id, order.status, method);
+      /* Cobrar una cuenta y cerrarla son la misma operación.
+         Antes se pagaban las órdenes una por una y la sesión quedaba
+         ABIERTA: el cliente se iba y su nombre seguía en los tabs para
+         siempre, sin nada activo. Ahora se usa el endpoint de cuenta, que
+         cobra todo el consumo y cierra la sesión en una sola transacción. */
+      const res = await fetch(`/api/admin/restaurant/sessions/${sessionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payments: [{ method, amount: grandTotal / 100 }],
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'No se pudo cerrar la cuenta');
       }
+
       setPaid(true);
       onPaid();
     } catch (e) {
@@ -958,6 +975,7 @@ export default function SoloOrdersPanel({
       {showPayment && sessionDetail && (
         <PaymentSheet
           orders={detailOrders}
+          sessionId={selectedSessionId!}
           sessionLabel={sessionDetail.label}
           customer={sessionDetail.customer}
           onClose={() => setShowPayment(false)}

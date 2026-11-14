@@ -5,6 +5,7 @@ import { notifyOrderReady } from "@/lib/whatsapp";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/restaurant-types";
 import { verifyPassword } from "@/lib/auth";
 import { puede } from "@/lib/permisos";
+import { repartirCancelacion, type RepartoCancelacion } from "@/lib/cancelacion";
 
 export const dynamic = "force-dynamic";
 
@@ -97,6 +98,13 @@ export async function PUT(
          · la contraseña maestra (el dueño)
          · el PIN de un SUPER_ADMIN o GERENTE (Cheny)
        Y se revisa contra el hash, no en claro. */
+    /* Qué se cancela de verdad.
+       Cancelar la orden entera cuando ya se entregaron platillos hace que
+       el sistema diga "no se cobra" sobre comida que el cliente ya se
+       comió. Aquí se reparte: lo pendiente se cancela, lo servido se
+       queda y se cobra. */
+    let reparto: RepartoCancelacion | null = null;
+
     if (newStatus === "CANCELLED") {
       const autorizado = await autorizarCancelacion(supervisorPin);
       if (!autorizado) {
@@ -105,6 +113,15 @@ export async function PUT(
           { status: 403 }
         );
       }
+
+      const items = await prisma.orderItem.findMany({
+        where: { orderId },
+        select: { id: true, status: true, quantity: true, unitPrice: true },
+      });
+      reparto = repartirCancelacion(items);
+
+      /* Si no hay nada entregado, se cancela todo como siempre. Si hay
+         algo servido, abajo se decide el estado final. */
     }
 
     // 🔒 Validate IN_KITCHEN → READY: all items must be READY/SERVED/CANCELLED
@@ -165,19 +182,47 @@ export async function PUT(
     }
 
     const result = await prisma.$transaction(async (tx) => {
+      /* Cancelación parcial.
+         Se cancelan los ítems pendientes y los servidos se quedan. El
+         estado de la orden depende de qué sobreviva:
+           · nada cobrable  → CANCELLED (como siempre)
+           · algo cobrable  → SERVED, porque ya se entregó y falta cobrar */
+      const estadoFinal =
+        newStatus === "CANCELLED" && reparto && !reparto.todoCancelado
+          ? "SERVED"
+          : newStatus;
+
+      if (newStatus === "CANCELLED" && reparto && reparto.seCancelan.length > 0) {
+        await tx.orderItem.updateMany({
+          where: { id: { in: reparto.seCancelan.map((i) => i.id) } },
+          data: { status: "CANCELLED" },
+        });
+      }
+
       const statusEvent = await tx.orderStatusEvent.create({
         data: {
           orderId,
           fromStatus: currentStatus,
-          toStatus: newStatus,
+          toStatus: estadoFinal,
           actorName: newStatus === "CANCELLED" ? "Supervisor" : null,
-          reason: newStatus === "CANCELLED" ? (reason?.trim() || null) : null,
+          reason:
+            newStatus === "CANCELLED"
+              ? [
+                  reason?.trim() || null,
+                  reparto && !reparto.todoCancelado
+                    ? `Cancelación parcial: ${reparto.seCancelan.length} ítem(s) cancelados, ` +
+                      `${reparto.seCobran.length} entregados se cobran`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || null
+              : null,
         },
       });
 
       const updated = await tx.order.update({
         where: { id: orderId },
-        data: { status: newStatus },
+        data: { status: estadoFinal },
         include: {
           orderItems: true,
           payments: true,
