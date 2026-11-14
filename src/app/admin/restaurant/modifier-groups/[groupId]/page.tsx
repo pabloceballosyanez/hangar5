@@ -203,7 +203,22 @@ export default function ModifierGroupPage() {
         throw new Error(typeof d.error === 'string' ? d.error : 'Error al eliminar modificador');
       }
 
-      const data: ModifierGroup = await res.json();
+      const data: ModifierGroup & { desactivado?: boolean; usos?: number; mensaje?: string } =
+        await res.json();
+
+      /* Si el modificador ya se vendió, el servidor lo desactiva en vez de
+         borrarlo. Antes se refrescaba la lista tal cual y el modificador
+         seguía ahí igual — parecía que el botón no hacía nada. Hay que
+         decirlo en pantalla, no solo en la respuesta. */
+      if (data.desactivado) {
+        setError(
+          `⚠️ ${data.mensaje ?? 'Se desactivó el modificador.'} ` +
+          `Ya no se ofrece, pero sigue visible aquí como inactivo.`
+        );
+      }
+
+      /* Los inactivos se siguen mostrando (marcados), para que se pueda
+         reactivar. Pero si SE BORRÓ de verdad, desaparece. */
       setModifiers(data.modifiers || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al eliminar');
@@ -409,23 +424,48 @@ export default function ModifierGroupPage() {
           ) : (
             <div className="divide-y divide-gray-100">
               {modifiers.map((mod) => (
-                <div key={mod.id} className="py-3 first:pt-0 last:pb-0 space-y-2">
+                <div
+                  key={mod.id}
+                  className={`py-3 first:pt-0 last:pb-0 space-y-2 ${
+                    (mod as Modifier & { isActive?: boolean }).isActive === false ? "opacity-50" : ""
+                  }`}
+                >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{mod.name}</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {mod.name}
+                        {/* Marcado como inactivo: sigue aquí para poder
+                            reactivarlo, pero ya no se ofrece. */}
+                        {(mod as Modifier & { isActive?: boolean }).isActive === false && (
+                          <span className="ml-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase rounded bg-gray-200 text-gray-600">
+                            Inactivo
+                          </span>
+                        )}
+                      </p>
                       <p className="text-xs text-gray-500">
                         {mod.priceDelta === 0
                           ? 'Sin costo adicional'
                           : `+$${mod.priceDelta.toFixed(2)} MXN`}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleDeleteModifier(mod)}
-                      disabled={deletingModId === mod.id}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium disabled:opacity-50 transition-colors"
-                    >
-                      {deletingModId === mod.id ? 'Eliminando...' : 'Eliminar'}
-                    </button>
+                    {/* Un inactivo no se puede volver a eliminar (ya está
+                        desactivado); lo que hace falta es reactivarlo. */}
+                    {(mod as Modifier & { isActive?: boolean }).isActive === false ? (
+                      <button
+                        onClick={() => updateModifierField(mod.id, 'isActive', true)}
+                        className="text-[#1b4235] hover:text-[#15352a] text-sm font-medium transition-colors"
+                      >
+                        Reactivar
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleDeleteModifier(mod)}
+                        disabled={deletingModId === mod.id}
+                        className="text-red-500 hover:text-red-700 text-sm font-medium disabled:opacity-50 transition-colors"
+                      >
+                        {deletingModId === mod.id ? 'Eliminando...' : 'Eliminar'}
+                      </button>
+                    )}
                   </div>
 
                   {/* Inventory controls */}
