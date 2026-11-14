@@ -101,3 +101,19 @@ console.log("\n=== 6. ORDEN VACÍA: no rompe ===");
 
 console.log(`\n${ok} pasaron, ${fail} fallaron`);
 if (fail > 0) process.exitCode = 1;
+
+console.log("\n=== 7. EL TOTAL NO DEBE INCLUIR LO CANCELADO ===");
+{
+  // Caso real de producción: orden de $470 con una pizza de $280 que se
+  // canceló. El total se quedaba en $470 y el cliente pagaba la pizza
+  // que nunca recibió.
+  const items = [
+    item("pizza", "CANCELLED", 1, 28000),
+    item("fruta", "SERVED", 1, 8000),
+    item("huevo", "SERVED", 1, 11000),
+  ];
+  const r = repartirCancelacion(items);
+  check("lo cobrable es $190, no $470", r.montoCobrable === 19000, `fue $${r.montoCobrable / 100}`);
+  check("la pizza no entra al cobro", r.seCobran.every(i => i.id !== "pizza"));
+  check("se cobran 2 ítems", r.seCobran.length === 2);
+}

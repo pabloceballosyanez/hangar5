@@ -199,6 +199,34 @@ export async function PUT(
         });
       }
 
+      /* Recalcular el total cuando se cancela algo.
+         Antes el total se quedaba congelado: cancelar una pizza de $280
+         dejaba ese dinero en la cuenta aunque la pizza ya no se sirviera.
+         El cliente pagaba lo que no consumió.
+         Ahora el total es la suma de lo que sobrevive. */
+      let nuevoTotal: number | undefined;
+      let nuevoSubtotal: number | undefined;
+
+      if (newStatus === "CANCELLED" && reparto) {
+        const vivos = await tx.orderItem.findMany({
+          where: { orderId, status: { not: "CANCELLED" } },
+          select: { quantity: true, unitPrice: true },
+        });
+        nuevoSubtotal = vivos.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+        /* El IVA se recalcula con la misma proporción que tenía la orden,
+           para no inventar tasas: si el total era subtotal + impuesto, se
+           mantiene esa relación sobre el nuevo subtotal. */
+        const ivaPrevio = (await tx.order.findUnique({
+          where: { id: orderId },
+          select: { tax: true, subtotal: true },
+        }));
+        const tasa = ivaPrevio && ivaPrevio.subtotal > 0
+          ? ivaPrevio.tax / ivaPrevio.subtotal
+          : 0;
+        const nuevoTax = Math.round(nuevoSubtotal * tasa);
+        nuevoTotal = nuevoSubtotal + nuevoTax;
+      }
+
       const statusEvent = await tx.orderStatusEvent.create({
         data: {
           orderId,
@@ -222,7 +250,11 @@ export async function PUT(
 
       const updated = await tx.order.update({
         where: { id: orderId },
-        data: { status: estadoFinal },
+        data: {
+          status: estadoFinal,
+          ...(nuevoTotal !== undefined ? { total: nuevoTotal } : {}),
+          ...(nuevoSubtotal !== undefined ? { subtotal: nuevoSubtotal } : {}),
+        },
         include: {
           orderItems: true,
           payments: true,
