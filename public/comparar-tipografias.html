@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tipografías — comparación en pantalla de operación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f2f2ef;padding:26px;font-family:system-ui,sans-serif;color:#141414}
+
+  h1{font-size:17px;font-weight:800;margin-bottom:3px}
+  .sub{font-size:12px;color:#6b7280;margin-bottom:22px}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+  .col{background:#fff;border:1px solid #e0e0db;border-radius:12px;overflow:hidden}
+  .col-titulo{
+    padding:11px 14px;border-bottom:1px solid #e8e8e3;background:#fbfbf9;
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .col-nombre{font-size:12.5px;font-weight:800}
+  .col-nota{font-size:10px;color:#6b7280}
+
+  /* ── La pantalla de operación, replicada ── */
+  .tel{padding:0}
+  .barra{
+    padding:11px 14px;border-bottom:1px solid #e3e3de;display:flex;
+    justify-content:space-between;align-items:center;background:#fff;
+  }
+  .barra .nm{font-size:23px;line-height:1.15;letter-spacing:-.015em}
+  .barra .sb{font-size:12.5px;color:#6b7280;margin-top:1px}
+  .barra .ac{
+    font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:9px;
+    border:1px solid #d8d8d3;background:#fff;height:34px;display:flex;align-items:center;
+  }
+
+  .cuerpo{padding:13px;background:#f7f7f5;display:flex;flex-direction:column;gap:9px}
+
+  .orden{background:#fff;border:1px solid #e3e3de;border-radius:8px;padding:11px 13px}
+  .orden-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+  .mesa{font-size:17px;letter-spacing:-.01em}
+  .hora{font-size:11px;color:#6b7280;font-variant-numeric:tabular-nums}
+  .plat{font-size:13.5px;color:#2a2a2a;line-height:1.55}
+  .plat b{font-weight:700}
+  .mod{font-size:11px;color:#6b7280;margin-left:3px}
+
+  .pills{display:flex;gap:6px;margin-top:8px}
+  .pill{
+    font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    padding:3px 9px;border-radius:99px;
+  }
+  .p-warn{background:#f7f1e2;border:1px solid #dbc99b;color:#6d5613}
+  .p-good{background:#eaf1eb;border:1px solid #bfd3c3;color:#33603d}
+
+  .fila-btn{display:flex;gap:8px;margin-top:2px}
+  .btn{
+    flex:1;height:42px;border-radius:9px;display:flex;align-items:center;
+    justify-content:center;font-size:13.5px;font-weight:700;
+  }
+  .b-prim{background:#C9A44F;color:#17150F}
+  .b-sec{background:#fff;border:1px solid #d8d8d3;color:#2a2a2a}
+
+  .dato{display:flex;justify-content:space-between;font-size:12px;color:#4b5563;padding:2px 0}
+  .dato b{color:#141414;font-variant-numeric:tabular-nums}
+
+  /* ── Cada familia ── */
+  .f-worksans{font-family:"Work Sans",sans-serif}
+  .f-inter{font-family:"Inter",sans-serif}
+  .f-dmsans{font-family:"DM Sans",sans-serif}
+  .f-jakarta{font-family:"Plus Jakarta Sans",sans-serif}
+
+  .f-worksans .barra .nm{font-weight:800}
+  .f-inter .barra .nm{font-weight:800;letter-spacing:-.03em}
+  .f-dmsans .barra .nm{font-weight:800;letter-spacing:-.02em}
+  .f-jakarta .barra .nm{font-weight:800;letter-spacing:-.02em}
+
+  .muestra{
+    padding:10px 14px;border-top:1px solid #e8e8e3;background:#fbfbf9;
+    font-size:11px;color:#6b7280;line-height:1.7;
+  }
+  .muestra .abc{font-size:15px;color:#141414;letter-spacing:.02em;margin-bottom:3px}
+
+  .nota{
+    margin-top:20px;background:#fff;border:1px solid #dcdcd7;border-radius:11px;
+    padding:15px 17px;font-size:12.5px;line-height:1.7;color:#3a3a3a;
+  }
+  .nota b{color:#141414}
+  .nota code{background:#f2f2ef;padding:1px 5px;border-radius:4px;font-size:11.5px}
+</style>
+</head>
+<body>
+
+<h1>Cuatro tipografías, la misma pantalla</h1>
+<p class="sub">Un KDS real con dos platillos. Misma escala, mismos pesos, mismos botones. Solo cambia la letra.</p>
+
+<div class="grid">
+
+  <!-- WORK SANS -->
+  <div class="col f-worksans">
+    <div class="col-titulo"><span class="col-nombre">Work Sans</span><span class="col-nota">la actual · humanista</span></div>
+    <div class="tel">
+      <div class="barra">
+        <div><div class="nm">Cocina</div><div class="sb">2 órdenes en curso · en vivo</div></div>
+        <div class="ac">Actualizar</div>
+      </div>
+      <div class="cuerpo">
+        <div class="orden">
+          <div class="orden-top"><span class="mesa">T1 · Interior 1</span><span class="hora">07:18</span></div>
+          <div class="plat"><b>2× Café</b><span class="mod">· leche deslactosada</span></div>
+          <div class="plat"><b>1× Café Americano</b></div>
+          <div class="pills"><span class="pill p-warn">En cocina</span></div>
+          <div class="fila-btn"><div class="btn b-prim">Marcar listo</div></div>
+        </div>
+        <div class="orden">
+          <div class="orden-top"><span class="mesa">T3</span><span class="hora">07:24</span></div>
+          <div class="plat"><b>1× Latte</b><span class="mod">· extra shot</span></div>
+          <div class="pills"><span class="pill p-good">Listo</span></div>
+        </div>
+        <div class="dato"><span>Total de la mesa</span><b>$480.00</b></div>
+      </div>
+    </div>
+    <div class="muestra">
+      <div class="abc">ABCDEFGHIJ abcdefghij 0123456789 $</div>
+      Pesos 700 y 800 disponibles. Es la que ya usas, así que nada cambia en el resto del sitio.
+    </div>
+  </div>
+
+  <!-- INTER -->
+  <div class="col f-inter">
+    <div class="col-titulo"><span class="col-nombre">Inter</span><span class="col-nota">la más neutra</span></div>
+    <div class="tel">
+      <div class="barra">
+        <div><div class="nm">Cocina</div><div class="sb">2 órdenes en curso · en vivo</div></div>
+        <div class="ac">Actualizar</div>
+      </div>
+      <div class="cuerpo">
+        <div class="orden">
+          <div class="orden-top"><span class="mesa">T1 · Interior 1</span><span class="hora">07:18</span></div>
+          <div class="plat"><b>2× Café</b><span class="mod">· leche deslactosada</span></div>
+          <div class="plat"><b>1× Café Americano</b></div>
+          <div class="pills"><span class="pill p-warn">En cocina</span></div>
+          <div class="fila-btn"><div class="btn b-prim">Marcar listo</div></div>
+        </div>
+        <div class="orden">
+          <div class="orden-top"><span class="mesa">T3</span><span class="hora">07:24</span></div>
+          <div class="plat"><b>1× Latte</b><span class="mod">· extra shot</span></div>
+          <div class="pills"><span class="pill p-good">Listo</span></div>
+        </div>
+        <div class="dato"><span>Total de la mesa</span><b>$480.00</b></div>
+      </div>
+    </div>
+    <div class="muestra">
+      <div class="abc">ABCDEFGHIJ abcdefghij 0123456789 $</div>
+      Diseñada para pantallas. Números muy claros, ideal para precios y horas.
+    </div>
+  </div>
+
+  <!-- DM SANS -->
+  <div class="col f-dmsans">
+    <div class="col-titulo"><span class="col-nombre">DM Sans</span><span class="col-nota">geométrica · cálida</span></div>
+    <div class="tel">
+      <div class="barra">
+        <div><div class="nm">Cocina</div><div class="sb">2 órdenes en curso · en vivo</div></div>
+        <div class="ac">Actualizar</div>
+      </div>
+      <div class="cuerpo">
+        <div class="orden">
+          <div class="orden-top"><span class="mesa">T1 · Interior 1</span><span class="hora">07:18</span></div>
+          <div class="plat"><b>2× Café</b><span class="mod">· leche deslactosada</span></div>
+          <div class="plat"><b>1× Café Americano</b></div>
+          <div class="pills"><span class="pill p-warn">En cocina</span></div>
+          <div class="fila-btn"><div class="btn b-prim">Marcar listo</div></div>
+        </div>
+        <div class="orden">
+          <div class="orden-top"><span class="mesa">T3</span><span class="hora">07:24</span></div>
+          <div class="plat"><b>1× Latte</b><span class="mod">· extra shot</span></div>
+          <div class="pills"><span class="pill p-good">Listo</span></div>
+        </div>
+        <div class="dato"><span>Total de la mesa</span><b>$480.00</b></div>
+      </div>
+    </div>
+    <div class="muestra">
+      <div class="abc">ABCDEFGHIJ abcdefghij 0123456789 $</div>
+      Círculos casi perfectos. Cálida sin ser informal, se lee muy bien de cerca.
+    </div>
+  </div>
+
+  <!-- PLUS JAKARTA -->
+  <div class="col f-jakarta">
+    <div class="col-titulo"><span class="col-nombre">Plus Jakarta Sans</span><span class="col-nota">moderna · con carácter</span></div>
+    <div class="tel">
+      <div class="barra">
+        <div><div class="nm">Cocina</div><div class="sb">2 órdenes en curso · en vivo</div></div>
+        <div class="ac">Actualizar</div>
+      </div>
+      <div class="cuerpo">
+        <div class="orden">
+          <div class="orden-top"><span class="mesa">T1 · Interior 1</span><span class="hora">07:18</span></div>
+          <div class="plat"><b>2× Café</b><span class="mod">· leche deslactosada</span></div>
+          <div class="plat"><b>1× Café Americano</b></div>
+          <div class="pills"><span class="pill p-warn">En cocina</span></div>
+          <div class="fila-btn"><div class="btn b-prim">Marcar listo</div></div>
+        </div>
+        <div class="orden">
+          <div class="orden-top"><span class="mesa">T3</span><span class="hora">07:24</span></div>
+          <div class="plat"><b>1× Latte</b><span class="mod">· extra shot</span></div>
+          <div class="pills"><span class="pill p-good">Listo</span></div>
+        </div>
+        <div class="dato"><span>Total de la mesa</span><b>$480.00</b></div>
+      </div>
+    </div>
+    <div class="muestra">
+      <div class="abc">ABCDEFGHIJ abcdefghij 0123456789 $</div>
+      Más personalidad en las curvas. Se siente premium sin perder funcionalidad.
+    </div>
+  </div>
+
+</div>
+
+<div class="nota">
+  <b>Importante:</b> las cuatro tienen pesos <code>700</code> y <code>800</code> reales. La actual (Work Sans) solo carga hasta 600, así que el navegador está <b>inventando</b> el 800 — por eso los títulos se ven un poco sucios.<br>
+  <b>La escala no cambia:</b> 11 · 13 · 15 · 18 · 24 · 34 px. Solo cambia la forma de la letra.
+</div>
+
+</body>
+</html>
