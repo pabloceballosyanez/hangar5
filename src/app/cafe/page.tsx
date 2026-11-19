@@ -259,35 +259,34 @@ export default function BarraCafe() {
 
   return (
     <div className="min-h-screen bg-ink text-snow">
-      <header className="border-b border-hair px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="font-[family-name:var(--font-display)] text-xl">Café del Despegue</h1>
-          <p className="text-xs text-smoke">
+      <header className="op-header">
+        <div className="min-w-0">
+          <h1 className="op-title">Despegue</h1>
+          <p className="op-small text-smoke">
             Barra · {activos} {activos === 1 ? 'pedido activo' : 'pedidos activos'}
           </p>
         </div>
-        <button onClick={cargar}
-          className="text-xs px-3 py-2 rounded-lg border border-hair text-ash hover:text-snow">
+        <button onClick={cargar} className="op-btn op-btn-ghost op-btn-sm">
           Actualizar
         </button>
       </header>
 
       {error && (
-        <div className="bg-bad/15 border-b border-bad/40 px-4 py-2 text-sm text-bad">{error}</div>
+        <div className="bg-bad/15 border-b border-bad/40 px-4 py-2 op-body text-bad">{error}</div>
       )}
 
       <div className="grid lg:grid-cols-[1fr_400px]">
         {/* IZQUIERDA */}
         <div className="p-4 border-r border-hair">
           <section className="mb-4">
-            <h2 className="text-xs uppercase tracking-wide text-brass mb-2">1 · ¿Quién pide?</h2>
+            <h2 className="op-small uppercase tracking-wide text-brass mb-2">1 · ¿Quién pide?</h2>
             <div className="relative">
               <input value={nombre}
                 onChange={(e) => { setNombre(e.target.value); setClienteId(null); }}
                 placeholder="Nombre de quien pide"
-                className="w-full px-4 py-3 rounded-xl bg-ink-2 border border-hair text-snow text-lg placeholder:text-smoke focus:outline-none focus:border-brass/60" />
+                className="w-full px-4 py-3 rounded-xl bg-ink-2 border border-hair text-snow op-lead placeholder:text-smoke focus:outline-none focus:border-brass/60" />
               {clienteId && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-good">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 op-small text-good">
                   cliente del Hangar
                 </span>
               )}
@@ -297,7 +296,7 @@ export default function BarraCafe() {
                 onChange={(e) => { setBuscaCliente(e.target.value); setMostrarSugerencias(true); }}
                 onFocus={() => setMostrarSugerencias(true)}
                 placeholder="…o busca un cliente del Hangar"
-                className="w-full px-4 py-2 rounded-lg bg-ink-2 border border-hair text-sm text-ash placeholder:text-smoke focus:outline-none" />
+                className="w-full px-4 py-2 rounded-lg bg-ink-2 border border-hair op-body text-ash placeholder:text-smoke focus:outline-none" />
               {mostrarSugerencias && sugerencias.length > 0 && (
                 <div className="absolute z-20 mt-1 w-full bg-ink-3 border border-hair rounded-lg overflow-hidden">
                   {sugerencias.map((c) => (
@@ -313,9 +312,9 @@ export default function BarraCafe() {
                         setMetodo('CUENTA');
                         setBuscaCliente(''); setSugerencias([]); setMostrarSugerencias(false);
                       }}
-                      className="block w-full text-left px-3 py-2 text-sm hover:bg-ink-4">
+                      className="block w-full text-left px-3 py-2 op-body hover:bg-ink-4">
                       <span className="text-snow">{c.name}</span>
-                      {c.email && <span className="text-smoke text-xs ml-2">{c.email}</span>}
+                      {c.email && <span className="text-smoke op-small ml-2">{c.email}</span>}
                     </button>
                   ))}
                 </div>
@@ -324,28 +323,28 @@ export default function BarraCafe() {
           </section>
 
           <section>
-            <h2 className="text-xs uppercase tracking-wide text-brass mb-2">2 · Productos</h2>
+            <h2 className="op-small uppercase tracking-wide text-brass mb-2">2 · Productos</h2>
             <input type="search" placeholder="Buscar producto…" value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
-              className="w-full mb-3 px-3 py-2 rounded-lg bg-ink-2 border border-hair text-sm text-snow placeholder:text-smoke focus:outline-none" />
+              className="w-full mb-3 px-3 py-2 rounded-lg bg-ink-2 border border-hair op-body text-snow placeholder:text-smoke focus:outline-none" />
 
             {barra.productos.length === 0 && (
-              <p className="text-sm text-smoke bg-ink-2 rounded-xl px-4 py-6 text-center">
+              <p className="op-body text-smoke bg-ink-2 rounded-xl px-4 py-6 text-center">
                 No hay productos marcados para el café. Márcalos en Admin → Ubicaciones.
               </p>
             )}
 
             {porCategoria.map(([cat, items]) => (
               <div key={cat} className="mb-3">
-                <h3 className="text-[11px] uppercase tracking-wide text-smoke mb-1.5">{cat}</h3>
+                <h3 className="op-micro text-smoke mb-1.5">{cat}</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {items.map((p) => (
                     <button key={p.id} onClick={() => agregar(p)}
-                      className="text-left px-3 py-2.5 rounded-lg bg-ink-2 border border-hair hover:border-brass/50 transition-colors">
-                      <span className="block text-sm leading-tight">{p.nombre}</span>
-                      <span className="block text-xs text-brass mt-0.5">{pesos(p.precio)}</span>
+                      className="w-full text-left px-3 py-3 rounded-lg bg-ink-2 border border-hair hover:border-brass/50 transition-colors min-h-[52px]">
+                      <span className="block op-body leading-tight">{p.nombre}</span>
+                      <span className="block op-small text-brass mt-0.5">{pesos(p.precio)}</span>
                       {(p.grupos.length > 0 || p.variantes.length > 0) && (
-                        <span className="block text-[10px] text-smoke mt-0.5">con opciones</span>
+                        <span className="block op-micro text-smoke mt-0.5">con opciones</span>
                       )}
                     </button>
                   ))}
@@ -357,27 +356,27 @@ export default function BarraCafe() {
 
         {/* DERECHA: ticket + opciones */}
         <aside className="p-4 lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto">
-          <h2 className="text-xs uppercase tracking-wide text-brass mb-2">3 · Cobrar</h2>
+          <h2 className="op-small uppercase tracking-wide text-brass mb-2">3 · Cobrar</h2>
 
           {ultimaVenta && (
             <div className="mb-3 bg-good/10 border border-good/30 rounded-xl px-3 py-2.5">
-              <p className="text-xs text-good">
+              <p className="op-small text-good">
                 Cobrado a <span className="font-medium">{ultimaVenta.nombre}</span> ·{' '}
                 {pesos(ultimaVenta.total)}
               </p>
-              <p className="text-[11px] text-smoke mt-0.5">Ya está abajo, en preparación</p>
+              <p className="op-micro text-smoke mt-0.5">Ya está abajo, en preparación</p>
             </div>
           )}
 
           <div className="bg-ink-2 rounded-xl border border-hair p-3">
             {nombre.trim() && (
-              <p className="text-xs text-ash border-b border-hair pb-2 mb-2">
+              <p className="op-small text-ash border-b border-hair pb-2 mb-2">
                 Para: <span className="text-snow font-medium">{nombre}</span>
               </p>
             )}
 
             {lineas.length === 0 ? (
-              <p className="text-sm text-smoke py-6 text-center">Toca un producto para empezar</p>
+              <p className="op-body text-smoke py-6 text-center">Toca un producto para empezar</p>
             ) : (
               <div className="space-y-1.5 mb-3">
                 {lineas.map((l) => {
@@ -392,23 +391,23 @@ export default function BarraCafe() {
                       <div className="flex items-center gap-2">
                         <button onClick={() => setLineaActiva(isActiva ? null : l.key)}
                           className="flex-1 min-w-0 text-left">
-                          <p className="text-sm truncate">
+                          <p className="op-body truncate">
                             {l.producto.nombre}
                             {v && <span className="text-smoke"> ({v.nombre})</span>}
                           </p>
-                          <p className="text-xs text-smoke">{pesos(precioLinea(l))}</p>
+                          <p className="op-small text-smoke">{pesos(precioLinea(l))}</p>
                           {mods.length > 0 && (
-                            <p className="text-[10px] text-brass/80 truncate">
+                            <p className="op-micro text-brass/80 truncate">
                               + {mods.map((m) => m.nombre).join(', ')}
                             </p>
                           )}
                         </button>
                         <div className="flex items-center gap-1 shrink-0">
                           <button onClick={() => cambiar(l.key, -1)}
-                            className="w-8 h-8 rounded-lg bg-ink-3" aria-label="Quitar uno">−</button>
-                          <span className="w-6 text-center text-sm">{l.cantidad}</span>
+                            className="w-9 h-9 rounded-lg bg-ink-3 hover:bg-ink-4 transition-colors" aria-label="Quitar uno">−</button>
+                          <span className="w-6 text-center op-body">{l.cantidad}</span>
                           <button onClick={() => cambiar(l.key, 1)}
-                            className="w-8 h-8 rounded-lg bg-ink-3" aria-label="Agregar uno">+</button>
+                            className="w-9 h-9 rounded-lg bg-ink-3 hover:bg-ink-4 transition-colors" aria-label="Agregar uno">+</button>
                         </div>
                       </div>
                     </div>
@@ -416,8 +415,8 @@ export default function BarraCafe() {
                 })}
 
                 <div className="flex justify-between pt-2 border-t border-hair">
-                  <span className="text-sm font-medium">Total</span>
-                  <span className="text-lg font-bold text-brass">{pesos(total)}</span>
+                  <span className="op-body font-medium">Total</span>
+                  <span className="op-lead font-bold text-brass">{pesos(total)}</span>
                 </div>
               </div>
             )}
@@ -425,22 +424,18 @@ export default function BarraCafe() {
             {/* Opciones de la línea activa */}
             {activa && (activa.producto.variantes.length > 0 || activa.producto.grupos.length > 0) && (
               <div className="mb-3 border-t border-hair pt-2">
-                <p className="text-[11px] text-smoke mb-1.5">
+                <p className="op-micro text-smoke mb-1.5">
                   Opciones de <span className="text-snow">{activa.producto.nombre}</span>
                 </p>
 
                 {activa.producto.variantes.length > 0 && (
                   <div className="mb-2">
-                    <p className="text-[11px] text-brass mb-1">Tamaño</p>
+                    <p className="op-micro text-brass mb-1">Tamaño</p>
                     {activa.producto.variantes.map((v) => (
                       <button key={v.id}
                         onClick={() => setLineas((prev) => prev.map((l) =>
                           l.key === activa.key ? { ...l, varianteId: v.id } : l))}
-                        className={`w-full flex justify-between text-xs px-2 py-1.5 rounded mb-0.5 ${
-                          activa.varianteId === v.id
-                            ? 'bg-brass/15 text-snow border border-brass/40'
-                            : 'bg-ink-3 text-ash border border-transparent'
-                        }`}>
+                        className={`w-full flex justify-between op-small px-3 py-2.5 rounded-lg mb-1 min-h-[42px] items-center ${ activa.varianteId === v.id ? 'bg-brass/15 text-snow border border-brass/40' : 'bg-ink-3 text-ash border border-transparent' }`}>
                         <span>{v.nombre}</span>
                         <span>{v.delta ? `+${pesos(v.delta)}` : '—'}</span>
                       </button>
@@ -450,7 +445,7 @@ export default function BarraCafe() {
 
                 {activa.producto.grupos.map((g) => (
                   <div key={g.id} className="mb-2">
-                    <p className="text-[11px] text-brass mb-1">
+                    <p className="op-micro text-brass mb-1">
                       {g.nombre}
                       {g.obligatorio && <span className="text-bad"> · obligatorio</span>}
                       {!g.obligatorio && <span className="text-smoke"> · opcional</span>}
@@ -460,11 +455,7 @@ export default function BarraCafe() {
                       return (
                         <button key={o.id}
                           onClick={() => alternarModificador(activa.key, g, o.id)}
-                          className={`w-full flex justify-between text-xs px-2 py-1.5 rounded mb-0.5 ${
-                            sel
-                              ? 'bg-brass/15 text-snow border border-brass/40'
-                              : 'bg-ink-3 text-ash border border-transparent'
-                          }`}>
+                          className={`w-full flex justify-between op-small px-3 py-2.5 rounded-lg mb-1 min-h-[42px] items-center ${ sel ? 'bg-brass/15 text-snow border border-brass/40' : 'bg-ink-3 text-ash border border-transparent' }`}>
                           <span>{sel ? '✓ ' : ''}{o.nombre}</span>
                           <span>{o.delta ? `+${pesos(o.delta)}` : '—'}</span>
                         </button>
@@ -483,11 +474,7 @@ export default function BarraCafe() {
                 const activo = metodo === m.valor;
                 return (
                   <button key={m.valor} onClick={() => setMetodo(m.valor)}
-                    className={`py-2.5 rounded-lg text-xs border font-medium transition-colors ${
-                      activo
-                        ? 'bg-brass text-ink border-brass'
-                        : 'border-hair text-ash hover:border-brass/40'
-                    }`}>
+                    className={`h-11 rounded-lg op-small border font-semibold transition-colors ${ activo ? 'bg-brass text-ink border-brass' : 'border-hair text-ash hover:border-brass/40' }`}>
                     {activo ? '✓ ' : ''}{m.etiqueta}
                   </button>
                 );
@@ -495,7 +482,7 @@ export default function BarraCafe() {
             </div>
 
             {clienteId && metodo !== 'CUENTA' && (
-              <p className="text-[10px] text-warn bg-warn/10 rounded px-2 py-1.5 mb-2">
+              <p className="op-micro text-warn bg-warn/10 rounded px-2 py-1.5 mb-2">
                 Elegiste un cliente del Hangar pero vas a cobrar en{' '}
                 {METODOS.find((m) => m.valor === metodo)?.etiqueta.toLowerCase()}.
                 Si va a su cuenta, toca “A su cuenta”.
@@ -503,18 +490,18 @@ export default function BarraCafe() {
             )}
 
             {metodo === 'CUENTA' && (
-              <p className="text-[10px] text-smoke bg-ink-3 rounded px-2 py-1.5 mb-2">
+              <p className="op-micro text-smoke bg-ink-3 rounded px-2 py-1.5 mb-2">
                 Se carga a la cuenta del huésped. Hace falta que tenga correo registrado.
               </p>
             )}
 
             <button onClick={cobrar} disabled={cobrando || lineas.length === 0}
-              className="w-full py-4 rounded-xl bg-brass text-ink font-semibold disabled:opacity-40">
+              className="op-btn op-btn-primary w-full h-14 text-[17px]">
               {cobrando ? 'Cobrando…' : `Cobrar ${pesos(total)}`}
             </button>
 
             {lineas.length > 0 && (
-              <button onClick={limpiar} className="w-full mt-2 py-1.5 text-xs text-smoke">
+              <button onClick={limpiar} className="op-btn op-btn-ghost op-btn-sm w-full mt-2">
                 Cancelar
               </button>
             )}
@@ -547,11 +534,11 @@ function Cola({
 }) {
   return (
     <section>
-      <h2 className="text-xs uppercase tracking-wide text-smoke mb-2">
+      <h2 className="op-small uppercase tracking-wide text-smoke mb-2">
         {titulo} ({pedidos.length})
       </h2>
       {pedidos.length === 0 ? (
-        <p className="text-sm text-smoke bg-ink-2 rounded-xl px-4 py-5 text-center">{vacio}</p>
+        <p className="op-body text-smoke bg-ink-2 rounded-xl px-4 py-5 text-center">{vacio}</p>
       ) : (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-2">
           {pedidos.map((p) => (
@@ -559,18 +546,18 @@ function Cola({
               className={`bg-ink-2 rounded-xl p-3 border ${destacado ? 'border-good/40' : 'border-hair'}`}>
               <div className="flex justify-between items-start mb-1.5">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">{p.nombre}</p>
-                  <p className="text-[11px] text-smoke">
+                  <p className="op-body font-medium truncate">{p.nombre}</p>
+                  <p className="op-micro text-smoke">
                     {p.origen}
                     {p.codigo && <span className="font-mono text-brass"> · {p.codigo}</span>}
                     {p.aCuenta && <span className="text-warn"> · a cuenta</span>}
                   </p>
                 </div>
-                <span className={`text-[11px] shrink-0 ml-2 ${p.minutos >= 8 ? 'text-warn' : 'text-smoke'}`}>
+                <span className={`op-micro shrink-0 ml-2 ${p.minutos >= 8 ? 'text-warn' : 'text-smoke'}`}>
                   {p.minutos}′
                 </span>
               </div>
-              <ul className="text-xs space-y-0.5 mb-2">
+              <ul className="op-small space-y-0.5 mb-2">
                 {p.items.map((i) => (
                   <li key={i.id}>
                     <span className="text-brass">{i.cantidad}×</span> {i.nombre}
@@ -583,14 +570,10 @@ function Cola({
                 ))}
               </ul>
               {p.notaLibre && (
-                <p className="text-[11px] text-warn bg-warn/10 rounded px-2 py-1 mb-2">{p.notaLibre}</p>
+                <p className="op-micro text-warn bg-warn/10 rounded px-2 py-1 mb-2">{p.notaLibre}</p>
               )}
               <button onClick={() => onAccion(p.id, accion.tipo)}
-                className={`w-full py-2 rounded-lg text-xs font-medium ${
-                  accion.tipo === 'entregar'
-                    ? 'bg-good/20 text-good border border-good/40'
-                    : 'bg-brass/15 text-brass border border-brass/30'
-                }`}>
+                className={`op-btn op-btn-sm w-full ${ accion.tipo === 'entregar' ? 'op-good' : 'op-warn' }`}>
                 {accion.texto}
               </button>
             </div>

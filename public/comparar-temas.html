@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Las cuatro pantallas — dos temas</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Work Sans",-apple-system,sans-serif;background:#e9e9e7;color:#1a1a1a;padding:28px}
+
+  h1{font-size:17px;font-weight:800;margin-bottom:4px}
+  .sub{font-size:12px;color:#6b7280;margin-bottom:22px}
+
+  .tema-titulo{
+    font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:#6b7280;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid #d4d4d0;
+  }
+
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+  .tel{
+    border-radius:10px;overflow:hidden;
+    box-shadow:0 1px 3px rgba(0,0,0,.14);
+    display:flex;flex-direction:column;height:250px;
+  }
+  .tel .barra{
+    padding:9px 11px;display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid;flex-shrink:0;
+  }
+  .tel .nombre{font-size:13px;font-weight:800;letter-spacing:-.01em}
+  .tel .sub2{font-size:9px;margin-top:1px;letter-spacing:.02em}
+  .tel .accion{
+    font-size:9px;font-weight:700;padding:4px 8px;border-radius:5px;border:1px solid;
+  }
+  .tel .cuerpo{padding:9px;flex:1;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+
+  .tarjeta{border-radius:6px;padding:7px 9px;border:1px solid;display:flex;flex-direction:column;gap:3px}
+  .tarjeta .t{font-size:10px;font-weight:700}
+  .tarjeta .m{font-size:8.5px}
+  .fila{display:flex;justify-content:space-between;align-items:center;gap:5px;padding:5px 7px;border-radius:5px;border:1px solid}
+  .fila .f1{font-size:9px;font-weight:600}
+  .fila .f2{font-size:8px}
+  .pill{font-size:7.5px;font-weight:700;padding:2px 6px;border-radius:99px;letter-spacing:.04em;text-transform:uppercase}
+  .btn{font-size:9px;font-weight:700;text-align:center;padding:7px;border-radius:6px}
+
+  /* ── OSCURO ── */
+  .oscuro{background:#0B0B0B}
+  .oscuro .barra{background:rgba(11,11,11,.94);border-color:rgba(244,244,244,.12)}
+  .oscuro .nombre{color:#F4F4F4}
+  .oscuro .sub2{color:rgba(244,244,244,.38)}
+  .oscuro .accion{border-color:rgba(244,244,244,.12);color:#F4F4F4}
+  .oscuro .tarjeta{background:#161616;border-color:rgba(244,244,244,.12)}
+  .oscuro .tarjeta .t{color:#F4F4F4}
+  .oscuro .tarjeta .m{color:rgba(244,244,244,.62)}
+  .oscuro .fila{background:#161616;border-color:rgba(244,244,244,.12)}
+  .oscuro .fila .f1{color:#F4F4F4}
+  .oscuro .fila .f2{color:rgba(244,244,244,.62)}
+  .oscuro .pill-good{background:rgba(126,156,130,.14);border:1px solid rgba(126,156,130,.45);color:#A8C4AC}
+  .oscuro .pill-warn{background:rgba(192,160,85,.14);border:1px solid rgba(192,160,85,.45);color:#DCC282}
+  .oscuro .btn{background:#C9A44F;color:#17150F}
+
+  /* ── CLARO ── */
+  .claro{background:#f7f7f5}
+  .claro .barra{background:#fff;border-color:#e3e3df}
+  .claro .nombre{color:#141414}
+  .claro .sub2{color:#6b7280}
+  .claro .accion{border-color:#d8d8d3;color:#2a2a2a;background:#fff}
+  .claro .tarjeta{background:#fff;border-color:#e3e3df}
+  .claro .tarjeta .t{color:#141414}
+  .claro .tarjeta .m{color:#6b7280}
+  .claro .fila{background:#fff;border-color:#e3e3df}
+  .claro .fila .f1{color:#141414}
+  .claro .fila .f2{color:#6b7280}
+  .claro .pill-good{background:#eaf1eb;border:1px solid #bfd3c3;color:#3f6a49}
+  .claro .pill-warn{background:#f7f1e2;border:1px solid #dbc99b;color:#7a6320}
+  .claro .btn{background:#C9A44F;color:#17150F}
+
+  .leyenda{margin-top:20px;background:#fff;border:1px solid #dcdcd7;border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.6;color:#3a3a3a}
+  .leyenda b{color:#141414}
+</style>
+</head>
+<body>
+
+<h1>Las cuatro pantallas, dos temas</h1>
+<p class="sub">Misma estructura, misma tipografía, mismos botones. Solo cambia el color de fondo y de texto.</p>
+
+<div class="tema-titulo">Tema oscuro — como está hoy</div>
+<div class="grid">
+
+  <div class="tel oscuro">
+    <div class="barra"><div><div class="nombre">Cocina</div><div class="sub2">3 órdenes · en vivo</div></div><div class="accion">Actualizar</div></div>
+    <div class="cuerpo">
+      <div class="tarjeta"><div class="t">T1 · Interior 1</div><div class="m">2× Café · 1× Americano</div><span class="pill pill-warn" style="align-self:flex-start">En cocina</span></div>
+      <div class="tarjeta"><div class="t">T3</div><div class="m">1× Latte</div><span class="pill pill-good" style="align-self:flex-start">Listo</span></div>
+      <div class="btn">Marcar listo</div>
+    </div>
+  </div>
+
+  <div class="tel oscuro">
+    <div class="barra"><div><div class="nombre">Despegue</div><div class="sub2">Barra · 2 pedidos</div></div><div class="accion">Actualizar</div></div>
+    <div class="cuerpo">
+      <div class="fila"><span class="f1">Café Americano</span><span class="f2">$50</span></div>
+      <div class="fila"><span class="f1">Latte</span><span class="f2">$70</span></div>
+      <div class="fila"><span class="f1">Panqué</span><span class="f2">$60</span></div>
+      <div class="btn" style="margin-top:auto">Cobrar $180</div>
+    </div>
+  </div>
+
+  <div class="tel oscuro">
+    <div class="barra"><div><div class="nombre">Mesero</div><div class="sub2">Pablo Ceballos</div></div><div class="accion">Salir</div></div>
+    <div class="cuerpo">
+      <div class="tarjeta"><div class="t">🪑 T1</div><div class="m">05:03 · 2 ord · $480</div><span class="pill pill-warn" style="align-self:flex-start">En cocina</span></div>
+      <div class="tarjeta"><div class="t">👤 Carlos</div><div class="m">06:12 · 1 ord · $150</div><span class="pill pill-good" style="align-self:flex-start">Listo</span></div>
+    </div>
+  </div>
+
+  <div class="tel oscuro">
+    <div class="barra"><div><div class="nombre">Modo Solo</div><div class="sub2">Mesero · Cocina · Cobro</div></div><div class="accion">← Volver</div></div>
+    <div class="cuerpo">
+      <div class="fila"><span class="f1">🪑 T1</span><span class="f2">$480</span></div>
+      <div class="fila"><span class="f1">👤 Carlos</span><span class="f2">$150</span></div>
+      <div class="tarjeta" style="margin-top:auto"><div class="t">2× Café</div><span class="pill pill-warn" style="align-self:flex-start">Pendiente</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="tema-titulo">Tema claro — misma estructura, fondo blanco</div>
+<div class="grid">
+
+  <div class="tel claro">
+    <div class="barra"><div><div class="nombre">Cocina</div><div class="sub2">3 órdenes · en vivo</div></div><div class="accion">Actualizar</div></div>
+    <div class="cuerpo">
+      <div class="tarjeta"><div class="t">T1 · Interior 1</div><div class="m">2× Café · 1× Americano</div><span class="pill pill-warn" style="align-self:flex-start">En cocina</span></div>
+      <div class="tarjeta"><div class="t">T3</div><div class="m">1× Latte</div><span class="pill pill-good" style="align-self:flex-start">Listo</span></div>
+      <div class="btn">Marcar listo</div>
+    </div>
+  </div>
+
+  <div class="tel claro">
+    <div class="barra"><div><div class="nombre">Despegue</div><div class="sub2">Barra · 2 pedidos</div></div><div class="accion">Actualizar</div></div>
+    <div class="cuerpo">
+      <div class="fila"><span class="f1">Café Americano</span><span class="f2">$50</span></div>
+      <div class="fila"><span class="f1">Latte</span><span class="f2">$70</span></div>
+      <div class="fila"><span class="f1">Panqué</span><span class="f2">$60</span></div>
+      <div class="btn" style="margin-top:auto">Cobrar $180</div>
+    </div>
+  </div>
+
+  <div class="tel claro">
+    <div class="barra"><div><div class="nombre">Mesero</div><div class="sub2">Pablo Ceballos</div></div><div class="accion">Salir</div></div>
+    <div class="cuerpo">
+      <div class="tarjeta"><div class="t">🪑 T1</div><div class="m">05:03 · 2 ord · $480</div><span class="pill pill-warn" style="align-self:flex-start">En cocina</span></div>
+      <div class="tarjeta"><div class="t">👤 Carlos</div><div class="m">06:12 · 1 ord · $150</div><span class="pill pill-good" style="align-self:flex-start">Listo</span></div>
+    </div>
+  </div>
+
+  <div class="tel claro">
+    <div class="barra"><div><div class="nombre">Modo Solo</div><div class="sub2">Mesero · Cocina · Cobro</div></div><div class="accion">← Volver</div></div>
+    <div class="cuerpo">
+      <div class="fila"><span class="f1">🪑 T1</span><span class="f2">$480</span></div>
+      <div class="fila"><span class="f1">👤 Carlos</span><span class="f2">$150</span></div>
+      <div class="tarjeta" style="margin-top:auto"><div class="t">2× Café</div><span class="pill pill-warn" style="align-self:flex-start">Pendiente</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="leyenda">
+  <b>Lo que no cambia entre temas:</b> tamaño del título (24px), alto del encabezado (73px), forma de los botones (44px), la escala de texto y el dorado <code>#C9A44F</code> para precios y acciones.<br>
+  <b>Lo único que cambia:</b> el fondo, el color del texto y los tonos de los estados.
+</div>
+
+</body>
+</html>

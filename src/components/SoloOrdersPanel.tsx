@@ -337,7 +337,7 @@ function PaymentSheet({
                 <button
                   onClick={() => handlePay('CASH')}
                   disabled={paying || activeOrders.length === 0}
-                  className="min-h-[64px] bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+                  className="op-btn op-btn-primary h-14 flex-col gap-0.5"
                 >
                   <span className="op-title">💵</span>
                   <span className="op-small">Efectivo</span>
@@ -345,7 +345,7 @@ function PaymentSheet({
                 <button
                   onClick={() => handlePay('CARD')}
                   disabled={paying || activeOrders.length === 0}
-                  className="min-h-[64px] bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+                  className="op-btn op-btn-primary h-14 flex-col gap-0.5"
                 >
                   <span className="op-title">💳</span>
                   <span className="op-small">Tarjeta</span>
@@ -354,7 +354,7 @@ function PaymentSheet({
                   <button
                     onClick={() => handlePay('ON_ACCOUNT')}
                     disabled={paying || activeOrders.length === 0}
-                    className="min-h-[64px] bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+                    className="op-btn op-btn-primary h-14 flex-col gap-0.5"
                   >
                     <span className="op-title">📒</span>
                     <span className="op-small">Cuenta</span>
@@ -371,7 +371,7 @@ function PaymentSheet({
 
           <button
             onClick={onClose}
-            className="w-full mt-4 py-3 op-surface-2 hover:op-surface-2 text-snow-2 rounded-xl font-semibold active:scale-95 transition-all"
+            className="op-btn op-btn-primary w-full mt-4 h-12"
           >
             Cerrar
           </button>
@@ -500,7 +500,7 @@ function OrderCard({
             <button
               onClick={() => onDeliver(order.id)}
               disabled={delivering}
-              className="w-full py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white op-body font-bold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+              className="op-btn op-btn-primary w-full gap-1.5"
             >
               <span>🍽️</span>
               <span>
@@ -512,7 +512,7 @@ function OrderCard({
             <button
               onClick={() => onCancel(order.id)}
               disabled={delivering}
-              className="w-full py-2 op-surface border hover:op-bad disabled:opacity-50 op-body font-semibold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+              className="op-btn op-btn-danger w-full gap-1.5"
             >
               <span>❌</span>
               <span>Cancelar orden</span>
@@ -829,7 +829,7 @@ export default function SoloOrdersPanel({
             <p className="op-body text-ash mb-2">No hay sesiones abiertas</p>
             <button
               onClick={openNewSessionModal}
-              className="inline-block op-body text-[#b88364] hover:text-[#8a5d44] font-medium"
+              className="inline-block op-body text-brass hover:text-brass-soft font-medium"
             >
               + Nuevo tab
             </button>
@@ -890,7 +890,7 @@ export default function SoloOrdersPanel({
             {/* + Nuevo tab button */}
             <button
               onClick={openNewSessionModal}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-dashed border-hair op-surface hover:op-surface-2 op-small text-ash hover:text-ash transition-colors"
+              className="flex items-center gap-1.5 px-3 h-9 rounded-lg border border-dashed border-hair op-surface hover:op-surface-2 op-small text-ash transition-colors"
             >
               <span className="op-body leading-none">+</span>
             </button>
@@ -904,7 +904,7 @@ export default function SoloOrdersPanel({
           {error}
           <button
             onClick={() => setError(null)}
-            className="ml-2 hover:"
+            className="ml-2"
           >
             ✕
           </button>
@@ -933,7 +933,7 @@ export default function SoloOrdersPanel({
             </p>
             <button
               onClick={() => selectedSessionId && loadSessionDetail(selectedSessionId)}
-              className="mt-3 op-body text-blue-600 hover:text-blue-800"
+              className="mt-3 op-body text-brass hover:text-brass-soft"
             >
               Reintentar
             </button>
@@ -963,7 +963,7 @@ export default function SoloOrdersPanel({
               {grandTotal > 0 && (
                 <button
                   onClick={() => setShowPayment(true)}
-                  className="shrink-0 px-4 py-2 op-surface-2 border border-hair text-snow-2 op-body font-semibold rounded-xl hover:op-surface-2 active:scale-95 transition-all"
+                  className="op-btn op-btn-ghost shrink-0"
                 >
                   💵 Cobrar {fmt(grandTotal)}
                 </button>
@@ -1058,7 +1058,7 @@ export default function SoloOrdersPanel({
                     onClick={() => { setNewTabType(t.key); setNewSessionError(null); }}
                     className={`p-3 rounded-xl border-2 text-left transition-all ${ newTabType === t.key ? 'border-brass bg-brass/10' : 'border-hair hover:border-hair' }`}
                   >
-                    <p className="font-bold text-[#1b4235] op-body">{t.icon} {t.label}</p>
+                    <p className="font-bold text-snow op-body">{t.icon} {t.label}</p>
                     <p className="op-small text-ash mt-0.5">{t.desc}</p>
                   </button>
                 ))}
@@ -1098,7 +1098,7 @@ export default function SoloOrdersPanel({
                   <div className="flex items-center gap-2 p-3 op-good border rounded-xl">
                     <span className="op-lead">👤</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[#1b4235] font-medium truncate">{selectedCustomer.name}</p>
+                      <p className="text-snow font-medium truncate">{selectedCustomer.name}</p>
                       {selectedCustomer.phone && <p className="op-small text-ash">{selectedCustomer.phone}</p>}
                     </div>
                     <button type="button" onClick={() => { setSelectedCustomer(null); setCustomerSearch(''); }}
@@ -1115,11 +1115,11 @@ export default function SoloOrdersPanel({
                         onChange={e => { setCustomerSearch(e.target.value); searchCustomers(e.target.value); }}
                         onFocus={() => { if (customers.length > 0) setShowCustomerDropdown(true); }}
                         placeholder="Buscar cliente por nombre o teléfono..."
-                        className="w-full px-4 py-3 op-surface-2 border border-hair rounded-xl text-[#1b4235] placeholder:text-ash focus:outline-none focus:border-[#b88364] op-body"
+                        className="w-full px-4 py-3 op-surface-2 border border-hair rounded-xl text-snow placeholder:text-ash focus:outline-none focus:border-brass op-body"
                       />
                       {loadingCustomers && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <div className="w-4 h-4 border-2 border-[#b88364] border-t-transparent rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-brass border-t-transparent rounded-full animate-spin" />
                         </div>
                       )}
                     </div>
@@ -1134,7 +1134,7 @@ export default function SoloOrdersPanel({
                           >
                             <span className="op-lead shrink-0">👤</span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[#1b4235] font-medium op-body truncate">{c.name}</p>
+                              <p className="text-snow font-medium op-body truncate">{c.name}</p>
                               {c.phone && <p className="op-small text-ash">{c.phone}</p>}
                             </div>
                           </button>
@@ -1155,7 +1155,7 @@ export default function SoloOrdersPanel({
                   value={newTabLabel}
                   onChange={e => setNewTabLabel(e.target.value)}
                   placeholder="Ej: Pareja terraza, Juan..."
-                  className="w-full px-4 py-3 op-surface-2 border border-hair rounded-xl text-[#1b4235] placeholder:text-ash focus:outline-none focus:border-[#b88364] op-body"
+                  className="w-full px-4 py-3 op-surface-2 border border-hair rounded-xl text-snow placeholder:text-ash focus:outline-none focus:border-brass op-body"
                   autoFocus
                 />
               </div>
@@ -1165,7 +1165,7 @@ export default function SoloOrdersPanel({
             <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setShowNewSession(false)}
-                className="flex-1 py-2.5 border border-hair text-ash op-body font-medium rounded-lg hover:op-surface-2"
+                className="op-btn op-btn-ghost flex-1"
               >
                 Cancelar
               </button>
@@ -1176,7 +1176,7 @@ export default function SoloOrdersPanel({
                   (newTabType === 'TABLE' && !selectedTableId) ||
                   (newTabType === 'TAB' && !selectedCustomer)
                 }
-                className="flex-1 py-2.5 bg-[#b88364] text-white op-body font-semibold rounded-lg hover:bg-[#8a5d44] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="op-btn op-btn-primary flex-1"
               >
                 {creatingSession ? 'Creando…' : 'Abrir tab'}
               </button>
@@ -1210,14 +1210,14 @@ export default function SoloOrdersPanel({
             <div className="flex gap-3 pt-4">
               <button
                 onClick={() => { setCancelOrderId(null); setCancelPin(""); }}
-                className="flex-1 px-4 py-2 op-surface-2 text-snow-2 op-body font-medium rounded-lg hover:op-surface-2 transition-colors"
+                className="op-btn op-btn-ghost flex-1"
               >
                 Volver
               </button>
               <button
                 onClick={confirmCancelOrder}
                 disabled={cancelling}
-                className="flex-1 px-4 py-2 bg-red-600 text-white op-body font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                className="op-btn op-btn-danger flex-1"
               >
                 {cancelling ? 'Cancelando...' : 'Confirmar cancelación'}
               </button>

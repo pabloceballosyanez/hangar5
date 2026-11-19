@@ -167,9 +167,9 @@ export default function WaiterHomePage() {
 
       {/* Error */}
       {error && (
-        <div className="mx-4 mt-4 p-3 bg-red-950/50 border border-red-700/40 rounded-xl text-sm text-red-300">
+        <div className="mx-4 mt-4 p-3 bg-red-950/50 border border-red-700/40 rounded-xl op-body text-red-300">
           {error}
-          <button onClick={() => loadSessions()} className="text-red-400 underline text-xs ml-3">Reintentar</button>
+          <button onClick={() => loadSessions()} className="underline op-small ml-3 text-bad">Reintentar</button>
         </div>
       )}
 

@@ -144,7 +144,7 @@ function ItemModal({
         {/* Header */}
         <div className="flex items-start justify-between px-5 pb-4 flex-none border-b border-hair">
           <div className="flex-1 mr-3">
-            <h2 className="font-bold text-[#1b4235] op-lead leading-tight">{item.name}</h2>
+            <h2 className="font-bold text-snow op-lead leading-tight">{item.name}</h2>
             {item.description && (
               <p className="op-body text-ash mt-1 leading-relaxed">{item.description}</p>
             )}
@@ -152,7 +152,7 @@ function ItemModal({
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full op-surface-2 text-ash hover:text-snow-2 hover:op-surface-2 transition-colors"
+            className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full op-surface-2 text-ash hover:text-snow-2 transition-colors"
           >
             ✕
           </button>
@@ -163,7 +163,7 @@ function ItemModal({
           {/* Variants */}
           {item.variants.length > 0 && (
             <section>
-              <h3 className="font-bold text-[#b88364] op-small uppercase tracking-widest mb-2.5">Variante</h3>
+              <h3 className="font-bold text-brass op-small uppercase tracking-widest mb-2.5">Variante</h3>
               <div className="space-y-2">
                 {item.variants.map((v) => (
                   <label
@@ -171,7 +171,7 @@ function ItemModal({
                     className={`flex items-center justify-between min-h-[52px] px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${ selectedVariantId === v.id ? 'border-brass bg-brass/10' : 'border-hair hover:border-hair' }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${ selectedVariantId === v.id ? 'border-[#b88364] bg-[#b88364]' : 'border-hair' }`}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${ selectedVariantId === v.id ? 'border-brass bg-brass' : 'border-hair' }`}>
                         {selectedVariantId === v.id && <div className="w-2 h-2 rounded-full op-surface" />}
                       </div>
                       <input
@@ -181,7 +181,7 @@ function ItemModal({
                         checked={selectedVariantId === v.id}
                         onChange={() => onVariantChange(v.id)}
                       />
-                      <span className="text-[#1b4235] font-medium">{v.name}</span>
+                      <span className="text-snow font-medium">{v.name}</span>
                     </div>
                     {v.priceDelta !== 0 && (
                       <span className=" font-mono font-bold op-body">
@@ -198,7 +198,7 @@ function ItemModal({
           {item.modifierGroups.map((group) => (
             <section key={group.id}>
               <div className="flex items-center gap-2 mb-2.5 flex-wrap">
-                <h3 className="font-bold text-[#b88364] op-small uppercase tracking-widest">{group.name}</h3>
+                <h3 className="font-bold text-brass op-small uppercase tracking-widest">{group.name}</h3>
                 {group.isRequired && (
                   <span className="op-small op-bad px-2 py-0.5 rounded-full font-semibold border ">
                     Requerido
@@ -216,7 +216,7 @@ function ItemModal({
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${ selectedModIds.has(mod.id) ? 'border-[#b88364] bg-[#b88364]' : 'border-hair' }`}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${ selectedModIds.has(mod.id) ? 'border-brass bg-brass' : 'border-hair' }`}
                       >
                         {selectedModIds.has(mod.id) && (
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -230,7 +230,7 @@ function ItemModal({
                         checked={selectedModIds.has(mod.id)}
                         onChange={() => onToggleMod(group, mod.id)}
                       />
-                      <span className="text-[#1b4235] font-medium">{mod.name}</span>
+                      <span className="text-snow font-medium">{mod.name}</span>
                     </div>
                     {mod.priceDelta !== 0 && (
                       <span className=" font-mono font-bold op-body">
@@ -245,13 +245,13 @@ function ItemModal({
 
           {/* Special instructions */}
           <section>
-            <h3 className="font-bold text-[#b88364] op-small uppercase tracking-widest mb-2.5">Nota especial</h3>
+            <h3 className="font-bold text-brass op-small uppercase tracking-widest mb-2.5">Nota especial</h3>
             <textarea
               value={notes}
               onChange={(e) => onNotesChange(e.target.value)}
               placeholder="Sin cilantro, extra picante, sin sal…"
               rows={2}
-              className="w-full op-surface-2 border border-hair text-[#1b4235] placeholder:text-smoke px-4 py-3 rounded-xl op-body focus:outline-none focus:border-[#b88364] resize-none transition-all"
+              className="w-full op-surface-2 border border-hair text-snow placeholder:text-smoke px-4 py-3 rounded-xl op-body focus:outline-none focus:border-brass resize-none transition-all"
             />
           </section>
         </div>
@@ -262,14 +262,14 @@ function ItemModal({
           <div className="flex items-center justify-center gap-6">
             <button
               onClick={() => onQtyChange(Math.max(1, quantity - 1))}
-              className="w-12 h-12 rounded-xl op-surface-2 hover:op-surface-2 text-[#b88364] font-bold op-title flex items-center justify-center active:scale-90 transition-all border border-hair"
+              className="w-12 h-12 rounded-xl op-surface-2 text-brass font-bold op-lead flex items-center justify-center active:scale-95 transition-all border border-hair hover:border-brass/40"
             >
               −
             </button>
-            <span className="op-title font-bold text-[#1b4235] w-10 text-center">{quantity}</span>
+            <span className="op-title font-bold text-snow w-10 text-center">{quantity}</span>
             <button
               onClick={() => onQtyChange(quantity + 1)}
-              className="w-12 h-12 rounded-xl bg-[#b88364] hover:bg-[#a07256] text-white font-bold op-title flex items-center justify-center active:scale-90 transition-all shadow-sm"
+              className="w-12 h-12 rounded-xl bg-brass hover:bg-brass-soft text-ink font-bold op-lead flex items-center justify-center active:scale-95 transition-all"
             >
               +
             </button>
@@ -279,7 +279,7 @@ function ItemModal({
           <button
             onClick={onAdd}
             disabled={missingRequired}
-            className="w-full min-h-[56px] bg-[#b88364] hover:bg-[#a07256] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold op-body rounded-xl shadow-sm transition-all flex items-center justify-between px-5"
+            className="op-btn op-btn-primary w-full h-14 justify-between px-5"
           >
             <span>{missingRequired ? 'Elegí las opciones requeridas' : 'Agregar al pedido'}</span>
             <span className="font-mono op-lead">{formatPrice(totalPrice)}</span>
@@ -509,7 +509,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
         style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3 text-ash">
-            <svg className="animate-spin w-8 h-8 text-[#b88364]" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin w-8 h-8 text-brass" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
@@ -561,7 +561,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
       style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
       {/* Header */}
       <div className="px-4 pt-4 pb-2 border-b border-hair flex-shrink-0">
-        <h2 className="op-lead font-bold text-[#1b4235]">Menú</h2>
+        <h2 className="op-lead font-bold text-snow">Menú</h2>
         <p className="op-small text-ash mt-0.5">Tocá un platillo para elegir opciones</p>
       </div>
 
@@ -572,7 +572,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar platillo o bebida…"
-          className="w-full op-surface-2 border border-hair text-[#1b4235] placeholder:text-smoke px-4 py-2.5 rounded-xl op-body focus:outline-none focus:border-[#b88364] transition-all"
+          className="w-full op-surface-2 border border-hair text-snow placeholder:text-smoke px-4 py-2.5 rounded-xl op-body focus:outline-none focus:border-brass transition-all"
         />
       </div>
 
@@ -585,7 +585,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategoryId(cat.id)}
-                className={`px-3 py-1.5 rounded-full op-small font-semibold whitespace-nowrap transition-all border ${ activeCategoryId === cat.id ? 'bg-[#b88364] text-white border-[#b88364] shadow-sm' : 'op-surface-2 text-ash border-hair hover:border-[#b88364]/40 hover:text-[#b88364]' }`}
+                className={`px-3.5 h-9 inline-flex items-center rounded-full op-small font-semibold whitespace-nowrap transition-all border ${ activeCategoryId === cat.id ? 'bg-brass text-white border-brass shadow-sm' : 'op-surface-2 text-ash border-hair hover:border-brass/40 hover:text-brass' }`}
               >
                 {cat.name}
               </button>
@@ -605,11 +605,11 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                   key={item.id}
                   type="button"
                   onClick={() => openItem(item)}
-                  className="op-surface border border-hair rounded-lg shadow-sm p-4 flex flex-col text-left hover:border-[#b88364]/40 hover:shadow transition-all active:scale-[0.98]"
+                  className="op-surface rounded-xl p-4 flex flex-col text-left hover:border-brass/40 transition-colors min-h-[104px] hover:shadow transition-all active:scale-[0.98]"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">
-                      <h3 className="op-body font-semibold text-[#1b4235] leading-tight">
+                      <h3 className="op-body font-semibold text-snow leading-tight">
                         {item.name}
                       </h3>
                       {item.description && (
@@ -619,7 +619,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                       )}
                     </div>
                     <div
-                      className="flex-shrink-0 w-8 h-8 rounded-full bg-[#b88364] text-white flex items-center justify-center shadow-sm"
+                      className="flex-shrink-0 w-8 h-8 rounded-full bg-brass text-white flex items-center justify-center shadow-sm"
                       title="Elegir opciones"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
@@ -671,17 +671,17 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                   <button
                     type="button"
                     onClick={() => updateQuantity(entry.id, -1)}
-                    className="w-6 h-6 rounded-full border border-hair flex items-center justify-center text-ash hover:op-surface-2 transition-colors op-small"
+                    className="w-7 h-7 rounded-full border border-hair flex items-center justify-center text-ash hover:text-snow transition-colors op-small"
                   >
                     −
                   </button>
-                  <span className="w-5 text-center op-small font-medium text-[#1b4235]">
+                  <span className="w-5 text-center op-small font-medium text-snow">
                     {entry.quantity}
                   </span>
                   <button
                     type="button"
                     onClick={() => updateQuantity(entry.id, 1)}
-                    className="w-6 h-6 rounded-full border border-hair flex items-center justify-center text-ash hover:op-surface-2 transition-colors op-small"
+                    className="w-7 h-7 rounded-full border border-hair flex items-center justify-center text-ash hover:text-snow transition-colors op-small"
                   >
                     +
                   </button>
@@ -689,7 +689,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
 
                 {/* Item name + details */}
                 <div className="flex-1 min-w-0">
-                  <span className="op-small text-[#1b4235] font-medium leading-tight">
+                  <span className="op-small text-snow font-medium leading-tight">
                     {entry.name}
                     {entry.variantName && <span className="text-ash"> · {entry.variantName}</span>}
                   </span>
@@ -710,7 +710,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                 <button
                   type="button"
                   onClick={() => removeFromCart(entry.id)}
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-ash hover: hover:op-bad transition-colors shrink-0"
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-ash hover:text-bad transition-colors shrink-0"
                   title="Quitar del pedido"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
@@ -736,7 +736,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
               type="button"
               onClick={handleSendToKitchen}
               disabled={sending}
-              className="px-5 py-2.5 bg-[#b88364] text-white op-body font-semibold rounded-lg hover:bg-[#a07256] active:bg-[#8f654c] disabled:opacity-60 transition-colors shadow-sm whitespace-nowrap flex items-center gap-2"
+              className="px-5 py-2.5 bg-brass text-white op-body font-semibold rounded-lg hover:bg-brass-soft active:bg-[#8f654c] disabled:opacity-60 transition-colors shadow-sm whitespace-nowrap flex items-center gap-2"
             >
               {sending ? (
                 <>

@@ -212,8 +212,8 @@ export default function KDSPage() {
       {orders.length === 0 ? (
         <div className="p-6">
           <div className="op-surface rounded-xl p-16 text-center">
-            <p className="text-xl font-medium text-ash">No hay órdenes activas</p>
-            <p className="text-sm text-smoke mt-1">Todo está al día en cocina.</p>
+            <p className="op-lead font-medium text-ash">No hay órdenes activas</p>
+            <p className="op-body text-smoke mt-1">Todo está al día en cocina.</p>
           </div>
         </div>
       ) : (
@@ -224,7 +224,7 @@ export default function KDSPage() {
 
             return (
               <div key={station} className="space-y-3">
-                <h2 className="text-lg font-bold px-1 text-snow">
+                <h2 className="op-lead font-bold px-1 text-snow">
                   {stationLabel[station] || station}
                   <span className="op-small font-normal text-smoke ml-2">
                     ({stationOrders.length})
@@ -234,13 +234,7 @@ export default function KDSPage() {
                 {stationOrders.map((order) => (
                   <div
                     key={order.id}
-                    className={`rounded-xl p-4 ${
-                      order.urgency === 'high'
-                        ? 'op-bad'
-                        : order.urgency === 'medium'
-                          ? 'op-warn'
-                          : 'op-good'
-                    }`}
+                    className={`rounded-xl p-4 ${ order.urgency === 'high' ? 'op-bad' : order.urgency === 'medium' ? 'op-warn' : 'op-good' }`}
                   >
                     <div className="flex items-center justify-between mb-3 pb-2 border-b border-hair">
                       <div>
@@ -250,7 +244,7 @@ export default function KDSPage() {
                               <span className="op-lead text-snow">
                                 {order.customerName}
                               </span>
-                              <span className="text-xs bg-brass/15 text-brass px-1.5 py-0.5 rounded font-bold">📱</span>
+                              <span className="op-small bg-brass/15 text-brass px-1.5 py-0.5 rounded font-bold">📱</span>
                             </div>
                             <p className="op-small text-smoke mt-1">
                               📍 Mesa {order.tableNumber}
@@ -282,19 +276,13 @@ export default function KDSPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-bold text-snow">
+                        <span className="op-body font-bold text-snow">
                           {order.elapsed < 60
                             ? `${order.elapsed} min`
                             : `${Math.floor(order.elapsed / 60)}h ${order.elapsed % 60}m`}
                         </span>
                         <span
-                          className={`inline-block w-4 h-4 rounded-full ${
-                            order.urgency === 'high'
-                              ? 'bg-red-500'
-                              : order.urgency === 'medium'
-                                ? 'bg-amber-500'
-                                : 'bg-green-500'
-                          }`}
+                          className={`inline-block w-4 h-4 rounded-full ${ order.urgency === 'high' ? 'bg-red-500' : order.urgency === 'medium' ? 'bg-amber-500' : 'bg-green-500' }`}
                         />
                       </div>
                     </div>
@@ -307,11 +295,11 @@ export default function KDSPage() {
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 min-w-0">
-                              <p className="text-base font-bold text-snow">
+                              <p className="op-body font-bold text-snow">
                                 {item.quantity}x {item.menuItemName}
                               </p>
                               {item.variantName && (
-                                <p className="text-sm text-ash">
+                                <p className="op-body text-ash">
                                   Variante: {item.variantName}
                                 </p>
                               )}
@@ -320,7 +308,7 @@ export default function KDSPage() {
                                   {item.modifiers.map((mod, mi) => (
                                     <span
                                       key={mi}
-                                      className="text-xs bg-ink-3 text-ash px-2 py-0.5 rounded-full border border-hair"
+                                      className="op-small bg-ink-3 text-ash px-2 py-0.5 rounded-full border border-hair"
                                     >
                                       {mod.modifierName}
                                     </span>
@@ -328,7 +316,7 @@ export default function KDSPage() {
                                 </div>
                               )}
                               {item.specialInstructions && (
-                                <p className="text-sm text-yellow-400 font-medium mt-1 italic">
+                                <p className="op-body text-yellow-400 font-medium mt-1 italic">
                                   ⚠️ {item.specialInstructions}
                                 </p>
                               )}
@@ -343,7 +331,7 @@ export default function KDSPage() {
                       ))}
                     </div>
 
-                    <div className="mt-2 text-xs text-smoke text-right">
+                    <div className="mt-2 op-small text-smoke text-right">
                       {sourceLabel[order.source] || order.source}
                     </div>
                   </div>

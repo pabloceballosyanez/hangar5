@@ -25,11 +25,11 @@ export default function SoloPage() {
           Mesero. Antes era blanca mientras las otras eran oscuras:
           tres pantallas del mismo turno parecían de tres apps. */}
       <header className="shrink-0 op-header">
-        <div className="flex items-baseline gap-3 min-w-0">
+        <div className="min-w-0">
           <h1 className="op-title text-snow">Modo Solo</h1>
-          <span className="op-small text-smoke hidden sm:inline truncate">
+          <p className="op-small text-smoke truncate">
             Mesero · Cocina · Cobro
-          </span>
+          </p>
         </div>
         <Link
           href="/admin/restaurant"

@@ -320,7 +320,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
       <div className="h-full flex flex-col op-surface">
         {/* Header */}
         <div className="px-4 py-3 border-b border-hair flex items-center justify-between shrink-0">
-          <h1 className="op-body font-bold text-[#1b4235] uppercase tracking-wider">
+          <h1 className="op-body font-bold text-snow uppercase tracking-wider">
             Cocina
           </h1>
           <span className="text-[10px] text-ash">
@@ -346,7 +346,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
       {/* Header */}
       <div className="px-4 py-3 border-b border-hair flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <h1 className="op-body font-bold text-[#1b4235] uppercase tracking-wider">
+          <h1 className="op-body font-bold text-snow uppercase tracking-wider">
             Cocina
           </h1>
           <span className="text-[10px] op-good px-1.5 py-0.5 rounded-full font-medium animate-pulse">
@@ -388,7 +388,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
                         {/* Table info */}
                         {order.table ? (
                           <div className="flex items-baseline gap-1.5">
-                            <span className="op-body font-black text-[#1b4235] leading-none">
+                            <span className="op-body font-black text-snow leading-none">
                               {order.table.number}
                             </span>
                             {order.table.name && (
@@ -398,7 +398,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
                             )}
                           </div>
                         ) : (
-                          <span className="op-body font-black text-[#1b4235]">—</span>
+                          <span className="op-body font-black text-snow">—</span>
                         )}
 
                         {/* Customer name */}
@@ -435,7 +435,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
                           <button
                             onClick={() => markItemReady(order.orderId, item.id)}
                             disabled={optimisticReadyItems.has(item.id)}
-                            className={`shrink-0 mt-0.5 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all active:scale-95 ${ optimisticReadyItems.has(item.id) ? 'bg-green-600 text-white' : 'op-surface border-hair text-ash hover:op-good' }`}
+                            className={`shrink-0 mt-0.5 w-7 h-7 rounded-md border-2 flex items-center justify-center transition-all active:scale-95 ${ optimisticReadyItems.has(item.id) ? 'bg-green-600 text-white' : 'op-surface border-hair text-ash hover:op-good' }`}
                             title="Marcar este platillo como listo"
                             aria-label={`Marcar ${item.menuItem} como listo`}
                           >
@@ -448,7 +448,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-baseline gap-1">
-                              <span className="op-small font-bold text-[#1b4235]">
+                              <span className="op-small font-bold text-snow">
                                 {item.quantity}× {item.menuItem}
                               </span>
                               {item.variant && (
@@ -511,17 +511,17 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
       <div className="shrink-0 px-4 py-2 border-t border-hair op-surface-2/50">
         <div className="flex gap-2">
           <div className="flex-1 text-center px-2 py-1.5 op-surface rounded border border-hair">
-            <div className="op-small font-bold text-[#1b4235]">{totalItems}</div>
+            <div className="op-small font-bold text-snow">{totalItems}</div>
             <div className="text-[9px] text-ash">Pendientes</div>
           </div>
           <div className={`flex-1 text-center px-2 py-1.5 op-surface rounded border ${urgentCount > 0 ? '' : 'border-hair'}`}>
-            <div className={`op-small font-bold ${urgentCount > 0 ? '' : 'text-[#1b4235]'}`}>
+            <div className={`op-small font-bold ${urgentCount > 0 ? '' : 'text-snow'}`}>
               {urgentCount}
             </div>
             <div className="text-[9px] text-ash">Urgentes</div>
           </div>
           <div className="flex-1 text-center px-2 py-1.5 op-surface rounded border border-hair">
-            <div className="op-small font-bold text-[#1b4235]">
+            <div className="op-small font-bold text-snow">
               {formatElapsed(avgWaitSeconds)}
             </div>
             <div className="text-[9px] text-ash">Promedio</div>
