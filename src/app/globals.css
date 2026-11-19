@@ -342,3 +342,40 @@ html {
   font-feature-settings: "tnum" 1;
 }
 
+
+/* ============================================================
+   CAMPOS DE FORMULARIO — legibilidad garantizada
+
+   Problema: 134 de 139 campos del admin no declaraban color de
+   texto, así que heredaban el del navegador. En varios navegadores
+   y temas eso sale gris claro sobre blanco y el dato no se ve.
+
+   Se fija aquí, una sola vez, en la capa base: cualquier input,
+   select o textarea toma este color salvo que declare otro.
+
+   Contraste sobre blanco (WCAG AA pide 4.5):
+     texto        #111827   17.7:1
+     placeholder  #6b7280    4.8:1
+
+   El placeholder va más claro que el valor a propósito: así se
+   distingue "esto está vacío" de "esto tiene un dato".
+   ============================================================ */
+@layer base {
+  input,
+  select,
+  textarea {
+    color: #111827;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #6b7280;
+    opacity: 1; /* Firefox lo baja a 0.54 por su cuenta */
+  }
+
+  /* En fondos oscuros se respeta lo que declare la clase. */
+  .input-night,
+  .input-night::placeholder {
+    color: inherit;
+  }
+}
