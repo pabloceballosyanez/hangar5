@@ -379,3 +379,140 @@ html {
     color: inherit;
   }
 }
+
+/* ============================================================
+   TOKENS DE OPERACIÓN — KDS · Mesero · Modo Solo · Despegue
+
+   Las cuatro pantallas de piso se escribieron en momentos distintos y
+   cada una inventó sus tamaños, pesos y botones. Resultado: el KDS
+   parecía de otra app que el Modo Solo.
+
+   Aquí queda una sola escala. Las pantallas usan estas clases en vez de
+   improvisar text-lg / text-2xl / text-[10px] en cada archivo.
+
+   ── La escala ─────────────────────────────────────────────────
+   Son seis pasos, sin excepciones. En una tablet a un brazo de
+   distancia, doce tamaños distintos no ayudan: estorban.
+
+     op-micro   11px   etiquetas, códigos
+     op-small   13px   datos secundarios, horas
+     op-body    15px   texto normal
+     op-lead    18px   nombre de platillo
+     op-title   24px   encabezado de columna
+     op-hero    34px   título de pantalla
+
+   ── Los pesos ─────────────────────────────────────────────────
+   Tres, no cinco: 600 para etiquetas, 700 para datos, 800 para
+   títulos. El 400 solo en texto corrido.
+
+   ── Y por qué importa ─────────────────────────────────────────
+   Todo esto es una decisión, no nueve. Cambiar la escala completa se
+   hace aquí y baja a las cuatro pantallas a la vez.
+   ============================================================ */
+@layer components {
+  /* ── Tipografía ── */
+  .op-micro {
+    font-size: 11px; line-height: 1.35;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    font-weight: 600;
+  }
+  .op-small { font-size: 13px; line-height: 1.45; }
+  .op-body  { font-size: 15px; line-height: 1.5; }
+  .op-lead  { font-size: 18px; line-height: 1.35; font-weight: 700; }
+  .op-title {
+    font-size: 24px; line-height: 1.2; font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .op-hero {
+    font-family: var(--font-display), Georgia, serif;
+    font-size: 34px; line-height: 1.1; font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Superficies sobre fondo oscuro ── */
+  .op-surface   { background: var(--color-ink-2); border: 1px solid var(--color-hair); }
+  .op-surface-2 { background: var(--color-ink-3); border: 1px solid var(--color-hair); }
+
+  /* ── Estados: los cuatro, con el mismo peso visual ──
+     Antes "listo" era verde-500 en el KDS, emerald-500 en el mesero y
+     green-600 en el Modo Solo. Tres verdes para la misma cosa. */
+  .op-good {
+    background: rgba(126, 156, 130, 0.14);
+    border: 1px solid rgba(126, 156, 130, 0.45);
+    color: #A8C4AC;
+  }
+  .op-warn {
+    background: rgba(192, 160, 85, 0.14);
+    border: 1px solid rgba(192, 160, 85, 0.45);
+    color: #DCC282;
+  }
+  .op-bad {
+    background: rgba(181, 105, 92, 0.14);
+    border: 1px solid rgba(181, 105, 92, 0.45);
+    color: #D89A8E;
+  }
+  .op-neutral {
+    background: rgba(244, 244, 244, 0.07);
+    border: 1px solid var(--color-hair);
+    color: var(--color-ash);
+  }
+
+  /* Punto de estado — misma forma en todas las pantallas */
+  .op-dot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 999px; flex-shrink: 0;
+  }
+
+  /* ── Botones ──
+     Una sola altura (44px, tamaño de dedo), un solo radio (10px).
+     El primario es la acción que cierra la tarea; el resto es
+     secundario y no compite. */
+  .op-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; height: 44px; padding: 0 18px;
+    border-radius: 10px; font-size: 15px; font-weight: 700;
+    transition: background-color 140ms ease, border-color 140ms ease, opacity 140ms ease;
+    cursor: pointer; border: 1px solid transparent; white-space: nowrap;
+  }
+  .op-btn:disabled { opacity: 0.42; cursor: not-allowed; }
+  .op-btn:active:not(:disabled) { transform: scale(0.985); }
+
+  .op-btn-primary { background: var(--color-brass); color: #17150F; }
+  .op-btn-primary:hover:not(:disabled) { background: var(--color-brass-soft); }
+
+  .op-btn-ghost {
+    background: transparent; color: var(--color-snow);
+    border-color: var(--color-hair);
+  }
+  .op-btn-ghost:hover:not(:disabled) { background: rgba(244, 244, 244, 0.06); }
+
+  .op-btn-danger {
+    background: rgba(181, 105, 92, 0.16);
+    border-color: rgba(181, 105, 92, 0.5);
+    color: #D89A8E;
+  }
+  .op-btn-danger:hover:not(:disabled) { background: rgba(181, 105, 92, 0.26); }
+
+  .op-btn-sm { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+
+  /* ── Etiqueta de estado (pill) ── */
+  .op-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ── Encabezado de pantalla ──
+     Mismo alto, mismo orden y mismo borde en las tres: lo que cambia es
+     solo el nombre. */
+  .op-header {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: 12px 20px;
+    background: rgba(11, 11, 11, 0.94);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--color-hair);
+  }
+}

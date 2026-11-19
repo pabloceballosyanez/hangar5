@@ -37,8 +37,8 @@ export function MarkReadyButton({
 
   if (done) {
     return (
-      <span className="shrink-0 px-2 py-1 text-xs font-medium text-emerald-700 bg-emerald-100 rounded-lg">
-        Listo ✓
+      <span className="op-pill op-good shrink-0">
+        Listo
       </span>
     );
   }
@@ -47,7 +47,7 @@ export function MarkReadyButton({
     <button
       onClick={handleClick}
       disabled={loading}
-      className="shrink-0 min-w-[76px] px-3 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-1"
+      className="op-btn op-btn-primary op-btn-sm shrink-0 min-w-[84px]"
     >
       {loading ? (
         <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />

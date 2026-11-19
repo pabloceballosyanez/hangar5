@@ -183,22 +183,22 @@ export default function KDSPage() {
       {/* Encabezado. Antes el KDS entraba a pelo, sin forma de salir: en
           una tablet con la pantalla bloqueada no había vuelta al admin.
           Ahora lleva el mismo encabezado que la barra del Despegue. */}
-      <header className="border-b border-hair px-4 py-3 flex items-center justify-between gap-3">
+      <header className="op-header">
         <div className="min-w-0">
-          <h1 className="font-[family-name:var(--font-display)] text-xl text-snow">KDS Cocina</h1>
-          <p className="text-xs text-smoke">
+          <h1 className="op-title text-snow">Cocina</h1>
+          <p className="op-small text-smoke">
             {orders.length} {orders.length === 1 ? 'orden en curso' : 'órdenes en curso'}
             {' · '}
             <span className="text-brass">en vivo</span>
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="hidden sm:inline text-[11px] text-smoke tabular-nums">
+          <span className="hidden sm:inline op-micro text-smoke tabular-nums">
             {lastRefresh.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </span>
           <button
             onClick={fetchOrders}
-            className="text-xs px-3 py-2 rounded-lg border border-hair text-ash hover:text-snow transition-colors"
+            className="op-btn op-btn-ghost op-btn-sm"
           >
             Actualizar
           </button>
@@ -211,7 +211,7 @@ export default function KDSPage() {
 
       {orders.length === 0 ? (
         <div className="p-6">
-          <div className="rounded-xl border border-hair bg-ink-2 p-16 text-center">
+          <div className="op-surface rounded-xl p-16 text-center">
             <p className="text-xl font-medium text-ash">No hay órdenes activas</p>
             <p className="text-sm text-smoke mt-1">Todo está al día en cocina.</p>
           </div>
@@ -226,7 +226,7 @@ export default function KDSPage() {
               <div key={station} className="space-y-3">
                 <h2 className="text-lg font-bold px-1 text-snow">
                   {stationLabel[station] || station}
-                  <span className="text-sm font-normal text-smoke ml-2">
+                  <span className="op-small font-normal text-smoke ml-2">
                     ({stationOrders.length})
                   </span>
                 </h2>
@@ -234,12 +234,12 @@ export default function KDSPage() {
                 {stationOrders.map((order) => (
                   <div
                     key={order.id}
-                    className={`rounded-xl border-2 p-4 ${
+                    className={`rounded-xl p-4 ${
                       order.urgency === 'high'
-                        ? 'border-bad bg-bad/10'
+                        ? 'op-bad'
                         : order.urgency === 'medium'
-                          ? 'border-brass-dim bg-brass/10'
-                          : 'border-good bg-good/10'
+                          ? 'op-warn'
+                          : 'op-good'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-3 pb-2 border-b border-hair">
@@ -247,12 +247,12 @@ export default function KDSPage() {
                         {order.source === "QR" && order.customerName ? (
                           <>
                             <div className="flex items-center gap-2">
-                              <span className="text-xl font-black text-snow">
-                                👤 {order.customerName}
+                              <span className="op-lead text-snow">
+                                {order.customerName}
                               </span>
                               <span className="text-xs bg-brass/15 text-brass px-1.5 py-0.5 rounded font-bold">📱</span>
                             </div>
-                            <p className="text-xs text-smoke mt-0.5">
+                            <p className="op-small text-smoke mt-1">
                               📍 Mesa {order.tableNumber}
                               {order.tableName ? ` · ${order.tableName}` : ""}
                             </p>
@@ -260,22 +260,22 @@ export default function KDSPage() {
                         ) : (
                           <>
                             <div className="flex items-center gap-2">
-                              <span className="text-3xl font-black text-snow">
+                              <span className="op-hero text-snow">
                                 {order.tableNumber}
                               </span>
                               {order.tableName && (
-                                <span className="text-xs text-smoke">
+                                <span className="op-small text-smoke">
                                   {order.tableName}
                                 </span>
                               )}
                             </div>
                             {order.customerName && (
-                              <p className="text-xs text-ash mt-0.5">👤 {order.customerName}</p>
+                              <p className="op-small text-ash mt-1">👤 {order.customerName}</p>
                             )}
                           </>
                         )}
                         {order.paymentMethod && (
-                          <p className="text-xs text-smoke mt-0.5">
+                          <p className="op-small text-smoke mt-1">
                             {order.paymentMethod === "CASH" ? "💵 Efectivo" : order.paymentMethod === "MP" ? "💳 Tarjeta" : order.paymentMethod}
                             {order.paymentStatus === "COMPLETED" ? " ✅" : order.paymentStatus === "PENDING" ? " ⏳" : ""}
                           </p>

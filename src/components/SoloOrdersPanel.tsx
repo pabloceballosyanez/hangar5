@@ -71,17 +71,17 @@ interface SoloOrdersPanelProps {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const STATUS_LABELS: Record<string, { label: string; bg: string; text: string }> = {
-  DRAFT: { label: 'Borrador', bg: 'bg-gray-100', text: 'text-gray-600' },
+  DRAFT: { label: 'Borrador', bg: 'op-surface-2', text: 'text-ash' },
   PLACED: { label: 'Enviada', bg: 'bg-blue-100', text: 'text-blue-700' },
   IN_KITCHEN: { label: 'En Cocina', bg: 'bg-amber-100', text: 'text-amber-800' },
   READY: { label: 'Lista', bg: 'bg-green-100', text: 'text-green-800' },
   SERVED: { label: 'Entregada', bg: 'bg-purple-100', text: 'text-purple-800' },
-  PAID: { label: 'Pagada', bg: 'bg-gray-100', text: 'text-gray-500' },
+  PAID: { label: 'Pagada', bg: 'op-surface-2', text: 'text-smoke' },
   CANCELLED: { label: 'Cancelada', bg: 'bg-red-100', text: 'text-red-600' },
 };
 
 const ITEM_STATUS_LABELS: Record<string, { label: string; color: string; icon: string }> = {
-  PENDING: { label: 'Pendiente', color: 'text-gray-400', icon: '⏳' },
+  PENDING: { label: 'Pendiente', color: 'text-smoke', icon: '⏳' },
   IN_PREP: { label: 'En prep', color: 'text-amber-500', icon: '👨‍🍳' },
   READY: { label: 'Listo', color: 'text-green-500', icon: '✅' },
   SERVED: { label: 'Entregado', color: 'text-purple-500', icon: '🍽️' },
@@ -125,12 +125,15 @@ function getSessionUrgency(session: SessionSummary): Urgency {
 }
 
 const URGENCY_CONFIG: Record<Urgency, { bg: string; border: string; badge: string; label: string; }> = {
-  empty:         { bg: 'bg-white',             border: 'border-gray-200', badge: 'bg-gray-100 text-gray-400', label: 'Vacío' },
-  active:        { bg: 'bg-amber-50/40',       border: 'border-gray-200', badge: 'bg-amber-100 text-amber-700', label: 'En cocina' },
-  partial_ready: { bg: 'bg-amber-50/60',       border: 'border-gray-200', badge: 'bg-orange-100 text-orange-700', label: 'Parcial' },
-  all_ready:     { bg: 'bg-green-50',          border: 'border-green-300', badge: 'bg-green-600 text-white animate-pulse', label: '¡Listo!' },
-  served:        { bg: 'bg-gray-50 opacity-60', border: 'border-gray-200', badge: 'bg-gray-100 text-gray-400', label: 'Entregado' },
-};
+    /* Mismos cuatro estados que el KDS y el Mesero, con los mismos
+       tonos. Antes esta tabla inventaba su propia paleta: ámbar, naranja
+       y verde brillante, distintos a los del resto de la app. */
+    empty:         { bg: 'op-surface',   border: '', badge: 'op-neutral', label: 'Vacío' },
+    active:        { bg: 'op-warn',      border: '', badge: 'op-warn',    label: 'En cocina' },
+    partial_ready: { bg: 'op-warn',      border: '', badge: 'op-warn',    label: 'Parcial' },
+    all_ready:     { bg: 'op-good',      border: '', badge: 'op-good',    label: '¡Listo!' },
+    served:        { bg: 'op-surface-2', border: '', badge: 'op-neutral', label: 'Entregado' },
+  };
 
 /**
  * Un color fijo por cuenta.
@@ -263,43 +266,43 @@ function PaymentSheet({
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-t-3xl max-h-[80dvh] flex flex-col border border-gray-200 shadow-2xl">
+      <div className="relative op-surface rounded-t-3xl max-h-[80dvh] flex flex-col border border-hair shadow-2xl">
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 bg-gray-300 rounded-full" />
+          <div className="w-10 h-1 bg-hair rounded-full" />
         </div>
 
         {/* Header */}
-        <div className="px-5 py-4 border-b border-gray-200">
-          <h2 className="font-bold text-gray-900 text-xl">💳 Cobrar</h2>
-          <p className="text-xs text-gray-500 mt-1">{sessionLabel}</p>
+        <div className="px-5 py-4 border-b border-hair">
+          <h2 className="font-bold text-snow op-lead">💳 Cobrar</h2>
+          <p className="op-small text-ash mt-1">{sessionLabel}</p>
         </div>
 
         {/* Order summary */}
         <div className="overflow-y-auto flex-1 px-5 py-4">
           {activeOrders.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4">Sin pedidos pendientes</p>
+            <p className="op-body text-ash text-center py-4">Sin pedidos pendientes</p>
           ) : (
             <div className="space-y-3">
               {activeOrders.map((o, oIdx) => (
                 <div key={o.id}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-xs font-semibold text-gray-500">
+                    <p className="op-small font-semibold text-ash">
                       Orden {oIdx + 1} · {STATUS_LABELS[o.status]?.label ?? o.status} · {fmtTime(o.createdAt)}
                     </p>
-                    <span className="text-sm font-semibold text-gray-900">{fmt(o.total)}</span>
+                    <span className="op-body font-semibold text-snow">{fmt(o.total)}</span>
                   </div>
                   <div className="space-y-1">
                     {(o.orderItems || []).map(item => (
-                      <div key={item.id} className="flex items-start gap-2 text-sm">
-                        <span className="text-gray-500 font-mono text-xs w-8 shrink-0 text-right">
+                      <div key={item.id} className="flex items-start gap-2 op-body">
+                        <span className="text-ash font-mono op-small w-8 shrink-0 text-right">
                           {item.quantity}×
                         </span>
-                        <span className="text-gray-700 flex-1 leading-tight">
+                        <span className="text-snow-2 flex-1 leading-tight">
                           {item.menuItem.name}
-                          {item.variant && <span className="text-gray-500"> · {item.variant.name}</span>}
+                          {item.variant && <span className="text-ash"> · {item.variant.name}</span>}
                         </span>
-                        <span className="text-gray-900 font-mono text-xs shrink-0">
+                        <span className="text-snow font-mono op-small shrink-0">
                           {fmt(item.unitPrice * item.quantity / 100)}
                         </span>
                       </div>
@@ -312,21 +315,21 @@ function PaymentSheet({
         </div>
 
         {/* Payment footer */}
-        <div className="px-5 py-4 border-t border-gray-200 bg-gray-50 rounded-b-3xl">
+        <div className="px-5 py-4 border-t border-hair op-surface-2 rounded-b-3xl">
           <div className="flex justify-between mb-4">
-            <span className="font-bold text-gray-900 text-lg">Total</span>
-            <span className="font-black text-gray-900 text-2xl font-mono">{fmt(grandTotal)}</span>
+            <span className="font-bold text-snow op-lead">Total</span>
+            <span className="font-black text-snow op-title font-mono">{fmt(grandTotal)}</span>
           </div>
 
           {paid ? (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-center">
-              <p className="text-green-600 font-bold text-lg">✅ Cobrado</p>
+            <div className="p-4 op-good border rounded-xl text-center">
+              <p className=" font-bold op-lead">✅ Cobrado</p>
             </div>
           ) : (
             <>
-              <p className="text-xs text-gray-500 mb-3 text-center">Seleccioná método de pago</p>
+              <p className="op-small text-ash mb-3 text-center">Seleccioná método de pago</p>
               {payError && (
-                <p className="text-sm text-red-500 text-center mb-3 bg-red-50 py-1.5 rounded-lg">
+                <p className="op-body text-center mb-3 op-bad py-1.5 rounded-lg">
                   {payError}
                 </p>
               )}
@@ -336,16 +339,16 @@ function PaymentSheet({
                   disabled={paying || activeOrders.length === 0}
                   className="min-h-[64px] bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
                 >
-                  <span className="text-2xl">💵</span>
-                  <span className="text-xs">Efectivo</span>
+                  <span className="op-title">💵</span>
+                  <span className="op-small">Efectivo</span>
                 </button>
                 <button
                   onClick={() => handlePay('CARD')}
                   disabled={paying || activeOrders.length === 0}
                   className="min-h-[64px] bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
                 >
-                  <span className="text-2xl">💳</span>
-                  <span className="text-xs">Tarjeta</span>
+                  <span className="op-title">💳</span>
+                  <span className="op-small">Tarjeta</span>
                 </button>
                 {canCredit && (
                   <button
@@ -353,13 +356,13 @@ function PaymentSheet({
                     disabled={paying || activeOrders.length === 0}
                     className="min-h-[64px] bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
                   >
-                    <span className="text-2xl">📒</span>
-                    <span className="text-xs">Cuenta</span>
+                    <span className="op-title">📒</span>
+                    <span className="op-small">Cuenta</span>
                   </button>
                 )}
               </div>
               {paying && (
-                <p className="text-center text-sm text-gray-500 mt-3 animate-pulse">
+                <p className="text-center op-body text-ash mt-3 animate-pulse">
                   Procesando pago…
                 </p>
               )}
@@ -368,7 +371,7 @@ function PaymentSheet({
 
           <button
             onClick={onClose}
-            className="w-full mt-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold active:scale-95 transition-all"
+            className="w-full mt-4 py-3 op-surface-2 hover:op-surface-2 text-snow-2 rounded-xl font-semibold active:scale-95 transition-all"
           >
             Cerrar
           </button>
@@ -395,7 +398,7 @@ function OrderCard({
   delivering: boolean;
 }) {
   const [markingItem, setMarkingItem] = useState<string | null>(null);
-  const st = STATUS_LABELS[order.status] ?? { label: order.status, bg: 'bg-gray-100', text: 'text-gray-600' };
+  const st = STATUS_LABELS[order.status] ?? { label: order.status, bg: 'op-surface-2', text: 'text-ash' };
   const items = order.orderItems || [];
   const readyItems = items.filter(i => i.status === 'READY');
   const hasReady = readyItems.length > 0;
@@ -404,21 +407,19 @@ function OrderCard({
 
   return (
     <div
-      className={`bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden transition-opacity ${
-        isDelivered ? 'opacity-50' : ''
-      }`}
+      className={`op-surface border border-hair rounded-xl shadow-sm overflow-hidden transition-opacity ${ isDelivered ? 'opacity-50' : '' }`}
     >
       {/* Order header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-hair">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+          <span className="op-small font-mono text-ash op-surface-2 px-1.5 py-0.5 rounded">
             #{order.id.slice(-6).toUpperCase()}
           </span>
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
+          <span className={`op-small font-semibold px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
             {st.label}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+        <div className="flex items-center gap-1.5 op-small text-ash">
           <span>{elapsedDot(mins)}</span>
           <span>{mins} min</span>
         </div>
@@ -427,7 +428,7 @@ function OrderCard({
       {/* Order items */}
       <div className="px-4 py-3 space-y-2">
         {items.map(item => {
-          const itemSt = ITEM_STATUS_LABELS[item.status] ?? { label: item.status, color: 'text-gray-500', icon: '' };
+          const itemSt = ITEM_STATUS_LABELS[item.status] ?? { label: item.status, color: 'text-ash', icon: '' };
           const listo = item.status === 'READY' || item.status === 'SERVED';
           const cancelado = item.status === 'CANCELLED';
 
@@ -450,43 +451,33 @@ function OrderCard({
                   setMarkingItem(null);
                 }
               }}
-              className={`w-full text-left flex gap-3 rounded-xl px-2 py-2 -mx-2 transition-colors ${
-                cancelado
-                  ? 'opacity-40 cursor-not-allowed'
-                  : listo
-                    ? 'bg-green-50 border border-green-300'
-                    : 'border border-gray-200 hover:border-green-400 hover:bg-green-50/50 active:scale-[0.99]'
-              }`}
+              className={`w-full text-left flex gap-3 rounded-xl px-2 py-2 -mx-2 transition-colors ${ cancelado ? 'opacity-40 cursor-not-allowed' : listo ? 'op-good border ' : 'border border-hair hover: hover:op-good/50 active:scale-[0.99]' }`}
             >
-              <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
-                listo
-                  ? 'bg-green-600 text-white border border-green-700'
-                  : 'bg-gray-100 border border-gray-300 text-gray-700'
-              }`}>
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold op-small shrink-0 ${ listo ? 'bg-green-600 text-white border ' : 'op-surface-2 border border-hair text-snow-2' }`}>
                 {listo ? '✓' : `${item.quantity}×`}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 leading-tight">
+                <p className="op-body font-medium text-snow leading-tight">
                   {item.menuItem.name}
                   {item.variant && (
-                    <span className="text-gray-500 font-normal"> · {item.variant.name}</span>
+                    <span className="text-ash font-normal"> · {item.variant.name}</span>
                   )}
                 </p>
                 {item.modifiers.map(m => (
-                  <p key={m.id} className="text-xs text-gray-500">
+                  <p key={m.id} className="op-small text-ash">
                     + {m.modifierName}
                   </p>
                 ))}
                 {item.specialInstructions && (
-                  <p className="text-xs text-amber-700 italic mt-0.5">
+                  <p className="op-small italic mt-0.5">
                     &ldquo;{item.specialInstructions}&rdquo;
                   </p>
                 )}
-                <span className={`text-xs font-medium ${itemSt.color}`}>
+                <span className={`op-small font-medium ${itemSt.color}`}>
                   {itemSt.icon} {itemSt.label}
                 </span>
               </div>
-              <span className="text-sm font-mono text-gray-600 shrink-0">
+              <span className="op-body font-mono text-ash shrink-0">
                 {fmt(item.unitPrice * item.quantity / 100)}
               </span>
             </button>
@@ -494,11 +485,11 @@ function OrderCard({
         })}
 
         {/* Order total */}
-        <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-          <span className="text-xs text-gray-500">
+        <div className="flex justify-between items-center pt-2 border-t border-hair">
+          <span className="op-small text-ash">
             {!order.notes ? '' : `Nota: ${order.notes}`}
           </span>
-          <span className="text-sm font-bold text-gray-900">{fmt(order.total)}</span>
+          <span className="op-body font-bold text-snow">{fmt(order.total)}</span>
         </div>
       </div>
 
@@ -509,7 +500,7 @@ function OrderCard({
             <button
               onClick={() => onDeliver(order.id)}
               disabled={delivering}
-              className="w-full py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white text-sm font-bold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white op-body font-bold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
             >
               <span>🍽️</span>
               <span>
@@ -521,7 +512,7 @@ function OrderCard({
             <button
               onClick={() => onCancel(order.id)}
               disabled={delivering}
-              className="w-full py-2 bg-white border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 text-sm font-semibold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-2 op-surface border hover:op-bad disabled:opacity-50 op-body font-semibold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
             >
               <span>❌</span>
               <span>Cancelar orden</span>
@@ -825,20 +816,20 @@ export default function SoloOrdersPanel({
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full op-surface-2">
       {/* ── Session bar (flex-wrap chips with urgency colors) ──────────────── */}
-      <div className="shrink-0 bg-white border-b border-gray-200 px-2.5 py-2">
+      <div className="shrink-0 op-surface border-b border-hair px-2.5 py-2">
         {loadingSessions ? (
           <div className="flex items-center justify-center py-3">
-            <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-            <span className="ml-2 text-sm text-gray-500">Cargando sesiones…</span>
+            <div className="w-5 h-5 border-2 border-hair border-t-gray-600 rounded-full animate-spin" />
+            <span className="ml-2 op-body text-ash">Cargando sesiones…</span>
           </div>
         ) : sessions.length === 0 ? (
           <div className="text-center py-4">
-            <p className="text-sm text-gray-500 mb-2">No hay sesiones abiertas</p>
+            <p className="op-body text-ash mb-2">No hay sesiones abiertas</p>
             <button
               onClick={openNewSessionModal}
-              className="inline-block text-sm text-[#b88364] hover:text-[#8a5d44] font-medium"
+              className="inline-block op-body text-[#b88364] hover:text-[#8a5d44] font-medium"
             >
               + Nuevo tab
             </button>
@@ -858,10 +849,10 @@ export default function SoloOrdersPanel({
                   key={s.id}
                   onClick={() => onSelectSession(s.id)}
                   title={s.table ? `Mesa ${s.table.number}` : s.label || ''}
-                  className={`relative flex items-center gap-1.5 pl-3 pr-2.5 py-1.5 rounded-lg text-left transition-all border overflow-hidden ${cfg.bg} ${
+                  className={`relative flex items-center gap-1.5 pl-3 pr-2.5 py-2 rounded-lg text-left transition-all overflow-hidden ${cfg.bg} ${
                     isSelected
-                      ? 'border-[#b88364] ring-2 ring-[#b88364] ring-offset-1 shadow-md'
-                      : `${cfg.border} hover:shadow-sm`
+                      ? 'ring-2 ring-brass'
+                      : 'hover:brightness-125'
                   }`}
                 >
                   {/* Barra de color de la cuenta: es lo que la hace
@@ -870,14 +861,12 @@ export default function SoloOrdersPanel({
                   <span className={`absolute left-0 top-0 bottom-0 w-1.5 ${color.barra}`} />
 
                   {/* Type icon */}
-                  <span className="text-xs shrink-0">
+                  <span className="op-small shrink-0">
                     {s.type === 'TABLE' ? '🪑' : s.type === 'TAB' ? '👤' : '🚶'}
                   </span>
 
                   {/* Label */}
-                  <span className={`text-xs leading-tight max-w-[110px] truncate ${
-                    isSelected ? 'font-bold text-gray-900' : 'font-semibold text-gray-800'
-                  }`}>
+                  <span className={`op-small leading-tight max-w-[110px] truncate ${ isSelected ? 'font-bold text-snow' : 'font-semibold text-snow' }`}>
                     {s.table ? `Mesa ${s.table.number}` : s.label || '…'}
                   </span>
 
@@ -890,7 +879,7 @@ export default function SoloOrdersPanel({
 
                   {/* Total */}
                   {sessTotal > 0 && (
-                    <span className="text-[10px] font-mono font-bold text-gray-600 shrink-0">
+                    <span className="text-[10px] font-mono font-bold text-ash shrink-0">
                       {fmt(sessTotal)}
                     </span>
                   )}
@@ -901,9 +890,9 @@ export default function SoloOrdersPanel({
             {/* + Nuevo tab button */}
             <button
               onClick={openNewSessionModal}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-dashed border-gray-300 bg-white hover:bg-gray-50 text-xs text-gray-500 hover:text-gray-600 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-dashed border-hair op-surface hover:op-surface-2 op-small text-ash hover:text-ash transition-colors"
             >
-              <span className="text-base leading-none">+</span>
+              <span className="op-body leading-none">+</span>
             </button>
           </div>
         )}
@@ -911,11 +900,11 @@ export default function SoloOrdersPanel({
 
       {/* ── Error banner ──────────────────────────────────────────────────── */}
       {error && (
-        <div className="shrink-0 mx-4 mt-3 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+        <div className="shrink-0 mx-4 mt-3 p-3 op-bad border rounded-xl op-body ">
           {error}
           <button
             onClick={() => setError(null)}
-            className="ml-2 text-red-400 hover:text-red-600"
+            className="ml-2 hover:"
           >
             ✕
           </button>
@@ -927,26 +916,24 @@ export default function SoloOrdersPanel({
         {!selectedSessionId ? (
           /* No session selected */
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="text-4xl mb-3">📋</div>
-            <p className="text-gray-500 text-sm">
-              Seleccioná un tab para ver sus órdenes
-            </p>
+            <p className="op-lead text-snow-2">Seleccioná un tab</p>
+            <p className="op-small text-ash mt-1">para ver sus órdenes</p>
           </div>
         ) : loadingDetail ? (
           /* Loading detail */
           <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-3 border-gray-200 border-t-gray-600 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-hair border-t-gray-600 rounded-full animate-spin" />
           </div>
         ) : !sessionDetail ? (
           /* Detail error */
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="text-4xl mb-3">⚠️</div>
-            <p className="text-gray-500 text-sm">
+            <div className="op-title mb-3">⚠️</div>
+            <p className="text-ash op-body">
               {error || 'No se pudo cargar la sesión'}
             </p>
             <button
               onClick={() => selectedSessionId && loadSessionDetail(selectedSessionId)}
-              className="mt-3 text-sm text-blue-600 hover:text-blue-800"
+              className="mt-3 op-body text-blue-600 hover:text-blue-800"
             >
               Reintentar
             </button>
@@ -956,15 +943,15 @@ export default function SoloOrdersPanel({
             {/* ── Session header ──────────────────────────────────────────── */}
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">
+                <h2 className="op-lead font-bold text-snow">
                   {sessionDetail.label}
                   {sessionDetail.table && (
-                    <span className="text-gray-500 font-normal text-sm ml-2">
+                    <span className="text-ash font-normal op-body ml-2">
                       Mesa {sessionDetail.table.number}
                     </span>
                   )}
                 </h2>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="op-small text-ash mt-0.5">
                   Abierta {fmtTime(sessionDetail.openedAt)}
                   {sessionDetail.customer && (
                     <span> · {sessionDetail.customer.name}</span>
@@ -976,7 +963,7 @@ export default function SoloOrdersPanel({
               {grandTotal > 0 && (
                 <button
                   onClick={() => setShowPayment(true)}
-                  className="shrink-0 px-4 py-2 bg-gray-100 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 active:scale-95 transition-all"
+                  className="shrink-0 px-4 py-2 op-surface-2 border border-hair text-snow-2 op-body font-semibold rounded-xl hover:op-surface-2 active:scale-95 transition-all"
                 >
                   💵 Cobrar {fmt(grandTotal)}
                 </button>
@@ -986,8 +973,8 @@ export default function SoloOrdersPanel({
             {/* ── Orders ─────────────────────────────────────────────────── */}
             {activeOrders.length === 0 ? (
               <div className="text-center py-8">
-                <div className="text-3xl mb-2">📋</div>
-                <p className="text-sm text-gray-500">Sin pedidos activos</p>
+                <div className="op-title mb-2">📋</div>
+                <p className="op-body text-ash">Sin pedidos activos</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -1007,7 +994,7 @@ export default function SoloOrdersPanel({
             {/* ── Paid/delivered orders ───────────────────────────────────── */}
             {detailOrders.filter(o => o.status === 'PAID' || o.status === 'SERVED').length > 0 && (
               <div className="mt-6">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                <p className="op-small font-semibold text-ash uppercase tracking-wider mb-2">
                   Entregadas / Pagadas
                 </p>
                 <div className="space-y-3">
@@ -1048,17 +1035,17 @@ export default function SoloOrdersPanel({
       {/* ── New session modal ───────────────────────────────────────────────── */}
       {showNewSession && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowNewSession(false)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 max-h-[90dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Nuevo tab</h3>
-            <p className="text-sm text-gray-500 mb-4">Crear sesión para atender</p>
+          <div className="op-surface rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 max-h-[90dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <h3 className="op-lead font-bold text-snow mb-1">Nuevo tab</h3>
+            <p className="op-body text-ash mb-4">Crear sesión para atender</p>
 
             {newSessionError && (
-              <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600">{newSessionError}</div>
+              <div className="mb-3 p-2 op-bad border rounded-lg op-small ">{newSessionError}</div>
             )}
 
             {/* Tab type selector */}
             <div className="mb-4">
-              <label className="block text-sm text-gray-500 mb-2">Tipo</label>
+              <label className="block op-body text-ash mb-2">Tipo</label>
               <div className="grid grid-cols-3 gap-2">
                 {([
                   { key: 'TABLE' as const, icon: '🪑', label: 'Mesa', desc: 'Física' },
@@ -1069,14 +1056,10 @@ export default function SoloOrdersPanel({
                     key={t.key}
                     type="button"
                     onClick={() => { setNewTabType(t.key); setNewSessionError(null); }}
-                    className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      newTabType === t.key
-                        ? 'border-[#b88364] bg-[#fef9f6]'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`p-3 rounded-xl border-2 text-left transition-all ${ newTabType === t.key ? 'border-brass bg-brass/10' : 'border-hair hover:border-hair' }`}
                   >
-                    <p className="font-bold text-[#1b4235] text-sm">{t.icon} {t.label}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{t.desc}</p>
+                    <p className="font-bold text-[#1b4235] op-body">{t.icon} {t.label}</p>
+                    <p className="op-small text-ash mt-0.5">{t.desc}</p>
                   </button>
                 ))}
               </div>
@@ -1085,23 +1068,19 @@ export default function SoloOrdersPanel({
             {/* TABLE: select mesa */}
             {newTabType === 'TABLE' && (
               <div className="mb-4">
-                <label className="block text-sm text-gray-500 mb-1">Mesa</label>
+                <label className="block op-body text-ash mb-1">Mesa</label>
                 {availableTables.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-3">No hay mesas disponibles</p>
+                  <p className="op-body text-ash text-center py-3">No hay mesas disponibles</p>
                 ) : (
                   <div className="space-y-1 max-h-40 overflow-y-auto">
                     {availableTables.map(t => (
                       <button
                         key={t.id}
                         onClick={() => setSelectedTableId(t.id)}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all border ${
-                          selectedTableId === t.id
-                            ? 'bg-[#fef9f6] border-[#b88364] font-semibold text-[#b88364]'
-                            : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                        }`}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg op-body transition-all border ${ selectedTableId === t.id ? 'bg-brass/10 border-brass font-semibold text-brass' : 'op-surface-2 border-hair text-snow-2 hover:op-surface-2' }`}
                       >
                         🪑 Mesa {t.number}
-                        {t.name && <span className="text-gray-500 ml-1 text-xs">· {t.name}</span>}
+                        {t.name && <span className="text-ash ml-1 op-small">· {t.name}</span>}
                       </button>
                     ))}
                   </div>
@@ -1112,18 +1091,18 @@ export default function SoloOrdersPanel({
             {/* TAB: customer search */}
             {newTabType === 'TAB' && (
               <div className="mb-4 relative">
-                <label className="block text-sm text-gray-500 mb-1">
-                  Cliente {selectedCustomer && <span className="text-green-600 ml-1">✓ Seleccionado</span>}
+                <label className="block op-body text-ash mb-1">
+                  Cliente {selectedCustomer && <span className=" ml-1">✓ Seleccionado</span>}
                 </label>
                 {selectedCustomer ? (
-                  <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl">
-                    <span className="text-xl">👤</span>
+                  <div className="flex items-center gap-2 p-3 op-good border rounded-xl">
+                    <span className="op-lead">👤</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-[#1b4235] font-medium truncate">{selectedCustomer.name}</p>
-                      {selectedCustomer.phone && <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>}
+                      {selectedCustomer.phone && <p className="op-small text-ash">{selectedCustomer.phone}</p>}
                     </div>
                     <button type="button" onClick={() => { setSelectedCustomer(null); setCustomerSearch(''); }}
-                      className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors">
+                      className="w-8 h-8 flex items-center justify-center text-ash hover: rounded-lg hover:op-surface-2 transition-colors">
                       ✕
                     </button>
                   </div>
@@ -1136,7 +1115,7 @@ export default function SoloOrdersPanel({
                         onChange={e => { setCustomerSearch(e.target.value); searchCustomers(e.target.value); }}
                         onFocus={() => { if (customers.length > 0) setShowCustomerDropdown(true); }}
                         placeholder="Buscar cliente por nombre o teléfono..."
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-[#1b4235] placeholder:text-gray-500 focus:outline-none focus:border-[#b88364] text-sm"
+                        className="w-full px-4 py-3 op-surface-2 border border-hair rounded-xl text-[#1b4235] placeholder:text-ash focus:outline-none focus:border-[#b88364] op-body"
                       />
                       {loadingCustomers && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -1145,18 +1124,18 @@ export default function SoloOrdersPanel({
                       )}
                     </div>
                     {showCustomerDropdown && customers.length > 0 && (
-                      <div className="absolute z-30 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xl max-h-52 overflow-y-auto">
+                      <div className="absolute z-30 left-0 right-0 mt-1 op-surface border border-hair rounded-xl overflow-hidden shadow-xl max-h-52 overflow-y-auto">
                         {customers.map(c => (
                           <button
                             key={c.id}
                             type="button"
                             onClick={() => { setSelectedCustomer(c); setCustomerSearch(''); setShowCustomerDropdown(false); }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:op-surface-2 transition-colors border-b border-hair last:border-0"
                           >
-                            <span className="text-lg shrink-0">👤</span>
+                            <span className="op-lead shrink-0">👤</span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[#1b4235] font-medium text-sm truncate">{c.name}</p>
-                              {c.phone && <p className="text-xs text-gray-500">{c.phone}</p>}
+                              <p className="text-[#1b4235] font-medium op-body truncate">{c.name}</p>
+                              {c.phone && <p className="op-small text-ash">{c.phone}</p>}
                             </div>
                           </button>
                         ))}
@@ -1170,13 +1149,13 @@ export default function SoloOrdersPanel({
             {/* WALKIN: optional name */}
             {newTabType === 'WALKIN' && (
               <div className="mb-4">
-                <label className="block text-sm text-gray-500 mb-1">Nombre (opcional)</label>
+                <label className="block op-body text-ash mb-1">Nombre (opcional)</label>
                 <input
                   type="text"
                   value={newTabLabel}
                   onChange={e => setNewTabLabel(e.target.value)}
                   placeholder="Ej: Pareja terraza, Juan..."
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-[#1b4235] placeholder:text-gray-500 focus:outline-none focus:border-[#b88364] text-sm"
+                  className="w-full px-4 py-3 op-surface-2 border border-hair rounded-xl text-[#1b4235] placeholder:text-ash focus:outline-none focus:border-[#b88364] op-body"
                   autoFocus
                 />
               </div>
@@ -1186,7 +1165,7 @@ export default function SoloOrdersPanel({
             <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setShowNewSession(false)}
-                className="flex-1 py-2.5 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50"
+                className="flex-1 py-2.5 border border-hair text-ash op-body font-medium rounded-lg hover:op-surface-2"
               >
                 Cancelar
               </button>
@@ -1197,7 +1176,7 @@ export default function SoloOrdersPanel({
                   (newTabType === 'TABLE' && !selectedTableId) ||
                   (newTabType === 'TAB' && !selectedCustomer)
                 }
-                className="flex-1 py-2.5 bg-[#b88364] text-white text-sm font-semibold rounded-lg hover:bg-[#8a5d44] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2.5 bg-[#b88364] text-white op-body font-semibold rounded-lg hover:bg-[#8a5d44] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {creatingSession ? 'Creando…' : 'Abrir tab'}
               </button>
@@ -1209,36 +1188,36 @@ export default function SoloOrdersPanel({
       {/* ── Cancel order modal (supervisor PIN) ─────────────────────────────── */}
       {cancelOrderId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setCancelOrderId(null)}>
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Cancelar orden</h3>
-            <p className="text-sm text-gray-500 mb-4">Ingresá el PIN de supervisor para cancelar.</p>
+          <div className="op-surface rounded-xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="op-lead font-semibold text-snow mb-1">Cancelar orden</h3>
+            <p className="op-body text-ash mb-4">Ingresá el PIN de supervisor para cancelar.</p>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">PIN de supervisor *</label>
+                <label className="block op-small text-ash mb-1">PIN de supervisor *</label>
                 <input
                   type="password"
                   value={cancelPin}
                   onChange={(e) => setCancelPin(e.target.value)}
                   autoFocus
                   placeholder="Clave de supervisor"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                  className="w-full px-3 py-2 border border-hair rounded-lg op-body focus:ring-2 focus:ring-red-500 outline-none"
                 />
               </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="op-body ">{error}</p>}
             </div>
 
             <div className="flex gap-3 pt-4">
               <button
                 onClick={() => { setCancelOrderId(null); setCancelPin(""); }}
-                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                className="flex-1 px-4 py-2 op-surface-2 text-snow-2 op-body font-medium rounded-lg hover:op-surface-2 transition-colors"
               >
                 Volver
               </button>
               <button
                 onClick={confirmCancelOrder}
                 disabled={cancelling}
-                className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                className="flex-1 px-4 py-2 bg-red-600 text-white op-body font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
               >
                 {cancelling ? 'Cancelando...' : 'Confirmar cancelación'}
               </button>

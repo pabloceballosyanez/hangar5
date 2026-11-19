@@ -19,31 +19,30 @@ export default function SoloPage() {
   }, []);
 
   return (
-    <div
-      className="flex flex-col h-screen overflow-hidden bg-gray-100"
-      style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}
-    >
-      {/* ── Top bar ─────────────────────────────────────────────────────── */}
-      <header className="shrink-0 h-11 bg-white border-b border-gray-200 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-[#1b4235]">🔥 Modo Solo</span>
-          <span className="text-[10px] text-gray-500 hidden sm:inline">
-            Mesero · Cocina · Cobro en una pantalla
+    <div className="flex flex-col h-screen overflow-hidden bg-ink text-snow">
+      {/* ── Barra superior ──────────────────────────────────────────────
+          Misma altura, mismo orden y mismo estilo que el KDS y el
+          Mesero. Antes era blanca mientras las otras eran oscuras:
+          tres pantallas del mismo turno parecían de tres apps. */}
+      <header className="shrink-0 op-header">
+        <div className="flex items-baseline gap-3 min-w-0">
+          <h1 className="op-title text-snow">Modo Solo</h1>
+          <span className="op-small text-smoke hidden sm:inline truncate">
+            Mesero · Cocina · Cobro
           </span>
         </div>
         <Link
           href="/admin/restaurant"
-          className="flex items-center gap-1.5 text-xs font-semibold text-[#b88364] hover:text-white hover:bg-[#b88364] border border-[#b88364]/40 px-3 py-1.5 rounded-lg transition-all"
+          className="op-btn op-btn-ghost op-btn-sm shrink-0"
         >
-          <span>←</span>
-          <span>Volver al admin</span>
+          ← Volver
         </Link>
       </header>
 
-      {/* ── Panels ──────────────────────────────────────────────────────── */}
+      {/* ── Paneles ───────────────────────────────────────────────────── */}
       <div className="flex flex-1 min-h-0">
-        {/* LEFT: Menú + carrito */}
-        <div className="flex-1 min-w-0 border-r border-gray-200">
+        {/* IZQUIERDA: menú + carrito */}
+        <div className="flex-1 min-w-0 border-r border-hair">
           {selectedSessionId ? (
             <SoloMenuPanel
               key={`menu-${selectedSessionId}`}
@@ -51,18 +50,17 @@ export default function SoloPage() {
               onOrderSent={bumpRefresh}
             />
           ) : (
-            <div className="h-full flex items-center justify-center bg-white">
-              <div className="text-center text-gray-500">
-                <div className="text-5xl mb-3">👈</div>
-                <p className="text-sm font-medium">Seleccioná un tab</p>
-                <p className="text-xs mt-1">para empezar a tomar pedidos</p>
+            <div className="h-full flex items-center justify-center">
+              <div className="text-center">
+                <p className="op-lead text-ash">Seleccioná un tab</p>
+                <p className="op-small text-smoke mt-1">para empezar a tomar pedidos</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* CENTER: Órdenes */}
-        <div className="flex-1 min-w-0 border-r border-gray-200">
+        {/* CENTRO: órdenes */}
+        <div className="flex-1 min-w-0 border-r border-hair">
           <SoloOrdersPanel
             selectedSessionId={selectedSessionId}
             onSelectSession={handleSelectSession}
@@ -71,7 +69,7 @@ export default function SoloPage() {
           />
         </div>
 
-        {/* RIGHT: KDS */}
+        {/* DERECHA: cocina */}
         <div className="flex-1 min-w-0">
           <SoloKDSPanel refreshSignal={refreshSignal} onMutate={bumpRefresh} />
         </div>

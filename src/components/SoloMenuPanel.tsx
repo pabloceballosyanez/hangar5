@@ -135,24 +135,24 @@ function ItemModal({
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative bg-white rounded-t-3xl overflow-hidden max-h-[92dvh] flex flex-col shadow-2xl border-t border-gray-200">
+      <div className="relative op-surface rounded-t-3xl overflow-hidden max-h-[92dvh] flex flex-col shadow-2xl border-t border-hair">
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-1 flex-none">
-          <div className="w-10 h-1 bg-gray-300 rounded-full" />
+          <div className="w-10 h-1 bg-hair rounded-full" />
         </div>
 
         {/* Header */}
-        <div className="flex items-start justify-between px-5 pb-4 flex-none border-b border-gray-100">
+        <div className="flex items-start justify-between px-5 pb-4 flex-none border-b border-hair">
           <div className="flex-1 mr-3">
-            <h2 className="font-bold text-[#1b4235] text-xl leading-tight">{item.name}</h2>
+            <h2 className="font-bold text-[#1b4235] op-lead leading-tight">{item.name}</h2>
             {item.description && (
-              <p className="text-sm text-gray-500 mt-1 leading-relaxed">{item.description}</p>
+              <p className="op-body text-ash mt-1 leading-relaxed">{item.description}</p>
             )}
-            <p className="text-2xl font-bold text-green-700 font-mono mt-2">{formatPrice(item.basePrice)}</p>
+            <p className="op-title font-bold font-mono mt-2">{formatPrice(item.basePrice)}</p>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+            className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full op-surface-2 text-ash hover:text-snow-2 hover:op-surface-2 transition-colors"
           >
             ✕
           </button>
@@ -163,22 +163,16 @@ function ItemModal({
           {/* Variants */}
           {item.variants.length > 0 && (
             <section>
-              <h3 className="font-bold text-[#b88364] text-xs uppercase tracking-widest mb-2.5">Variante</h3>
+              <h3 className="font-bold text-[#b88364] op-small uppercase tracking-widest mb-2.5">Variante</h3>
               <div className="space-y-2">
                 {item.variants.map((v) => (
                   <label
                     key={v.id}
-                    className={`flex items-center justify-between min-h-[52px] px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${
-                      selectedVariantId === v.id
-                        ? 'border-[#b88364] bg-[#fef9f6]'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`flex items-center justify-between min-h-[52px] px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${ selectedVariantId === v.id ? 'border-brass bg-brass/10' : 'border-hair hover:border-hair' }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                        selectedVariantId === v.id ? 'border-[#b88364] bg-[#b88364]' : 'border-gray-300'
-                      }`}>
-                        {selectedVariantId === v.id && <div className="w-2 h-2 rounded-full bg-white" />}
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${ selectedVariantId === v.id ? 'border-[#b88364] bg-[#b88364]' : 'border-hair' }`}>
+                        {selectedVariantId === v.id && <div className="w-2 h-2 rounded-full op-surface" />}
                       </div>
                       <input
                         type="radio"
@@ -190,7 +184,7 @@ function ItemModal({
                       <span className="text-[#1b4235] font-medium">{v.name}</span>
                     </div>
                     {v.priceDelta !== 0 && (
-                      <span className="text-green-700 font-mono font-bold text-sm">
+                      <span className=" font-mono font-bold op-body">
                         {v.priceDelta > 0 ? '+' : ''}{formatPrice(v.priceDelta)}
                       </span>
                     )}
@@ -204,31 +198,25 @@ function ItemModal({
           {item.modifierGroups.map((group) => (
             <section key={group.id}>
               <div className="flex items-center gap-2 mb-2.5 flex-wrap">
-                <h3 className="font-bold text-[#b88364] text-xs uppercase tracking-widest">{group.name}</h3>
+                <h3 className="font-bold text-[#b88364] op-small uppercase tracking-widest">{group.name}</h3>
                 {group.isRequired && (
-                  <span className="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-semibold border border-red-200">
+                  <span className="op-small op-bad px-2 py-0.5 rounded-full font-semibold border ">
                     Requerido
                   </span>
                 )}
                 {group.maxSelections > 1 && (
-                  <span className="text-xs text-gray-500">Máx {group.maxSelections}</span>
+                  <span className="op-small text-ash">Máx {group.maxSelections}</span>
                 )}
               </div>
               <div className="space-y-2">
                 {group.modifiers.map((mod) => (
                   <label
                     key={mod.id}
-                    className={`flex items-center justify-between min-h-[52px] px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${
-                      selectedModIds.has(mod.id)
-                        ? 'border-[#b88364] bg-[#fef9f6]'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`flex items-center justify-between min-h-[52px] px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${ selectedModIds.has(mod.id) ? 'border-brass bg-brass/10' : 'border-hair hover:border-hair' }`}
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                          selectedModIds.has(mod.id) ? 'border-[#b88364] bg-[#b88364]' : 'border-gray-300'
-                        }`}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${ selectedModIds.has(mod.id) ? 'border-[#b88364] bg-[#b88364]' : 'border-hair' }`}
                       >
                         {selectedModIds.has(mod.id) && (
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -245,7 +233,7 @@ function ItemModal({
                       <span className="text-[#1b4235] font-medium">{mod.name}</span>
                     </div>
                     {mod.priceDelta !== 0 && (
-                      <span className="text-green-700 font-mono font-bold text-sm">
+                      <span className=" font-mono font-bold op-body">
                         +{formatPrice(mod.priceDelta)}
                       </span>
                     )}
@@ -257,31 +245,31 @@ function ItemModal({
 
           {/* Special instructions */}
           <section>
-            <h3 className="font-bold text-[#b88364] text-xs uppercase tracking-widest mb-2.5">Nota especial</h3>
+            <h3 className="font-bold text-[#b88364] op-small uppercase tracking-widest mb-2.5">Nota especial</h3>
             <textarea
               value={notes}
               onChange={(e) => onNotesChange(e.target.value)}
               placeholder="Sin cilantro, extra picante, sin sal…"
               rows={2}
-              className="w-full bg-gray-50 border border-gray-200 text-[#1b4235] placeholder-gray-400 px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-[#b88364] resize-none transition-all"
+              className="w-full op-surface-2 border border-hair text-[#1b4235] placeholder:text-smoke px-4 py-3 rounded-xl op-body focus:outline-none focus:border-[#b88364] resize-none transition-all"
             />
           </section>
         </div>
 
         {/* Footer: qty + add button */}
-        <div className="flex-none px-5 pb-6 pt-4 bg-white border-t border-gray-100 space-y-3">
+        <div className="flex-none px-5 pb-6 pt-4 op-surface border-t border-hair space-y-3">
           {/* Quantity */}
           <div className="flex items-center justify-center gap-6">
             <button
               onClick={() => onQtyChange(Math.max(1, quantity - 1))}
-              className="w-12 h-12 rounded-xl bg-gray-100 hover:bg-gray-200 text-[#b88364] font-bold text-2xl flex items-center justify-center active:scale-90 transition-all border border-gray-200"
+              className="w-12 h-12 rounded-xl op-surface-2 hover:op-surface-2 text-[#b88364] font-bold op-title flex items-center justify-center active:scale-90 transition-all border border-hair"
             >
               −
             </button>
-            <span className="text-3xl font-bold text-[#1b4235] w-10 text-center">{quantity}</span>
+            <span className="op-title font-bold text-[#1b4235] w-10 text-center">{quantity}</span>
             <button
               onClick={() => onQtyChange(quantity + 1)}
-              className="w-12 h-12 rounded-xl bg-[#b88364] hover:bg-[#a07256] text-white font-bold text-2xl flex items-center justify-center active:scale-90 transition-all shadow-sm"
+              className="w-12 h-12 rounded-xl bg-[#b88364] hover:bg-[#a07256] text-white font-bold op-title flex items-center justify-center active:scale-90 transition-all shadow-sm"
             >
               +
             </button>
@@ -291,10 +279,10 @@ function ItemModal({
           <button
             onClick={onAdd}
             disabled={missingRequired}
-            className="w-full min-h-[56px] bg-[#b88364] hover:bg-[#a07256] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-base rounded-xl shadow-sm transition-all flex items-center justify-between px-5"
+            className="w-full min-h-[56px] bg-[#b88364] hover:bg-[#a07256] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold op-body rounded-xl shadow-sm transition-all flex items-center justify-between px-5"
           >
             <span>{missingRequired ? 'Elegí las opciones requeridas' : 'Agregar al pedido'}</span>
-            <span className="font-mono text-lg">{formatPrice(totalPrice)}</span>
+            <span className="font-mono op-lead">{formatPrice(totalPrice)}</span>
           </button>
         </div>
       </div>
@@ -517,15 +505,15 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
 
   if (loading) {
     return (
-      <div className="h-full flex flex-col bg-white"
+      <div className="h-full flex flex-col op-surface"
         style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
         <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3 text-gray-500">
+          <div className="flex flex-col items-center gap-3 text-ash">
             <svg className="animate-spin w-8 h-8 text-[#b88364]" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <span className="text-sm">Cargando menú...</span>
+            <span className="op-body">Cargando menú...</span>
           </div>
         </div>
       </div>
@@ -536,13 +524,13 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
 
   if (loadError) {
     return (
-      <div className="h-full flex flex-col bg-white"
+      <div className="h-full flex flex-col op-surface"
         style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3 text-center px-6">
-            <div className="text-4xl">⚠️</div>
-            <p className="text-sm text-red-600 font-medium">Error al cargar el menú</p>
-            <p className="text-xs text-gray-500">{loadError}</p>
+            <div className="op-title">⚠️</div>
+            <p className="op-body font-medium">Error al cargar el menú</p>
+            <p className="op-small text-ash">{loadError}</p>
           </div>
         </div>
       </div>
@@ -553,13 +541,13 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
 
   if (categories.length === 0) {
     return (
-      <div className="h-full flex flex-col bg-white"
+      <div className="h-full flex flex-col op-surface"
         style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3 text-center px-6">
-            <div className="text-4xl">📋</div>
-            <p className="text-sm text-gray-500 font-medium">No hay platillos disponibles</p>
-            <p className="text-xs text-gray-500">El menú está vacío o no se ha configurado</p>
+            <div className="op-title">📋</div>
+            <p className="op-body text-ash font-medium">No hay platillos disponibles</p>
+            <p className="op-small text-ash">El menú está vacío o no se ha configurado</p>
           </div>
         </div>
       </div>
@@ -569,39 +557,35 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
   // ── Main render ──────────────────────────────────────────────────────────
 
   return (
-    <div className="h-full flex flex-col bg-white"
+    <div className="h-full flex flex-col op-surface"
       style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
       {/* Header */}
-      <div className="px-4 pt-4 pb-2 border-b border-gray-100 flex-shrink-0">
-        <h2 className="text-lg font-bold text-[#1b4235]">Menú</h2>
-        <p className="text-xs text-gray-500 mt-0.5">Tocá un platillo para elegir opciones</p>
+      <div className="px-4 pt-4 pb-2 border-b border-hair flex-shrink-0">
+        <h2 className="op-lead font-bold text-[#1b4235]">Menú</h2>
+        <p className="op-small text-ash mt-0.5">Tocá un platillo para elegir opciones</p>
       </div>
 
       {/* Search */}
-      <div className="px-4 py-2 border-b border-gray-100 flex-shrink-0">
+      <div className="px-4 py-2 border-b border-hair flex-shrink-0">
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar platillo o bebida…"
-          className="w-full bg-gray-50 border border-gray-200 text-[#1b4235] placeholder-gray-400 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#b88364] transition-all"
+          className="w-full op-surface-2 border border-hair text-[#1b4235] placeholder:text-smoke px-4 py-2.5 rounded-xl op-body focus:outline-none focus:border-[#b88364] transition-all"
         />
       </div>
 
       {/* Category tabs (hidden during search) — all visible, wrapping */}
       {!search.trim() && (
-        <div className="flex-shrink-0 border-b border-gray-100 px-3 py-2">
+        <div className="flex-shrink-0 border-b border-hair px-3 py-2">
           <div className="flex flex-wrap gap-1.5">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategoryId(cat.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border ${
-                  activeCategoryId === cat.id
-                    ? 'bg-[#b88364] text-white border-[#b88364] shadow-sm'
-                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-[#b88364]/40 hover:text-[#b88364]'
-                }`}
+                className={`px-3 py-1.5 rounded-full op-small font-semibold whitespace-nowrap transition-all border ${ activeCategoryId === cat.id ? 'bg-[#b88364] text-white border-[#b88364] shadow-sm' : 'op-surface-2 text-ash border-hair hover:border-[#b88364]/40 hover:text-[#b88364]' }`}
               >
                 {cat.name}
               </button>
@@ -621,15 +605,15 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                   key={item.id}
                   type="button"
                   onClick={() => openItem(item)}
-                  className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 flex flex-col text-left hover:border-[#b88364]/40 hover:shadow transition-all active:scale-[0.98]"
+                  className="op-surface border border-hair rounded-lg shadow-sm p-4 flex flex-col text-left hover:border-[#b88364]/40 hover:shadow transition-all active:scale-[0.98]"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-[#1b4235] leading-tight">
+                      <h3 className="op-body font-semibold text-[#1b4235] leading-tight">
                         {item.name}
                       </h3>
                       {item.description && (
-                        <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
+                        <p className="op-small text-ash mt-1 line-clamp-2 leading-relaxed">
                           {item.description}
                         </p>
                       )}
@@ -644,11 +628,11 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                     </div>
                   </div>
                   <div className="mt-2 flex items-center justify-between">
-                    <span className="text-sm font-bold text-green-700">
+                    <span className="op-body font-bold ">
                       {formatPrice(item.basePrice)}
                     </span>
                     {hasOptions && (
-                      <span className="text-[10px] text-gray-500">
+                      <span className="text-[10px] text-ash">
                         {item.variants.length > 0 && `${item.variants.length} var.`}
                         {item.variants.length > 0 && item.modifierGroups.length > 0 && ' · '}
                         {item.modifierGroups.length > 0 && 'opciones'}
@@ -662,8 +646,8 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
         ) : (
           <div className="h-full flex items-center justify-center">
             <div className="flex flex-col items-center gap-2 text-center">
-              <div className="text-3xl">{search.trim() ? '🔍' : '🍽️'}</div>
-              <p className="text-sm text-gray-500 font-medium">
+              <div className="op-title">{search.trim() ? '🔍' : '🍽️'}</div>
+              <p className="op-body text-ash font-medium">
                 {search.trim()
                   ? `Sin resultados para "${search}"`
                   : activeCategory
@@ -677,27 +661,27 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
 
       {/* Cart footer */}
       {cart.length > 0 && (
-        <div className="flex-shrink-0 border-t border-gray-200 bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+        <div className="flex-shrink-0 border-t border-hair op-surface shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
           {/* Cart items */}
           <div className="max-h-48 overflow-y-auto px-4 py-3 space-y-2">
             {cart.map((entry) => (
-              <div key={entry.id} className="flex items-start gap-2 text-sm">
+              <div key={entry.id} className="flex items-start gap-2 op-body">
                 {/* Quantity controls */}
                 <div className="flex items-center gap-1 pt-0.5">
                   <button
                     type="button"
                     onClick={() => updateQuantity(entry.id, -1)}
-                    className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs"
+                    className="w-6 h-6 rounded-full border border-hair flex items-center justify-center text-ash hover:op-surface-2 transition-colors op-small"
                   >
                     −
                   </button>
-                  <span className="w-5 text-center text-xs font-medium text-[#1b4235]">
+                  <span className="w-5 text-center op-small font-medium text-[#1b4235]">
                     {entry.quantity}
                   </span>
                   <button
                     type="button"
                     onClick={() => updateQuantity(entry.id, 1)}
-                    className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs"
+                    className="w-6 h-6 rounded-full border border-hair flex items-center justify-center text-ash hover:op-surface-2 transition-colors op-small"
                   >
                     +
                   </button>
@@ -705,20 +689,20 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
 
                 {/* Item name + details */}
                 <div className="flex-1 min-w-0">
-                  <span className="text-xs text-[#1b4235] font-medium leading-tight">
+                  <span className="op-small text-[#1b4235] font-medium leading-tight">
                     {entry.name}
-                    {entry.variantName && <span className="text-gray-500"> · {entry.variantName}</span>}
+                    {entry.variantName && <span className="text-ash"> · {entry.variantName}</span>}
                   </span>
                   {entry.modifiers.map((m) => (
-                    <p key={m.id} className="text-[10px] text-gray-500 leading-tight">+ {m.name}</p>
+                    <p key={m.id} className="text-[10px] text-ash leading-tight">+ {m.name}</p>
                   ))}
                   {entry.specialInstructions && (
-                    <p className="text-[10px] text-amber-600 italic leading-tight">&ldquo;{entry.specialInstructions}&rdquo;</p>
+                    <p className="text-[10px] italic leading-tight">&ldquo;{entry.specialInstructions}&rdquo;</p>
                   )}
                 </div>
 
                 {/* Line price */}
-                <span className="text-xs font-semibold text-green-700 whitespace-nowrap pt-0.5">
+                <span className="op-small font-semibold whitespace-nowrap pt-0.5">
                   {formatPrice(cartLineTotal(entry))}
                 </span>
 
@@ -726,7 +710,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
                 <button
                   type="button"
                   onClick={() => removeFromCart(entry.id)}
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-ash hover: hover:op-bad transition-colors shrink-0"
                   title="Quitar del pedido"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
@@ -738,12 +722,12 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
           </div>
 
           {/* Total + Send button */}
-          <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between gap-3">
+          <div className="px-4 py-3 border-t border-hair flex items-center justify-between gap-3">
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider">
+              <span className="text-[10px] text-ash uppercase tracking-wider">
                 Total · {cartItemCount} {cartItemCount === 1 ? 'item' : 'items'}
               </span>
-              <span className="text-lg font-bold text-green-700">
+              <span className="op-lead font-bold ">
                 {formatPrice(cartTotal)}
               </span>
             </div>
@@ -752,7 +736,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
               type="button"
               onClick={handleSendToKitchen}
               disabled={sending}
-              className="px-5 py-2.5 bg-[#b88364] text-white text-sm font-semibold rounded-lg hover:bg-[#a07256] active:bg-[#8f654c] disabled:opacity-60 transition-colors shadow-sm whitespace-nowrap flex items-center gap-2"
+              className="px-5 py-2.5 bg-[#b88364] text-white op-body font-semibold rounded-lg hover:bg-[#a07256] active:bg-[#8f654c] disabled:opacity-60 transition-colors shadow-sm whitespace-nowrap flex items-center gap-2"
             >
               {sending ? (
                 <>
@@ -776,7 +760,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
           {/* Feedback messages */}
           {sendError && (
             <div className="px-4 pb-3">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-2.5 text-xs text-red-700 flex items-center gap-2">
+              <div className="op-bad border rounded-lg p-2.5 op-small flex items-center gap-2">
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -787,7 +771,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
 
           {sendSuccess && (
             <div className="px-4 pb-3">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 text-xs text-green-700 flex items-center gap-2">
+              <div className="op-good border rounded-lg p-2.5 op-small flex items-center gap-2">
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
