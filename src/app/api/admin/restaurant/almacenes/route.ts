@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStaffSession, getAdminSession } from "@/lib/auth";
 import { puede } from "@/lib/permisos";
-import { inventarioPorAlmacen, traspasar } from "@/lib/almacenes";
+import { inventarioPorAlmacen, traspasar, asegurarAlmacenes } from "@/lib/almacenes";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,13 @@ export const dynamic = "force-dynamic";
  * POST — mueve mercancía de un almacén a otro.
  */
 export async function GET() {
-  const [inventario, traspasos] = await Promise.all([
+    /* Antes de leer, garantizar que cada almacén sepa a qué ubicación
+       sirve. La función existía pero nunca se llamaba, y por eso los dos
+       almacenes tenían ubicacionId en null: sin ese dato una venta no
+       puede saber de dónde descontar. */
+    await asegurarAlmacenes().catch(() => undefined);
+
+    const [inventario, traspasos] = await Promise.all([
     inventarioPorAlmacen(),
     prisma.traspaso.findMany({
       orderBy: { createdAt: "desc" },
