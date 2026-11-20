@@ -359,11 +359,11 @@ export default async function RestaurantDashboardPage() {
                       href={`/admin/restaurant/orders?table=${table.number}`}
                       className="block bg-[var(--color-adp-atencion)] border border-[var(--color-adp-atencion)] rounded-lg p-3 hover:bg-[var(--color-adp-atencion)]/85 transition-colors text-white"
                     >
-                      <p className="text-lg font-bold text-[var(--color-adp-atencion)]">{table.number}</p>
+                      <p className="text-lg font-bold text-white">{table.number}</p>
                       {table.name && (
-                        <p className="text-xs text-[var(--color-adp-atencion)] truncate">{table.name}</p>
+                        <p className="text-xs text-white truncate">{table.name}</p>
                       )}
-                      <div className="mt-2 flex items-center gap-3 text-xs text-[var(--color-adp-atencion)]">
+                      <div className="mt-2 flex items-center gap-3 text-xs text-white">
                         <span>{orderCount} orden{orderCount !== 1 ? "es" : ""}</span>
                         {session && (
                           <span>

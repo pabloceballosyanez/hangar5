@@ -306,7 +306,7 @@ export default function SoloKDSPanel({ refreshSignal, onMutate }: SoloKDSPanelPr
     return (
       <div className="h-full flex items-center justify-center op-surface">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1b4235] mx-auto mb-3" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brass mx-auto mb-3" />
           <p className="op-body text-ash">Cargando cocina...</p>
         </div>
       </div>

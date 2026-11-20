@@ -736,7 +736,7 @@ export default function SoloMenuPanel({ sessionId, onOrderSent }: SoloMenuPanelP
               type="button"
               onClick={handleSendToKitchen}
               disabled={sending}
-              className="px-5 py-2.5 bg-brass text-white op-body font-semibold rounded-lg hover:bg-brass-soft active:bg-[#8f654c] disabled:opacity-60 transition-colors shadow-sm whitespace-nowrap flex items-center gap-2"
+              className="px-5 py-2.5 bg-brass text-white op-body font-semibold rounded-lg hover:bg-brass-soft active:bg-[var(--color-adp-pino-hondo)] disabled:opacity-60 transition-colors shadow-sm whitespace-nowrap flex items-center gap-2"
             >
               {sending ? (
                 <>

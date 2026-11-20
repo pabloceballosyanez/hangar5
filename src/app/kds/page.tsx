@@ -291,7 +291,7 @@ export default function KDSPage() {
                       {order.items.map((item) => (
                         <div
                           key={item.id}
-                          className="bg-white/10 rounded-lg p-3"
+                          className="bg-ink-3 rounded-lg p-3"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 min-w-0">

@@ -866,7 +866,7 @@ export default function SoloOrdersPanel({
                   </span>
 
                   {/* Label */}
-                  <span className={`op-small leading-tight max-w-[110px] truncate ${ isSelected ? 'font-bold text-snow' : 'font-semibold text-snow' }`}>
+                  <span className={`op-small leading-tight max-w-[110px] truncate ${ isSelected ? 'font-bold text-white' : 'font-semibold text-white' }`}>
                     {s.table ? `Mesa ${s.table.number}` : s.label || '…'}
                   </span>
 
@@ -879,7 +879,7 @@ export default function SoloOrdersPanel({
 
                   {/* Total */}
                   {sessTotal > 0 && (
-                    <span className="text-[10px] font-mono font-bold text-ash shrink-0">
+                    <span className="text-[10px] font-mono font-bold text-white shrink-0">
                       {fmt(sessTotal)}
                     </span>
                   )}

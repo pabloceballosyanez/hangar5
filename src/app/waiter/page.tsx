@@ -230,7 +230,7 @@ export default function WaiterHomePage() {
         {/* Nuevo tab */}
         <button
           onClick={() => router.push('/waiter/nuevo')}
-          className="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-hair hover:border-brass/40 bg-ink-2/40 min-h-[130px] transition-all active:scale-95 gap-2"
+          className="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-hair hover:border-brass/40 bg-ink-2 min-h-[130px] transition-all active:scale-95 gap-2"
         >
           <span className="op-title text-smoke">+</span>
           <span className="op-small text-ash font-semibold">Nuevo tab</span>

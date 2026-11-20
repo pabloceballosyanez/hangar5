@@ -18,32 +18,41 @@
 
 @theme {
   /* ---- Neutros — la base --------------------------------------
-     Grises NEUTROS PUROS: R=G=B en cada tono. Sin tinte verde ni
-     azul ni amarillo. La versión anterior llevaba una pizca de
-     verde (#0B0C0B, #151715…); Pablo la rechazó por leerse verde.
-     Un neutro puro deja que el ÚNICO color de la app sea el
-     dorado del acento. */
-  --color-ink:    #0B0B0B;   /* negro base — fondo principal */
-  --color-ink-2:  #161616;   /* superficie / tarjetas */
-  --color-ink-3:  #222222;   /* hover / bordes elevados */
-  --color-ink-4:  #2F2F2F;   /* divisores marcados */
+     TEMA PAPEL (nov-2026). Los nombres se conservan por compatibilidad
+     —ink es el fondo, snow el texto— pero apuntan a los valores claros
+     de «Papel y pino», los mismos del admin.
 
-  /* Texto sobre oscuro — también neutro puro */
-  --color-snow:   #F4F4F4;   /* texto principal */
-  --color-snow-2: #DEDEDE;   /* texto secundario claro */
-  --color-ash:    rgba(244, 244, 244, 0.62);  /* texto medio */
-  --color-smoke:  rgba(244, 244, 244, 0.38);  /* texto tenue */
-  --color-hair:   rgba(244, 244, 244, 0.12);  /* hairline */
+     Por qué: las cuatro pantallas de operación (KDS, Mesero, Modo Solo
+     y Despegue) usan estas clases. Cambiándolas aquí, las cuatro giran
+     de tema a la vez y no queda ninguna pantalla fuera del sistema.
+
+     Un gris neutro puro deja que el único color sea el verde pino del
+     acento. */
+  --color-ink:    #FAF7F2;   /* fondo — papel cálido */
+  --color-ink-2:  #FFFEFB;   /* superficie / tarjetas */
+  --color-ink-3:  #F8F2EA;   /* hover / campos */
+  --color-ink-4:  #E7DED2;   /* divisores marcados */
+
+  /* Texto sobre papel */
+  --color-snow:   #1C1917;   /* texto principal — 16.4:1 */
+  --color-snow-2: #2A2622;   /* texto secundario fuerte */
+  --color-ash:    #57534E;   /* texto medio — 7.6:1 sobre papel */
+  --color-smoke:  #706964;   /* texto tenue — 5.05:1 sobre papel */
+  --color-hair:   #E7DED2;   /* hairline */
 
   /* Texto sobre claro */
   --color-graphite: #1A1A1A;
   --color-mid:      #555555;
   --color-fog:      #EAEAEA;
 
-  /* ---- El único acento: dorado ----------------------------- */
-  --color-brass:      #C9A44F;   /* precios y acciones */
-  --color-brass-soft: #DFC07A;   /* hover */
-  --color-brass-dim:  #8A7038;   /* bordes atenuados */
+  /* ---- El único acento: pino -------------------------------
+     Era dorado (#C9A44F). Sobre papel el dorado no pasa contraste
+     (2.1:1), así que el acento es el verde pino, el mismo del admin.
+     El dorado sobrevive solo en el sitio público y la carta impresa,
+     que son mundo aparte. */
+  --color-brass:      #3A5A44;   /* precios y acciones — 7.2:1 */
+  --color-brass-soft: #4A6E55;   /* hover */
+  --color-brass-dim:  #8FA895;   /* bordes atenuados */
 
   /* ---- Estados (desaturados para no competir con el acento) - */
   --color-good: #7E9C82;
@@ -434,32 +443,35 @@ html {
      ventanales grandes, sol de tarde. Una pantalla oscura en ese
      ambiente se vuelve un espejo. El fondo claro aguanta el reflejo
      y deja leer el precio desde lejos. */
-  .op-surface   { background: #FFFFFF; border: 1px solid #E3E3DE; }
-  .op-surface-2 { background: #F7F7F5; border: 1px solid #E3E3DE; }
+  .op-surface   { background: #FFFEFB; border: 1px solid #E7DED2; }
+  .op-surface-2 { background: #F8F2EA; border: 1px solid #E7DED2; }
 
   /* ── Estados: los cuatro, con el mismo peso visual ──
      Un solo verde, un solo ámbar, un solo rojo, en las cuatro
      pantallas. Tonos oscurecidos para que pasen contraste AA sobre
      fondo blanco (medidos: good 6.2:1, warn 7.0:1, bad 7.2:1). */
+  /* Los estados van en píldora sólida con texto blanco, igual que en el
+     admin: es el sistema que mejor contraste dio al medirse. El pino es
+     la marca; estos son la alarma. */
   .op-good {
-    background: #EAF1EB;
-    border: 1px solid #BFD3C3;
-    color: #33603D;
+    background: #167D2E;
+    border: 1px solid #167D2E;
+    color: #FFFFFF;
   }
   .op-warn {
-    background: #F7F1E2;
-    border: 1px solid #DBC99B;
-    color: #6D5613;
+    background: #A35C00;
+    border: 1px solid #A35C00;
+    color: #FFFFFF;
   }
   .op-bad {
-    background: #F7E9E6;
-    border: 1px solid #DDB0A7;
-    color: #8E3F33;
+    background: #B3261E;
+    border: 1px solid #B3261E;
+    color: #FFFFFF;
   }
   .op-neutral {
-    background: #F2F2EF;
-    border: 1px solid #E3E3DE;
-    color: #4B5563;
+    background: #F2EFEA;
+    border: 1px solid #E7DED2;
+    color: #57534E;
   }
 
   /* Punto de estado — misma forma en todas las pantallas */
@@ -482,14 +494,14 @@ html {
   .op-btn:disabled { opacity: 0.42; cursor: not-allowed; }
   .op-btn:active:not(:disabled) { transform: scale(0.985); }
 
-  .op-btn-primary { background: var(--color-brass); color: #17150F; }
+  .op-btn-primary { background: var(--color-brass); color: #FFFFFF; }
   .op-btn-primary:hover:not(:disabled) { background: var(--color-brass-soft); }
 
   .op-btn-ghost {
-    background: #FFFFFF; color: #2A2A2A;
-    border-color: #D8D8D3;
+    background: #FFFEFB; color: #2A2622;
+    border-color: #D9CFC0;
   }
-  .op-btn-ghost:hover:not(:disabled) { background: #F2F2EF; }
+  .op-btn-ghost:hover:not(:disabled) { background: #F8F2EA; }
 
   .op-btn-danger {
     background: #F7E9E6;
@@ -516,9 +528,9 @@ html {
     position: sticky; top: 0; z-index: 20;
     display: flex; align-items: center; justify-content: space-between;
     gap: 16px; padding: 12px 20px;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(250, 247, 242, 0.95);
     backdrop-filter: blur(14px);
-    border-bottom: 1px solid #E3E3DE;
+    border-bottom: 1px solid #E7DED2;
   }
 }
 
@@ -548,7 +560,7 @@ html {
    ── Contraste medido sobre el papel ─────────────────────────
      adp-tinta      #1C1917  16.4:1
      adp-tinta-2    #57534E   7.6:1
-     adp-tenue      #78716C   4.8:1
+     adp-tenue      #706964   5.1:1
      adp-pino       #3A5A44   7.2:1
      adp-pino-hondo #2F4A38   9.1:1
    ============================================================ */
@@ -561,7 +573,7 @@ html {
 
   --color-adp-tinta:      #1C1917;   /* texto principal */
   --color-adp-tinta-2:    #57534E;   /* texto secundario */
-  --color-adp-tenue:      #78716C;   /* texto terciario */
+  --color-adp-tenue:      #706964;   /* texto terciario */
 
   --color-adp-pino:       #3A5A44;   /* acento — el verde elegido */
   --color-adp-pino-hondo: #2F4A38;   /* hover / prensado */
