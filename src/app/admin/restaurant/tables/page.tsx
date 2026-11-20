@@ -23,19 +23,19 @@ export default async function TablesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Mesas</h1>
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Mesas</h1>
         <Link
           href="/admin/restaurant/tables/nueva"
-          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
+          className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] transition-colors"
         >
           + Nueva mesa
         </Link>
       </div>
 
       {tables.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-500 text-lg mb-2">No hay mesas registradas</p>
-          <p className="text-gray-500 text-sm">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-8 text-center">
+          <p className="text-[var(--color-adp-tinta-2)] text-lg mb-2">No hay mesas registradas</p>
+          <p className="text-[var(--color-adp-tinta-2)] text-sm">
             Agrega las mesas del restaurante para empezar a tomar órdenes.
           </p>
         </div>
@@ -55,27 +55,27 @@ export default async function TablesPage() {
               <div
                 key={table.id}
                 className={`bg-white rounded-xl shadow-sm border-2 transition-shadow hover:shadow-md ${
-                  isOccupied ? "border-amber-400" : "border-gray-200"
+                  isOccupied ? "border-[var(--color-adp-atencion)]" : "border-[var(--color-adp-borde)]"
                 }`}
               >
                 <div className="p-5">
                   {/* Header */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-gray-900">
+                      <span className="text-2xl font-bold text-[var(--color-adp-tinta)]">
                         {table.number}
                       </span>
                       <span
                         className={`inline-block w-3 h-3 rounded-full ${
-                          isOccupied ? "bg-amber-500" : "bg-green-500"
-                        }`}
+                          isOccupied ? "bg-[var(--color-adp-atencion)]" : "bg-[var(--color-adp-listo)]"
+                        } text-white`}
                       />
                     </div>
                     <span
                       className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                         isOccupied
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-green-100 text-green-700"
+                          ? "bg-[var(--color-adp-atencion)] text-white"
+                          : "bg-[var(--color-adp-listo)] text-white"
                       }`}
                     >
                       {isOccupied ? "Ocupada" : "Libre"}
@@ -85,9 +85,9 @@ export default async function TablesPage() {
                   {/* Name & location */}
                   <div className="space-y-1 mb-4">
                     {table.name && (
-                      <p className="text-sm text-gray-600">{table.name}</p>
+                      <p className="text-sm text-[var(--color-adp-tinta-2)]">{table.name}</p>
                     )}
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-2 text-xs text-[var(--color-adp-tinta-2)]">
                       {table.location && (
                         <span>{table.location}</span>
                       )}
@@ -97,8 +97,8 @@ export default async function TablesPage() {
 
                   {/* Active session info */}
                   {isOccupied && activeSession && (
-                    <div className="bg-amber-50 rounded-lg p-3 text-xs space-y-1">
-                      <div className="flex justify-between text-amber-800">
+                    <div className="bg-[var(--color-adp-atencion)] rounded-lg p-3 text-xs space-y-1 text-white">
+                      <div className="flex justify-between text-[var(--color-adp-atencion)]">
                         <span>Abierta:</span>
                         <span className="font-medium">
                           {new Date(activeSession.openedAt).toLocaleTimeString("es-MX", {
@@ -108,12 +108,12 @@ export default async function TablesPage() {
                         </span>
                       </div>
                       {sessionMinutes !== null && (
-                        <div className="flex justify-between text-amber-800">
+                        <div className="flex justify-between text-[var(--color-adp-atencion)]">
                           <span>Tiempo:</span>
                           <span className="font-medium">{sessionMinutes} min</span>
                         </div>
                       )}
-                      <div className="flex justify-between text-amber-800">
+                      <div className="flex justify-between text-[var(--color-adp-atencion)]">
                         <span>Órdenes:</span>
                         <span className="font-medium">{orderCount}</span>
                       </div>
@@ -124,13 +124,13 @@ export default async function TablesPage() {
                   <div className="mt-4 flex gap-2">
                     <Link
                       href={`/admin/restaurant/orders?table=${encodeURIComponent(table.number)}`}
-                      className="flex-1 text-center px-3 py-2 text-xs font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="flex-1 text-center px-3 py-2 text-xs font-medium bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)] rounded-lg hover:bg-[var(--color-adp-borde)] transition-colors"
                     >
                       {isOccupied ? "Ver órdenes" : "Nueva orden"}
                     </Link>
                     <Link
                       href={`/admin/restaurant/tables/${table.id}`}
-                      className="px-3 py-2 text-xs font-medium text-[#1b4235] hover:text-blue-800 transition-colors"
+                      className="px-3 py-2 text-xs font-medium text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] transition-colors"
                     >
                       Editar
                     </Link>

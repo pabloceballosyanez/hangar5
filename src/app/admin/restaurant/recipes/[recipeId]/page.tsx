@@ -125,8 +125,8 @@ export default function RecipeDetailPage() {
     } catch { alert('No se pudo eliminar'); }
   }
 
-  if (loading) return <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" /><p className="text-gray-500">Cargando...</p></div>;
-  if (!recipe) return <div className="text-center py-12"><p className="text-gray-500">Receta no encontrada</p><Link href="/admin/restaurant/recipes" className="text-[#1b4235] text-sm">← Volver</Link></div>;
+  if (loading) return <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" /><p className="text-[var(--color-adp-tinta-2)]">Cargando...</p></div>;
+  if (!recipe) return <div className="text-center py-12"><p className="text-[var(--color-adp-tinta-2)]">Receta no encontrada</p><Link href="/admin/restaurant/recipes" className="text-[var(--color-adp-pino)] text-sm">← Volver</Link></div>;
 
   // Calculate total cost including inherited ingredients (all in centavos consistently)
   const allItems = [...recipe.recipeItems, ...(recipe.inheritedItems || [])];
@@ -148,19 +148,19 @@ export default function RecipeDetailPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <Link href="/admin/restaurant/recipes" className="text-sm text-gray-500 hover:text-gray-700">← Volver a recetas</Link>
+        <Link href="/admin/restaurant/recipes" className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)]">← Volver a recetas</Link>
         <div className="flex items-center gap-3 mt-2">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">
             {displayName}
           </h1>
-          {recipe.menuItem && !recipe.menuItem.isActive && <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Inactivo</span>}
-          {recipe.isTemplate && <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full">Template</span>}
+          {recipe.menuItem && !recipe.menuItem.isActive && <span className="text-xs px-2 py-0.5 bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] rounded-full">Inactivo</span>}
+          {recipe.isTemplate && <span className="text-xs px-2 py-0.5 bg-[var(--color-adp-info)] text-white rounded-full">Template</span>}
         </div>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">
           {recipe.menuItem ? `Precio menú: ${fmtMXN(recipe.menuItem.basePrice)} · ` : ''}Rinde {recipe.yieldQuantity} porción(es)
           {recipe.parentRecipe && (
-            <span className="ml-2 text-xs text-purple-600">
-              · Hereda de: <Link href={`/admin/restaurant/recipes/${recipe.parentRecipe.id}`} className="underline hover:text-purple-800">
+            <span className="ml-2 text-xs text-[var(--color-adp-info)]">
+              · Hereda de: <Link href={`/admin/restaurant/recipes/${recipe.parentRecipe.id}`} className="underline hover:text-[var(--color-adp-info)]">
                 {recipe.parentRecipe.notes ? recipe.parentRecipe.notes.split('. ')[0].split(' — ')[0].trim() : 'Template'}
               </Link>
               {recipe.parentRecipe.yieldQuantity > 0 && ` (rinde ${recipe.parentRecipe.yieldQuantity})`}
@@ -171,87 +171,87 @@ export default function RecipeDetailPage() {
 
       {/* Cost summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wider">Costo total</p>
-          <p className="text-2xl font-bold mt-1 text-gray-900">{fmtMXN(totalCost)}</p>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-4">
+          <p className="text-xs text-[var(--color-adp-tinta-2)] uppercase tracking-wider">Costo total</p>
+          <p className="text-2xl font-bold mt-1 text-[var(--color-adp-tinta)]">{fmtMXN(totalCost)}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wider">Costo por porción</p>
-          <p className="text-2xl font-bold mt-1 text-gray-900">{fmtMXN(costPerUnit)}</p>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-4">
+          <p className="text-xs text-[var(--color-adp-tinta-2)] uppercase tracking-wider">Costo por porción</p>
+          <p className="text-2xl font-bold mt-1 text-[var(--color-adp-tinta)]">{fmtMXN(costPerUnit)}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wider">Margen estimado</p>
-          <p className={`text-2xl font-bold mt-1 ${margin !== '—' && Number(margin) > 0 ? 'text-emerald-600' : 'text-[#b03a2e]'}`}>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-4">
+          <p className="text-xs text-[var(--color-adp-tinta-2)] uppercase tracking-wider">Margen estimado</p>
+          <p className={`text-2xl font-bold mt-1 ${margin !== '—' && Number(margin) > 0 ? 'text-[var(--color-adp-listo)]' : 'text-[var(--color-adp-urgente)]'}`}>
             {margin !== '—' ? `${margin}%` : '—'}
           </p>
         </div>
       </div>
 
       {/* Edit recipe fields */}
-      <form onSubmit={handleUpdate} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-3">
-        <h2 className="font-semibold text-gray-900 text-sm">Detalles de receta</h2>
-        {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-2 rounded">{error}</p>}
+      <form onSubmit={handleUpdate} className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-5 space-y-3">
+        <h2 className="font-semibold text-[var(--color-adp-tinta)] text-sm">Detalles de receta</h2>
+        {error && <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-2 rounded">{error}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Porciones que rinde</label>
+            <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Porciones que rinde</label>
             <input type="number" value={yieldQty} onChange={e => setYieldQty(Number(e.target.value))} min={1}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+              className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Notas</label>
+            <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Notas</label>
             <input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Ej: Preparación, variaciones..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+              className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
           </div>
         </div>
         <button type="submit" disabled={saving}
-          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50">
+          className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50">
           {saving ? 'Guardando...' : 'Guardar'}
         </button>
       </form>
 
       {/* Ingredients list */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-900">Ingredientes ({recipe.recipeItems.length})</h2>
+      <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[var(--color-adp-borde)] flex items-center justify-between">
+          <h2 className="font-semibold text-[var(--color-adp-tinta)]">Ingredientes ({recipe.recipeItems.length})</h2>
         </div>
         {recipe.recipeItems.length === 0 && (recipe.inheritedItems || []).length === 0 ? (
-          <div className="p-6 text-center text-gray-500 text-sm">Sin ingredientes — agrega abajo</div>
+          <div className="p-6 text-center text-[var(--color-adp-tinta-2)] text-sm">Sin ingredientes — agrega abajo</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                <th className="text-left py-2 px-4 font-medium text-gray-500 text-xs">Ingrediente</th>
-                <th className="text-left py-2 px-4 font-medium text-gray-500 text-xs">Unidad</th>
-                <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">Cantidad</th>
-                <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">Costo unit.</th>
-                <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">Subtotal</th>
-                <th className="text-center py-2 px-4 font-medium text-gray-500 text-xs w-12"></th>
+              <tr className="border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)]">
+                <th className="text-left py-2 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs">Ingrediente</th>
+                <th className="text-left py-2 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs">Unidad</th>
+                <th className="text-right py-2 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs">Cantidad</th>
+                <th className="text-right py-2 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs">Costo unit.</th>
+                <th className="text-right py-2 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs">Subtotal</th>
+                <th className="text-center py-2 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs w-12"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-[var(--color-adp-borde)]">
               {recipe.recipeItems.map(ri => (
-                <tr key={ri.id} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 font-medium text-gray-900">{ri.ingredientName}</td>
-                  <td className="py-2 px-4 text-gray-500">{ri.ingredientUnit}</td>
-                  <td className="py-2 px-4 text-right text-gray-900">{ri.quantity}</td>
-                  <td className="py-2 px-4 text-right text-gray-600">{fmtMXN(ri.ingredientCostDisplay)}</td>
-                  <td className="py-2 px-4 text-right font-semibold text-gray-900">{fmtMXN((ri.ingredientCost * ri.quantity) / 100)}</td>
+                <tr key={ri.id} className="hover:bg-[var(--color-adp-papel-3)]">
+                  <td className="py-2 px-4 font-medium text-[var(--color-adp-tinta)]">{ri.ingredientName}</td>
+                  <td className="py-2 px-4 text-[var(--color-adp-tinta-2)]">{ri.ingredientUnit}</td>
+                  <td className="py-2 px-4 text-right text-[var(--color-adp-tinta)]">{ri.quantity}</td>
+                  <td className="py-2 px-4 text-right text-[var(--color-adp-tinta-2)]">{fmtMXN(ri.ingredientCostDisplay)}</td>
+                  <td className="py-2 px-4 text-right font-semibold text-[var(--color-adp-tinta)]">{fmtMXN((ri.ingredientCost * ri.quantity) / 100)}</td>
                   <td className="py-2 px-4 text-center">
-                    <button onClick={() => handleRemoveItem(ri.id)} className="text-red-400 hover:text-[#b03a2e] text-sm">✕</button>
+                    <button onClick={() => handleRemoveItem(ri.id)} className="text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] text-sm">✕</button>
                   </td>
                 </tr>
               ))}
               {/* Inherited ingredients from parent */}
               {(recipe.inheritedItems || []).map(ri => (
-                <tr key={`inh-${ri.id}`} className="hover:bg-purple-50 bg-purple-50/30">
-                  <td className="py-2 px-4 font-medium text-purple-700">
+                <tr key={`inh-${ri.id}`} className="hover:hover:bg-[var(--color-adp-info)]/85/10 hover:bg-[var(--color-adp-info)]/85/10/30">
+                  <td className="py-2 px-4 font-medium text-[var(--color-adp-info)]">
                     🧬 {ri.ingredientName}
                   </td>
-                  <td className="py-2 px-4 text-purple-500">{ri.ingredientUnit}</td>
-                  <td className="py-2 px-4 text-right text-purple-700">{ri.quantity.toFixed(2)}</td>
-                  <td className="py-2 px-4 text-right text-purple-600">{fmtMXN(ri.ingredientCostDisplay)}</td>
-                  <td className="py-2 px-4 text-right font-semibold text-purple-700">{fmtMXN((ri.ingredientCost * ri.quantity) / 100)}</td>
-                  <td className="py-2 px-4 text-center text-xs text-purple-400">hereda</td>
+                  <td className="py-2 px-4 text-[var(--color-adp-info)]">{ri.ingredientUnit}</td>
+                  <td className="py-2 px-4 text-right text-[var(--color-adp-info)]">{ri.quantity.toFixed(2)}</td>
+                  <td className="py-2 px-4 text-right text-[var(--color-adp-info)]">{fmtMXN(ri.ingredientCostDisplay)}</td>
+                  <td className="py-2 px-4 text-right font-semibold text-[var(--color-adp-info)]">{fmtMXN((ri.ingredientCost * ri.quantity) / 100)}</td>
+                  <td className="py-2 px-4 text-center text-xs text-[var(--color-adp-info)]">hereda</td>
                 </tr>
               ))}
             </tbody>
@@ -260,16 +260,16 @@ export default function RecipeDetailPage() {
       </div>
 
       {/* Add ingredient form */}
-      <form onSubmit={handleAddIngredient} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <h2 className="font-semibold text-gray-900 mb-3">Agregar ingrediente</h2>
+      <form onSubmit={handleAddIngredient} className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-5">
+        <h2 className="font-semibold text-[var(--color-adp-tinta)] mb-3">Agregar ingrediente</h2>
         {availableIngredients.length === 0 ? (
-          <p className="text-sm text-gray-500">Todos los ingredientes disponibles ya están en la receta.</p>
+          <p className="text-sm text-[var(--color-adp-tinta-2)]">Todos los ingredientes disponibles ya están en la receta.</p>
         ) : (
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[200px]">
-              <label className="block text-xs text-gray-500 mb-1">Ingrediente</label>
+              <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Ingrediente</label>
               <select value={selectedIngredientId} onChange={e => setSelectedIngredientId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none">
                 <option value="">Seleccionar...</option>
                 {availableIngredients.map(i => (
                   <option key={i.id} value={i.id}>{i.name} ({i.unit}) — {fmtMXN(i.costDisplay)}</option>
@@ -277,13 +277,13 @@ export default function RecipeDetailPage() {
               </select>
             </div>
             <div className="w-32">
-              <label className="block text-xs text-gray-500 mb-1">Cantidad</label>
+              <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Cantidad</label>
               <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)}
                 step="0.01" min="0.01" placeholder="1.0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
             </div>
             <button type="submit" disabled={saving || !selectedIngredientId || !quantity}
-              className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50">
+              className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50">
               {saving ? '...' : '+ Agregar'}
             </button>
           </div>

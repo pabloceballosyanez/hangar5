@@ -124,8 +124,8 @@ export default function EditTablePage() {
   if (loading) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-        <p className="text-gray-500">Cargando mesa...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+        <p className="text-[var(--color-adp-tinta-2)]">Cargando mesa...</p>
       </div>
     );
   }
@@ -133,8 +133,8 @@ export default function EditTablePage() {
   if (error && !number) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <p className="text-[#b03a2e] mb-4">{error}</p>
-        <Link href="/admin/restaurant/tables" className="text-[#1b4235] hover:text-blue-800 text-sm font-medium">
+        <p className="text-[var(--color-adp-urgente)] mb-4">{error}</p>
+        <Link href="/admin/restaurant/tables" className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm font-medium">
           ← Volver a mesas
         </Link>
       </div>
@@ -147,63 +147,63 @@ export default function EditTablePage() {
     <div className="flex flex-col items-center py-8 px-4">
       <div className="w-full max-w-2xl">
         <div className="mb-6">
-          <Link href="/admin/restaurant/tables" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+          <Link href="/admin/restaurant/tables" className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] transition-colors">
             ← Volver a mesas
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">Editar mesa: {number}</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)] mt-2">Editar mesa: {number}</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Edit Form */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-6">
             <form onSubmit={handleSave} className="space-y-5">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+                <div className="p-3 bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)] rounded-lg text-sm text-white">{error}</div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Identificador <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                  Identificador <span className="text-[var(--color-adp-urgente)]">*</span>
                 </label>
                 <input
                   type="text"
                   value={number}
                   onChange={(e) => setNumber(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre <span className="text-gray-500 font-normal">(opcional)</span>
+                <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                  Nombre <span className="text-[var(--color-adp-tinta-2)] font-normal">(opcional)</span>
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
+                  <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Capacidad</label>
                   <input
                     type="number"
                     value={capacity}
                     onChange={(e) => setCapacity(e.target.value === '' ? '' : Number(e.target.value))}
                     min={1}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
+                  <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Ubicación</label>
                   <select
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
+                    className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent bg-white"
                   >
                     {LOCATIONS.map((loc) => (
                       <option key={loc} value={loc}>{loc}</option>
@@ -218,15 +218,15 @@ export default function EditTablePage() {
                   id="isActive"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
-                  className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
+                  className="w-4 h-4 text-[var(--color-adp-pino)] rounded border-[var(--color-adp-borde-2)] focus:ring-[var(--color-adp-pino)]/40"
                 />
-                <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Activa</label>
+                <label htmlFor="isActive" className="text-sm font-medium text-[var(--color-adp-tinta)]">Activa</label>
               </div>
 
               <div className="flex gap-3 pt-2">
                 <Link
                   href="/admin/restaurant/tables"
-                  className="px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 border border-[var(--color-adp-borde-2)] text-sm font-medium text-[var(--color-adp-tinta)] rounded-lg hover:bg-[var(--color-adp-papel-3)] transition-colors"
                 >
                   Cancelar
                 </Link>
@@ -235,14 +235,14 @@ export default function EditTablePage() {
                   onClick={handleDelete}
                   disabled={deleting || !!openSession}
                   title={openSession ? 'Cierra la sesión activa primero' : 'Desactivar mesa'}
-                  className="px-4 py-2 border border-red-200 text-sm font-medium text-[#b03a2e] rounded-lg hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 border border-[var(--color-adp-urgente)] text-sm font-medium text-white rounded-lg hover:bg-[var(--color-adp-urgente)]/85 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   {deleting ? 'Desactivando...' : 'Desactivar'}
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
+                  className="flex-1 px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors"
                 >
                   {saving ? 'Guardando...' : 'Guardar cambios'}
                 </button>
@@ -253,35 +253,35 @@ export default function EditTablePage() {
           {/* Session Info */}
           <div className="space-y-4">
             {openSession && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                <p className="text-sm font-semibold text-amber-800 mb-2">🔴 Sesión activa</p>
-                <p className="text-xs text-amber-700">
+              <div className="bg-[var(--color-adp-atencion)] border border-[var(--color-adp-atencion)] rounded-xl p-4 text-white">
+                <p className="text-sm font-semibold text-[var(--color-adp-atencion)] mb-2">🔴 Sesión activa</p>
+                <p className="text-xs text-[var(--color-adp-atencion)]">
                   Abierta: {new Date(openSession.openedAt).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                 </p>
-                <p className="text-xs text-amber-700">
+                <p className="text-xs text-[var(--color-adp-atencion)]">
                   Órdenes: {openSession.orders.length}
                 </p>
-                <p className="text-xs text-amber-600 mt-2">
+                <p className="text-xs text-[var(--color-adp-atencion)] mt-2">
                   Cierra la sesión antes de desactivar la mesa.
                 </p>
               </div>
             )}
 
             {sessions.length > 0 && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <p className="text-sm font-semibold text-gray-700 mb-3">Historial reciente</p>
+              <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-4">
+                <p className="text-sm font-semibold text-[var(--color-adp-tinta)] mb-3">Historial reciente</p>
                 <div className="space-y-2">
                   {sessions.slice(0, 5).map((s) => (
-                    <div key={s.id} className="text-xs border-b border-gray-50 pb-2 last:border-0">
+                    <div key={s.id} className="text-xs border-b border-[var(--color-adp-borde)] pb-2 last:border-0">
                       <div className="flex justify-between">
-                        <span className={s.status === 'OPEN' ? 'text-amber-600 font-medium' : 'text-gray-500'}>
+                        <span className={s.status === 'OPEN' ? 'text-[var(--color-adp-atencion)] font-medium' : 'text-[var(--color-adp-tinta-2)]'}>
                           {s.status === 'OPEN' ? 'Abierta' : 'Cerrada'}
                         </span>
-                        <span className="text-gray-500">
+                        <span className="text-[var(--color-adp-tinta-2)]">
                           {new Date(s.openedAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
                         </span>
                       </div>
-                      <p className="text-gray-500">{s.orders.length} órdenes</p>
+                      <p className="text-[var(--color-adp-tinta-2)]">{s.orders.length} órdenes</p>
                     </div>
                   ))}
                 </div>

@@ -69,7 +69,7 @@
   --color-ok:       var(--color-good);
 
   /* Tipografía */
-  --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-gloock), Georgia, serif;
 
   /* Fotografía — casi monocroma en reposo, el color es la recompensa */
@@ -429,32 +429,37 @@ html {
     letter-spacing: -0.02em;
   }
 
-  /* ── Superficies sobre fondo oscuro ── */
-  .op-surface   { background: var(--color-ink-2); border: 1px solid var(--color-hair); }
-  .op-surface-2 { background: var(--color-ink-3); border: 1px solid var(--color-hair); }
+  /* ── Superficies ──
+     Tema CLARO (nov-2026): el Hangar 5 trabaja con luz de montaña —
+     ventanales grandes, sol de tarde. Una pantalla oscura en ese
+     ambiente se vuelve un espejo. El fondo claro aguanta el reflejo
+     y deja leer el precio desde lejos. */
+  .op-surface   { background: #FFFFFF; border: 1px solid #E3E3DE; }
+  .op-surface-2 { background: #F7F7F5; border: 1px solid #E3E3DE; }
 
   /* ── Estados: los cuatro, con el mismo peso visual ──
-     Antes "listo" era verde-500 en el KDS, emerald-500 en el mesero y
-     green-600 en el Modo Solo. Tres verdes para la misma cosa. */
+     Un solo verde, un solo ámbar, un solo rojo, en las cuatro
+     pantallas. Tonos oscurecidos para que pasen contraste AA sobre
+     fondo blanco (medidos: good 6.2:1, warn 7.0:1, bad 7.2:1). */
   .op-good {
-    background: rgba(126, 156, 130, 0.14);
-    border: 1px solid rgba(126, 156, 130, 0.45);
-    color: #A8C4AC;
+    background: #EAF1EB;
+    border: 1px solid #BFD3C3;
+    color: #33603D;
   }
   .op-warn {
-    background: rgba(192, 160, 85, 0.14);
-    border: 1px solid rgba(192, 160, 85, 0.45);
-    color: #DCC282;
+    background: #F7F1E2;
+    border: 1px solid #DBC99B;
+    color: #6D5613;
   }
   .op-bad {
-    background: rgba(181, 105, 92, 0.14);
-    border: 1px solid rgba(181, 105, 92, 0.45);
-    color: #D89A8E;
+    background: #F7E9E6;
+    border: 1px solid #DDB0A7;
+    color: #8E3F33;
   }
   .op-neutral {
-    background: rgba(244, 244, 244, 0.07);
-    border: 1px solid var(--color-hair);
-    color: var(--color-ash);
+    background: #F2F2EF;
+    border: 1px solid #E3E3DE;
+    color: #4B5563;
   }
 
   /* Punto de estado — misma forma en todas las pantallas */
@@ -481,17 +486,17 @@ html {
   .op-btn-primary:hover:not(:disabled) { background: var(--color-brass-soft); }
 
   .op-btn-ghost {
-    background: transparent; color: var(--color-snow);
-    border-color: var(--color-hair);
+    background: #FFFFFF; color: #2A2A2A;
+    border-color: #D8D8D3;
   }
-  .op-btn-ghost:hover:not(:disabled) { background: rgba(244, 244, 244, 0.06); }
+  .op-btn-ghost:hover:not(:disabled) { background: #F2F2EF; }
 
   .op-btn-danger {
-    background: rgba(181, 105, 92, 0.16);
-    border-color: rgba(181, 105, 92, 0.5);
-    color: #D89A8E;
+    background: #F7E9E6;
+    border-color: #DDB0A7;
+    color: #8E3F33;
   }
-  .op-btn-danger:hover:not(:disabled) { background: rgba(181, 105, 92, 0.26); }
+  .op-btn-danger:hover:not(:disabled) { background: #F0DAD5; }
 
   .op-btn-sm { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
 
@@ -511,8 +516,91 @@ html {
     position: sticky; top: 0; z-index: 20;
     display: flex; align-items: center; justify-content: space-between;
     gap: 16px; padding: 12px 20px;
-    background: rgba(11, 11, 11, 0.94);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--color-hair);
+    border-bottom: 1px solid #E3E3DE;
   }
+}
+
+/* ============================================================
+   ADMIN — paleta «Papel y pino»
+
+   El admin es la herramienta de trabajo: reportes, configuración,
+   inventario, personal. Se mira durante turnos largos, muchas veces
+   con luz de día encima.
+
+   Por eso el papel cálido en vez de blanco puro — doce horas de
+   blanco dejan los ojos raspados — y el verde pino como acento,
+   que es el color del lugar en vez de un dorado de restaurante
+   urbano.
+
+   ── Los estados van aparte, a propósito ─────────────────────
+   El pino es la marca; los estados son la alarma. Son dos idiomas
+   distintos y el ojo los separa sin esfuerzo:
+
+     pino    = identidad (títulos, acento, estructura)
+     vívido  = estado   (pendiente, listo, urgente)
+
+   Los estados usan píldora sólida con texto blanco. Medido: es el
+   sistema con mejor contraste de los tres probados (peor caso
+   5.14:1 frente a 4.50 del neón suave).
+
+   ── Contraste medido sobre el papel ─────────────────────────
+     adp-tinta      #1C1917  16.4:1
+     adp-tinta-2    #57534E   7.6:1
+     adp-tenue      #78716C   4.8:1
+     adp-pino       #3A5A44   7.2:1
+     adp-pino-hondo #2F4A38   9.1:1
+   ============================================================ */
+@theme {
+  --color-adp-papel:      #FAF7F2;   /* fondo de la aplicación */
+  --color-adp-papel-2:    #FFFEFB;   /* tarjetas */
+  --color-adp-papel-3:    #F8F2EA;   /* cabeceras, campos */
+  --color-adp-borde:      #E7DED2;   /* hairline */
+  --color-adp-borde-2:    #D9CFC0;   /* borde marcado */
+
+  --color-adp-tinta:      #1C1917;   /* texto principal */
+  --color-adp-tinta-2:    #57534E;   /* texto secundario */
+  --color-adp-tenue:      #78716C;   /* texto terciario */
+
+  --color-adp-pino:       #3A5A44;   /* acento — el verde elegido */
+  --color-adp-pino-hondo: #2F4A38;   /* hover / prensado */
+  --color-adp-pino-suave: #ECF1ED;   /* fondo teñido */
+
+  /* Estados vivos. Sólidos, con blanco encima. */
+  --color-adp-listo:      #167D2E;
+  --color-adp-atencion:   #A35C00;
+  --color-adp-urgente:    #B3261E;
+  --color-adp-info:       #1A5FB4;
+}
+
+@layer components {
+  /* Fondo y estructura del admin */
+  .adp-fondo      { background: var(--color-adp-papel); color: var(--color-adp-tinta); }
+  .adp-tarjeta    { background: var(--color-adp-papel-2); border: 1px solid var(--color-adp-borde); }
+  .adp-campo      { background: var(--color-adp-papel-2); border: 1px solid var(--color-adp-borde-2); color: var(--color-adp-tinta); }
+
+  /* Acento */
+  .adp-acento     { color: var(--color-adp-pino); }
+
+  /* Píldoras de estado — sólidas, texto blanco, contraste garantizado */
+  .adp-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 999px;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: #FFFFFF; white-space: nowrap;
+  }
+  /* Aviso: fondo teñido del estado, texto saturado. Es el patrón
+     contrario a la píldora: aquí el bloque entero avisa sin gritar,
+     y el texto sigue legible porque va oscuro sobre claro. */
+  .adp-aviso {
+    background: #FBEAE8;
+    border: 1px solid #E8B8B0;
+  }
+
+  .adp-pill-listo    { background: var(--color-adp-listo); }
+  .adp-pill-atencion { background: var(--color-adp-atencion); }
+  .adp-pill-urgente  { background: var(--color-adp-urgente); }
+  .adp-pill-info     { background: var(--color-adp-info); }
 }

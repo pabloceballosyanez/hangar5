@@ -12,14 +12,14 @@ function formatPrice(pesos: number): string {
 }
 
 const statusColors: Record<string, string> = {
-  DRAFT: "bg-gray-100 text-gray-700 border-gray-300",
-  AWAITING_PAYMENT: "bg-yellow-100 text-yellow-700 border-yellow-300",
-  PLACED: "bg-blue-100 text-[#15352a] border-blue-300",
-  IN_KITCHEN: "bg-orange-100 text-orange-700 border-orange-300",
-  READY: "bg-green-100 text-green-700 border-green-300",
-  SERVED: "bg-emerald-100 text-emerald-800 border-emerald-300",
-  PAID: "bg-violet-100 text-violet-700 border-violet-300",
-  CANCELLED: "bg-red-100 text-red-700 border-red-300",
+  DRAFT: "bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)] border-[var(--color-adp-borde-2)]",
+  AWAITING_PAYMENT: "bg-[var(--color-adp-atencion)] text-[var(--color-adp-atencion)] border-[var(--color-adp-atencion)]",
+  PLACED: "bg-[var(--color-adp-info)] text-white border-[var(--color-adp-info)]",
+  IN_KITCHEN: "bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)]",
+  READY: "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)]",
+  SERVED: "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)]",
+  PAID: "bg-[var(--color-adp-info)] text-[var(--color-adp-info)] border-[var(--color-adp-info)]",
+  CANCELLED: "bg-[var(--color-adp-urgente)] text-white border-[var(--color-adp-urgente)]",
 };
 
 const statusLabel: Record<string, string> = {
@@ -59,14 +59,14 @@ const prepLabel: Record<string, string> = {
 };
 
 const prepColors: Record<string, string> = {
-  DRAFT: "bg-gray-100 text-gray-600 border-gray-300",
-  AWAITING_PAYMENT: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  PLACED: "bg-blue-100 text-blue-800 border-blue-300",
-  IN_KITCHEN: "bg-orange-100 text-orange-800 border-orange-300",
-  READY: "bg-teal-100 text-teal-800 border-teal-300",
-  SERVED: "bg-emerald-100 text-emerald-800 border-emerald-300",
-  PAID: "bg-violet-100 text-violet-700 border-violet-300",
-  CANCELLED: "bg-red-100 text-red-700 border-red-300",
+  DRAFT: "bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] border-[var(--color-adp-borde-2)]",
+  AWAITING_PAYMENT: "bg-[var(--color-adp-atencion)] text-[var(--color-adp-atencion)] border-[var(--color-adp-atencion)]",
+  PLACED: "bg-[var(--color-adp-info)] text-white border-[var(--color-adp-info)]",
+  IN_KITCHEN: "bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)]",
+  READY: "bg-[var(--color-adp-info)] text-[var(--color-adp-info)] border-[var(--color-adp-info)]",
+  SERVED: "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)]",
+  PAID: "bg-[var(--color-adp-info)] text-[var(--color-adp-info)] border-[var(--color-adp-info)]",
+  CANCELLED: "bg-[var(--color-adp-urgente)] text-white border-[var(--color-adp-urgente)]",
 };
 
 const paymentMethodLabel: Record<string, string> = {
@@ -78,9 +78,9 @@ const paymentMethodLabel: Record<string, string> = {
 };
 
 const paymentOptions = [
-  { method: "CASH", label: "💵 Efectivo", color: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200" },
-  { method: "CARD", label: "💳 Tarjeta", color: "bg-blue-100 text-[#15352a] border-blue-300 hover:bg-blue-200" },
-  { method: "ON_ACCOUNT", label: "📒 Crédito", color: "bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200", requiresCustomer: true },
+  { method: "CASH", label: "💵 Efectivo", color: "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)] hover:bg-[var(--color-adp-listo)]" },
+  { method: "CARD", label: "💳 Tarjeta", color: "bg-[var(--color-adp-info)] text-white border-[var(--color-adp-info)] hover:bg-[var(--color-adp-info)]" },
+  { method: "ON_ACCOUNT", label: "📒 Crédito", color: "bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)] hover:bg-[var(--color-adp-atencion)]", requiresCustomer: true },
 ];
 
 const tabs = [
@@ -230,36 +230,36 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Órdenes</h1>
-        <span className="text-xs text-gray-500">
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Órdenes</h1>
+        <span className="text-xs text-[var(--color-adp-tinta-2)]">
           Actualización automática cada 30s
         </span>
       </div>
 
       {actionError && (
-        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 flex items-center justify-between">
+        <div className="bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)] rounded-xl px-4 py-3 text-sm text-white flex items-center justify-between">
           <span>{actionError}</span>
-          <button onClick={() => setActionError(null)} className="text-red-400 hover:text-[#b03a2e]">✕</button>
+          <button onClick={() => setActionError(null)} className="text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)]">✕</button>
         </div>
       )}
 
       {actionSuccess && (
-        <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700 flex items-center justify-between animate-pulse">
+        <div className="bg-[var(--color-adp-listo)] border border-[var(--color-adp-listo)] rounded-xl px-4 py-3 text-sm text-white flex items-center justify-between animate-pulse">
           <span>{actionSuccess}</span>
-          <button onClick={() => setActionSuccess(null)} className="text-green-400 hover:text-[#1b4235]">✕</button>
+          <button onClick={() => setActionSuccess(null)} className="text-[var(--color-adp-listo)] hover:text-[var(--color-adp-pino)]">✕</button>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-200">
+      <div className="flex gap-1 border-b border-[var(--color-adp-borde)]">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.key
-                ? "border-blue-600 text-[#1b4235]"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ? "border-[var(--color-adp-info)] text-[var(--color-adp-pino)]"
+                : "border-transparent text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] hover:border-[var(--color-adp-borde-2)]"
             }`}
           >
             {tab.label}
@@ -269,50 +269,50 @@ export default function OrdersPage() {
 
       {/* Orders */}
       {loading ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-          <p className="text-gray-500 text-sm">Cargando órdenes...</p>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+          <p className="text-[var(--color-adp-tinta-2)] text-sm">Cargando órdenes...</p>
         </div>
       ) : orders.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-500 text-lg">No hay órdenes</p>
-          <p className="text-gray-500 text-sm mt-1">{emptyMessage}</p>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-8 text-center">
+          <p className="text-[var(--color-adp-tinta-2)] text-lg">No hay órdenes</p>
+          <p className="text-[var(--color-adp-tinta-2)] text-sm mt-1">{emptyMessage}</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                <tr className="border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)]">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Mesa
                   </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Fuente
                   </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Items
                   </th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Total
                   </th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Preparación
                   </th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Pago
                   </th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Acción
                   </th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Hora
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-[var(--color-adp-borde)]">
                 {orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={order.id} className="hover:bg-[var(--color-adp-papel-3)] transition-colors">
                     <td className="py-3 px-4">
                       {/* Quién es el pedido.
                           Antes solo se mostraba customerName, que casi
@@ -332,21 +332,21 @@ export default function OrdersPage() {
 
                         return (
                           <div>
-                            <span className="font-bold text-gray-900">
+                            <span className="font-bold text-[var(--color-adp-tinta)]">
                               {mesa || (esWalkIn ? "Walk-in" : esTab ? "Cliente" : "—")}
                             </span>
                             {mesaNombre && (
-                              <span className="text-xs text-gray-500 ml-1">· {mesaNombre}</span>
+                              <span className="text-xs text-[var(--color-adp-tinta-2)] ml-1">· {mesaNombre}</span>
                             )}
                             {cliente && cliente !== mesa && (
-                              <p className="text-xs text-gray-500">{cliente}</p>
+                              <p className="text-xs text-[var(--color-adp-tinta-2)]">{cliente}</p>
                             )}
                           </div>
                         );
                       })()}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-[var(--color-adp-tinta-2)]">
                         {sourceLabel[order.source] || order.source}
                       </span>
                     </td>
@@ -354,20 +354,20 @@ export default function OrdersPage() {
                       <div className="space-y-1">
                         {order.orderItems.map((item) => (
                           <div key={item.id} className="text-xs">
-                            <span className="text-gray-900 font-medium">
+                            <span className="text-[var(--color-adp-tinta)] font-medium">
                               {item.quantity}x {item.menuItem.name}
                             </span>
                             {item.variant && (
-                              <span className="text-gray-500"> ({item.variant.name})</span>
+                              <span className="text-[var(--color-adp-tinta-2)]"> ({item.variant.name})</span>
                             )}
                             {item.modifiers && item.modifiers.length > 0 && (
-                              <span className="text-gray-500">
+                              <span className="text-[var(--color-adp-tinta-2)]">
                                 {" "}
                                 · {item.modifiers.map((m) => m.modifierName).join(", ")}
                               </span>
                             )}
                             {item.specialInstructions && (
-                              <p className="text-gray-500 italic pl-2">
+                              <p className="text-[var(--color-adp-tinta-2)] italic pl-2">
                                 Nota: {item.specialInstructions}
                               </p>
                             )}
@@ -375,13 +375,13 @@ export default function OrdersPage() {
                         ))}
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-right font-semibold text-gray-900 whitespace-nowrap">
+                    <td className="py-3 px-4 text-right font-semibold text-[var(--color-adp-tinta)] whitespace-nowrap">
                       {formatPrice(order.total)}
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span
                         className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full border ${
-                          prepColors[order.status] || "bg-gray-100 text-gray-700"
+                          prepColors[order.status] || "bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)]"
                         }`}
                       >
                         {prepLabel[order.status] || order.status}
@@ -393,10 +393,10 @@ export default function OrdersPage() {
                            hace pensar que falta dinero, cuando en realidad
                            ya no hay nada que cobrar. */
                         <div className="flex flex-col items-center gap-0.5">
-                          <span className="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-300">
+                          <span className="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] border-[var(--color-adp-borde-2)]">
                             No se cobra
                           </span>
-                          <span className="text-[10px] text-gray-500">cancelada</span>
+                          <span className="text-[10px] text-[var(--color-adp-tinta-2)]">cancelada</span>
                         </div>
                       ) : order.payments && order.payments.length > 0 ? (() => {
                         const p = order.payments[0];
@@ -406,12 +406,12 @@ export default function OrdersPage() {
                           <div className="flex flex-col items-center gap-0.5">
                             <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full border ${
                               pagado
-                                ? "bg-green-100 text-green-700 border-green-300"
-                                : "bg-yellow-100 text-yellow-700 border-yellow-300"
+                                ? "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)]"
+                                : "bg-[var(--color-adp-atencion)] text-[var(--color-adp-atencion)] border-[var(--color-adp-atencion)]"
                             }`}>
                               {pagado ? "Pagado" : "Pendiente"}
                             </span>
-                            <span className="text-[10px] text-gray-500">
+                            <span className="text-[10px] text-[var(--color-adp-tinta-2)]">
                               {aCuenta
                                 ? "a su cuenta (libro)"
                                 : paymentMethodLabel[p.method] || p.method}
@@ -424,25 +424,25 @@ export default function OrdersPage() {
                            hace dudar si falta cobrar. */
                         order.status === "PAID" ? (
                           <div className="flex flex-col items-center gap-0.5">
-                            <span className="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-300">
+                            <span className="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] border-[var(--color-adp-borde-2)]">
                               Sin registro
                             </span>
-                            <span className="text-[10px] text-gray-500">orden vieja</span>
+                            <span className="text-[10px] text-[var(--color-adp-tinta-2)]">orden vieja</span>
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-500">—</span>
+                          <span className="text-xs text-[var(--color-adp-tinta-2)]">—</span>
                         )
                       )}
                     </td>
                     <td className="py-3 px-2 text-center">
                       {actionLoading === order.id ? (
-                        <span className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin inline-block" />
+                        <span className="w-5 h-5 border-2 border-[var(--color-adp-atencion)] border-t-transparent rounded-full animate-spin inline-block" />
                       ) : (
                         <div className="flex items-center justify-center gap-1">
                           {['DRAFT', 'AWAITING_PAYMENT', 'PLACED', 'IN_KITCHEN', 'READY'].includes(order.status) && (
                         <button
                           onClick={() => { setCancelOrderId(order.id); setCancelPin(""); setActionError(null); }}
-                          className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 border border-red-300 rounded-md hover:bg-red-200 transition-colors"
+                          className="px-2 py-1 text-xs font-medium bg-[var(--color-adp-urgente)] text-white border border-[var(--color-adp-urgente)] rounded-md hover:bg-[var(--color-adp-urgente)]/85 transition-colors"
                           title="Cancelar orden (requiere supervisor)"
                         >
                           ❌ Cancelar
@@ -469,7 +469,7 @@ export default function OrdersPage() {
                                     } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
                                     setActionLoading(null);
                                   }}
-                                  className="px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-md hover:bg-emerald-200 transition-colors"
+                                  className="px-2 py-1 text-xs font-medium bg-[var(--color-adp-listo)] text-white border border-[var(--color-adp-listo)] rounded-md hover:bg-[var(--color-adp-listo)]/85 transition-colors"
                                   title={`Entregar ${readyCount} ítem(es) listo(s)`}
                                 >
                                   ✅ Entregar ({readyCount})
@@ -493,7 +493,7 @@ export default function OrdersPage() {
                             if (yaPagado) {
                               return (
                                 <span
-                                  className="px-2 py-1 text-xs font-medium text-gray-500"
+                                  className="px-2 py-1 text-xs font-medium text-[var(--color-adp-tinta-2)]"
                                   title={`Pagado con ${paymentMethodLabel[pago.method] || pago.method}`}
                                 >
                                   Cobrado
@@ -506,7 +506,7 @@ export default function OrdersPage() {
                             return (
                               <button
                                 onClick={() => setSelectingPayment(order.id)}
-                                className="px-2 py-1 text-xs font-medium bg-violet-100 text-violet-700 border border-violet-300 rounded-md hover:bg-violet-200 transition-colors"
+                                className="px-2 py-1 text-xs font-medium bg-[var(--color-adp-info)] text-white border border-[var(--color-adp-info)] rounded-md hover:bg-[var(--color-adp-info)]/85 transition-colors"
                                 title={esCredito ? "Saldar la deuda del huésped" : "Seleccionar método de pago"}
                               >
                                 {esCredito ? "💳 Saldar" : "💰 Pagar"}
@@ -534,7 +534,7 @@ export default function OrdersPage() {
                                     }}
                                     className={`px-2 py-1 text-xs font-medium border rounded-md transition-colors ${
                                       disabled
-                                        ? 'bg-gray-50 text-gray-500 border-gray-200 cursor-not-allowed'
+                                        ? 'bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] border-[var(--color-adp-borde)] cursor-not-allowed'
                                         : opt.color
                                     }`}
                                     title={disabled ? 'Cliente sin crédito habilitado' : opt.label}
@@ -545,7 +545,7 @@ export default function OrdersPage() {
                               })}
                               <button
                                 onClick={() => setSelectingPayment(null)}
-                                className="px-2 py-0.5 text-xs text-gray-500 hover:text-gray-600"
+                                className="px-2 py-0.5 text-xs text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta-2)]"
                               >
                                 Cancelar
                               </button>
@@ -565,7 +565,7 @@ export default function OrdersPage() {
                                 } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
                                 setActionLoading(null);
                               }}
-                              className="px-2 py-1 text-xs font-medium bg-blue-100 text-[#15352a] border border-blue-300 rounded-md hover:bg-blue-200 transition-colors"
+                              className="px-2 py-1 text-xs font-medium bg-[var(--color-adp-info)] text-white border border-[var(--color-adp-info)] rounded-md hover:bg-[var(--color-adp-info)]/85 transition-colors"
                               title="Avanzar estado"
                             >
                               ⏭ Avanzar
@@ -574,7 +574,7 @@ export default function OrdersPage() {
                         </div>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-right text-xs text-gray-500 whitespace-nowrap">
+                    <td className="py-3 px-4 text-right text-xs text-[var(--color-adp-tinta-2)] whitespace-nowrap">
                       {new Date(order.createdAt).toLocaleTimeString("es-MX", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -592,8 +592,8 @@ export default function OrdersPage() {
       {cancelOrderId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setCancelOrderId(null)}>
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Cancelar orden</h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <h3 className="text-lg font-semibold text-[var(--color-adp-tinta)] mb-1">Cancelar orden</h3>
+            <p className="text-sm text-[var(--color-adp-tinta-2)] mb-4">
               Esta acción requiere autorización de un gerente o del dueño, y quedará registrada en la auditoría.
             </p>
 
@@ -610,11 +610,11 @@ export default function OrdersPage() {
               const cancelan = vivios.filter(i => i.status === 'PENDING');
               if (cobran.length === 0) return null;
               return (
-                <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-left">
-                  <p className="text-xs font-semibold text-amber-900 mb-1">
+                <div className="mb-4 rounded-lg border border-[var(--color-adp-atencion)] bg-[var(--color-adp-atencion)] p-3 text-left text-white">
+                  <p className="text-xs font-semibold text-[var(--color-adp-atencion)] mb-1">
                     Esta orden ya tiene {cobran.length} ítem(s) entregado(s)
                   </p>
-                  <p className="text-xs text-amber-800">
+                  <p className="text-xs text-[var(--color-adp-atencion)]">
                     Solo se cancelarán los {cancelan.length} pendiente(s).
                     Lo entregado se queda y hay que cobrarlo.
                   </p>
@@ -625,14 +625,14 @@ export default function OrdersPage() {
             {/* El error se guardaba pero nunca se veía: el botón parecía
                 no hacer nada. Ahora se muestra aquí mismo. */}
             {actionError && (
-              <p className="mb-3 text-sm text-[#b03a2e] bg-[#b03a2e]/10 rounded-lg px-3 py-2">
+              <p className="mb-3 text-sm bg-[var(--color-adp-urgente)] text-white rounded-lg px-3 py-2">
                 {actionError}
               </p>
             )}
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">
                   PIN del gerente (4 dígitos) o clave del dueño
                 </label>
                 <input
@@ -641,7 +641,7 @@ export default function OrdersPage() {
                   onChange={(e) => setCancelPin(e.target.value)}
                   autoFocus
                   placeholder="Ej. 5043"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#b03a2e]/40 outline-none"
+                  className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-urgente)]/40 outline-none"
                 />
               </div>
             </div>
@@ -649,14 +649,14 @@ export default function OrdersPage() {
             <div className="flex gap-3 pt-4">
               <button
                 onClick={() => { setCancelOrderId(null); setCancelPin(""); }}
-                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)] text-sm font-medium rounded-lg hover:bg-[var(--color-adp-borde)] transition-colors"
               >
                 Volver
               </button>
               <button
                 onClick={handleCancelOrder}
                 disabled={actionLoading === cancelOrderId}
-                className="flex-1 px-4 py-2 bg-[#b03a2e] text-white text-sm font-medium rounded-lg hover:bg-[#96322a] disabled:opacity-50 transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--color-adp-urgente)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-urgente)]/85 disabled:opacity-50 transition-colors"
               >
                 {actionLoading === cancelOrderId ? 'Cancelando...' : 'Confirmar cancelación'}
               </button>

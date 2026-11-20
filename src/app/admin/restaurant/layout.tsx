@@ -74,7 +74,7 @@ function MenuAgrupado({
     <>
       {sidebarGroups.map((grupo) => (
         <div key={grupo.titulo} className="mb-4">
-          <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+          <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-adp-tinta-2)]">
             {grupo.titulo}
           </p>
           <div className="space-y-0.5">
@@ -87,8 +87,8 @@ function MenuAgrupado({
                   onClick={onNavigate}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-blue-50 text-[#15352a]"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? "bg-[var(--color-adp-info)] text-white"
+                      : "text-[var(--color-adp-tinta-2)] hover:bg-[var(--color-adp-papel-3)] hover:text-[var(--color-adp-tinta)]"
                   }`}
                 >
                   <span className="text-base w-5 text-center">{link.icon}</span>
@@ -136,15 +136,15 @@ export default function RestaurantLayout({
   }, [mobileMenuOpen]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[var(--color-adp-papel)]">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white border-b border-[var(--color-adp-borde)] shadow-sm">
         <div className="flex items-center justify-between px-4 h-14 max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 -ml-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+              className="md:hidden p-2 -ml-2 rounded-lg text-[var(--color-adp-tinta-2)] hover:bg-[var(--color-adp-papel-3)] transition-colors"
               aria-label="Abrir menú"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -153,7 +153,7 @@ export default function RestaurantLayout({
             </button>
             <Link
               href="/admin/restaurant"
-              className="text-xl font-bold text-gray-900 hover:text-gray-600 transition-colors"
+              className="text-xl font-bold text-[var(--color-adp-tinta)] hover:text-[var(--color-adp-tinta-2)] transition-colors"
             >
               🍽️ Restaurante
             </Link>
@@ -161,7 +161,7 @@ export default function RestaurantLayout({
           <div className="flex items-center gap-3">
             <Link
               href="/admin"
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors hidden sm:block"
+              className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] transition-colors hidden sm:block"
             >
               ← Admin
             </Link>
@@ -169,7 +169,7 @@ export default function RestaurantLayout({
               href="/waiter/login"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm bg-[#b88364] text-white px-3 py-1.5 rounded-lg hover:bg-[#a07550] transition-colors font-medium"
+              className="text-sm bg-[var(--color-adp-pino)] text-white px-3 py-1.5 rounded-lg hover:bg-[var(--color-adp-tenue)] transition-colors font-medium"
             >
               📱 Mesero
             </a>
@@ -179,7 +179,7 @@ export default function RestaurantLayout({
 
       <div className="flex max-w-7xl mx-auto">
         {/* ===== DESKTOP SIDEBAR ===== */}
-        <aside className="hidden md:block w-56 shrink-0 border-r border-gray-200 bg-white min-h-[calc(100vh-3.5rem)]">
+        <aside className="hidden md:block w-56 shrink-0 border-r border-[var(--color-adp-borde)] bg-white min-h-[calc(100vh-3.5rem)]">
           <nav className="p-3 overflow-y-auto max-h-[calc(100vh-3.5rem)]">
             <MenuAgrupado pathname={pathname} />
           </nav>
@@ -196,11 +196,11 @@ export default function RestaurantLayout({
             {/* Drawer */}
             <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-white shadow-2xl animate-slide-in-left">
               {/* Drawer header */}
-              <div className="flex items-center justify-between px-4 h-14 border-b border-gray-200">
-                <span className="text-lg font-bold text-gray-900">🍽️ Restaurante</span>
+              <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--color-adp-borde)]">
+                <span className="text-lg font-bold text-[var(--color-adp-tinta)]">🍽️ Restaurante</span>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 -mr-2 rounded-lg text-gray-500 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="p-2 -mr-2 rounded-lg text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta-2)] hover:bg-[var(--color-adp-papel-3)] transition-colors"
                   aria-label="Cerrar menú"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -216,10 +216,10 @@ export default function RestaurantLayout({
                 />
 
                 {/* Divider + back to admin */}
-                <div className="border-t border-gray-200 my-2" />
+                <div className="border-t border-[var(--color-adp-borde)] my-2" />
                 <Link
                   href="/admin"
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-600 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[var(--color-adp-tinta-2)] hover:bg-[var(--color-adp-papel-3)] hover:text-[var(--color-adp-tinta-2)] transition-colors"
                 >
                   <span className="text-lg">←</span>
                   Volver al admin

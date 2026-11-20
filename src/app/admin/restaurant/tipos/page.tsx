@@ -120,25 +120,25 @@ export default function PaginaTipos() {
   return (
     <div className="p-6 max-w-5xl">
       <div className="mb-5">
-        <h1 className="text-2xl font-bold text-gray-900">Tipos de producto</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Tipos de producto</h1>
+        <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">
           Un tipo dice qué es un platillo y de ahí hereda sus modificadores. Es distinto
           de la categoría, que solo agrupa la carta.
         </p>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Tipos</p>
-          <p className="text-2xl font-bold text-gray-900">{datos.tipos.length}</p>
+        <div className="bg-white border border-[var(--color-adp-borde)] rounded-xl p-4">
+          <p className="text-xs text-[var(--color-adp-tinta-2)]">Tipos</p>
+          <p className="text-2xl font-bold text-[var(--color-adp-tinta)]">{datos.tipos.length}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Platillos clasificados</p>
-          <p className="text-2xl font-bold text-gray-900">{totalPlatillos}</p>
+        <div className="bg-white border border-[var(--color-adp-borde)] rounded-xl p-4">
+          <p className="text-xs text-[var(--color-adp-tinta-2)]">Platillos clasificados</p>
+          <p className="text-2xl font-bold text-[var(--color-adp-tinta)]">{totalPlatillos}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Sin modificadores</p>
-          <p className="text-2xl font-bold text-gray-900">{sinHerencia}</p>
+        <div className="bg-white border border-[var(--color-adp-borde)] rounded-xl p-4">
+          <p className="text-xs text-[var(--color-adp-tinta-2)]">Sin modificadores</p>
+          <p className="text-2xl font-bold text-[var(--color-adp-tinta)]">{sinHerencia}</p>
         </div>
       </div>
 
@@ -147,11 +147,11 @@ export default function PaginaTipos() {
         placeholder="Buscar tipo o platillo…"
         value={filtro}
         onChange={(e) => setFiltro(e.target.value)}
-        className="w-full mb-4 px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#1b4235]"
+        className="w-full mb-4 px-4 py-2.5 text-sm border border-[var(--color-adp-borde-2)] rounded-lg focus:outline-none focus:border-[var(--color-adp-pino)]"
       />
 
       {error && (
-        <p className="mb-4 text-sm text-[#b03a2e] bg-red-50 rounded-lg px-3 py-2">{error}</p>
+        <p className="mb-4 text-sm text-white bg-[var(--color-adp-urgente)] rounded-lg px-3 py-2">{error}</p>
       )}
 
       <div className="space-y-2">
@@ -162,22 +162,22 @@ export default function PaginaTipos() {
           );
 
           return (
-            <div key={t.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div key={t.id} className="bg-white border border-[var(--color-adp-borde)] rounded-xl overflow-hidden">
               <button
                 onClick={() => setAbierto(expandido ? null : t.id)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50"
+                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[var(--color-adp-papel-3)]"
               >
-                <span className="text-gray-500 text-xs">{expandido ? '▾' : '▸'}</span>
-                <span className="font-medium text-gray-900 flex-1">{t.nombre}</span>
-                <span className="text-xs text-gray-500">{t.platillos.length} platillos</span>
+                <span className="text-[var(--color-adp-tinta-2)] text-xs">{expandido ? '▾' : '▸'}</span>
+                <span className="font-medium text-[var(--color-adp-tinta)] flex-1">{t.nombre}</span>
+                <span className="text-xs text-[var(--color-adp-tinta-2)]">{t.platillos.length} platillos</span>
                 <div className="flex gap-1 flex-wrap justify-end max-w-[45%]">
                   {t.hereda.length === 0 ? (
-                    <span className="text-xs text-gray-500">sin modificadores</span>
+                    <span className="text-xs text-[var(--color-adp-tinta-2)]">sin modificadores</span>
                   ) : (
                     t.hereda.map((h) => (
                       <span
                         key={h.id}
-                        className="text-[11px] bg-[#1b4235]/8 text-[#1b4235] border border-[#1b4235]/20 px-2 py-0.5 rounded-full"
+                        className="text-[11px] bg-[var(--color-adp-pino)] text-white border border-[var(--color-adp-pino)]/20 px-2 py-0.5 rounded-full"
                       >
                         {h.nombre}
                       </span>
@@ -187,9 +187,9 @@ export default function PaginaTipos() {
               </button>
 
               {expandido && (
-                <div className="border-t border-gray-100 px-4 py-3 bg-gray-50/50">
+                <div className="border-t border-[var(--color-adp-borde)] px-4 py-3 bg-[var(--color-adp-papel-3)]/50">
                   <div className="mb-3">
-                    <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-1.5">
+                    <p className="text-[11px] uppercase tracking-wide text-[var(--color-adp-tinta-2)] mb-1.5">
                       Platillos de este tipo
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -198,36 +198,36 @@ export default function PaginaTipos() {
                           key={p.id}
                           className={`text-xs px-2 py-1 rounded border ${
                             p.activo
-                              ? 'bg-white border-gray-200 text-gray-700'
-                              : 'bg-gray-100 border-gray-200 text-gray-500 line-through'
+                              ? 'bg-white border-[var(--color-adp-borde)] text-[var(--color-adp-tinta)]'
+                              : 'bg-[var(--color-adp-papel-3)] border-[var(--color-adp-borde)] text-[var(--color-adp-tinta-2)] line-through'
                           }`}
                           title={p.categoria}
                         >
                           {p.nombre}
-                          <span className="text-gray-500 ml-1">· {p.categoria}</span>
+                          <span className="text-[var(--color-adp-tinta-2)] ml-1">· {p.categoria}</span>
                         </span>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-1.5">
+                    <p className="text-[11px] uppercase tracking-wide text-[var(--color-adp-tinta-2)] mb-1.5">
                       Modificadores que hereda
                     </p>
                     <div className="space-y-1.5 mb-2">
                       {t.hereda.length === 0 && (
-                        <p className="text-xs text-gray-500">Ninguno. Sus platillos no llevan opciones.</p>
+                        <p className="text-xs text-[var(--color-adp-tinta-2)]">Ninguno. Sus platillos no llevan opciones.</p>
                       )}
                       {t.hereda.map((h) => (
                         <div
                           key={h.id}
-                          className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-3 py-2"
+                          className="flex items-center justify-between bg-white border border-[var(--color-adp-borde)] rounded-lg px-3 py-2"
                         >
-                          <span className="text-sm text-gray-800">{h.nombre}</span>
+                          <span className="text-sm text-[var(--color-adp-tinta)]">{h.nombre}</span>
                           <button
                             onClick={() => dejarDeHeredar(t.id, h.id, h.nombre)}
                             disabled={guardando}
-                            className="text-xs text-red-500 hover:text-red-700 disabled:opacity-40 px-2"
+                            className="text-xs text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] disabled:opacity-40 px-2"
                           >
                             Quitar
                           </button>
@@ -236,9 +236,9 @@ export default function PaginaTipos() {
                     </div>
 
                     {agregando === t.id ? (
-                      <div className="bg-white border border-gray-200 rounded-lg p-2">
+                      <div className="bg-white border border-[var(--color-adp-borde)] rounded-lg p-2">
                         <select
-                          className="w-full text-sm px-2 py-2 border border-gray-200 rounded mb-2"
+                          className="w-full text-sm px-2 py-2 border border-[var(--color-adp-borde)] rounded mb-2"
                           defaultValue=""
                           onChange={(e) => {
                             if (e.target.value) heredar(t.id, e.target.value);
@@ -253,7 +253,7 @@ export default function PaginaTipos() {
                         </select>
                         <button
                           onClick={() => setAgregando(null)}
-                          className="text-xs text-gray-500"
+                          className="text-xs text-[var(--color-adp-tinta-2)]"
                         >
                           Cancelar
                         </button>
@@ -262,7 +262,7 @@ export default function PaginaTipos() {
                       disponibles.length > 0 && (
                         <button
                           onClick={() => setAgregando(t.id)}
-                          className="text-xs px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-white"
+                          className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-adp-borde-2)] text-[var(--color-adp-tinta)] hover:bg-white"
                         >
                           + Heredar un grupo
                         </button>

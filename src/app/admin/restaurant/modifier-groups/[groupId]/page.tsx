@@ -254,8 +254,8 @@ export default function ModifierGroupPage() {
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-        <p className="text-gray-500">Cargando grupo...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+        <p className="text-[var(--color-adp-tinta-2)]">Cargando grupo...</p>
       </div>
     );
   }
@@ -263,10 +263,10 @@ export default function ModifierGroupPage() {
   if (error && !name && !isNew) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <p className="text-[#b03a2e] mb-4">{error}</p>
+        <p className="text-[var(--color-adp-urgente)] mb-4">{error}</p>
         <Link
           href="/admin/restaurant/modifier-groups"
-          className="text-[#1b4235] hover:text-blue-800 text-sm font-medium"
+          className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm font-medium"
         >
           ← Volver a modificadores
         </Link>
@@ -279,39 +279,39 @@ export default function ModifierGroupPage() {
       <div className="mb-6">
         <Link
           href="/admin/restaurant/modifier-groups"
-          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] transition-colors"
         >
           ← Volver a modificadores
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)] mt-2">
           {isNew ? 'Nuevo grupo de modificadores' : `Editar: ${name}`}
         </h1>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+        <div className="mb-4 p-3 bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)] rounded-lg text-sm text-white">{error}</div>
       )}
 
       {/* Group form */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-6 mb-6">
         <form onSubmit={handleSaveGroup} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+              Nombre <span className="text-[var(--color-adp-urgente)]">*</span>
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
+              className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-[var(--color-adp-info)] outline-none"
               placeholder='Ej: "Término de la carne", "Extras"'
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
                 Selección mínima
               </label>
               <input
@@ -319,11 +319,11 @@ export default function ModifierGroupPage() {
                 value={minSelections}
                 onChange={(e) => setMinSelections(Math.max(0, parseInt(e.target.value) || 0))}
                 min={0}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
+                className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-[var(--color-adp-info)] outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
                 Selección máxima
               </label>
               <input
@@ -331,7 +331,7 @@ export default function ModifierGroupPage() {
                 value={maxSelections}
                 onChange={(e) => setMaxSelections(Math.max(1, parseInt(e.target.value) || 1))}
                 min={1}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
+                className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-[var(--color-adp-info)] outline-none"
               />
             </div>
           </div>
@@ -342,12 +342,12 @@ export default function ModifierGroupPage() {
               id="isRequired"
               checked={isRequired}
               onChange={(e) => setIsRequired(e.target.checked)}
-              className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
+              className="w-4 h-4 text-[var(--color-adp-pino)] rounded border-[var(--color-adp-borde-2)] focus:ring-[var(--color-adp-pino)]/40"
             />
-            <label htmlFor="isRequired" className="text-sm font-medium text-gray-700">
+            <label htmlFor="isRequired" className="text-sm font-medium text-[var(--color-adp-tinta)]">
               Requerido
             </label>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-[var(--color-adp-tinta-2)]">
               (el cliente debe seleccionar al menos una opción)
             </span>
           </div>
@@ -355,7 +355,7 @@ export default function ModifierGroupPage() {
           <div className="flex gap-3 pt-2">
             <Link
               href="/admin/restaurant/modifier-groups"
-              className="px-4 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-[var(--color-adp-borde)] text-[var(--color-adp-tinta-2)] text-sm font-medium rounded-lg hover:bg-[var(--color-adp-papel-3)] transition-colors"
             >
               {isNew ? 'Cancelar' : 'Volver'}
             </Link>
@@ -363,7 +363,7 @@ export default function ModifierGroupPage() {
               <button
                 type="button"
                 onClick={handleDeleteGroup}
-                className="px-4 py-2 border border-red-200 text-[#b03a2e] text-sm font-medium rounded-lg hover:bg-red-50 transition-colors"
+                className="px-4 py-2 border border-[var(--color-adp-urgente)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-urgente)]/85 transition-colors"
               >
                 Eliminar grupo
               </button>
@@ -371,7 +371,7 @@ export default function ModifierGroupPage() {
             <button
               type="submit"
               disabled={saving || !name.trim()}
-              className="flex-1 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
+              className="flex-1 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors"
             >
               {saving ? 'Guardando...' : isNew ? 'Crear grupo' : 'Guardar cambios'}
             </button>
@@ -381,20 +381,20 @@ export default function ModifierGroupPage() {
 
       {/* Modifiers section (only for existing groups) */}
       {!isNew && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-6">
+          <h2 className="text-lg font-semibold text-[var(--color-adp-tinta)] mb-4">
             Modificadores ({modifiers.length})
           </h2>
 
           {/* Add modifier form */}
-          <form onSubmit={handleAddModifier} className="flex gap-3 mb-4 pb-4 border-b border-gray-100">
+          <form onSubmit={handleAddModifier} className="flex gap-3 mb-4 pb-4 border-b border-[var(--color-adp-borde)]">
             <div className="flex-1">
               <input
                 type="text"
                 value={newModName}
                 onChange={(e) => setNewModName(e.target.value)}
                 placeholder="Nombre del modificador"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
+                className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-[var(--color-adp-info)] outline-none"
               />
             </div>
             <div className="w-28">
@@ -404,13 +404,13 @@ export default function ModifierGroupPage() {
                 value={newModPrice}
                 onChange={(e) => setNewModPrice(e.target.value)}
                 placeholder="Precio"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
+                className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-[var(--color-adp-info)] outline-none"
               />
             </div>
             <button
               type="submit"
               disabled={addingMod || !newModName.trim()}
-              className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors whitespace-nowrap"
+              className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors whitespace-nowrap"
             >
               {addingMod ? '...' : '+ Agregar'}
             </button>
@@ -418,11 +418,11 @@ export default function ModifierGroupPage() {
 
           {/* Modifiers list with inline inventory controls */}
           {modifiers.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4">
+            <p className="text-sm text-[var(--color-adp-tinta-2)] text-center py-4">
               No hay modificadores. Agrega uno usando el formulario de arriba.
             </p>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-[var(--color-adp-borde)]">
               {modifiers.map((mod) => (
                 <div
                   key={mod.id}
@@ -432,17 +432,17 @@ export default function ModifierGroupPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-[var(--color-adp-tinta)]">
                         {mod.name}
                         {/* Marcado como inactivo: sigue aquí para poder
                             reactivarlo, pero ya no se ofrece. */}
                         {(mod as Modifier & { isActive?: boolean }).isActive === false && (
-                          <span className="ml-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase rounded bg-gray-200 text-gray-600">
+                          <span className="ml-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase rounded bg-[var(--color-adp-borde)] text-[var(--color-adp-tinta-2)]">
                             Inactivo
                           </span>
                         )}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-[var(--color-adp-tinta-2)]">
                         {mod.priceDelta === 0
                           ? 'Sin costo adicional'
                           : `+$${mod.priceDelta.toFixed(2)} MXN`}
@@ -453,7 +453,7 @@ export default function ModifierGroupPage() {
                     {(mod as Modifier & { isActive?: boolean }).isActive === false ? (
                       <button
                         onClick={() => updateModifierField(mod.id, 'isActive', true)}
-                        className="text-[#1b4235] hover:text-[#15352a] text-sm font-medium transition-colors"
+                        className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-pino-hondo)] text-sm font-medium transition-colors"
                       >
                         Reactivar
                       </button>
@@ -461,7 +461,7 @@ export default function ModifierGroupPage() {
                       <button
                         onClick={() => handleDeleteModifier(mod)}
                         disabled={deletingModId === mod.id}
-                        className="text-red-500 hover:text-red-700 text-sm font-medium disabled:opacity-50 transition-colors"
+                        className="text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] text-sm font-medium disabled:opacity-50 transition-colors"
                       >
                         {deletingModId === mod.id ? 'Eliminando...' : 'Eliminar'}
                       </button>
@@ -469,15 +469,15 @@ export default function ModifierGroupPage() {
                   </div>
 
                   {/* Inventory controls */}
-                  <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                  <div className="bg-[var(--color-adp-papel-3)] rounded-lg p-3 space-y-2">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={mod.deductsInventory}
                         onChange={(e) => updateModifierField(mod.id, 'deductsInventory', e.target.checked)}
-                        className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
+                        className="w-4 h-4 text-[var(--color-adp-pino)] rounded border-[var(--color-adp-borde-2)] focus:ring-[var(--color-adp-pino)]/40"
                       />
-                      <span className="text-xs font-medium text-gray-700">
+                      <span className="text-xs font-medium text-[var(--color-adp-tinta)]">
                         ☑️ ¿Descuenta inventario?
                       </span>
                     </label>
@@ -485,11 +485,11 @@ export default function ModifierGroupPage() {
                     {mod.deductsInventory && (
                       <div className="flex gap-2 items-end">
                         <div className="flex-1">
-                          <label className="block text-[10px] text-gray-500 mb-0.5">Ingrediente</label>
+                          <label className="block text-[10px] text-[var(--color-adp-tinta-2)] mb-0.5">Ingrediente</label>
                           <select
                             value={mod.inventoryIngredientId || ''}
                             onChange={(e) => updateModifierField(mod.id, 'inventoryIngredientId', e.target.value || null)}
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-[#1b4235]/40 outline-none"
+                            className="w-full px-2 py-1.5 border border-[var(--color-adp-borde-2)] rounded text-xs focus:ring-1 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                           >
                             <option value="">Seleccionar...</option>
                             {ingredients.map(ing => (
@@ -498,8 +498,8 @@ export default function ModifierGroupPage() {
                           </select>
                         </div>
                         <div className="w-24">
-                          <label className="block text-[10px] text-gray-500 mb-0.5">
-                            Cantidad <span className="text-gray-500">({ingredients.find(ing => ing.id === mod.inventoryIngredientId)?.unit || '?'})</span>
+                          <label className="block text-[10px] text-[var(--color-adp-tinta-2)] mb-0.5">
+                            Cantidad <span className="text-[var(--color-adp-tinta-2)]">({ingredients.find(ing => ing.id === mod.inventoryIngredientId)?.unit || '?'})</span>
                           </label>
                           <input
                             type="number"
@@ -507,7 +507,7 @@ export default function ModifierGroupPage() {
                             min="0"
                             value={mod.inventoryQuantity || ''}
                             onChange={(e) => updateModifierField(mod.id, 'inventoryQuantity', parseFloat(e.target.value) || 0)}
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-[#1b4235]/40 outline-none"
+                            className="w-full px-2 py-1.5 border border-[var(--color-adp-borde-2)] rounded text-xs focus:ring-1 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                           />
                         </div>
                       </div>

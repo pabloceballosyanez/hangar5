@@ -63,10 +63,10 @@ export default async function MenuItemsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Menú</h1>
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Menú</h1>
         <Link
           href="/admin/restaurant/menu-items/nuevo"
-          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
+          className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] transition-colors"
         >
           + Nuevo item
         </Link>
@@ -74,10 +74,10 @@ export default async function MenuItemsPage({
 
       {/* Filters */}
       <div className="flex items-center gap-3 flex-wrap">
-        <label className="text-sm font-medium text-gray-600">Filtrar por categoría:</label>
+        <label className="text-sm font-medium text-[var(--color-adp-tinta-2)]">Filtrar por categoría:</label>
         <CategoryFilter categories={categories} currentCategoryId={categoryFilter} />
-        <span className="text-gray-500">|</span>
-        <span className="text-sm font-medium text-gray-600">Estado:</span>
+        <span className="text-[var(--color-adp-tinta-2)]">|</span>
+        <span className="text-sm font-medium text-[var(--color-adp-tinta-2)]">Estado:</span>
         <div className="flex gap-1">
           {[
             { key: "active", label: "Activos" },
@@ -89,8 +89,8 @@ export default async function MenuItemsPage({
               href={`/admin/restaurant/menu-items?status=${f.key}${categoryFilter ? `&categoryId=${categoryFilter}` : ""}`}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border ${
                 statusFilter === f.key
-                  ? "bg-[#1b4235] text-white border-blue-600"
-                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                  ? "bg-[var(--color-adp-pino)] text-white border-[var(--color-adp-info)]"
+                  : "bg-white text-[var(--color-adp-tinta-2)] border-[var(--color-adp-borde-2)] hover:bg-[var(--color-adp-papel-3)]"
               }`}
             >
               {f.label}
@@ -109,52 +109,52 @@ export default async function MenuItemsPage({
             name="search"
             placeholder="🔍 Buscar platillo..."
             defaultValue={searchFilter || ''}
-            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+            className="w-full max-w-md px-4 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
           />
         </form>
       </div>
 
       {items.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-500 text-lg mb-2">No hay items en el menú</p>
-          <p className="text-gray-500 text-sm">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-8 text-center">
+          <p className="text-[var(--color-adp-tinta-2)] text-lg mb-2">No hay items en el menú</p>
+          <p className="text-[var(--color-adp-tinta-2)] text-sm">
             {categoryFilter
               ? "Esta categoría no tiene items todavía."
               : "Agrega tu primer platillo o bebida."}
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                <tr className="border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)]">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Nombre
                   </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Categoría
                   </th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Precio
                   </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Estación
                   </th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Variantes
                   </th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Activo
                   </th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">
+                  <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-[var(--color-adp-borde)]">
                 {items.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={item.id} className="hover:bg-[var(--color-adp-papel-3)] transition-colors">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         {item.imageUrl && (
@@ -165,14 +165,14 @@ export default async function MenuItemsPage({
                           />
                         )}
                         <div>
-                          <p className="font-medium text-gray-900">
+                          <p className="font-medium text-[var(--color-adp-tinta)]">
                             {item.name}
                             {item.recipe && (
-                              <span className="ml-1.5 text-amber-500 text-xs" title="Tiene receta">📖</span>
+                              <span className="ml-1.5 text-[var(--color-adp-atencion)] text-xs" title="Tiene receta">📖</span>
                             )}
                           </p>
                           {item.description && (
-                            <p className="text-xs text-gray-500 line-clamp-1">
+                            <p className="text-xs text-[var(--color-adp-tinta-2)] line-clamp-1">
                               {item.description}
                             </p>
                           )}
@@ -186,34 +186,34 @@ export default async function MenuItemsPage({
                           aquí en vez de que la pantalla se caiga. */}
                       {item.category ? (
                         <>
-                          <span className="text-gray-600">{item.category.name}</span>
-                          <span className="text-xs text-gray-500 ml-1">
+                          <span className="text-[var(--color-adp-tinta-2)]">{item.category.name}</span>
+                          <span className="text-xs text-[var(--color-adp-tinta-2)] ml-1">
                             ({item.category.kind === "FOOD" ? "Comida" : "Bebida"})
                           </span>
                         </>
                       ) : (
-                        <span className="text-xs text-[#b03a2e] bg-[#b03a2e]/10 px-2 py-0.5 rounded">
+                        <span className="text-xs bg-[var(--color-adp-urgente)] text-white px-2 py-0.5 rounded">
                           Sin categoría
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-right font-semibold text-gray-900">
+                    <td className="py-3 px-4 text-right font-semibold text-[var(--color-adp-tinta)]">
                       {formatPrice(item.basePrice)}
                     </td>
                     <td className="py-3 px-4">
                       <span
                         className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
                           item.prepStation === "KITCHEN"
-                            ? "bg-orange-100 text-orange-700"
+                            ? "bg-[var(--color-adp-atencion)] text-white"
                             : item.prepStation === "BAR"
-                              ? "bg-blue-100 text-[#15352a]"
-                              : "bg-purple-100 text-purple-700"
+                              ? "bg-[var(--color-adp-info)] text-white"
+                              : "bg-[var(--color-adp-info)] text-white"
                         }`}
                       >
                         {stationLabel[item.prepStation] || item.prepStation}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-center text-gray-600 text-xs">
+                    <td className="py-3 px-4 text-center text-[var(--color-adp-tinta-2)] text-xs">
                       {item.variants.length > 0
                         ? item.variants.map((v) => v.name).join(", ")
                         : "—"}
@@ -221,14 +221,14 @@ export default async function MenuItemsPage({
                     <td className="py-3 px-4 text-center">
                       <span
                         className={`inline-block w-2 h-2 rounded-full ${
-                          item.isActive ? "bg-green-500" : "bg-gray-300"
-                        }`}
+                          item.isActive ? "bg-[var(--color-adp-listo)]" : "bg-[var(--color-adp-borde)]"
+                        } text-white`}
                       />
                     </td>
                     <td className="py-3 px-4 text-right">
                       <Link
                         href={`/admin/restaurant/menu-items/${item.id}`}
-                        className="text-[#1b4235] hover:text-blue-800 text-sm font-medium"
+                        className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm font-medium"
                       >
                         Editar →
                       </Link>

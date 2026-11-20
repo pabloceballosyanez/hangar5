@@ -111,56 +111,56 @@ export default function PaginaAlmacenes() {
     <div className="p-6 max-w-6xl">
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Almacenes</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Almacenes</h1>
+          <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">
             Cada punto lleva su inventario. Lo que se mueve entre ellos es un traspaso.
           </p>
         </div>
         <button
           onClick={() => setAbierto((v) => !v)}
-          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a]"
+          className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)]"
         >
           {abierto ? 'Cancelar' : 'Traspasar'}
         </button>
       </div>
 
-      {error && <p className="mb-4 text-sm text-[#b03a2e] bg-[#b03a2e]/10 rounded-lg px-3 py-2">{error}</p>}
+      {error && <p className="mb-4 text-sm bg-[var(--color-adp-urgente)] text-white rounded-lg px-3 py-2">{error}</p>}
 
       {abierto && (
-        <form onSubmit={mover} className="bg-white border border-gray-200 rounded-xl p-5 mb-5 space-y-3">
+        <form onSubmit={mover} className="bg-white border border-[var(--color-adp-borde)] rounded-xl p-5 mb-5 space-y-3">
           <div className="grid sm:grid-cols-2 gap-3">
             <label className="block">
-              <span className="block text-xs text-gray-500 mb-1">Insumo</span>
-              <select name="ingredientId" required className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+              <span className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Insumo</span>
+              <select name="ingredientId" required className="w-full px-3 py-2 text-sm border border-[var(--color-adp-borde-2)] rounded-lg">
                 {filas.map((f) => (
                   <option key={f.id} value={f.id}>{f.nombre} ({f.unidad})</option>
                 ))}
               </select>
             </label>
             <label className="block">
-              <span className="block text-xs text-gray-500 mb-1">Cantidad</span>
+              <span className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Cantidad</span>
               <input name="cantidad" type="number" step="0.01" min="0.01" required
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg" />
+                className="w-full px-3 py-2 text-sm border border-[var(--color-adp-borde-2)] rounded-lg" />
             </label>
             <label className="block">
-              <span className="block text-xs text-gray-500 mb-1">De</span>
-              <select name="origen" required className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+              <span className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">De</span>
+              <select name="origen" required className="w-full px-3 py-2 text-sm border border-[var(--color-adp-borde-2)] rounded-lg">
                 {almacenes.map((a) => <option key={a.clave} value={a.clave}>{a.nombre}</option>)}
               </select>
             </label>
             <label className="block">
-              <span className="block text-xs text-gray-500 mb-1">A</span>
-              <select name="destino" required className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+              <span className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">A</span>
+              <select name="destino" required className="w-full px-3 py-2 text-sm border border-[var(--color-adp-borde-2)] rounded-lg">
                 {almacenes.map((a) => <option key={a.clave} value={a.clave}>{a.nombre}</option>)}
               </select>
             </label>
           </div>
           <label className="block">
-            <span className="block text-xs text-gray-500 mb-1">Nota (opcional)</span>
-            <input name="notas" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg" />
+            <span className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Nota (opcional)</span>
+            <input name="notas" className="w-full px-3 py-2 text-sm border border-[var(--color-adp-borde-2)] rounded-lg" />
           </label>
           <button type="submit" disabled={guardando}
-            className="px-4 py-2 bg-[#C9A44F] text-[#0B0B0B] text-sm font-semibold rounded-lg disabled:opacity-40">
+            className="px-4 py-2 bg-[var(--color-adp-pino)] text-[var(--color-adp-tinta)] text-sm font-semibold rounded-lg disabled:opacity-40">
             {guardando ? 'Moviendo…' : 'Traspasar'}
           </button>
         </form>
@@ -171,32 +171,32 @@ export default function PaginaAlmacenes() {
         placeholder="Buscar insumo…"
         value={busca}
         onChange={(e) => setBusca(e.target.value)}
-        className="w-full mb-4 px-4 py-2.5 text-sm border border-gray-300 rounded-lg"
+        className="w-full mb-4 px-4 py-2.5 text-sm border border-[var(--color-adp-borde-2)] rounded-lg"
       />
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-6">
+      <div className="bg-white border border-[var(--color-adp-borde)] rounded-xl overflow-hidden mb-6">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-[var(--color-adp-papel-3)] border-b border-[var(--color-adp-borde)]">
             <tr>
-              <th className="text-left py-3 px-4 font-medium text-gray-500 text-xs uppercase">Insumo</th>
-              <th className="text-right py-3 px-4 font-medium text-gray-500 text-xs uppercase">Unidad</th>
+              <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs uppercase">Insumo</th>
+              <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs uppercase">Unidad</th>
               {almacenes.map((a) => (
-                <th key={a.id} className="text-right py-3 px-4 font-medium text-gray-500 text-xs uppercase">
+                <th key={a.id} className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs uppercase">
                   {a.nombre}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[var(--color-adp-borde)]">
             {visibles.map((f) => (
-              <tr key={f.id} className="hover:bg-gray-50">
-                <td className="py-2.5 px-4 text-gray-900">{f.nombre}</td>
-                <td className="py-2.5 px-4 text-right text-gray-500">{f.unidad}</td>
+              <tr key={f.id} className="hover:bg-[var(--color-adp-papel-3)]">
+                <td className="py-2.5 px-4 text-[var(--color-adp-tinta)]">{f.nombre}</td>
+                <td className="py-2.5 px-4 text-right text-[var(--color-adp-tinta-2)]">{f.unidad}</td>
                 {almacenes.map((a) => {
                   const e = f.porAlmacen[a.clave];
                   return (
                     <td key={a.id} className={`py-2.5 px-4 text-right tabular-nums ${
-                      e?.bajo ? 'text-[#b03a2e] font-semibold' : 'text-gray-900'
+                      e?.bajo ? 'text-[var(--color-adp-urgente)] font-semibold' : 'text-[var(--color-adp-tinta)]'
                     }`}>
                       {num(e?.cantidad ?? 0)}
                     </td>
@@ -207,22 +207,22 @@ export default function PaginaAlmacenes() {
           </tbody>
         </table>
         {visibles.length === 0 && (
-          <p className="text-center text-sm text-gray-500 py-8">Sin insumos que coincidan</p>
+          <p className="text-center text-sm text-[var(--color-adp-tinta-2)] py-8">Sin insumos que coincidan</p>
         )}
       </div>
 
-      <h2 className="text-sm font-semibold text-gray-900 mb-2">Últimos traspasos</h2>
-      <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
+      <h2 className="text-sm font-semibold text-[var(--color-adp-tinta)] mb-2">Últimos traspasos</h2>
+      <div className="bg-white border border-[var(--color-adp-borde)] rounded-xl divide-y divide-[var(--color-adp-borde)]">
         {traspasos.length === 0 && (
-          <p className="text-sm text-gray-500 px-4 py-6 text-center">Todavía no hay traspasos</p>
+          <p className="text-sm text-[var(--color-adp-tinta-2)] px-4 py-6 text-center">Todavía no hay traspasos</p>
         )}
         {traspasos.map((t) => (
           <div key={t.id} className="px-4 py-3 flex items-center gap-3 text-sm">
-            <span className="font-mono text-xs text-gray-500">{t.folio}</span>
-            <span className="text-gray-900 flex-1">
+            <span className="font-mono text-xs text-[var(--color-adp-tinta-2)]">{t.folio}</span>
+            <span className="text-[var(--color-adp-tinta)] flex-1">
               {num(t.cantidad)} {t.unidad} de <b>{t.insumo}</b>
             </span>
-            <span className="text-gray-500 text-xs">
+            <span className="text-[var(--color-adp-tinta-2)] text-xs">
               {t.origen} → {t.destino}
             </span>
           </div>

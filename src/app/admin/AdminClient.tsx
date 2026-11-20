@@ -8,11 +8,11 @@ type Item = { id: string; name: string; slug: string; type: string; description:
 type Booking = { id: string; itemId: string; customerName: string; customerEmail: string; customerPhone: string | null; startDate: string; endDate: string; guests: number; totalPrice: number; status: string; paymentMethod: string | null; notes: string | null; item: { name: string; type: string } };
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  paid: "bg-blue-100 text-blue-800",
-  confirmed: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800 line-through",
-  maintenance: "bg-gray-100 text-gray-500 italic",
+  pending: "bg-[var(--color-adp-atencion)] text-[var(--color-adp-atencion)]",
+  paid: "bg-[var(--color-adp-info)] text-white",
+  confirmed: "bg-[var(--color-adp-listo)] text-white",
+  cancelled: "bg-[var(--color-adp-urgente)] text-white line-through",
+  maintenance: "bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] italic",
 };
 
 const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
@@ -191,45 +191,45 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
     }
   };
 
-  const inputClass = "w-full border border-[#e0d6cf] rounded-lg p-3 bg-white text-[#1b4235] focus:outline-none focus:border-[#b88364] text-sm";
+  const inputClass = "w-full border border-[var(--color-adp-borde)] rounded-lg p-3 bg-white text-[var(--color-adp-pino)] focus:outline-none focus:border-[var(--color-adp-pino)] text-sm";
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-[var(--color-adp-papel)]">
       <div className="max-w-7xl mx-auto px-4 py-8">
 
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-medium text-[#1b4235] uppercase tracking-wider">Hangar 5 — Admin</h1>
-          <div className="flex items-center gap-4 text-sm text-[#b88364]">
+          <h1 className="text-3xl font-medium text-[var(--color-adp-pino)] uppercase tracking-wider">Hangar 5 — Admin</h1>
+          <div className="flex items-center gap-4 text-sm text-[var(--color-adp-pino)]">
             <span>{data.bookings.length} reservas</span>
             <span>{data.items.length} items</span>
-            <a href="/admin/restaurant" className="text-[10px] uppercase tracking-wider border border-[#e07a5f]/40 text-[#e07a5f] px-3 py-1 rounded hover:bg-[#e07a5f]/10 transition-colors font-medium">
+            <a href="/admin/restaurant" className="text-[10px] uppercase tracking-wider border border-[var(--color-adp-atencion)]/40 bg-[var(--color-adp-atencion)] text-white transition-colors font-medium">
               🍽️ Restaurante
             </a>
-            <a href="/admin/aventura/calendarios" className="text-[10px] uppercase tracking-wider border border-[#3b82f6]/40 text-[#3b82f6] px-3 py-1 rounded hover:bg-[#3b82f6]/10 transition-colors font-medium">
+            <a href="/admin/aventura/calendarios" className="text-[10px] uppercase tracking-wider border border-[var(--color-adp-info)]/40 bg-[var(--color-adp-info)] text-white transition-colors font-medium">
               📡 iCal Sync
             </a>
-            <a href="/recetario" className="text-[10px] uppercase tracking-wider border border-[#b88364]/40 text-[#b88364] px-3 py-1 rounded hover:bg-[#b88364]/10 transition-colors font-medium">
+            <a href="/recetario" className="text-[10px] uppercase tracking-wider border border-[var(--color-adp-pino)]/40 bg-[var(--color-adp-pino)] text-white transition-colors font-medium">
               📋 Recetario
             </a>
-            <a href="/admin/ayuda" className="text-[10px] uppercase tracking-wider border border-[#b88364]/30 text-[#b88364]/60 px-3 py-1 rounded hover:bg-[#b88364]/5 transition-colors">
+            <a href="/admin/ayuda" className="text-[10px] uppercase tracking-wider border border-[var(--color-adp-pino)]/30 bg-[var(--color-adp-pino)] text-white/5 transition-colors">
               📖 Ayuda
             </a>
-            <a href="/api/admin/logout" className="ml-2 text-[10px] uppercase tracking-wider border border-[#b88364]/30 px-3 py-1 rounded hover:bg-[#b88364]/5 transition-colors">
+            <a href="/api/admin/logout" className="ml-2 text-[10px] uppercase tracking-wider border border-[var(--color-adp-pino)]/30 px-3 py-1 rounded hover:bg-[var(--color-adp-pino)]/85/5 transition-colors">
               Salir
             </a>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-8 border-b border-[#e0d6cf]">
-          <button onClick={() => setTab("dashboard")} className={`px-6 py-3 text-sm uppercase tracking-wider transition-colors ${tab === "dashboard" ? "text-[#1b4235] border-b-2 border-[#1b4235] font-medium" : "text-[#b88364] hover:text-[#1b4235]"}`}>
+        <div className="flex gap-1 mb-8 border-b border-[var(--color-adp-borde)]">
+          <button onClick={() => setTab("dashboard")} className={`px-6 py-3 text-sm uppercase tracking-wider transition-colors ${tab === "dashboard" ? "text-[var(--color-adp-pino)] border-b-2 border-[var(--color-adp-pino)] font-medium" : "text-[var(--color-adp-pino)] hover:text-[var(--color-adp-pino)]"}`}>
             📊 Dashboard
           </button>
-          <button onClick={() => setTab("reservas")} className={`px-6 py-3 text-sm uppercase tracking-wider transition-colors ${tab === "reservas" ? "text-[#1b4235] border-b-2 border-[#1b4235] font-medium" : "text-[#b88364] hover:text-[#1b4235]"}`}>
+          <button onClick={() => setTab("reservas")} className={`px-6 py-3 text-sm uppercase tracking-wider transition-colors ${tab === "reservas" ? "text-[var(--color-adp-pino)] border-b-2 border-[var(--color-adp-pino)] font-medium" : "text-[var(--color-adp-pino)] hover:text-[var(--color-adp-pino)]"}`}>
             📋 Reservas
           </button>
-          <button onClick={() => setTab("items")} className={`px-6 py-3 text-sm uppercase tracking-wider transition-colors ${tab === "items" ? "text-[#1b4235] border-b-2 border-[#1b4235] font-medium" : "text-[#b88364] hover:text-[#1b4235]"}`}>
+          <button onClick={() => setTab("items")} className={`px-6 py-3 text-sm uppercase tracking-wider transition-colors ${tab === "items" ? "text-[var(--color-adp-pino)] border-b-2 border-[var(--color-adp-pino)] font-medium" : "text-[var(--color-adp-pino)] hover:text-[var(--color-adp-pino)]"}`}>
             🏷️ Items
           </button>
           <div className="ml-auto" />
@@ -240,56 +240,56 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
           <>
             {/* Stats cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-[#1b4235] text-white rounded-lg p-5">
-                <p className="text-[#b88364] text-[10px] uppercase tracking-widest mb-1">Reservas este mes</p>
+              <div className="bg-[var(--color-adp-pino)] text-white rounded-lg p-5">
+                <p className="text-[var(--color-adp-pino)] text-[10px] uppercase tracking-widest mb-1">Reservas este mes</p>
                 <p className="text-3xl font-serif">{monthBookings.length}</p>
               </div>
-              <div className="bg-[#1b4235] text-white rounded-lg p-5">
-                <p className="text-[#b88364] text-[10px] uppercase tracking-widest mb-1">Ingresos este mes</p>
+              <div className="bg-[var(--color-adp-pino)] text-white rounded-lg p-5">
+                <p className="text-[var(--color-adp-pino)] text-[10px] uppercase tracking-widest mb-1">Ingresos este mes</p>
                 <p className="text-3xl font-serif">${formatPrice(monthRevenue)}</p>
               </div>
-              <div className="bg-white border border-[#e0d6cf] rounded-lg p-5">
-                <p className="text-[#b88364] text-[10px] uppercase tracking-widest mb-1">Items activos</p>
-                <p className="text-3xl font-serif text-[#1b4235]">{data.items.filter(i => i.active).length}</p>
+              <div className="bg-white border border-[var(--color-adp-borde)] rounded-lg p-5">
+                <p className="text-[var(--color-adp-pino)] text-[10px] uppercase tracking-widest mb-1">Items activos</p>
+                <p className="text-3xl font-serif text-[var(--color-adp-pino)]">{data.items.filter(i => i.active).length}</p>
               </div>
-              <div className="bg-white border border-[#e0d6cf] rounded-lg p-5">
-                <p className="text-[#b88364] text-[10px] uppercase tracking-widest mb-1">Próximos check-ins</p>
-                <p className="text-3xl font-serif text-[#1b4235]">{upcoming.length}</p>
+              <div className="bg-white border border-[var(--color-adp-borde)] rounded-lg p-5">
+                <p className="text-[var(--color-adp-pino)] text-[10px] uppercase tracking-widest mb-1">Próximos check-ins</p>
+                <p className="text-3xl font-serif text-[var(--color-adp-pino)]">{upcoming.length}</p>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               {/* Revenue chart */}
-              <div className="bg-white border border-[#e0d6cf] rounded-lg p-5">
-                <h3 className="text-sm font-medium text-[#1b4235] mb-4 uppercase tracking-wider">Ingresos últimos 6 meses</h3>
+              <div className="bg-white border border-[var(--color-adp-borde)] rounded-lg p-5">
+                <h3 className="text-sm font-medium text-[var(--color-adp-pino)] mb-4 uppercase tracking-wider">Ingresos últimos 6 meses</h3>
                 <div className="flex items-end gap-2 h-32">
                   {monthlyRevenue.map((r, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <span className="text-[10px] text-[#1b4235] font-medium">${(r.revenue / 100).toLocaleString()}</span>
+                      <span className="text-[10px] text-[var(--color-adp-pino)] font-medium">${(r.revenue / 100).toLocaleString()}</span>
                       <div
-                        className="w-full rounded-t bg-[#b88364] hover:bg-[#1b4235] transition-colors cursor-pointer"
+                        className="w-full rounded-t bg-[var(--color-adp-pino)] hover:bg-[var(--color-adp-pino)]/85 transition-colors cursor-pointer"
                         style={{ height: `${Math.max(4, (r.revenue / maxRev) * 80)}px` }}
                       />
-                      <span className="text-[9px] text-gray-500 uppercase">{r.label}</span>
+                      <span className="text-[9px] text-[var(--color-adp-tinta-2)] uppercase">{r.label}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Upcoming */}
-              <div className="bg-white border border-[#e0d6cf] rounded-lg p-5">
-                <h3 className="text-sm font-medium text-[#1b4235] mb-4 uppercase tracking-wider">Próximas reservas</h3>
+              <div className="bg-white border border-[var(--color-adp-borde)] rounded-lg p-5">
+                <h3 className="text-sm font-medium text-[var(--color-adp-pino)] mb-4 uppercase tracking-wider">Próximas reservas</h3>
                 {upcoming.length === 0 ? (
-                  <p className="text-sm text-gray-500">No hay reservas próximas</p>
+                  <p className="text-sm text-[var(--color-adp-tinta-2)]">No hay reservas próximas</p>
                 ) : (
                   <div className="space-y-2 max-h-40 overflow-y-auto">
                     {upcoming.map(b => (
-                      <div key={b.id} className="flex justify-between items-center text-xs py-1 border-b border-gray-50 last:border-0">
+                      <div key={b.id} className="flex justify-between items-center text-xs py-1 border-b border-[var(--color-adp-borde)] last:border-0">
                         <div>
-                          <span className="font-medium text-[#1b4235]">{b.item.name}</span>
-                          <span className="text-gray-500 ml-2">{b.customerName}</span>
+                          <span className="font-medium text-[var(--color-adp-pino)]">{b.item.name}</span>
+                          <span className="text-[var(--color-adp-tinta-2)] ml-2">{b.customerName}</span>
                         </div>
-                        <span className="text-[#b88364]">{new Date(b.startDate).toLocaleDateString("es-MX")}</span>
+                        <span className="text-[var(--color-adp-pino)]">{new Date(b.startDate).toLocaleDateString("es-MX")}</span>
                       </div>
                     ))}
                   </div>
@@ -298,25 +298,25 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
             </div>
 
             {/* Calendar */}
-            <div className="bg-white border border-[#e0d6cf] rounded-lg p-5">
+            <div className="bg-white border border-[var(--color-adp-borde)] rounded-lg p-5">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-medium text-[#1b4235] uppercase tracking-wider">
+                <h3 className="text-sm font-medium text-[var(--color-adp-pino)] uppercase tracking-wider">
                   📅 {monthsFull[calMonth]} {calYear}
                 </h3>
                 <div className="flex gap-2">
                   <button onClick={() => {
                     if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); }
                     else setCalMonth(m => m - 1);
-                  }} className="px-3 py-1 text-xs border border-[#e0d6cf] rounded hover:bg-gray-50">←</button>
+                  }} className="px-3 py-1 text-xs border border-[var(--color-adp-borde)] rounded hover:bg-[var(--color-adp-papel-3)]">←</button>
                   <button onClick={() => {
                     const t = new Date();
                     setCalMonth(t.getMonth());
                     setCalYear(t.getFullYear());
-                  }} className="px-3 py-1 text-xs border border-[#e0d6cf] rounded hover:bg-gray-50">Hoy</button>
+                  }} className="px-3 py-1 text-xs border border-[var(--color-adp-borde)] rounded hover:bg-[var(--color-adp-papel-3)]">Hoy</button>
                   <button onClick={() => {
                     if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); }
                     else setCalMonth(m => m + 1);
-                  }} className="px-3 py-1 text-xs border border-[#e0d6cf] rounded hover:bg-gray-50">→</button>
+                  }} className="px-3 py-1 text-xs border border-[var(--color-adp-borde)] rounded hover:bg-[var(--color-adp-papel-3)]">→</button>
                 </div>
               </div>
 
@@ -325,9 +325,9 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                 <table className="w-full text-xs border-collapse">
                   <thead>
                     <tr>
-                      <th className="text-left text-[#b88364] uppercase tracking-wider pr-3 py-2 w-40">Item</th>
+                      <th className="text-left text-[var(--color-adp-pino)] uppercase tracking-wider pr-3 py-2 w-40">Item</th>
                       {Array.from({ length: daysInMonth(calYear, calMonth) }, (_, i) => (
-                        <th key={i} className={`text-center py-2 w-8 ${i + 1 === now.getDate() && calMonth === now.getMonth() && calYear === now.getFullYear() ? 'bg-[#1b4235] text-white rounded' : ''}`}>
+                        <th key={i} className={`text-center py-2 w-8 ${i + 1 === now.getDate() && calMonth === now.getMonth() && calYear === now.getFullYear() ? 'bg-[var(--color-adp-pino)] text-white rounded' : ''}`}>
                           {i + 1}
                         </th>
                       ))}
@@ -337,8 +337,8 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                     {data.items.filter(i => i.active).map(item => {
                       const itemBookings = activeBookings.filter(b => b.itemId === item.id);
                       return (
-                        <tr key={item.id} className="border-t border-gray-100">
-                          <td className="pr-3 py-1 text-[#1b4235] truncate">{item.name}</td>
+                        <tr key={item.id} className="border-t border-[var(--color-adp-borde)]">
+                          <td className="pr-3 py-1 text-[var(--color-adp-pino)] truncate">{item.name}</td>
                           {Array.from({ length: daysInMonth(calYear, calMonth) }, (_, i) => {
                             const date = new Date(calYear, calMonth, i + 1);
                             const dayBookings = itemBookings.filter(b => {
@@ -351,14 +351,14 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                             const past = date < new Date(now.getFullYear(), now.getMonth(), now.getDate());
                             return (
                               <td key={i} className={`text-center p-0.5 ${
-                                isBlocked ? 'bg-gray-200' :
-                                isBooked ? 'bg-[#b88364]/20' :
+                                isBlocked ? 'bg-[var(--color-adp-borde)]' :
+                                isBooked ? 'bg-[var(--color-adp-pino)]/20' :
                                 past ? '' :
-                                'hover:bg-gray-50'
+                                'hover:bg-[var(--color-adp-papel-3)]'
                               }`}>
                                 <div className={`w-full h-1 rounded ${
-                                  isBlocked ? 'bg-gray-400' :
-                                  isBooked ? 'bg-[#b88364]' :
+                                  isBlocked ? 'bg-[var(--color-adp-borde-2)]' :
+                                  isBooked ? 'bg-[var(--color-adp-pino)]' :
                                   ''
                                 }`} />
                               </td>
@@ -372,10 +372,10 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
               </div>
 
               {/* Legend */}
-              <div className="flex gap-6 mt-4 text-[10px] text-gray-500">
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-[#b88364]" /> Reservado</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-gray-400" /> Mantenimiento</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded border border-gray-300" /> Disponible</span>
+              <div className="flex gap-6 mt-4 text-[10px] text-[var(--color-adp-tinta-2)]">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-[var(--color-adp-pino)]" /> Reservado</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-[var(--color-adp-borde-2)]" /> Mantenimiento</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded border border-[var(--color-adp-borde-2)]" /> Disponible</span>
               </div>
             </div>
           </>
@@ -387,19 +387,19 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
             {/* Action buttons */}
             <div className="mb-6 flex justify-end gap-3">
               <button onClick={() => { setShowBlock(!showBlock); setShowReserve(false); }}
-                className="px-4 py-2 text-xs uppercase tracking-wider border border-[#b88364]/30 text-[#b88364] rounded-lg hover:bg-[#b88364]/5 transition-colors">
+                className="px-4 py-2 text-xs uppercase tracking-wider border border-[var(--color-adp-pino)]/30 bg-[var(--color-adp-pino)] text-white/5 transition-colors">
                 {showBlock ? "Cerrar" : "🔧 Bloquear fechas"}
               </button>
               <button onClick={() => { setShowReserve(!showReserve); setShowBlock(false); }}
-                className="px-4 py-2 text-xs uppercase tracking-wider bg-[#1b4235] text-white rounded-lg hover:bg-[#0f2a20] transition-colors">
+                className="px-4 py-2 text-xs uppercase tracking-wider bg-[var(--color-adp-pino)] text-white rounded-lg hover:bg-[var(--color-adp-pino-hondo)] transition-colors">
                 {showReserve ? "Cerrar" : "📝 Reserva manual"}
               </button>
             </div>
 
             {/* Maintenance block form */}
             {showBlock && (
-              <div className="mb-8 bg-[#f7f3f0] rounded-lg p-6 border border-[#e0d6cf]">
-                <h3 className="text-sm uppercase tracking-wider text-[#1b4235] font-medium mb-4">🔧 Bloquear fechas por mantenimiento</h3>
+              <div className="mb-8 bg-[var(--color-adp-papel-3)] rounded-lg p-6 border border-[var(--color-adp-borde)]">
+                <h3 className="text-sm uppercase tracking-wider text-[var(--color-adp-pino)] font-medium mb-4">🔧 Bloquear fechas por mantenimiento</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                   <select value={blockForm.itemId} onChange={e => setBlockForm(f => ({ ...f, itemId: e.target.value }))} className={inputClass}>
                     <option value="">Seleccionar item...</option>
@@ -412,7 +412,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                   <input type="text" value={blockForm.reason} onChange={e => setBlockForm(f => ({ ...f, reason: e.target.value }))} className={inputClass} placeholder="Motivo (opcional)" />
                 </div>
                 {blockMsg && <p className="text-sm mb-3">{blockMsg}</p>}
-                <button onClick={blockDates} className="px-6 py-2 bg-[#1b4235] text-white rounded-lg text-xs uppercase tracking-wider hover:bg-[#0f2a20] transition-colors">
+                <button onClick={blockDates} className="px-6 py-2 bg-[var(--color-adp-pino)] text-white rounded-lg text-xs uppercase tracking-wider hover:bg-[var(--color-adp-pino-hondo)] transition-colors">
                   Bloquear
                 </button>
               </div>
@@ -420,8 +420,8 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
 
             {/* Manual reservation form */}
             {showReserve && (
-              <div className="mb-8 bg-blue-50 rounded-lg p-6 border border-blue-200">
-                <h3 className="text-sm uppercase tracking-wider text-[#1b4235] font-medium mb-4">📝 Reserva manual (sin pago)</h3>
+              <div className="mb-8 bg-[var(--color-adp-info)] rounded-lg p-6 border border-[var(--color-adp-info)] text-white">
+                <h3 className="text-sm uppercase tracking-wider text-[var(--color-adp-pino)] font-medium mb-4">📝 Reserva manual (sin pago)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <select value={reserveForm.itemId} onChange={e => setReserveForm(f => ({ ...f, itemId: e.target.value }))} className={inputClass}>
                     <option value="">Seleccionar item...</option>
@@ -438,7 +438,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                   <input type="text" value={reserveForm.reason} onChange={e => setReserveForm(f => ({ ...f, reason: e.target.value }))} className={inputClass} placeholder="Notas (opcional)" />
                 </div>
                 {reserveMsg && <p className="text-sm mb-3">{reserveMsg}</p>}
-                <button onClick={createReservation} className="px-6 py-2 bg-[#1b4235] text-white rounded-lg text-xs uppercase tracking-wider hover:bg-[#0f2a20] transition-colors">
+                <button onClick={createReservation} className="px-6 py-2 bg-[var(--color-adp-pino)] text-white rounded-lg text-xs uppercase tracking-wider hover:bg-[var(--color-adp-pino-hondo)] transition-colors">
                   Crear reserva
                 </button>
               </div>
@@ -448,7 +448,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-[#b88364] uppercase tracking-wider text-xs">
+                  <tr className="border-b text-left text-[var(--color-adp-pino)] uppercase tracking-wider text-xs">
                     <th className="py-3 pr-4">Item</th>
                     <th className="py-3 pr-4">Cliente</th>
                     <th className="py-3 pr-4">Tipo</th>
@@ -465,13 +465,13 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                     const isAct = isActivity(b.item.type);
                     const maint = b.status === "maintenance";
                     return (
-                      <tr key={b.id} className={`border-b hover:bg-gray-50 ${maint ? "opacity-60" : ""}`}>
+                      <tr key={b.id} className={`border-b hover:bg-[var(--color-adp-papel-3)] ${maint ? "opacity-60" : ""}`}>
                         <td className="py-3 pr-4 font-medium">{b.item.name}</td>
                         <td className="py-3 pr-4">
                           {maint ? (
-                            <span className="text-gray-500 italic">{b.customerName}</span>
+                            <span className="text-[var(--color-adp-tinta-2)] italic">{b.customerName}</span>
                           ) : (
-                            <>{b.customerName}<br /><span className="text-xs text-gray-500">{b.customerEmail}</span></>
+                            <>{b.customerName}<br /><span className="text-xs text-[var(--color-adp-tinta-2)]">{b.customerEmail}</span></>
                           )}
                         </td>
                         <td className="py-3 pr-4 text-xs">{maint ? "Manto" : isAct ? "Actividad" : "Reserva"}</td>
@@ -483,7 +483,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                         </td>
                         <td className="py-3 pr-4">{b.guests}</td>
                         <td className="py-3 pr-4 font-medium">
-                          {b.totalPrice > 0 ? `$${(b.totalPrice / 100).toLocaleString()}` : <span className="text-gray-500">—</span>}
+                          {b.totalPrice > 0 ? `$${(b.totalPrice / 100).toLocaleString()}` : <span className="text-[var(--color-adp-tinta-2)]">—</span>}
                         </td>
                         <td className="py-3 pr-4">
                           <span className="text-xs whitespace-nowrap">{paymentLabels[b.paymentMethod || ""] || "—"}</span>
@@ -499,24 +499,24 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                               {b.status === "pending" && (
                                 <>
                                   <button onClick={() => markPaid(b.id)} disabled={statusLoading === b.id}
-                                    className="px-2 py-1 text-[10px] uppercase bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors disabled:opacity-50">
+                                    className="px-2 py-1 text-[10px] uppercase bg-[var(--color-adp-info)] text-white rounded hover:bg-[var(--color-adp-info)]/85 transition-colors disabled:opacity-50">
                                     Pagada
                                   </button>
                                   <button onClick={() => confirmBooking(b.id)} disabled={statusLoading === b.id}
-                                    className="px-2 py-1 text-[10px] uppercase bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors disabled:opacity-50">
+                                    className="px-2 py-1 text-[10px] uppercase bg-[var(--color-adp-listo)] text-white rounded hover:bg-[var(--color-adp-listo)]/85 transition-colors disabled:opacity-50">
                                     Confirmar
                                   </button>
                                 </>
                               )}
                               {b.status === "paid" && (
                                 <button onClick={() => confirmBooking(b.id)} disabled={statusLoading === b.id}
-                                  className="px-2 py-1 text-[10px] uppercase bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors disabled:opacity-50">
+                                  className="px-2 py-1 text-[10px] uppercase bg-[var(--color-adp-listo)] text-white rounded hover:bg-[var(--color-adp-listo)]/85 transition-colors disabled:opacity-50">
                                   Confirmar
                                 </button>
                               )}
                               {(b.status === "pending" || b.status === "paid" || b.status === "confirmed") && (
                                 <button onClick={() => cancelBooking(b.id)} disabled={statusLoading === b.id}
-                                  className="px-2 py-1 text-[10px] uppercase bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors disabled:opacity-50">
+                                  className="px-2 py-1 text-[10px] uppercase bg-[var(--color-adp-urgente)] text-white rounded hover:bg-[var(--color-adp-urgente)]/85 transition-colors disabled:opacity-50">
                                   Cancelar
                                 </button>
                               )}
@@ -524,7 +524,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                           )}
                           {maint && (
                             <button onClick={() => updateStatus(b.id, "cancelled")} disabled={statusLoading === b.id}
-                              className="px-2 py-1 text-[10px] uppercase bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors disabled:opacity-50">
+                              className="px-2 py-1 text-[10px] uppercase bg-[var(--color-adp-borde)] text-[var(--color-adp-tinta-2)] rounded hover:bg-[var(--color-adp-borde)] transition-colors disabled:opacity-50">
                               Quitar bloqueo
                             </button>
                           )}
@@ -533,7 +533,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                     );
                   })}
                   {data.bookings.length === 0 && (
-                    <tr><td colSpan={8} className="py-12 text-center text-gray-500">No hay reservas todavía</td></tr>
+                    <tr><td colSpan={8} className="py-12 text-center text-[var(--color-adp-tinta-2)]">No hay reservas todavía</td></tr>
                   )}
                 </tbody>
               </table>
@@ -547,7 +547,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
             {/* New Item button */}
             <div className="mb-6 flex justify-end">
               <button onClick={() => setShowNewItem(true)}
-                className="px-4 py-2 text-xs uppercase tracking-wider bg-[#1b4235] text-white rounded-lg hover:bg-[#0f2a20] transition-colors">
+                className="px-4 py-2 text-xs uppercase tracking-wider bg-[var(--color-adp-pino)] text-white rounded-lg hover:bg-[var(--color-adp-pino-hondo)] transition-colors">
                 + Nuevo ítem
               </button>
             </div>
@@ -556,12 +556,12 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
             {showNewItem && (
               <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" onClick={() => { setShowNewItem(false); setNewItemMsg(""); }}>
                 <div className="bg-white rounded-lg w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                  <h3 className="text-lg font-medium text-[#1b4235] mb-1">Nuevo ítem</h3>
-                  <p className="text-xs text-[#b88364] uppercase tracking-wider mb-6">Crear un nuevo elemento</p>
+                  <h3 className="text-lg font-medium text-[var(--color-adp-pino)] mb-1">Nuevo ítem</h3>
+                  <p className="text-xs text-[var(--color-adp-pino)] uppercase tracking-wider mb-6">Crear un nuevo elemento</p>
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Nombre *</label>
+                      <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Nombre *</label>
                       <input type="text" value={newItem.name} onChange={e => {
                         const name = e.target.value;
                         const slug = name.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/g, '-').replace(/^-|-$/g, '');
@@ -570,11 +570,11 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Slug *</label>
+                        <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Slug *</label>
                         <input type="text" value={newItem.slug} onChange={e => setNewItem(f => ({ ...f, slug: e.target.value }))} className={inputClass} placeholder="moto-3" />
                       </div>
                       <div>
-                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Tipo *</label>
+                        <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Tipo *</label>
                         <select value={newItem.type} onChange={e => setNewItem(f => ({ ...f, type: e.target.value }))} className={inputClass}>
                           <option value="cabana">Cabaña</option>
                           <option value="glamping">Glamping</option>
@@ -587,30 +587,30 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Descripción</label>
+                      <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Descripción</label>
                       <textarea value={newItem.description} onChange={e => setNewItem(f => ({ ...f, description: e.target.value }))} rows={3} className={inputClass} placeholder="Descripción del ítem" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Precio (centavos) *</label>
+                        <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Precio (centavos) *</label>
                         <input type="number" value={newItem.price} onChange={e => setNewItem(f => ({ ...f, price: parseInt(e.target.value) || 0 }))} className={inputClass} />
-                        <p className="text-xs text-gray-500 mt-1">${formatPrice(newItem.price)} MXN</p>
+                        <p className="text-xs text-[var(--color-adp-tinta-2)] mt-1">${formatPrice(newItem.price)} MXN</p>
                       </div>
                       <div>
-                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Capacidad</label>
+                        <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Capacidad</label>
                         <input type="text" value={newItem.capacity} onChange={e => setNewItem(f => ({ ...f, capacity: e.target.value }))} className={inputClass} placeholder="Ej: 1 persona" />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Imagen (opcional)</label>
+                      <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Imagen (opcional)</label>
                       <input type="text" value={newItem.image} onChange={e => setNewItem(f => ({ ...f, image: e.target.value }))} className={inputClass} placeholder={`/img/items/${newItem.slug}/01.jpg`} />
                     </div>
                     <div className="flex gap-6">
-                      <label className="flex items-center gap-2 text-sm text-[#1b4235]">
+                      <label className="flex items-center gap-2 text-sm text-[var(--color-adp-pino)]">
                         <input type="checkbox" checked={newItem.active} onChange={e => setNewItem(f => ({ ...f, active: e.target.checked }))} className="w-4 h-4" />
                         Activo
                       </label>
-                      <label className="flex items-center gap-2 text-sm text-[#1b4235]">
+                      <label className="flex items-center gap-2 text-sm text-[var(--color-adp-pino)]">
                         <input type="checkbox" checked={newItem.featured} onChange={e => setNewItem(f => ({ ...f, featured: e.target.checked }))} className="w-4 h-4" />
                         Destacado
                       </label>
@@ -640,11 +640,11 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
                         setNewItemMsg("❌ " + (err.error || "Error"));
                       }
                     }}
-                      className="flex-1 py-3 bg-[#1b4235] text-white rounded-lg text-sm uppercase tracking-wider hover:bg-[#0f2a20] transition-colors">
+                      className="flex-1 py-3 bg-[var(--color-adp-pino)] text-white rounded-lg text-sm uppercase tracking-wider hover:bg-[var(--color-adp-pino-hondo)] transition-colors">
                       Crear
                     </button>
                     <button onClick={() => { setShowNewItem(false); setNewItemMsg(""); }}
-                      className="px-6 py-3 border border-[#e0d6cf] text-[#5c3d2e] rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                      className="px-6 py-3 border border-[var(--color-adp-borde)] text-[var(--color-adp-tinta-2)] rounded-lg text-sm hover:bg-[var(--color-adp-papel-3)] transition-colors">
                       Cancelar
                     </button>
                   </div>
@@ -656,35 +656,35 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
             {editingItem && (
               <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" onClick={() => setEditingItem(null)}>
                 <div className="bg-white rounded-lg w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                  <h3 className="text-lg font-medium text-[#1b4235] mb-1">Editar: {editingItem.name}</h3>
-                  <p className="text-xs text-[#b88364] uppercase tracking-wider mb-6">{getTypeLabel(editingItem.type)}</p>
+                  <h3 className="text-lg font-medium text-[var(--color-adp-pino)] mb-1">Editar: {editingItem.name}</h3>
+                  <p className="text-xs text-[var(--color-adp-pino)] uppercase tracking-wider mb-6">{getTypeLabel(editingItem.type)}</p>
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Nombre</label>
+                      <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Nombre</label>
                       <input type="text" value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} className={inputClass} />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Descripción</label>
+                      <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Descripción</label>
                       <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={4} className={inputClass} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Precio (centavos)</label>
+                        <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Precio (centavos)</label>
                         <input type="number" value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: parseInt(e.target.value) || 0 }))} className={inputClass} />
-                        <p className="text-xs text-gray-500 mt-1">${formatPrice(editForm.price)} MXN</p>
+                        <p className="text-xs text-[var(--color-adp-tinta-2)] mt-1">${formatPrice(editForm.price)} MXN</p>
                       </div>
                       <div>
-                        <label className="block text-xs uppercase tracking-wider text-[#b88364] mb-1">Capacidad</label>
+                        <label className="block text-xs uppercase tracking-wider text-[var(--color-adp-pino)] mb-1">Capacidad</label>
                         <input type="text" value={editForm.capacity} onChange={e => setEditForm(f => ({ ...f, capacity: e.target.value }))} className={inputClass} placeholder="Ej: 2 huéspedes" />
                       </div>
                     </div>
                     <div className="flex gap-6">
-                      <label className="flex items-center gap-2 text-sm text-[#1b4235]">
+                      <label className="flex items-center gap-2 text-sm text-[var(--color-adp-pino)]">
                         <input type="checkbox" checked={editForm.active} onChange={e => setEditForm(f => ({ ...f, active: e.target.checked }))} className="w-4 h-4" />
                         Activo
                       </label>
-                      <label className="flex items-center gap-2 text-sm text-[#1b4235]">
+                      <label className="flex items-center gap-2 text-sm text-[var(--color-adp-pino)]">
                         <input type="checkbox" checked={editForm.featured} onChange={e => setEditForm(f => ({ ...f, featured: e.target.checked }))} className="w-4 h-4" />
                         Destacado
                       </label>
@@ -695,11 +695,11 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
 
                   <div className="flex gap-3 mt-6">
                     <button onClick={saveItem} disabled={editSaving}
-                      className="flex-1 py-3 bg-[#1b4235] text-white rounded-lg text-sm uppercase tracking-wider hover:bg-[#0f2a20] transition-colors disabled:opacity-50">
+                      className="flex-1 py-3 bg-[var(--color-adp-pino)] text-white rounded-lg text-sm uppercase tracking-wider hover:bg-[var(--color-adp-pino-hondo)] transition-colors disabled:opacity-50">
                       {editSaving ? "Guardando..." : "Guardar"}
                     </button>
                     <button onClick={() => setEditingItem(null)}
-                      className="px-6 py-3 border border-[#e0d6cf] text-[#5c3d2e] rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                      className="px-6 py-3 border border-[var(--color-adp-borde)] text-[var(--color-adp-tinta-2)] rounded-lg text-sm hover:bg-[var(--color-adp-papel-3)] transition-colors">
                       Cancelar
                     </button>
                   </div>
@@ -711,7 +711,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
             <section className="space-y-10">
               {/* Alojamientos */}
               <div>
-                <h3 className="text-sm tracking-[0.2em] uppercase text-[#b88364] mb-4 border-b pb-2">🏠 Alojamientos</h3>
+                <h3 className="text-sm tracking-[0.2em] uppercase text-[var(--color-adp-pino)] mb-4 border-b pb-2">🏠 Alojamientos</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {data.items.filter(i => i.type === "cabana" || i.type === "glamping").map((item) => (
                     <ItemCard key={item.id} item={item} onEdit={openEdit} formatPrice={formatPrice} />
@@ -721,7 +721,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
 
               {/* Actividades */}
               <div>
-                <h3 className="text-sm tracking-[0.2em] uppercase text-[#b88364] mb-4 border-b pb-2">🪂 Actividades</h3>
+                <h3 className="text-sm tracking-[0.2em] uppercase text-[var(--color-adp-pino)] mb-4 border-b pb-2">🪂 Actividades</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {data.items.filter(i => i.type === "parapente" || i.type === "aladelta" || i.type === "hike").map((item) => (
                     <ItemCard key={item.id} item={item} onEdit={openEdit} formatPrice={formatPrice} />
@@ -731,7 +731,7 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
 
               {/* Renta */}
               <div>
-                <h3 className="text-sm tracking-[0.2em] uppercase text-[#b88364] mb-4 border-b pb-2">🏍️ Renta</h3>
+                <h3 className="text-sm tracking-[0.2em] uppercase text-[var(--color-adp-pino)] mb-4 border-b pb-2">🏍️ Renta</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {data.items.filter(i => i.type === "moto" || i.type === "bici").map((item) => (
                     <ItemCard key={item.id} item={item} onEdit={openEdit} formatPrice={formatPrice} />
@@ -748,21 +748,21 @@ export default function AdminClient({ bookings, items, cabanas, activities, rent
 
 function ItemCard({ item, onEdit, formatPrice }: { item: Item; onEdit: (i: Item) => void; formatPrice: (c: number) => string }) {
   return (
-    <div className={`border rounded-lg p-4 hover:shadow-sm transition-shadow ${item.active ? "border-[#e0d6cf]" : "border-red-200 bg-red-50/50"}`}>
+    <div className={`border rounded-lg p-4 hover:shadow-sm transition-shadow ${item.active ? "border-[var(--color-adp-borde)]" : "border-[var(--color-adp-urgente)] bg-[var(--color-adp-urgente)]/50"}`}>
       <div className="flex justify-between items-start mb-2">
         <div>
-          <p className="font-medium text-[#1b4235] text-sm">{item.name}</p>
-          <p className="text-[10px] text-[#b88364] uppercase tracking-wider">{getTypeLabel(item.type)}</p>
+          <p className="font-medium text-[var(--color-adp-pino)] text-sm">{item.name}</p>
+          <p className="text-[10px] text-[var(--color-adp-pino)] uppercase tracking-wider">{getTypeLabel(item.type)}</p>
         </div>
-        <span className={`text-[10px] uppercase px-2 py-0.5 rounded ${item.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+        <span className={`text-[10px] uppercase px-2 py-0.5 rounded ${item.active ? "bg-[var(--color-adp-listo)] text-white" : "bg-[var(--color-adp-urgente)] text-white"}`}>
           {item.active ? "Activo" : "Inactivo"}
         </span>
       </div>
-      <p className="text-xs text-gray-500 line-clamp-2 mb-3">{item.description || "—"}</p>
+      <p className="text-xs text-[var(--color-adp-tinta-2)] line-clamp-2 mb-3">{item.description || "—"}</p>
       <div className="flex justify-between items-center">
-        <p className="text-sm font-bold text-[#1b4235]">${formatPrice(item.price)}</p>
+        <p className="text-sm font-bold text-[var(--color-adp-pino)]">${formatPrice(item.price)}</p>
         <button onClick={() => onEdit(item)}
-          className="text-xs uppercase tracking-wider text-[#b88364] hover:text-[#1b4235] transition-colors">
+          className="text-xs uppercase tracking-wider text-[var(--color-adp-pino)] hover:text-[var(--color-adp-pino)] transition-colors">
           Editar →
         </button>
       </div>

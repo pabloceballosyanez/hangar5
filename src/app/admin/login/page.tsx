@@ -22,23 +22,23 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
   }
 
   return (
-    <main className="min-h-screen bg-[#1b4235] flex items-center justify-center">
+    <main className="min-h-screen bg-[var(--color-adp-pino)] flex items-center justify-center">
       <div className="w-full max-w-sm mx-4">
         <div className="bg-white rounded-lg p-8 shadow-xl">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-serif text-[#1b4235] mb-2">Hangar 5</h1>
-            <p className="text-sm text-[#b88364] uppercase tracking-wider">Admin</p>
+            <h1 className="text-2xl font-serif text-[var(--color-adp-pino)] mb-2">Hangar 5</h1>
+            <p className="text-sm text-[var(--color-adp-pino)] uppercase tracking-wider">Admin</p>
           </div>
 
           <form method="POST" action="/api/admin/login" className="space-y-4">
             <div>
-              <label className="block text-xs tracking-[0.2em] uppercase text-[#b88364] mb-2 font-medium">
+              <label className="block text-xs tracking-[0.2em] uppercase text-[var(--color-adp-pino)] mb-2 font-medium">
                 Contraseña
               </label>
               <input
                 type="password"
                 name="password"
-                className="w-full border border-[#e0d6cf] rounded-lg p-4 bg-white text-[#1b4235] focus:outline-none focus:border-[#b88364] focus:ring-1 focus:ring-[#b88364]/20 transition-all text-sm"
+                className="w-full border border-[var(--color-adp-borde)] rounded-lg p-4 bg-white text-[var(--color-adp-pino)] focus:outline-none focus:border-[var(--color-adp-pino)] focus:ring-1 focus:ring-[var(--color-adp-pino)]/20 transition-all text-sm"
                 placeholder="••••••••"
                 autoFocus
                 required
@@ -46,20 +46,20 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
             </div>
 
             {error && (
-              <div className="bg-[#fef0ef] text-[#8b1a1a] rounded-lg p-3 text-sm text-center">
+              <div className="bg-[var(--color-adp-papel-3)] text-[var(--color-adp-urgente)] rounded-lg p-3 text-sm text-center">
                 {error}
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full py-4 bg-[#1b4235] text-white rounded-lg uppercase tracking-wider text-sm font-medium hover:bg-[#0f2a20] transition-colors"
+              className="w-full py-4 bg-[var(--color-adp-pino)] text-white rounded-lg uppercase tracking-wider text-sm font-medium hover:bg-[var(--color-adp-pino-hondo)] transition-colors"
             >
               Entrar
             </button>
           </form>
 
-          <p className="text-[10px] text-gray-500 text-center mt-6">
+          <p className="text-[10px] text-[var(--color-adp-tinta-2)] text-center mt-6">
             Panel administrativo Hangar 5
           </p>
         </div>

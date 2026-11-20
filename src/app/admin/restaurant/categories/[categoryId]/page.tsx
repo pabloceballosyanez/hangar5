@@ -82,8 +82,8 @@ export default function EditCategoryPage() {
   if (loading) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-        <p className="text-gray-500">Cargando categoría...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+        <p className="text-[var(--color-adp-tinta-2)]">Cargando categoría...</p>
       </div>
     );
   }
@@ -91,10 +91,10 @@ export default function EditCategoryPage() {
   if (error && !name) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <p className="text-[#b03a2e] mb-4">{error}</p>
+        <p className="text-[var(--color-adp-urgente)] mb-4">{error}</p>
         <button
           onClick={() => router.push('/admin/restaurant/categories')}
-          className="text-[#1b4235] hover:text-blue-800 text-sm font-medium"
+          className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm font-medium"
         >
           ← Volver a categorías
         </button>
@@ -104,27 +104,27 @@ export default function EditCategoryPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Editar categoría</h1>
-      <form onSubmit={handleSave} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
+      <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)] mb-6">Editar categoría</h1>
+      <form onSubmit={handleSave} className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-6 space-y-4">
+        {error && <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-3 rounded-lg">{error}</p>}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Nombre</label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
+            className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-[var(--color-adp-info)] outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Tipo</label>
           <select
             value={kind}
             onChange={e => setKind(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+            className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
           >
             <option value="FOOD">Comida</option>
             <option value="DRINK">Bebida</option>
@@ -132,12 +132,12 @@ export default function EditCategoryPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Orden</label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Orden</label>
           <input
             type="number"
             value={sortOrder}
             onChange={e => setSortOrder(Number(e.target.value))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+            className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
           />
         </div>
 
@@ -147,9 +147,9 @@ export default function EditCategoryPage() {
             id="isActive"
             checked={isActive}
             onChange={e => setIsActive(e.target.checked)}
-            className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
+            className="w-4 h-4 text-[var(--color-adp-pino)] rounded border-[var(--color-adp-borde-2)] focus:ring-[var(--color-adp-pino)]/40"
           />
-          <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
+          <label htmlFor="isActive" className="text-sm font-medium text-[var(--color-adp-tinta)]">
             Activo
           </label>
         </div>
@@ -158,7 +158,7 @@ export default function EditCategoryPage() {
           <button
             type="submit"
             disabled={saving || !name.trim()}
-            className="flex-1 py-2.5 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
+            className="flex-1 py-2.5 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors"
           >
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
@@ -167,14 +167,14 @@ export default function EditCategoryPage() {
             onClick={handleDelete}
             disabled={deleting || menuItemCount > 0}
             title={menuItemCount > 0 ? 'Elimina los items primero' : 'Eliminar categoría'}
-            className="px-4 py-2.5 border border-red-200 text-[#b03a2e] text-sm font-medium rounded-lg hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2.5 border border-[var(--color-adp-urgente)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-urgente)]/85 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {deleting ? 'Eliminando...' : 'Eliminar'}
           </button>
           <button
             type="button"
             onClick={() => router.push('/admin/restaurant/categories')}
-            className="px-4 py-2.5 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2.5 border border-[var(--color-adp-borde)] text-[var(--color-adp-tinta-2)] text-sm font-medium rounded-lg hover:bg-[var(--color-adp-papel-3)] transition-colors"
           >
             Cancelar
           </button>

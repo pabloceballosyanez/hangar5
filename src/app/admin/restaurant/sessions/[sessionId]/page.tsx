@@ -180,8 +180,8 @@ export default function CloseSessionPage() {
   if (loading) {
     return (
       <div className="max-w-lg mx-auto text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-        <p className="text-gray-500">Cargando sesión...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+        <p className="text-[var(--color-adp-tinta-2)]">Cargando sesión...</p>
       </div>
     );
   }
@@ -189,8 +189,8 @@ export default function CloseSessionPage() {
   if (!session) {
     return (
       <div className="max-w-lg mx-auto text-center py-12">
-        <p className="text-[#b03a2e] mb-4">Sesión no encontrada</p>
-        <Link href="/admin/restaurant/sessions" className="text-[#1b4235] hover:text-blue-800 text-sm">← Volver</Link>
+        <p className="text-[var(--color-adp-urgente)] mb-4">Sesión no encontrada</p>
+        <Link href="/admin/restaurant/sessions" className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm">← Volver</Link>
       </div>
     );
   }
@@ -199,9 +199,9 @@ export default function CloseSessionPage() {
     return (
       <div className="max-w-lg mx-auto text-center py-12">
         <div className="text-4xl mb-4">✅</div>
-        <p className="text-xl font-semibold text-gray-900 mb-2">Sesión cerrada</p>
-        <p className="text-gray-500 mb-6">{session.label} — {new Date(session.openedAt).toLocaleDateString('es-MX')}</p>
-        <Link href="/admin/restaurant/sessions" className="text-[#1b4235] hover:text-blue-800 text-sm font-medium">← Volver a tabs</Link>
+        <p className="text-xl font-semibold text-[var(--color-adp-tinta)] mb-2">Sesión cerrada</p>
+        <p className="text-[var(--color-adp-tinta-2)] mb-6">{session.label} — {new Date(session.openedAt).toLocaleDateString('es-MX')}</p>
+        <Link href="/admin/restaurant/sessions" className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm font-medium">← Volver a tabs</Link>
       </div>
     );
   }
@@ -219,8 +219,8 @@ export default function CloseSessionPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
-        <Link href="/admin/restaurant/sessions" className="text-sm text-gray-500 hover:text-gray-700">← Volver</Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">Cerrar: {session.label}</h1>
+        <Link href="/admin/restaurant/sessions" className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)]">← Volver</Link>
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)] mt-2">Cerrar: {session.label}</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -235,31 +235,31 @@ export default function CloseSessionPage() {
 
           <PanelServicios sessionId={sessionId} onCambio={cargar} />
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Órdenes ({session.orders.length})</h2>
+          <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-5">
+            <h2 className="text-lg font-semibold text-[var(--color-adp-tinta)] mb-3">Órdenes ({session.orders.length})</h2>
             {session.orders.length === 0 ? (
-              <p className="text-gray-500 text-sm">Sin órdenes en esta sesión</p>
+              <p className="text-[var(--color-adp-tinta-2)] text-sm">Sin órdenes en esta sesión</p>
             ) : (
               <div className="space-y-2">
                 {session.orders.map(o => (
-                  <div key={o.id} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                  <div key={o.id} className="flex justify-between items-center py-2 border-b border-[var(--color-adp-borde)] last:border-0">
                     <div className="min-w-0">
                       {o.orderItems.slice(0, 3).map((item, i) => (
-                        <p key={i} className="text-sm text-gray-700 truncate">
+                        <p key={i} className="text-sm text-[var(--color-adp-tinta)] truncate">
                           {item.quantity}x {item.menuItem.name}
-                          {item.variant && <span className="text-gray-500"> ({item.variant.name})</span>}
+                          {item.variant && <span className="text-[var(--color-adp-tinta-2)]"> ({item.variant.name})</span>}
                         </p>
                       ))}
                       {o.orderItems.length > 3 && (
-                        <p className="text-xs text-gray-500">+{o.orderItems.length - 3} items más</p>
+                        <p className="text-xs text-[var(--color-adp-tinta-2)]">+{o.orderItems.length - 3} items más</p>
                       )}
                     </div>
-                    <span className="font-medium text-gray-900 shrink-0 ml-4">{formatPrice(o.total)}</span>
+                    <span className="font-medium text-[var(--color-adp-tinta)] shrink-0 ml-4">{formatPrice(o.total)}</span>
                   </div>
                 ))}
-                <div className="flex justify-between pt-2 border-t border-gray-200">
-                  <span className="font-semibold text-gray-900">Total</span>
-                  <span className="font-bold text-lg text-gray-900">{formatPrice(ordersTotal)}</span>
+                <div className="flex justify-between pt-2 border-t border-[var(--color-adp-borde)]">
+                  <span className="font-semibold text-[var(--color-adp-tinta)]">Total</span>
+                  <span className="font-bold text-lg text-[var(--color-adp-tinta)]">{formatPrice(ordersTotal)}</span>
                 </div>
               </div>
             )}
@@ -267,27 +267,27 @@ export default function CloseSessionPage() {
         </div>
 
         {/* Payment */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Cobrar</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-5">
+          <h2 className="text-lg font-semibold text-[var(--color-adp-tinta)] mb-3">Cobrar</h2>
 
           {payments.map((p, idx) => (
-            <div key={idx} className="mb-3 p-3 bg-gray-50 rounded-lg">
+            <div key={idx} className="mb-3 p-3 bg-[var(--color-adp-papel-3)] rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <select
                   value={p.method}
                   onChange={e => updatePayment(idx, 'method', e.target.value)}
-                  className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm bg-white"
+                  className="flex-1 px-2 py-1.5 border border-[var(--color-adp-borde-2)] rounded text-sm bg-white"
                 >
                   {METHODS.map(m => (
                     <option key={m.value} value={m.value}>{m.label}</option>
                   ))}
                 </select>
                 {payments.length > 1 && (
-                  <button type="button" onClick={() => removePayment(idx)} className="text-red-400 hover:text-[#b03a2e] text-xs">✕</button>
+                  <button type="button" onClick={() => removePayment(idx)} className="text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] text-xs">✕</button>
                 )}
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-adp-tinta-2)]">$</span>
                 <input
                   type="number"
                   value={p.amount}
@@ -295,7 +295,7 @@ export default function CloseSessionPage() {
                   placeholder="0.00"
                   min={0}
                   step={0.01}
-                  className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+                  className="w-full pl-7 pr-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                 />
               </div>
             </div>
@@ -304,47 +304,47 @@ export default function CloseSessionPage() {
           <button
             type="button"
             onClick={addPaymentMethod}
-            className="w-full text-sm text-[#1b4235] hover:text-blue-800 font-medium mb-4"
+            className="w-full text-sm text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] font-medium mb-4"
           >
             + Agregar método de pago
           </button>
 
           {/* Balance summary */}
-          <div className="border-t border-gray-200 pt-3 space-y-1 text-sm">
+          <div className="border-t border-[var(--color-adp-borde)] pt-3 space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">Consumo</span>
+              <span className="text-[var(--color-adp-tinta-2)]">Consumo</span>
               <span className="font-medium">{formatPrice(ordersTotal)}</span>
             </div>
             {serviciosTotal > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-500">Servicios</span>
+                <span className="text-[var(--color-adp-tinta-2)]">Servicios</span>
                 <span className="font-medium">{formatPrice(serviciosTotal)}</span>
               </div>
             )}
             {alojamientoTotal > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-500">Alojamiento</span>
+                <span className="text-[var(--color-adp-tinta-2)]">Alojamiento</span>
                 <span className="font-medium">{formatPrice(alojamientoTotal)}</span>
               </div>
             )}
-            <div className="flex justify-between pt-1 border-t border-gray-100">
+            <div className="flex justify-between pt-1 border-t border-[var(--color-adp-borde)]">
               <span className="font-semibold">Total</span>
               <span className="font-semibold">{formatPrice(granTotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Pagado</span>
-              <span className="font-medium text-[#1b4235]">{formatPrice(paidTotal)}</span>
+              <span className="text-[var(--color-adp-tinta-2)]">Pagado</span>
+              <span className="font-medium text-[var(--color-adp-pino)]">{formatPrice(paidTotal)}</span>
             </div>
-            <div className="flex justify-between pt-1 border-t border-gray-100">
+            <div className="flex justify-between pt-1 border-t border-[var(--color-adp-borde)]">
               <span className="font-semibold">
                 {balance > 0 ? 'Pendiente' : balance < 0 ? 'A favor' : 'Cuadrado'}
               </span>
-              <span className={`font-bold ${balance > 0 ? 'text-[#b03a2e]' : balance < 0 ? 'text-[#1b4235]' : 'text-gray-600'}`}>
+              <span className={`font-bold ${balance > 0 ? 'text-[var(--color-adp-urgente)]' : balance < 0 ? 'text-[var(--color-adp-pino)]' : 'text-[var(--color-adp-tinta-2)]'}`}>
                 {balance > 0 ? formatPrice(balance) : balance < 0 ? formatPrice(Math.abs(balance)) : '—'}
               </span>
             </div>
             {session.customer && balance !== 0 && (
-              <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded mt-2">
+              <p className="text-xs text-white bg-[var(--color-adp-atencion)] p-2 rounded mt-2">
                 {balance > 0
                   ? `Queda pendiente $${balance.toFixed(2)} en la cuenta de ${session.customer.name}`
                   : `Queda crédito de $${Math.abs(balance).toFixed(2)} a favor de ${session.customer.name}`
@@ -354,13 +354,13 @@ export default function CloseSessionPage() {
           </div>
 
           {error && (
-            <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg mt-4">{error}</p>
+            <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-3 rounded-lg mt-4">{error}</p>
           )}
 
           <button
             onClick={handleClose}
             disabled={closing}
-            className="w-full mt-4 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+            className="w-full mt-4 py-3 bg-[var(--color-adp-listo)] text-white font-semibold rounded-lg hover:bg-[var(--color-adp-listo)]/85 disabled:opacity-50 transition-colors"
           >
             {closing ? 'Cerrando...' : 'Cerrar sesión y cobrar'}
           </button>

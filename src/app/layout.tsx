@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Gloock, Work_Sans } from "next/font/google";
+import { Gloock, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 const gloock = Gloock({
@@ -9,15 +9,22 @@ const gloock = Gloock({
   display: "swap",
 });
 
-// Work Sans — voz de texto. Reemplaza a Inter (sep-2026):
-// Inter es la fuente más usada de internet y no aportaba carácter propio.
-// Work Sans tiene curvas más humanas y aguanta bien los textos largos
-// de las fichas de platillo.
-const workSans = Work_Sans({
+/* Plus Jakarta Sans — voz de operación.
+   Reemplaza a Work Sans (nov-2026). Dos razones:
+
+   1. Work Sans se cargaba solo hasta el peso 600, pero los tokens piden
+      800. El navegador inventaba el peso engordando la letra a la fuerza
+      y los títulos salían sucios. Aquí están los cinco pesos reales.
+
+   2. En una tablet a un brazo de distancia, los números de la variante
+      Jakarta (más altos y abiertos) se leen mejor que los de Work Sans,
+      y la mitad de lo que se mira en estas pantallas son precios y horas.
+*/
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-work-sans",
+  variable: "--font-jakarta",
   display: "swap",
-  weight: ["300", "400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -41,8 +48,8 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${gloock.variable} ${workSans.variable}`}>
-      <body className={`${workSans.variable} ${gloock.variable} antialiased`}>
+    <html lang="es" className={`${gloock.variable} ${jakarta.variable}`}>
+      <body className={`${jakarta.variable} ${gloock.variable} antialiased`}>
         {children}
       </body>
     </html>

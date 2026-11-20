@@ -61,40 +61,40 @@ export default function NuevoStaffPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Nuevo miembro del staff</h1>
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
+      <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)] mb-6">Nuevo miembro del staff</h1>
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-6 space-y-4">
+        {error && <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-3 rounded-lg">{error}</p>}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Nombre <span className="text-[var(--color-adp-urgente)]">*</span></label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
+            className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-[var(--color-adp-info)] outline-none"
             placeholder="Ej: Ana López"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">PIN (4 dígitos)</label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">PIN (4 dígitos)</label>
           <input
             type="text"
             value={pin}
             onChange={e => setPin(e.target.value.replace(/\D/g,'').slice(0,4))}
             maxLength={4}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none tracking-[0.5em] text-center text-lg"
+            className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none tracking-[0.5em] text-center text-lg"
             placeholder="0000"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Rol <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Rol <span className="text-[var(--color-adp-urgente)]">*</span></label>
           <select
             value={role}
             onChange={e => setRole(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+            className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
           >
             {ROLES.map(r => (
               <option key={r.value} value={r.value}>{r.label}</option>
@@ -104,38 +104,38 @@ export default function NuevoStaffPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+            <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Teléfono</label>
             <input
               type="tel"
               value={phone}
               onChange={e => setPhone(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+              className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
               placeholder="+52..."
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+              className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
               placeholder="correo@..."
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Pago por hora (MXN)</label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Pago por hora (MXN)</label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-adp-tinta-2)] text-sm">$</span>
             <input
               type="number"
               value={hourlyRate}
               onChange={e => setHourlyRate(e.target.value === '' ? '' : Number(e.target.value))}
               min={0}
               step={0.01}
-              className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+              className="w-full pl-7 pr-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
             />
           </div>
         </div>
@@ -143,14 +143,14 @@ export default function NuevoStaffPage() {
         <div className="flex gap-3 pt-2">
           <Link
             href="/admin/restaurant/staff"
-            className="flex-1 text-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex-1 text-center px-4 py-2 border border-[var(--color-adp-borde-2)] text-sm font-medium text-[var(--color-adp-tinta)] rounded-lg hover:bg-[var(--color-adp-papel-3)] transition-colors"
           >
             Cancelar
           </Link>
           <button
             type="submit"
             disabled={saving || !name.trim()}
-            className="flex-1 py-2.5 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
+            className="flex-1 py-2.5 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors"
           >
             {saving ? 'Creando...' : 'Crear staff'}
           </button>

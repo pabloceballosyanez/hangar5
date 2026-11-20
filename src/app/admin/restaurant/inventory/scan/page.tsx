@@ -195,9 +195,9 @@ export default function ScanReceiptPage() {
   // ─── Render ─────────────────────────────────────────────────────────────
 
   const confidenceColor: Record<string, string> = {
-    HIGH: 'bg-green-100 text-green-700',
-    MEDIUM: 'bg-amber-100 text-amber-700',
-    LOW: 'bg-red-100 text-red-700',
+    HIGH: 'bg-[var(--color-adp-listo)] text-white',
+    MEDIUM: 'bg-[var(--color-adp-atencion)] text-white',
+    LOW: 'bg-[var(--color-adp-urgente)] text-white',
   };
   const confidenceLabel: Record<string, string> = {
     HIGH: '✓ Match',
@@ -209,14 +209,14 @@ export default function ScanReceiptPage() {
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">📸 Escanear Recibo</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">📸 Escanear Recibo</h1>
+          <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">
             Toma una foto del recibo y la IA extraerá los productos automáticamente
           </p>
         </div>
         <Link
           href="/admin/restaurant/ingredients"
-          className="text-sm text-[#1b4235] hover:text-blue-800"
+          className="text-sm text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)]"
         >
           ← Inventario
         </Link>
@@ -228,14 +228,14 @@ export default function ScanReceiptPage() {
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer
-            hover:border-blue-400 hover:bg-blue-50/50 transition-all"
+          className="border-2 border-dashed border-[var(--color-adp-borde-2)] rounded-xl p-12 text-center cursor-pointer
+            hover:border-[var(--color-adp-info)] hover:bg-[var(--color-adp-info)]/85/50 transition-all"
         >
           <div className="text-5xl mb-4">📷</div>
-          <p className="text-lg font-medium text-gray-700 mb-2">
+          <p className="text-lg font-medium text-[var(--color-adp-tinta)] mb-2">
             Toca para tomar foto o arrastra una imagen
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[var(--color-adp-tinta-2)]">
             JPG, PNG o HEIC • Recibos, tickets, facturas
           </p>
           <input
@@ -251,12 +251,12 @@ export default function ScanReceiptPage() {
 
       {/* Scanning state */}
       {scanning && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-6" />
-          <p className="text-lg font-medium text-gray-700 mb-2">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-12 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-adp-info)] mx-auto mb-6" />
+          <p className="text-lg font-medium text-[var(--color-adp-tinta)] mb-2">
             Analizando recibo con IA...
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[var(--color-adp-tinta-2)]">
             Extrayendo productos, cantidades y precios
           </p>
           {image && (
@@ -271,17 +271,17 @@ export default function ScanReceiptPage() {
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)] rounded-xl p-4 text-white">
+          <p className="text-sm text-[var(--color-adp-urgente)]">{error}</p>
           {debugAI && (
             <details className="mt-2">
-              <summary className="text-xs text-red-500 cursor-pointer">Debug</summary>
-              <pre className="text-xs text-red-400 mt-1 whitespace-pre-wrap">{debugAI}</pre>
+              <summary className="text-xs text-[var(--color-adp-urgente)] cursor-pointer">Debug</summary>
+              <pre className="text-xs text-[var(--color-adp-urgente)] mt-1 whitespace-pre-wrap">{debugAI}</pre>
             </details>
           )}
           <button
             onClick={() => { setError(null); setImage(null); setDebugAI(null); }}
-            className="mt-3 text-sm text-[#b03a2e] hover:text-red-800 font-medium"
+            className="mt-3 text-sm text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] font-medium"
           >
             Intentar de nuevo
           </button>
@@ -290,12 +290,12 @@ export default function ScanReceiptPage() {
 
       {/* Success */}
       {success && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-          <p className="text-sm text-green-700 font-medium mb-1">✅ ¡Inventario actualizado!</p>
-          <p className="text-xs text-[#1b4235]">{success}</p>
+        <div className="bg-[var(--color-adp-listo)] border border-[var(--color-adp-listo)] rounded-xl p-4 text-white">
+          <p className="text-sm text-[var(--color-adp-listo)] font-medium mb-1">✅ ¡Inventario actualizado!</p>
+          <p className="text-xs text-[var(--color-adp-pino)]">{success}</p>
           <button
             onClick={() => { setSuccess(null); setImage(null); }}
-            className="mt-3 text-sm text-[#1b4235] hover:text-green-800 font-medium"
+            className="mt-3 text-sm text-[var(--color-adp-pino)] hover:text-[var(--color-adp-listo)] font-medium"
           >
             Escanear otro recibo
           </button>
@@ -304,10 +304,10 @@ export default function ScanReceiptPage() {
 
       {/* Review items */}
       {items.length > 0 && !success && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] overflow-hidden">
+          <div className="p-4 border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)] flex items-center justify-between">
             <div>
-              <h2 className="font-semibold text-gray-900">
+              <h2 className="font-semibold text-[var(--color-adp-tinta)]">
                 {items.length} productos encontrados
               </h2>
               {image && (
@@ -316,7 +316,7 @@ export default function ScanReceiptPage() {
             </div>
             <button
               onClick={() => { setItems([]); setImage(null); }}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)]"
             >
               Cancelar
             </button>
@@ -325,21 +325,21 @@ export default function ScanReceiptPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 text-xs uppercase">Producto</th>
-                  <th className="text-center py-3 px-3 font-medium text-gray-500 text-xs uppercase w-20">Cantidad</th>
-                  <th className="text-center py-3 px-3 font-medium text-gray-500 text-xs uppercase w-16">Unidad</th>
-                  <th className="text-right py-3 px-3 font-medium text-gray-500 text-xs uppercase w-20">Precio</th>
-                  <th className="text-center py-3 px-3 font-medium text-gray-500 text-xs uppercase w-24">Match</th>
+                <tr className="border-b border-[var(--color-adp-borde)]">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] text-xs uppercase">Producto</th>
+                  <th className="text-center py-3 px-3 font-medium text-[var(--color-adp-tinta-2)] text-xs uppercase w-20">Cantidad</th>
+                  <th className="text-center py-3 px-3 font-medium text-[var(--color-adp-tinta-2)] text-xs uppercase w-16">Unidad</th>
+                  <th className="text-right py-3 px-3 font-medium text-[var(--color-adp-tinta-2)] text-xs uppercase w-20">Precio</th>
+                  <th className="text-center py-3 px-3 font-medium text-[var(--color-adp-tinta-2)] text-xs uppercase w-24">Match</th>
                   <th className="w-8"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-[var(--color-adp-borde)]">
                 {items.map((item, idx) => (
                   <tr
                     key={idx}
-                    className={`hover:bg-gray-50 ${
-                      item.confidence === 'LOW' ? 'bg-red-50/30' : ''
+                    className={`hover:bg-[var(--color-adp-papel-3)] ${
+                      item.confidence === 'LOW' ? 'hover:bg-[var(--color-adp-urgente)]/85/10/30' : ''
                     }`}
                   >
                     {/* Name */}
@@ -350,16 +350,16 @@ export default function ScanReceiptPage() {
                             type="text"
                             value={item.name}
                             onChange={(e) => updateItem(idx, 'name', e.target.value)}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+                            className="w-full px-2 py-1 border border-[var(--color-adp-borde-2)] rounded text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                           />
-                          <p className="text-xs text-gray-500 mt-0.5">
+                          <p className="text-xs text-[var(--color-adp-tinta-2)] mt-0.5">
                             Nuevo: se creará como ingrediente
                           </p>
                         </div>
                       ) : (
                         <div>
-                          <p className="font-medium text-gray-900">{item.name}</p>
-                          <p className="text-xs text-gray-500">{item.rawText}</p>
+                          <p className="font-medium text-[var(--color-adp-tinta)]">{item.name}</p>
+                          <p className="text-xs text-[var(--color-adp-tinta-2)]">{item.rawText}</p>
                         </div>
                       )}
                     </td>
@@ -372,8 +372,8 @@ export default function ScanReceiptPage() {
                         onChange={(e) => updateItem(idx, 'quantity', parseFloat(e.target.value) || 0)}
                         step="0.01"
                         min="0.01"
-                        className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm
-                          focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+                        className="w-16 px-1 py-1 border border-[var(--color-adp-borde-2)] rounded text-center text-sm
+                          focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                       />
                     </td>
 
@@ -384,17 +384,17 @@ export default function ScanReceiptPage() {
                           type="text"
                           value={item.unit}
                           onChange={(e) => updateItem(idx, 'unit', e.target.value)}
-                          className="w-14 px-1 py-1 border border-gray-300 rounded text-center text-sm
-                            focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+                          className="w-14 px-1 py-1 border border-[var(--color-adp-borde-2)] rounded text-center text-sm
+                            focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                         />
                       ) : (
-                        <span className="text-gray-600 text-xs">{item.unit}</span>
+                        <span className="text-[var(--color-adp-tinta-2)] text-xs">{item.unit}</span>
                       )}
                     </td>
 
                     {/* Price */}
                     <td className="py-2 px-3 text-right">
-                      <span className="text-gray-700">${item.price.toFixed(2)}</span>
+                      <span className="text-[var(--color-adp-tinta)]">${item.price.toFixed(2)}</span>
                     </td>
 
                     {/* Match confidence / dropdown */}
@@ -404,11 +404,11 @@ export default function ScanReceiptPage() {
                         onChange={(e) =>
                           updateItem(idx, 'matchedIngredientId', e.target.value || null)
                         }
-                        className={`w-full px-1.5 py-1 rounded text-xs border focus:ring-2 focus:ring-[#1b4235]/40 outline-none ${
+                        className={`w-full px-1.5 py-1 rounded text-xs border focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none ${
                           item.confidence === 'LOW'
-                            ? 'border-red-300 bg-red-50'
-                            : 'border-gray-200'
-                        }`}
+                            ? 'border-[var(--color-adp-urgente)] bg-[var(--color-adp-urgente)]'
+                            : 'border-[var(--color-adp-borde)]'
+                        } text-white`}
                       >
                         <option value="">Crear nuevo</option>
                         {ingredients.map((ing) => (
@@ -430,7 +430,7 @@ export default function ScanReceiptPage() {
                     <td className="py-2 px-1 text-center">
                       <button
                         onClick={() => deleteItem(idx)}
-                        className="text-red-400 hover:text-[#b03a2e] text-sm"
+                        className="text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] text-sm"
                       >
                         ✕
                       </button>
@@ -442,15 +442,15 @@ export default function ScanReceiptPage() {
           </div>
 
           {/* Footer actions */}
-          <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
-            <p className="text-xs text-gray-500">
+          <div className="p-4 border-t border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)] flex items-center justify-between">
+            <p className="text-xs text-[var(--color-adp-tinta-2)]">
               🟢 Match • 🟡 Similar • 🔴 Nuevo (se creará ingrediente)
             </p>
             <button
               onClick={handleSave}
               disabled={saving || items.length === 0}
-              className="px-6 py-2.5 bg-[#1b4235] text-white text-sm font-medium rounded-lg
-                hover:bg-[#15352a] disabled:opacity-50 transition-colors"
+              className="px-6 py-2.5 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg
+                hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors"
             >
               {saving ? 'Guardando...' : `Guardar ${items.length} productos al inventario`}
             </button>

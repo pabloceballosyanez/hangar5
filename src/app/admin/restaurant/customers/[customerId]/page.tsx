@@ -156,8 +156,8 @@ export default function CustomerDetailPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-        <p className="text-gray-500">Cargando...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+        <p className="text-[var(--color-adp-tinta-2)]">Cargando...</p>
       </div>
     );
   }
@@ -165,8 +165,8 @@ export default function CustomerDetailPage() {
   if (!customer) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <p className="text-[#b03a2e] mb-4">Cliente no encontrado</p>
-        <Link href="/admin/restaurant/customers" className="text-[#1b4235] hover:text-blue-800 text-sm">← Volver</Link>
+        <p className="text-[var(--color-adp-urgente)] mb-4">Cliente no encontrado</p>
+        <Link href="/admin/restaurant/customers" className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm">← Volver</Link>
       </div>
     );
   }
@@ -177,9 +177,9 @@ export default function CustomerDetailPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="mb-6">
-        <Link href="/admin/restaurant/customers" className="text-sm text-gray-500 hover:text-gray-700">← Volver a clientes</Link>
+        <Link href="/admin/restaurant/customers" className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)]">← Volver a clientes</Link>
         <div className="flex items-center justify-between mt-2">
-          <h1 className="text-2xl font-bold text-gray-900">{customer.name}</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">{customer.name}</h1>
           <div className="flex gap-2">
             {/* Toggle credit */}
             <button
@@ -203,8 +203,8 @@ export default function CustomerDetailPage() {
               disabled={deleting}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg border disabled:opacity-50 transition-colors ${
                 customer.hasCredit
-                  ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                  : 'text-amber-600 border-amber-200 hover:bg-amber-50'
+                  ? 'bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)] hover:bg-[var(--color-adp-atencion)]/85'
+                  : 'text-white border-[var(--color-adp-atencion)] hover:bg-[var(--color-adp-atencion)]/85'
               }`}
             >
               {deleting ? '⋯' : customer.hasCredit ? '📋 Con crédito' : '📋 Sin crédito'}
@@ -231,8 +231,8 @@ export default function CustomerDetailPage() {
             disabled={deleting}
             className={`px-3 py-1.5 text-xs font-medium rounded-lg border disabled:opacity-50 transition-colors ${
               customer.isActive
-                ? 'text-[#b03a2e] border-red-200 hover:bg-red-50'
-                : 'text-[#1b4235] border-green-200 hover:bg-green-50'
+                ? 'text-[var(--color-adp-urgente)] border-[var(--color-adp-urgente)] hover:bg-[var(--color-adp-urgente)]/10'
+                : 'text-[var(--color-adp-pino)] border-[var(--color-adp-listo)] hover:bg-[var(--color-adp-listo)]/85'
             }`}
           >
             {deleting ? '⋯' : customer.isActive ? '✕ Desactivar' : '↻ Reactivar'}
@@ -243,25 +243,25 @@ export default function CustomerDetailPage() {
 
       {/* ─── Cobrar deuda (siempre que tenga saldo pendiente) ─── */}
       {customer.balance > 0 && (
-        <div className="bg-red-50 rounded-xl border border-red-200 p-5">
+        <div className="bg-[var(--color-adp-urgente)] rounded-xl border border-[var(--color-adp-urgente)] p-5 text-white">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-red-900">💳 Deuda pendiente</h2>
-              <p className="text-sm text-[#b03a2e] mt-0.5">
+              <h2 className="text-lg font-semibold text-[var(--color-adp-urgente)]">💳 Deuda pendiente</h2>
+              <p className="text-sm text-[var(--color-adp-urgente)] mt-0.5">
                 Este cliente debe <span className="font-bold">{formatPrice(customer.balance)}</span>
               </p>
             </div>
             {!showPayForm ? (
               <button
                 onClick={() => { setShowPayForm(true); setPayAmount(customer.balance.toFixed(2)); setPayError(null); }}
-                className="px-5 py-2.5 bg-[#b03a2e] hover:bg-red-500 active:scale-95 text-white text-sm font-bold rounded-lg transition-all shadow-sm"
+                className="px-5 py-2.5 bg-[var(--color-adp-urgente)] hover:bg-[var(--color-adp-urgente)]/85 active:scale-95 text-white text-sm font-bold rounded-lg transition-all shadow-sm"
               >
                 💵 Registrar pago
               </button>
             ) : (
               <button
                 onClick={() => setShowPayForm(false)}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium rounded-lg transition-all"
+                className="px-4 py-2 bg-[var(--color-adp-borde)] hover:bg-[var(--color-adp-borde)] text-[var(--color-adp-tinta)] text-sm font-medium rounded-lg transition-all"
               >
                 Cancelar
               </button>
@@ -270,13 +270,13 @@ export default function CustomerDetailPage() {
 
           {/* Payment form */}
           {showPayForm && (
-            <form onSubmit={handlePay} className="mt-4 bg-white rounded-lg border border-red-200 p-4 space-y-3">
-              {payError && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{payError}</p>}
+            <form onSubmit={handlePay} className="mt-4 bg-white rounded-lg border border-[var(--color-adp-urgente)] p-4 space-y-3">
+              {payError && <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-3 rounded-lg">{payError}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Monto a cobrar</label>
+                  <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Monto a cobrar</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-adp-tinta-2)] font-medium">$</span>
                     <input
                       type="number"
                       value={payAmount}
@@ -284,7 +284,7 @@ export default function CustomerDetailPage() {
                       step="0.01"
                       min="0.01"
                       max={customer.balance}
-                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                      className="w-full pl-7 pr-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
                       required
                       autoFocus
                     />
@@ -292,17 +292,17 @@ export default function CustomerDetailPage() {
                   <button
                     type="button"
                     onClick={() => setPayAmount(customer.balance.toFixed(2))}
-                    className="text-xs text-red-500 hover:text-red-700 mt-1"
+                    className="text-xs text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] mt-1"
                   >
                     Cobrar total: {formatPrice(customer.balance)}
                   </button>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Método de pago</label>
+                  <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Método de pago</label>
                   <select
                     value={payMethod}
                     onChange={e => setPayMethod(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                    className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
                   >
                     {Object.entries(methodLabels).map(([k, v]) => (
                       <option key={k} value={k}>{v}</option>
@@ -311,19 +311,19 @@ export default function CustomerDetailPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Nota (opcional)</label>
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Nota (opcional)</label>
                 <input
                   type="text"
                   value={payNote}
                   onChange={e => setPayNote(e.target.value)}
                   placeholder="Ej: Pago en efectivo mesa 5"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                  className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
                 />
               </div>
               <button
                 type="submit"
                 disabled={paying}
-                className="w-full py-2.5 bg-[#1b4235] hover:bg-green-500 active:scale-95 text-white text-sm font-bold rounded-lg transition-all disabled:opacity-50"
+                className="w-full py-2.5 bg-[var(--color-adp-pino)] hover:bg-[var(--color-adp-listo)]/85 active:scale-95 text-white text-sm font-bold rounded-lg transition-all disabled:opacity-50"
               >
                 {paying ? 'Registrando...' : `✅ Confirmar pago de ${formatPrice(parseFloat(payAmount) || 0)}`}
               </button>
@@ -334,31 +334,31 @@ export default function CustomerDetailPage() {
 
       {/* ─── Success toast ─── */}
       {paySuccess && (
-        <div className="bg-green-50 rounded-xl border border-green-200 p-4 flex items-center gap-3">
+        <div className="bg-[var(--color-adp-listo)] rounded-xl border border-[var(--color-adp-listo)] p-4 flex items-center gap-3 text-white">
           <span className="text-xl">✅</span>
           <div>
-            <p className="font-semibold text-green-900">¡Pago registrado!</p>
-            <p className="text-sm text-green-700">El saldo del cliente se ha actualizado.</p>
+            <p className="font-semibold text-[var(--color-adp-listo)]">¡Pago registrado!</p>
+            <p className="text-sm text-[var(--color-adp-listo)]">El saldo del cliente se ha actualizado.</p>
           </div>
         </div>
       )}
 
       {/* ─── Open Sessions (info) ─── */}
       {openSessions.length > 0 && (
-        <div className="bg-blue-50 rounded-xl border border-blue-200 p-5">
-          <h2 className="text-lg font-semibold text-blue-900 mb-3">
+        <div className="bg-[var(--color-adp-info)] rounded-xl border border-[var(--color-adp-info)] p-5 text-white">
+          <h2 className="text-lg font-semibold text-[var(--color-adp-info)] mb-3">
             🧾 Sesiones abiertas ({openSessions.length})
           </h2>
           <div className="space-y-2">
             {openSessions.map(s => {
               const ordersTotal = s.orders.reduce((sum, o) => sum + o.total, 0);
               return (
-                <div key={s.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-blue-200">
+                <div key={s.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-[var(--color-adp-info)]">
                   <div>
-                    <p className="font-medium text-gray-800 text-sm">{s.label}</p>
-                    <p className="text-xs text-gray-500">Abierta {fmtTime(s.openedAt)} · {s.orders.length} órdenes</p>
+                    <p className="font-medium text-[var(--color-adp-tinta)] text-sm">{s.label}</p>
+                    <p className="text-xs text-[var(--color-adp-tinta-2)]">Abierta {fmtTime(s.openedAt)} · {s.orders.length} órdenes</p>
                   </div>
-                  <span className="text-sm font-bold text-[#15352a]">{formatPrice(ordersTotal)}</span>
+                  <span className="text-sm font-bold text-[var(--color-adp-pino-hondo)]">{formatPrice(ordersTotal)}</span>
                 </div>
               );
             })}
@@ -368,22 +368,22 @@ export default function CustomerDetailPage() {
 
       {/* ─── Reservas (hospedaje/actividades) ─── */}
       {customer.bookings && customer.bookings.length > 0 && (
-        <div className="bg-amber-50 rounded-xl border border-amber-200 p-5">
-          <h2 className="text-lg font-semibold text-amber-900 mb-3">
+        <div className="bg-[var(--color-adp-atencion)] rounded-xl border border-[var(--color-adp-atencion)] p-5 text-white">
+          <h2 className="text-lg font-semibold text-[var(--color-adp-atencion)] mb-3">
             🏨 Reservas ({customer.bookings.length})
           </h2>
           <div className="space-y-2">
             {customer.bookings.map(b => (
-              <div key={b.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-amber-200">
+              <div key={b.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-[var(--color-adp-atencion)]">
                 <div>
-                  <p className="font-medium text-gray-800 text-sm">{b.item?.name || 'Reserva'}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="font-medium text-[var(--color-adp-tinta)] text-sm">{b.item?.name || 'Reserva'}</p>
+                  <p className="text-xs text-[var(--color-adp-tinta-2)]">
                     {new Date(b.startDate).toLocaleDateString('es-MX')} → {new Date(b.endDate).toLocaleDateString('es-MX')} · {b.guests} {b.guests === 1 ? 'persona' : 'personas'}
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-bold text-amber-700">{formatPrice(b.totalPrice)}</span>
-                  <p className={`text-xs ${b.status === 'confirmed' ? 'text-[#1b4235]' : b.status === 'cancelled' ? 'text-red-500' : 'text-gray-500'}`}>
+                  <span className="text-sm font-bold text-[var(--color-adp-atencion)]">{formatPrice(b.totalPrice)}</span>
+                  <p className={`text-xs ${b.status === 'confirmed' ? 'text-[var(--color-adp-pino)]' : b.status === 'cancelled' ? 'text-[var(--color-adp-urgente)]' : 'text-[var(--color-adp-tinta-2)]'}`}>
                     {b.status}
                   </p>
                 </div>
@@ -396,42 +396,42 @@ export default function CustomerDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Edit form + Balance */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-5">
             <form onSubmit={handleSave} className="space-y-4">
-              {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
+              {error && <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-3 rounded-lg">{error}</p>}
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Nombre</label>
-                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" required />
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Nombre</label>
+                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" required />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Teléfono</label>
-                <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Teléfono</label>
+                <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Email</label>
-                <input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Email</label>
+                <input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Notas</label>
-                <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none resize-none" />
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Notas</label>
+                <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={2} className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none resize-none" />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Límite de crédito (MXN, vacío = sin límite)</label>
-                <input type="number" min="0" step="1" value={editCreditLimit} onChange={e => setEditCreditLimit(e.target.value)} placeholder="Ej: 5000" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Límite de crédito (MXN, vacío = sin límite)</label>
+                <input type="number" min="0" step="1" value={editCreditLimit} onChange={e => setEditCreditLimit(e.target.value)} placeholder="Ej: 5000" className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
               </div>
-              <button type="submit" disabled={saving} className="w-full py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
+              <button type="submit" disabled={saving} className="w-full py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors">
                 {saving ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </form>
           </div>
 
           {/* Balance card */}
-          <div className={`rounded-xl p-5 text-center ${customer.balance > 0 ? 'bg-red-50 border border-red-200' : customer.balance < 0 ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
-            <p className="text-sm text-gray-500 mb-1">Saldo actual</p>
-            <p className={`text-3xl font-black ${customer.balance > 0 ? 'text-[#b03a2e]' : customer.balance < 0 ? 'text-[#1b4235]' : 'text-gray-600'}`}>
+          <div className={`rounded-xl p-5 text-center ${customer.balance > 0 ? 'bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)]' : customer.balance < 0 ? 'bg-[var(--color-adp-listo)] border border-[var(--color-adp-listo)]' : 'bg-[var(--color-adp-papel-3)] border border-[var(--color-adp-borde)]'} text-white`}>
+            <p className="text-sm text-[var(--color-adp-tinta-2)] mb-1">Saldo actual</p>
+            <p className={`text-3xl font-black ${customer.balance > 0 ? 'text-[var(--color-adp-urgente)]' : customer.balance < 0 ? 'text-[var(--color-adp-pino)]' : 'text-[var(--color-adp-tinta-2)]'}`}>
               {customer.balance > 0 ? formatPrice(customer.balance) : customer.balance < 0 ? `-${formatPrice(Math.abs(customer.balance))}` : '$0.00'}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-[var(--color-adp-tinta-2)] mt-1">
               {customer.balance > 0 ? 'Pendiente de pago' : customer.balance < 0 ? 'Crédito a favor' : 'Cuenta al día'}
             </p>
           </div>
@@ -440,25 +440,25 @@ export default function CustomerDetailPage() {
         {/* Ledger + Sessions history */}
         <div className="lg:col-span-2 space-y-4">
           {/* Ledger */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Libro contable</h2>
+          <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-5">
+            <h2 className="text-lg font-semibold text-[var(--color-adp-tinta)] mb-3">Libro contable</h2>
             {customer.ledgerEntries.length === 0 ? (
-              <p className="text-gray-500 text-sm">Sin movimientos</p>
+              <p className="text-[var(--color-adp-tinta-2)] text-sm">Sin movimientos</p>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {customer.ledgerEntries.map(e => (
-                  <div key={e.id} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                  <div key={e.id} className="flex justify-between items-center py-2 border-b border-[var(--color-adp-borde)] last:border-0">
                     <div>
-                      <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full mr-2 ${e.type === 'CHARGE' ? 'bg-red-100 text-red-700' : e.type === 'PAYMENT' ? 'bg-green-100 text-green-700' : e.type === 'REFUND' ? 'bg-blue-100 text-[#15352a]' : 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full mr-2 ${e.type === 'CHARGE' ? 'bg-[var(--color-adp-urgente)] text-white' : e.type === 'PAYMENT' ? 'bg-[var(--color-adp-listo)] text-white' : e.type === 'REFUND' ? 'bg-[var(--color-adp-info)] text-white' : 'bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)]'}`}>
                         {typeLabels[e.type] || e.type}
                       </span>
-                      {e.note && <span className="text-sm text-gray-600">{e.note}</span>}
+                      {e.note && <span className="text-sm text-[var(--color-adp-tinta-2)]">{e.note}</span>}
                     </div>
                     <div className="text-right">
-                      <span className={`text-sm font-medium ${e.amount > 0 ? 'text-[#b03a2e]' : 'text-[#1b4235]'}`}>
+                      <span className={`text-sm font-medium ${e.amount > 0 ? 'text-[var(--color-adp-urgente)]' : 'text-[var(--color-adp-pino)]'}`}>
                         {e.amount > 0 ? `+${formatPrice(e.amount)}` : formatPrice(e.amount)}
                       </span>
-                      <p className="text-xs text-gray-500">{new Date(e.createdAt).toLocaleDateString('es-MX')}</p>
+                      <p className="text-xs text-[var(--color-adp-tinta-2)]">{new Date(e.createdAt).toLocaleDateString('es-MX')}</p>
                     </div>
                   </div>
                 ))}
@@ -467,34 +467,34 @@ export default function CustomerDetailPage() {
           </div>
 
           {/* Sessions history */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Historial de sesiones</h2>
+          <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-5">
+            <h2 className="text-lg font-semibold text-[var(--color-adp-tinta)] mb-3">Historial de sesiones</h2>
             {closedSessions.length === 0 && openSessions.length === 0 ? (
-              <p className="text-gray-500 text-sm">Sin sesiones</p>
+              <p className="text-[var(--color-adp-tinta-2)] text-sm">Sin sesiones</p>
             ) : (
               <div className="space-y-2">
                 {[...openSessions, ...closedSessions].slice(0, 15).map(s => {
                   const ordersTotal = s.orders.reduce((sum, o) => sum + o.total, 0);
                   const paidTotal = s.payments.reduce((sum, p) => sum + p.amount, 0);
                   return (
-                    <div key={s.id} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                    <div key={s.id} className="flex justify-between items-center py-2 border-b border-[var(--color-adp-borde)] last:border-0">
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-gray-800">{s.label}</p>
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${s.status === 'OPEN' ? 'bg-blue-100 text-[#15352a]' : 'bg-gray-100 text-gray-500'}`}>
+                          <p className="text-sm font-medium text-[var(--color-adp-tinta)]">{s.label}</p>
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${s.status === 'OPEN' ? 'bg-[var(--color-adp-info)] text-white' : 'bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)]'}`}>
                             {s.status === 'OPEN' ? 'Abierta' : 'Cerrada'}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-[var(--color-adp-tinta-2)]">
                           {new Date(s.openedAt).toLocaleDateString('es-MX')} · {s.orders.length} órdenes · {formatPrice(ordersTotal)}
                         </p>
                       </div>
                       <div className="text-right">
                         {paidTotal > 0 && (
-                          <span className="text-xs font-medium text-[#1b4235]">Pagado {formatPrice(paidTotal)}</span>
+                          <span className="text-xs font-medium text-[var(--color-adp-pino)]">Pagado {formatPrice(paidTotal)}</span>
                         )}
                         {s.closedAt && (
-                          <p className="text-xs text-gray-500">{new Date(s.closedAt).toLocaleDateString('es-MX')}</p>
+                          <p className="text-xs text-[var(--color-adp-tinta-2)]">{new Date(s.closedAt).toLocaleDateString('es-MX')}</p>
                         )}
                       </div>
                     </div>

@@ -62,50 +62,50 @@ export default function NuevaMessaPage() {
         <div className="mb-6">
           <Link
             href="/admin/restaurant/tables"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] transition-colors"
           >
             ← Volver a mesas
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">Nueva mesa</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)] mt-2">Nueva mesa</h1>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Identificador <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Identificador <span className="text-[var(--color-adp-urgente)]">*</span>
               </label>
               <input
                 type="text"
                 value={number}
                 onChange={(e) => setNumber(e.target.value)}
                 placeholder="Ej: T9, M3, Bar-1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">Código único que identifica la mesa.</p>
+              <p className="text-xs text-[var(--color-adp-tinta-2)] mt-1">Código único que identifica la mesa.</p>
             </div>
 
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre <span className="text-gray-500 font-normal">(opcional)</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Nombre <span className="text-[var(--color-adp-tinta-2)] font-normal">(opcional)</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej: Mesa del rincón"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
               />
             </div>
 
             {/* Capacity */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Capacidad <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Capacidad <span className="text-[var(--color-adp-urgente)]">*</span>
               </label>
               <input
                 type="number"
@@ -115,20 +115,20 @@ export default function NuevaMessaPage() {
                 }
                 placeholder="Número de personas"
                 min={1}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                 required
               />
             </div>
 
             {/* Location */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
                 Ubicación
               </label>
               <select
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent bg-white"
               >
                 {LOCATIONS.map((loc) => (
                   <option key={loc} value={loc}>
@@ -140,7 +140,7 @@ export default function NuevaMessaPage() {
 
             {/* Error */}
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              <div className="p-3 bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)] rounded-lg text-sm text-white">
                 {error}
               </div>
             )}
@@ -149,14 +149,14 @@ export default function NuevaMessaPage() {
             <div className="flex gap-3 pt-2">
               <Link
                 href="/admin/restaurant/tables"
-                className="flex-1 text-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 text-center px-4 py-2 border border-[var(--color-adp-borde-2)] text-sm font-medium text-[var(--color-adp-tinta)] rounded-lg hover:bg-[var(--color-adp-papel-3)] transition-colors"
               >
                 Cancelar
               </Link>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Creando…' : 'Crear mesa'}
               </button>

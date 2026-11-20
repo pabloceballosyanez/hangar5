@@ -99,21 +99,21 @@ export default function UbicacionesPage() {
     : 0;
 
   if (cargando) {
-    return <div className="p-8 text-center text-gray-500">Cargando…</div>;
+    return <div className="p-8 text-center text-[var(--color-adp-tinta-2)]">Cargando…</div>;
   }
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Ubicaciones</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Ubicaciones</h1>
+        <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">
           Marca qué se vende en cada punto. El restaurante tiene todo; el café
           solo lo que marques.
         </p>
       </div>
 
       {error && (
-        <p className="text-sm text-[#b03a2e] bg-red-50 rounded-lg px-3 py-2 mb-4">{error}</p>
+        <p className="text-sm text-white bg-[var(--color-adp-urgente)] rounded-lg px-3 py-2 mb-4">{error}</p>
       )}
 
       <div className="flex flex-wrap gap-3 items-center mb-4">
@@ -122,22 +122,22 @@ export default function UbicacionesPage() {
           placeholder="Buscar platillo o categoría…"
           value={filtro}
           onChange={(e) => setFiltro(e.target.value)}
-          className="flex-1 min-w-[220px] px-3 py-2 text-sm border border-gray-300 rounded-lg"
+          className="flex-1 min-w-[220px] px-3 py-2 text-sm border border-[var(--color-adp-borde-2)] rounded-lg"
         />
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-[var(--color-adp-tinta-2)]">
           {cuantosEnCafe} de {items.length} en el café
         </span>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-[var(--color-adp-papel-3)] border-b border-[var(--color-adp-borde)]">
             <tr>
-              <th className="text-left px-4 py-2 font-medium text-gray-600">Platillo</th>
-              <th className="text-left px-4 py-2 font-medium text-gray-600">Categoría</th>
-              <th className="text-right px-4 py-2 font-medium text-gray-600">Precio</th>
+              <th className="text-left px-4 py-2 font-medium text-[var(--color-adp-tinta-2)]">Platillo</th>
+              <th className="text-left px-4 py-2 font-medium text-[var(--color-adp-tinta-2)]">Categoría</th>
+              <th className="text-right px-4 py-2 font-medium text-[var(--color-adp-tinta-2)]">Precio</th>
               {ubicaciones.map((u) => (
-                <th key={u.id} className="text-center px-4 py-2 font-medium text-gray-600">
+                <th key={u.id} className="text-center px-4 py-2 font-medium text-[var(--color-adp-tinta-2)]">
                   {u.nombre}
                 </th>
               ))}
@@ -145,10 +145,10 @@ export default function UbicacionesPage() {
           </thead>
           <tbody>
             {visibles.map((p) => (
-              <tr key={p.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-2 text-gray-900">{p.nombre}</td>
-                <td className="px-4 py-2 text-gray-500">{p.categoria}</td>
-                <td className="px-4 py-2 text-right text-gray-700">{pesos(p.precio)}</td>
+              <tr key={p.id} className="border-b border-[var(--color-adp-borde)] last:border-0 hover:bg-[var(--color-adp-papel-3)]">
+                <td className="px-4 py-2 text-[var(--color-adp-tinta)]">{p.nombre}</td>
+                <td className="px-4 py-2 text-[var(--color-adp-tinta-2)]">{p.categoria}</td>
+                <td className="px-4 py-2 text-right text-[var(--color-adp-tinta)]">{pesos(p.precio)}</td>
                 {ubicaciones.map((u) => {
                   const activo = p.ubicaciones[u.id] ?? false;
                   const ocupado = guardando === `${p.id}:${u.id}`;
@@ -169,7 +169,7 @@ export default function UbicacionesPage() {
             ))}
             {visibles.length === 0 && (
               <tr>
-                <td colSpan={3 + ubicaciones.length} className="px-4 py-6 text-center text-gray-500">
+                <td colSpan={3 + ubicaciones.length} className="px-4 py-6 text-center text-[var(--color-adp-tinta-2)]">
                   Ningún platillo coincide.
                 </td>
               </tr>

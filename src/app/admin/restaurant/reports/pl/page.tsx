@@ -29,7 +29,7 @@ function formatMXN(cents: number): string {
 }
 
 function negStyle(cents: number): string {
-  return cents < 0 ? "text-[#b03a2e]" : "text-gray-900";
+  return cents < 0 ? "text-[var(--color-adp-urgente)]" : "text-[var(--color-adp-tinta)]";
 }
 
 function monthLabel(month: string): string {
@@ -254,11 +254,11 @@ export default async function PLPage({
         <div className="flex items-center gap-3">
           <Link
             href="/admin/restaurant/reports"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] transition-colors"
           >
             ← Reportes
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">📈 P&L Mensual</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">📈 P&L Mensual</h1>
         </div>
 
         {/* Month selector */}
@@ -266,7 +266,7 @@ export default async function PLPage({
           <select
             name="month"
             defaultValue={selectedMonth}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-[#1b4235]/40/20 outline-none"
+            className="rounded-lg border border-[var(--color-adp-borde-2)] bg-white px-3 py-2 text-sm font-medium text-[var(--color-adp-tinta)] shadow-sm focus:border-[var(--color-adp-info)] focus:ring-2 focus:ring-[var(--color-adp-pino)]/40/20 outline-none"
           >
             {monthOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -276,7 +276,7 @@ export default async function PLPage({
           </select>
           <button
             type="submit"
-            className="rounded-lg bg-[#1b4235] px-4 py-2 text-sm font-medium text-white hover:bg-[#15352a] transition-colors"
+            className="rounded-lg bg-[var(--color-adp-pino)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-adp-pino-hondo)] transition-colors"
           >
             Ver
           </button>
@@ -284,7 +284,7 @@ export default async function PLPage({
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-700">
+        <div className="rounded-lg bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)] p-4 text-sm text-white">
           Error al cargar el reporte: {error}
         </div>
       )}
@@ -300,9 +300,9 @@ export default async function PLPage({
           </div>
 
           {/* P&L Table */}
-          <div className="rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <h2 className="text-lg font-bold text-gray-900">{monthLabel(report.month)}</h2>
+          <div className="rounded-xl bg-white border border-[var(--color-adp-borde)] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)]">
+              <h2 className="text-lg font-bold text-[var(--color-adp-tinta)]">{monthLabel(report.month)}</h2>
             </div>
 
             {/* INGRESOS */}
@@ -399,17 +399,17 @@ function PLRow({
   const numericValue = typeof value === "number" ? value : 0;
   const colorClass =
     prominent && numericValue >= 0
-      ? "text-green-700 bg-green-50"
+      ? "bg-[var(--color-adp-listo)] text-white"
       : prominent && numericValue < 0
-      ? "text-red-700 bg-red-50"
+      ? "bg-[var(--color-adp-urgente)] text-white"
       : bold
-      ? "text-gray-900"
-      : "text-gray-700";
+      ? "text-[var(--color-adp-tinta)]"
+      : "text-[var(--color-adp-tinta)]";
 
   return (
     <div
       className={`flex justify-between items-center px-6 py-2.5 ${
-        border ? "border-b border-gray-200" : ""
+        border ? "border-b border-[var(--color-adp-borde)]" : ""
       } ${prominent ? "rounded mx-4 my-1" : ""} ${
         indent ? "pl-10" : ""
       }`}
@@ -419,7 +419,7 @@ function PLRow({
           {label}
         </span>
         {subtitle && (
-          <span className="text-xs text-gray-500 ml-2">{subtitle}</span>
+          <span className="text-xs text-[var(--color-adp-tinta-2)] ml-2">{subtitle}</span>
         )}
       </div>
       <span
@@ -427,7 +427,7 @@ function PLRow({
           bold ? "font-semibold" : ""
         } ${
           typeof value === "number" && value < 0
-            ? "text-[#b03a2e]"
+            ? "text-[var(--color-adp-urgente)]"
             : colorClass
         }`}
       >
@@ -441,8 +441,8 @@ function PLRow({
 
 function SectionHeader({ label }: { label: string }) {
   return (
-    <div className="px-6 py-2 bg-gray-50 border-b border-gray-100">
-      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+    <div className="px-6 py-2 bg-[var(--color-adp-papel-3)] border-b border-[var(--color-adp-borde)]">
+      <span className="text-xs font-bold text-[var(--color-adp-tinta-2)] uppercase tracking-wider">
         {label}
       </span>
     </div>
@@ -469,12 +469,12 @@ function MiniCard({
   };
   return (
     <div
-      className={`rounded-xl bg-white border border-gray-200 border-l-4 ${borderMap[color]} p-4 shadow-sm`}
+      className={`rounded-xl bg-white border border-[var(--color-adp-borde)] border-l-4 ${borderMap[color]} p-4 shadow-sm`}
     >
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+      <p className="text-xs font-medium text-[var(--color-adp-tinta-2)] uppercase tracking-wide">
         {title}
       </p>
-      <p className="mt-1 text-xl font-bold text-gray-900">{value}</p>
+      <p className="mt-1 text-xl font-bold text-[var(--color-adp-tinta)]">{value}</p>
     </div>
   );
 }

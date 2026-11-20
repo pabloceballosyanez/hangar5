@@ -61,10 +61,10 @@ export default async function ReportsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">📊 Reportes</h1>
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">📊 Reportes</h1>
         <Link
           href="/admin/restaurant/reports/pl"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#1b4235] px-4 py-2 text-sm font-medium text-white hover:bg-[#15352a] transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-adp-pino)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-adp-pino-hondo)] transition-colors"
         >
           Ver P&L Mensual →
         </Link>
@@ -108,17 +108,17 @@ export default async function ReportsPage() {
         <Card title="Ingresos por Método">
           <div className="space-y-2 mt-2">
             {Object.entries(report.revenueByMethod).length === 0 && (
-              <p className="text-sm text-gray-500">Sin cobros hoy</p>
+              <p className="text-sm text-[var(--color-adp-tinta-2)]">Sin cobros hoy</p>
             )}
             {Object.entries(report.revenueByMethod).map(([method, amount]) => {
               const pct = report.totalRevenue > 0 ? ((amount / report.totalRevenue) * 100) : 0;
               return (
                 <div key={method} className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-700 w-24 shrink-0">
+                  <span className="text-sm font-medium text-[var(--color-adp-tinta)] w-24 shrink-0">
                     {methodLabel(method)}
                   </span>
-                  <Bar value={pct} color="bg-blue-500" />
-                  <span className="text-sm text-gray-600 w-24 text-right shrink-0">
+                  <Bar value={pct} color="bg-[var(--color-adp-info)]" />
+                  <span className="text-sm text-[var(--color-adp-tinta-2)] w-24 text-right shrink-0">
                     {formatMXN(amount)}
                   </span>
                 </div>
@@ -131,17 +131,17 @@ export default async function ReportsPage() {
         <Card title="Órdenes por Origen">
           <div className="space-y-2 mt-2">
             {Object.entries(report.ordersBySource).length === 0 && (
-              <p className="text-sm text-gray-500">Sin órdenes hoy</p>
+              <p className="text-sm text-[var(--color-adp-tinta-2)]">Sin órdenes hoy</p>
             )}
             {Object.entries(report.ordersBySource).map(([source, count]) => {
               const pct = report.totalOrders > 0 ? ((count / report.totalOrders) * 100) : 0;
               return (
                 <div key={source} className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-700 w-16 shrink-0">
+                  <span className="text-sm font-medium text-[var(--color-adp-tinta)] w-16 shrink-0">
                     {sourceLabel(source)}
                   </span>
-                  <Bar value={pct} color="bg-emerald-500" />
-                  <span className="text-sm text-gray-600 w-16 text-right shrink-0">
+                  <Bar value={pct} color="bg-[var(--color-adp-listo)]" />
+                  <span className="text-sm text-[var(--color-adp-tinta-2)] w-16 text-right shrink-0">
                     {count}
                   </span>
                 </div>
@@ -154,21 +154,21 @@ export default async function ReportsPage() {
         <Card title="Margen Estimado">
           <div className="mt-2 space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Ingresos</span>
-              <span className="font-medium text-gray-900">{formatMXN(report.totalRevenue)}</span>
+              <span className="text-[var(--color-adp-tinta-2)]">Ingresos</span>
+              <span className="font-medium text-[var(--color-adp-tinta)]">{formatMXN(report.totalRevenue)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">IVA</span>
-              <span className="font-medium text-amber-600">-{formatMXN(estimatedTax)}</span>
+              <span className="text-[var(--color-adp-tinta-2)]">IVA</span>
+              <span className="font-medium text-[var(--color-adp-atencion)]">-{formatMXN(estimatedTax)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Laboral</span>
-              <span className="font-medium text-purple-600">-{formatMXN(report.laborCost)}</span>
+              <span className="text-[var(--color-adp-tinta-2)]">Laboral</span>
+              <span className="font-medium text-[var(--color-adp-info)]">-{formatMXN(report.laborCost)}</span>
             </div>
-            <hr className="border-gray-200" />
+            <hr className="border-[var(--color-adp-borde)]" />
             <div className="flex justify-between text-sm font-bold">
-              <span className="text-gray-700">Neto (est.)</span>
-              <span className={netAfterLabor >= 0 ? "text-[#1b4235]" : "text-[#b03a2e]"}>
+              <span className="text-[var(--color-adp-tinta)]">Neto (est.)</span>
+              <span className={netAfterLabor >= 0 ? "text-[var(--color-adp-pino)]" : "text-[var(--color-adp-urgente)]"}>
                 {formatMXN(netAfterLabor)}
               </span>
             </div>
@@ -179,12 +179,12 @@ export default async function ReportsPage() {
       {/* Top 10 Items */}
       <Card title="Top 10 Items Vendidos">
         {report.topItems.length === 0 ? (
-          <p className="text-sm text-gray-500 mt-2">Sin ventas hoy</p>
+          <p className="text-sm text-[var(--color-adp-tinta-2)] mt-2">Sin ventas hoy</p>
         ) : (
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 text-left text-gray-500">
+                <tr className="border-b border-[var(--color-adp-borde)] text-left text-[var(--color-adp-tinta-2)]">
                   <th className="pb-2 font-medium">#</th>
                   <th className="pb-2 font-medium">Item</th>
                   <th className="pb-2 font-medium text-right">Cantidad</th>
@@ -193,11 +193,11 @@ export default async function ReportsPage() {
               </thead>
               <tbody>
                 {report.topItems.map((item, idx) => (
-                  <tr key={item.menuItemId} className="border-b border-gray-100">
-                    <td className="py-2 text-gray-500">{idx + 1}</td>
-                    <td className="py-2 font-medium text-gray-800">{item.name}</td>
-                    <td className="py-2 text-right text-gray-600">{item.quantity}</td>
-                    <td className="py-2 text-right font-medium text-gray-900">
+                  <tr key={item.menuItemId} className="border-b border-[var(--color-adp-borde)]">
+                    <td className="py-2 text-[var(--color-adp-tinta-2)]">{idx + 1}</td>
+                    <td className="py-2 font-medium text-[var(--color-adp-tinta)]">{item.name}</td>
+                    <td className="py-2 text-right text-[var(--color-adp-tinta-2)]">{item.quantity}</td>
+                    <td className="py-2 text-right font-medium text-[var(--color-adp-tinta)]">
                       {formatMXN(item.revenue)}
                     </td>
                   </tr>
@@ -209,7 +209,7 @@ export default async function ReportsPage() {
       </Card>
 
       {/* Cancelled */}
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-[var(--color-adp-tinta-2)]">
         {report.cancelledOrders > 0 && (
           <p>⚠️ {report.cancelledOrders} órdenes canceladas hoy</p>
         )}
@@ -222,7 +222,7 @@ export default async function ReportsPage() {
 
 function Bar({ value, color }: { value: number; color: string }) {
   return (
-    <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+    <div className="flex-1 h-4 bg-[var(--color-adp-papel-3)] rounded-full overflow-hidden">
       <div
         className={`h-full rounded-full transition-all ${color}`}
         style={{ width: `${Math.min(value, 100)}%` }}
@@ -253,22 +253,22 @@ function SummaryCard({
     purple: "border-l-purple-500",
   };
   const bgMap: Record<string, string> = {
-    green: "bg-green-50",
-    blue: "bg-blue-50",
-    amber: "bg-amber-50",
-    purple: "bg-purple-50",
+    green: "bg-[var(--color-adp-listo)]",
+    blue: "bg-[var(--color-adp-info)]",
+    amber: "bg-[var(--color-adp-atencion)]",
+    purple: "bg-[var(--color-adp-info)]",
   };
 
   return (
-    <div className={`rounded-xl bg-white border border-gray-200 border-l-4 ${borderMap[color]} p-4 shadow-sm`}>
+    <div className={`rounded-xl bg-white border border-[var(--color-adp-borde)] border-l-4 ${borderMap[color]} p-4 shadow-sm`}>
       <div className="flex items-center gap-2">
         <span className={`w-8 h-8 rounded-lg ${bgMap[color]} flex items-center justify-center text-lg`}>
           {icon}
         </span>
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">{title}</span>
+        <span className="text-xs font-medium text-[var(--color-adp-tinta-2)] uppercase tracking-wide">{title}</span>
       </div>
-      <p className="mt-2 text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+      <p className="mt-2 text-2xl font-bold text-[var(--color-adp-tinta)]">{value}</p>
+      <p className="text-xs text-[var(--color-adp-tinta-2)] mt-1">{subtitle}</p>
     </div>
   );
 }
@@ -277,8 +277,8 @@ function SummaryCard({
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl bg-white border border-gray-200 p-4 shadow-sm">
-      <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+    <div className="rounded-xl bg-white border border-[var(--color-adp-borde)] p-4 shadow-sm">
+      <h3 className="text-sm font-semibold text-[var(--color-adp-tinta)]">{title}</h3>
       {children}
     </div>
   );

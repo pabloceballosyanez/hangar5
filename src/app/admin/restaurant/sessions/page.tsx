@@ -50,10 +50,10 @@ export default function SessionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Cuentas y Sesiones</h1>
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Cuentas y Sesiones</h1>
         <Link
           href="/admin/restaurant/sessions/nuevo"
-          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
+          className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] transition-colors"
         >
           + Nueva cuenta
         </Link>
@@ -71,8 +71,8 @@ export default function SessionsPage() {
             onClick={() => setFilter(f.key)}
             className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
               filter === f.key
-                ? 'bg-[#1b4235] text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-[var(--color-adp-pino)] text-white'
+                : 'bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] hover:bg-[var(--color-adp-borde)]'
             }`}
           >
             {f.label}
@@ -82,79 +82,79 @@ export default function SessionsPage() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-          <p className="text-gray-500">Cargando...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+          <p className="text-[var(--color-adp-tinta-2)]">Cargando...</p>
         </div>
       ) : sessions.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-500 text-lg">No hay sesiones {filter === 'OPEN' ? 'abiertas' : ''}</p>
-          <Link href="/admin/restaurant/sessions/nuevo" className="inline-block mt-4 text-[#1b4235] hover:text-blue-800 text-sm font-medium">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-8 text-center">
+          <p className="text-[var(--color-adp-tinta-2)] text-lg">No hay sesiones {filter === 'OPEN' ? 'abiertas' : ''}</p>
+          <Link href="/admin/restaurant/sessions/nuevo" className="inline-block mt-4 text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm font-medium">
             + Abrir la primera cuenta →
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs">Tipo</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs">Etiqueta</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs">Cliente</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs">Órdenes</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs">Pagado</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs">Abierta</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs">Acciones</th>
+                <tr className="border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)]">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs">Tipo</th>
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs">Etiqueta</th>
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs">Cliente</th>
+                  <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs">Órdenes</th>
+                  <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs">Pagado</th>
+                  <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs">Abierta</th>
+                  <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-[var(--color-adp-borde)]">
                 {sessions.map(s => {
                   const ordersTotal = s.orders.reduce((sum, o) => sum + o.total, 0);
                   const paidTotal = s.payments.reduce((sum, p) => sum + p.amount, 0);
                   const isOpen = s.status === 'OPEN';
                   return (
-                    <tr key={s.id} className={`hover:bg-gray-50 transition-colors ${isOpen ? 'bg-amber-50/30' : ''}`}>
+                    <tr key={s.id} className={`hover:bg-[var(--color-adp-papel-3)] transition-colors ${isOpen ? 'hover:bg-[var(--color-adp-atencion)]/85/10/30' : ''}`}>
                       <td className="py-3 px-4">
                         <span className="text-lg">{typeIcon[s.type] || '❓'}</span>
-                        <span className="text-xs text-gray-500 ml-1">{typeLabel[s.type] || s.type}</span>
+                        <span className="text-xs text-[var(--color-adp-tinta-2)] ml-1">{typeLabel[s.type] || s.type}</span>
                       </td>
                       <td className="py-3 px-4">
-                        <p className="font-medium text-gray-900">{s.label}</p>
-                        {s.table && <p className="text-xs text-gray-500">Mesa {s.table.number} · {s.table.location}</p>}
+                        <p className="font-medium text-[var(--color-adp-tinta)]">{s.label}</p>
+                        {s.table && <p className="text-xs text-[var(--color-adp-tinta-2)]">Mesa {s.table.number} · {s.table.location}</p>}
                       </td>
                       <td className="py-3 px-4">
                         {s.customer ? (
-                          <Link href={`/admin/restaurant/customers/${s.customer.id}`} className="text-[#1b4235] hover:text-blue-800 font-medium">
+                          <Link href={`/admin/restaurant/customers/${s.customer.id}`} className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] font-medium">
                             {s.customer.name}
                           </Link>
                         ) : (
-                          <span className="text-gray-500">—</span>
+                          <span className="text-[var(--color-adp-tinta-2)]">—</span>
                         )}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className="font-medium text-gray-700">{s.orders.length}</span>
-                        <span className="text-xs text-gray-500 ml-1">({formatPrice(ordersTotal)})</span>
+                        <span className="font-medium text-[var(--color-adp-tinta)]">{s.orders.length}</span>
+                        <span className="text-xs text-[var(--color-adp-tinta-2)] ml-1">({formatPrice(ordersTotal)})</span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className={paidTotal > 0 ? 'text-[#1b4235] font-medium' : 'text-gray-500'}>
+                        <span className={paidTotal > 0 ? 'text-[var(--color-adp-pino)] font-medium' : 'text-[var(--color-adp-tinta-2)]'}>
                           {formatPrice(paidTotal)}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right text-xs text-gray-500">
+                      <td className="py-3 px-4 text-right text-xs text-[var(--color-adp-tinta-2)]">
                         {new Date(s.openedAt).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-3 px-4 text-right">
                         {isOpen ? (
                           <Link
                             href={`/admin/restaurant/sessions/${s.id}`}
-                            className="text-[#1b4235] hover:text-blue-800 text-sm font-medium"
+                            className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm font-medium"
                           >
                             Cerrar →
                           </Link>
                         ) : (
                           <Link
                             href={`/admin/restaurant/sessions/${s.id}`}
-                            className="text-gray-500 hover:text-gray-600 text-sm"
+                            className="text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta-2)] text-sm"
                           >
                             Ver →
                           </Link>

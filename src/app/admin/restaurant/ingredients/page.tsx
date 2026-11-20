@@ -172,21 +172,21 @@ export default function IngredientsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Inventario</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Inventario</h1>
+          <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">
             {activeIngredients.length} ingredientes activos
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href="/admin/restaurant/inventory/scan"
-            className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] transition-colors flex items-center gap-1.5"
           >
             📸 Escanear recibo
           </Link>
           <button
             onClick={() => { resetForm(); setShowForm(true); }}
-            className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
+            className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] transition-colors"
           >
             + Nuevo ingrediente
           </button>
@@ -198,7 +198,7 @@ export default function IngredientsPage() {
           del día a día, dar de alta insumos es de una vez. Se separan
           para que quien está en el piso no tenga que pasar por la
           configuración. Abre en "Conteo", que es lo que se usa a diario. */}
-      <div className="flex gap-1 border-b border-gray-200">
+      <div className="flex gap-1 border-b border-[var(--color-adp-borde)]">
         {[
           { id: 'conteo', etiqueta: 'Conteo y compras' },
           { id: 'insumos', etiqueta: 'Insumos' },
@@ -208,8 +208,8 @@ export default function IngredientsPage() {
             onClick={() => setPestana(t.id as 'conteo' | 'insumos')}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
               pestana === t.id
-                ? 'border-[#1b4235] text-[#1b4235]'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'border-[var(--color-adp-pino)] text-[var(--color-adp-pino)]'
+                : 'border-transparent text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)]'
             }`}
           >
             {t.etiqueta}
@@ -218,28 +218,28 @@ export default function IngredientsPage() {
       </div>
 
       {pestana === 'conteo' && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-1">Conteo y compras</h2>
-          <p className="text-xs text-gray-500 mb-4">
+        <div className="bg-white border border-[var(--color-adp-borde)] rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-[var(--color-adp-tinta)] mb-1">Conteo y compras</h2>
+          <p className="text-xs text-[var(--color-adp-tinta-2)] mb-4">
             Lo del día a día: qué falta, cuánto hay y qué se compró.
           </p>
           <div className="grid sm:grid-cols-2 gap-3">
             <Link
               href="/admin/restaurant/inventory/scan"
-              className="block border border-gray-200 rounded-lg p-4 hover:border-[#1b4235]/40 hover:bg-gray-50"
+              className="block border border-[var(--color-adp-borde)] rounded-lg p-4 hover:border-[var(--color-adp-pino)]/40 hover:bg-[var(--color-adp-papel-3)]"
             >
-              <p className="font-medium text-gray-900 text-sm mb-0.5">📸 Registrar compra</p>
-              <p className="text-xs text-gray-500">Escanea el recibo y actualiza el stock</p>
+              <p className="font-medium text-[var(--color-adp-tinta)] text-sm mb-0.5">📸 Registrar compra</p>
+              <p className="text-xs text-[var(--color-adp-tinta-2)]">Escanea el recibo y actualiza el stock</p>
             </Link>
             <Link
               href="/admin/restaurant/ingredients?filtro=bajo"
-              className="block border border-gray-200 rounded-lg p-4 hover:border-[#1b4235]/40 hover:bg-gray-50"
+              className="block border border-[var(--color-adp-borde)] rounded-lg p-4 hover:border-[var(--color-adp-pino)]/40 hover:bg-[var(--color-adp-papel-3)]"
             >
-              <p className="font-medium text-gray-900 text-sm mb-0.5">⚠️ Qué falta</p>
-              <p className="text-xs text-gray-500">Insumos por debajo del mínimo</p>
+              <p className="font-medium text-[var(--color-adp-tinta)] text-sm mb-0.5">⚠️ Qué falta</p>
+              <p className="text-xs text-[var(--color-adp-tinta-2)]">Insumos por debajo del mínimo</p>
             </Link>
           </div>
-          <p className="text-[11px] text-gray-500 mt-3">
+          <p className="text-[11px] text-[var(--color-adp-tinta-2)] mt-3">
             El stock de cada insumo se ve en la lista de abajo.
           </p>
         </div>
@@ -252,54 +252,54 @@ export default function IngredientsPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="🔍 Buscar ingrediente..."
-          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+          className="w-full max-w-md px-4 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
         />
       </div>
 
       {/* Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
-          <h2 className="font-semibold text-gray-900">{editId ? 'Editar ingrediente' : 'Nuevo ingrediente'}</h2>
-          {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-5 space-y-4">
+          <h2 className="font-semibold text-[var(--color-adp-tinta)]">{editId ? 'Editar ingrediente' : 'Nuevo ingrediente'}</h2>
+          {error && <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-3 rounded-lg">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Nombre</label>
+              <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Nombre</label>
               <input type="text" value={name} onChange={e => setName(e.target.value)}
                 placeholder="Ej: Harina de trigo" required autoFocus
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Unidad</label>
+              <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Unidad</label>
               <input type="text" value={unit} onChange={e => setUnit(e.target.value)}
                 placeholder="Ej: kg, L, pza" required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Costo unitario (MXN)</label>
+              <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Costo unitario (MXN)</label>
               <input type="number" value={cost} onChange={e => setCost(e.target.value)}
                 step="0.01" min="0" required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Stock actual</label>
+              <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Stock actual</label>
               <input type="number" value={currentStock} onChange={e => setCurrentStock(e.target.value)}
                 step="0.01" min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Stock mínimo</label>
+              <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Stock mínimo</label>
               <input type="number" value={minStock} onChange={e => setMinStock(e.target.value)}
                 step="0.01" min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
             </div>
           </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={saving}
-              className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
+              className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors">
               {saving ? 'Guardando...' : editId ? 'Actualizar' : 'Crear ingrediente'}
             </button>
             <button type="button" onClick={resetForm}
-              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
+              className="px-4 py-2 bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)] text-sm font-medium rounded-lg hover:bg-[var(--color-adp-borde)] transition-colors">
               Cancelar
             </button>
           </div>
@@ -309,71 +309,71 @@ export default function IngredientsPage() {
       {/* Ingredients list */}
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-          <p className="text-gray-500">Cargando...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+          <p className="text-[var(--color-adp-tinta-2)]">Cargando...</p>
         </div>
       ) : ingredients.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-500 text-lg">No hay ingredientes registrados</p>
-          <p className="text-sm text-gray-500 mt-1">Agrega ingredientes para empezar a crear recetas</p>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-8 text-center">
+          <p className="text-[var(--color-adp-tinta-2)] text-lg">No hay ingredientes registrados</p>
+          <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">Agrega ingredientes para empezar a crear recetas</p>
         </div>
       ) : (
         <div className="space-y-6">
           {/* Active */}
           {activeIngredients.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Activos</h2>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <h2 className="text-sm font-semibold text-[var(--color-adp-tinta-2)] uppercase tracking-wider mb-3">Activos</h2>
+              <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-100 bg-gray-50">
-                        <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Nombre</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Unidad</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Stock</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Mínimo</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Costo</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Recetas</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Acciones</th>
+                      <tr className="border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)]">
+                        <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Nombre</th>
+                        <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Unidad</th>
+                        <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Stock</th>
+                        <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Mínimo</th>
+                        <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Costo</th>
+                        <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Recetas</th>
+                        <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-[var(--color-adp-borde)]">
                       {activeIngredients.map(ing => {
                         const isLowStock = ing.currentStock <= ing.minStock;
                         return (
-                          <tr key={ing.id} className={`hover:bg-gray-50 ${isLowStock ? 'bg-red-50' : ''}`}>
+                          <tr key={ing.id} className={`hover:bg-[var(--color-adp-papel-3)] ${isLowStock ? 'hover:bg-[var(--color-adp-urgente)]/85/10' : ''}`}>
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-2">
-                                <Link href={`/admin/restaurant/ingredients/${ing.id}`} className="font-medium text-gray-900 hover:text-[#1b4235] transition-colors">{ing.name}</Link>
+                                <Link href={`/admin/restaurant/ingredients/${ing.id}`} className="font-medium text-[var(--color-adp-tinta)] hover:text-[var(--color-adp-pino)] transition-colors">{ing.name}</Link>
                                 {isLowStock && (
-                                  <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">
+                                  <span className="text-xs px-1.5 py-0.5 bg-[var(--color-adp-urgente)] text-white rounded-full font-medium">
                                     Bajo
                                   </span>
                                 )}
                               </div>
                             </td>
-                            <td className="py-3 px-4 text-gray-600">{ing.unit}</td>
-                            <td className={`py-3 px-4 text-right font-semibold tabular-nums ${isLowStock ? 'text-[#b03a2e]' : 'text-gray-900'}`}>
+                            <td className="py-3 px-4 text-[var(--color-adp-tinta-2)]">{ing.unit}</td>
+                            <td className={`py-3 px-4 text-right font-semibold tabular-nums ${isLowStock ? 'text-[var(--color-adp-urgente)]' : 'text-[var(--color-adp-tinta)]'}`}>
                               {/* El stock se mostraba con todos sus decimales
                                   (-0.8500000000000003). Se redondea a 2 como
                                   mucho y se quitan los ceros sobrantes. */}
                               {Number(ing.currentStock.toFixed(2))}
                             </td>
-                            <td className="py-3 px-4 text-right text-gray-600 tabular-nums">
+                            <td className="py-3 px-4 text-right text-[var(--color-adp-tinta-2)] tabular-nums">
                               {Number(ing.minStock.toFixed(2))}
                             </td>
-                            <td className="py-3 px-4 text-right text-gray-900">{formatPrice(ing.costDisplay)}</td>
-                            <td className="py-3 px-4 text-center text-gray-500">{ing.recipeUsageCount}</td>
+                            <td className="py-3 px-4 text-right text-[var(--color-adp-tinta)]">{formatPrice(ing.costDisplay)}</td>
+                            <td className="py-3 px-4 text-center text-[var(--color-adp-tinta-2)]">{ing.recipeUsageCount}</td>
                             <td className="py-3 px-4 text-center">
                               <div className="flex items-center justify-center gap-2">
                                 <button onClick={() => startEdit(ing)}
-                                  className="text-xs text-[#1b4235] hover:text-[#15352a] font-medium transition-colors">Editar</button>
+                                  className="text-xs text-[var(--color-adp-pino)] hover:text-[var(--color-adp-pino-hondo)] font-medium transition-colors">Editar</button>
                                 <button onClick={() => toggleActive(ing)}
-                                  className="text-xs text-gray-600 hover:text-gray-800 font-medium transition-colors">Desactivar</button>
+                                  className="text-xs text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] font-medium transition-colors">Desactivar</button>
                                 {/* Sobre el fondo rosa de las filas bajas, el rojo
                                     claro no se leía. Se usa el rojo oscuro. */}
                                 <button onClick={() => handleDelete(ing.id, ing.name)}
-                                  className="text-xs text-[#b03a2e] hover:text-[#8a2a20] font-medium transition-colors">Eliminar</button>
+                                  className="text-xs text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] font-medium transition-colors">Eliminar</button>
                               </div>
                             </td>
                           </tr>
@@ -389,22 +389,22 @@ export default function IngredientsPage() {
           {/* Inactive */}
           {inactiveIngredients.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Inactivos</h2>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden opacity-60">
+              <h2 className="text-sm font-semibold text-[var(--color-adp-tinta-2)] uppercase tracking-wider mb-3">Inactivos</h2>
+              <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] overflow-hidden opacity-60">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-[var(--color-adp-borde)]">
                       {inactiveIngredients.map(ing => (
-                        <tr key={ing.id} className="hover:bg-gray-50">
-                          <td className="py-3 px-4 font-medium text-gray-500">{ing.name}</td>
-                          <td className="py-3 px-4 text-gray-500">{ing.unit}</td>
-                          <td className="py-3 px-4 text-right text-gray-500">{ing.currentStock}</td>
-                          <td className="py-3 px-4 text-right text-gray-500">{ing.minStock}</td>
-                          <td className="py-3 px-4 text-right text-gray-500">{formatPrice(ing.costDisplay)}</td>
-                          <td className="py-3 px-4 text-center text-gray-500">{ing.recipeUsageCount}</td>
+                        <tr key={ing.id} className="hover:bg-[var(--color-adp-papel-3)]">
+                          <td className="py-3 px-4 font-medium text-[var(--color-adp-tinta-2)]">{ing.name}</td>
+                          <td className="py-3 px-4 text-[var(--color-adp-tinta-2)]">{ing.unit}</td>
+                          <td className="py-3 px-4 text-right text-[var(--color-adp-tinta-2)]">{ing.currentStock}</td>
+                          <td className="py-3 px-4 text-right text-[var(--color-adp-tinta-2)]">{ing.minStock}</td>
+                          <td className="py-3 px-4 text-right text-[var(--color-adp-tinta-2)]">{formatPrice(ing.costDisplay)}</td>
+                          <td className="py-3 px-4 text-center text-[var(--color-adp-tinta-2)]">{ing.recipeUsageCount}</td>
                           <td className="py-3 px-4 text-center">
                             <button onClick={() => toggleActive(ing)}
-                              className="text-xs text-blue-500 hover:text-[#15352a] font-medium transition-colors">Reactivar</button>
+                              className="text-xs text-[var(--color-adp-info)] hover:text-[var(--color-adp-pino-hondo)] font-medium transition-colors">Reactivar</button>
                           </td>
                         </tr>
                       ))}
@@ -421,31 +421,31 @@ export default function IngredientsPage() {
       {showAdjustModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowAdjustModal(false)}>
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Autorizar ajuste de stock</h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <h3 className="text-lg font-semibold text-[var(--color-adp-tinta)] mb-1">Autorizar ajuste de stock</h3>
+            <p className="text-sm text-[var(--color-adp-tinta-2)] mb-4">
               Cambiar el stock manualmente requiere autorización de supervisor y queda registrado en la auditoría.
             </p>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">PIN de supervisor *</label>
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">PIN de supervisor *</label>
                 <input
                   type="password"
                   value={adjustPin}
                   onChange={(e) => setAdjustPin(e.target.value)}
                   autoFocus
                   placeholder="Clave de supervisor"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                  className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Motivo del ajuste *</label>
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Motivo del ajuste *</label>
                 <textarea
                   value={adjustReason}
                   onChange={(e) => setAdjustReason(e.target.value)}
                   rows={2}
                   placeholder='Ej: "Recuento físico", "Merma por caducidad"'
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                  className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
                 />
               </div>
             </div>
@@ -453,14 +453,14 @@ export default function IngredientsPage() {
             <div className="flex gap-3 pt-4">
               <button
                 onClick={() => setShowAdjustModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)] text-sm font-medium rounded-lg hover:bg-[var(--color-adp-borde)] transition-colors"
               >
                 Volver
               </button>
               <button
                 onClick={confirmAdjust}
                 disabled={saving}
-                className="flex-1 px-4 py-2 bg-[#b03a2e] text-white text-sm font-medium rounded-lg hover:bg-[#96322a] disabled:opacity-50 transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--color-adp-urgente)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-urgente)]/85 disabled:opacity-50 transition-colors"
               >
                 {saving ? 'Guardando...' : 'Autorizar y guardar'}
               </button>

@@ -38,18 +38,18 @@ export function BotonPin({ staffId, nombre }: { staffId: string; nombre: string 
 
   if (pin) {
     return (
-      <div className="mt-3 rounded-lg border border-[#C9A44F]/40 bg-[#C9A44F]/8 p-3">
-        <p className="text-[11px] text-gray-600 mb-1">PIN nuevo de {nombre}</p>
-        <p className="text-2xl font-bold tracking-[0.35em] text-gray-900 font-mono">{pin}</p>
-        <p className="text-[10px] text-gray-500 mt-1.5">
+      <div className="mt-3 rounded-lg border border-[var(--color-adp-pino)]/40 bg-[var(--color-adp-pino)]/8 p-3">
+        <p className="text-[11px] text-[var(--color-adp-tinta-2)] mb-1">PIN nuevo de {nombre}</p>
+        <p className="text-2xl font-bold tracking-[0.35em] text-[var(--color-adp-tinta)] font-mono">{pin}</p>
+        <p className="text-[10px] text-[var(--color-adp-tinta-2)] mt-1.5">
           Apúntalo. No se puede volver a ver.
         </p>
-        <p className="text-[10px] text-gray-500 mt-1">
+        <p className="text-[10px] text-[var(--color-adp-tinta-2)] mt-1">
           Al entrar, {nombre} tendrá que cambiarlo por uno propio.
         </p>
         <button
           onClick={() => setPin(null)}
-          className="mt-2 text-[11px] text-gray-500 hover:text-gray-700 underline"
+          className="mt-2 text-[11px] text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] underline"
         >
           Lo apunté
         </button>
@@ -62,11 +62,11 @@ export function BotonPin({ staffId, nombre }: { staffId: string; nombre: string 
       <button
         onClick={generar}
         disabled={generando}
-        className="text-[11px] text-gray-500 hover:text-[#1b4235] disabled:opacity-40"
+        className="text-[11px] text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-pino)] disabled:opacity-40"
       >
         {generando ? 'Generando…' : 'Restablecer PIN'}
       </button>
-      {error && <p className="text-[10px] text-[#b03a2e] mt-1">{error}</p>}
+      {error && <p className="text-[10px] text-[var(--color-adp-urgente)] mt-1">{error}</p>}
     </div>
   );
 }

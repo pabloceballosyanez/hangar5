@@ -239,8 +239,8 @@ export default function RecipesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Recetas</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Recetas</h1>
+          <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">
             {recipes.length} recetas registradas
           </p>
         </div>
@@ -249,7 +249,7 @@ export default function RecipesPage() {
             resetCreateForm();
             setShowCreateForm(true);
           }}
-          className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] transition-colors"
+          className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] transition-colors"
         >
           + Nueva receta
         </button>
@@ -262,35 +262,35 @@ export default function RecipesPage() {
           value={recipeSearch}
           onChange={e => setRecipeSearch(e.target.value)}
           placeholder="🔍 Buscar receta por nombre de platillo..."
-          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+          className="w-full max-w-md px-4 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
         />
       </div>
 
       {/* Create recipe form */}
       {showCreateForm && (
-        <form onSubmit={handleCreateRecipe} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
-          <h2 className="font-semibold text-gray-900">Nueva receta</h2>
-          {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
+        <form onSubmit={handleCreateRecipe} className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-5 space-y-4">
+          <h2 className="font-semibold text-[var(--color-adp-tinta)]">Nueva receta</h2>
+          {error && <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-3 rounded-lg">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs text-gray-500 mb-1">Tipo de receta</label>
+              <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Tipo de receta</label>
               <div className="flex flex-col sm:flex-row gap-2">
                 <label className={`flex-1 flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
-                  recipeType === 'menu' ? 'border-blue-600 bg-blue-50' : 'border-gray-300 bg-white hover:bg-gray-50'
-                }`}>
+                  recipeType === 'menu' ? 'border-[var(--color-adp-info)] bg-[var(--color-adp-info)]' : 'border-[var(--color-adp-borde-2)] bg-white hover:bg-[var(--color-adp-papel-3)]'
+                } text-white`}>
                   <input type="radio" name="recipeType" checked={recipeType === 'menu'} onChange={() => setRecipeType('menu')} className="accent-blue-600" />
                   <div>
-                    <span className="text-sm font-medium text-gray-900">📋 Receta de platillo</span>
-                    <span className="block text-xs text-gray-500">Se vincula a un ítem del menú. Opcionalmente hereda de una receta base.</span>
+                    <span className="text-sm font-medium text-[var(--color-adp-tinta)]">📋 Receta de platillo</span>
+                    <span className="block text-xs text-[var(--color-adp-tinta-2)]">Se vincula a un ítem del menú. Opcionalmente hereda de una receta base.</span>
                   </div>
                 </label>
                 <label className={`flex-1 flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
-                  recipeType === 'template' ? 'border-blue-600 bg-blue-50' : 'border-gray-300 bg-white hover:bg-gray-50'
-                }`}>
+                  recipeType === 'template' ? 'border-[var(--color-adp-info)] bg-[var(--color-adp-info)]' : 'border-[var(--color-adp-borde-2)] bg-white hover:bg-[var(--color-adp-papel-3)]'
+                } text-white`}>
                   <input type="radio" name="recipeType" checked={recipeType === 'template'} onChange={() => setRecipeType('template')} className="accent-blue-600" />
                   <div>
-                    <span className="text-sm font-medium text-gray-900">🏷️ Receta base (template)</span>
-                    <span className="block text-xs text-gray-500">Sin platillo. Otras recetas heredan sus ingredientes.</span>
+                    <span className="text-sm font-medium text-[var(--color-adp-tinta)]">🏷️ Receta base (template)</span>
+                    <span className="block text-xs text-[var(--color-adp-tinta-2)]">Sin platillo. Otras recetas heredan sus ingredientes.</span>
                   </div>
                 </label>
               </div>
@@ -299,62 +299,62 @@ export default function RecipesPage() {
             {recipeType === 'menu' ? (
               <>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Ítem del menú *</label>
+                  <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Ítem del menú *</label>
                   <select value={selectedMenuItemId} onChange={e => setSelectedMenuItemId(e.target.value)}
-                    required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
+                    required className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none">
                     <option value="">Seleccionar ítem...</option>
                     {availableMenuItems.map(mi => (
                       <option key={mi.id} value={mi.id}>{mi.name}</option>
                     ))}
                   </select>
                   {availableMenuItems.length === 0 && (
-                    <p className="text-xs text-amber-600 mt-1">Todos los ítems activos ya tienen receta.</p>
+                    <p className="text-xs text-[var(--color-adp-atencion)] mt-1">Todos los ítems activos ya tienen receta.</p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Receta base (opcional)</label>
+                  <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Receta base (opcional)</label>
                   <select value={selectedParentId} onChange={e => setSelectedParentId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
+                    className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none">
                     <option value="">Ninguna (receta independiente)</option>
                     {recipes.filter(r => r.isTemplate).map(r => (
                       <option key={r.id} value={r.id}>{r.menuItemName}</option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">Hereda ingredientes de la receta base. Agregá solo los ingredientes extra.</p>
+                  <p className="text-xs text-[var(--color-adp-tinta-2)] mt-1">Hereda ingredientes de la receta base. Agregá solo los ingredientes extra.</p>
                 </div>
               </>
             ) : (
               <div className="sm:col-span-2">
-                <label className="block text-xs text-gray-500 mb-1">Nombre de la receta base *</label>
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Nombre de la receta base *</label>
                 <input type="text" value={templateName} onChange={e => setTemplateName(e.target.value)}
                   placeholder='Ej: "Masa de pizza", "Masa de empanadas"'
-                  required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                  required className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
               </div>
             )}
 
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Rendimiento (porciones)</label>
+              <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Rendimiento (porciones)</label>
               <input type="number" value={yieldQuantity} onChange={e => setYieldQuantity(e.target.value)}
                 step="0.5" min="0.5" required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
             </div>
 
             {recipeType === 'menu' && (
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Notas</label>
+                <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Notas</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)}
                   rows={2} placeholder="Notas de preparación, instrucciones, etc."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                  className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
               </div>
             )}
           </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={saving}
-              className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
+              className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors">
               {saving ? 'Guardando...' : 'Crear receta'}
             </button>
             <button type="button" onClick={resetCreateForm}
-              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
+              className="px-4 py-2 bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)] text-sm font-medium rounded-lg hover:bg-[var(--color-adp-borde)] transition-colors">
               Cancelar
             </button>
           </div>
@@ -364,60 +364,60 @@ export default function RecipesPage() {
       {/* Recipes list */}
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-          <p className="text-gray-500">Cargando...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+          <p className="text-[var(--color-adp-tinta-2)]">Cargando...</p>
         </div>
       ) : recipes.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-500 text-lg">No hay recetas registradas</p>
-          <p className="text-sm text-gray-500 mt-1">Crea recetas vinculando ítems del menú con ingredientes</p>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-8 text-center">
+          <p className="text-[var(--color-adp-tinta-2)] text-lg">No hay recetas registradas</p>
+          <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">Crea recetas vinculando ítems del menú con ingredientes</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Ítem del menú</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Ingredientes</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Rinde</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500 uppercase text-xs tracking-wider">Acciones</th>
+                <tr className="border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)]">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Ítem del menú</th>
+                  <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Ingredientes</th>
+                  <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Rinde</th>
+                  <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-[var(--color-adp-borde)]">
                 {recipes
                   .filter(r => !recipeSearch || r.menuItemName.toLowerCase().includes(recipeSearch.toLowerCase()))
                   .map(recipe => (
-                  <tr key={recipe.id} className={`hover:bg-gray-50 ${!recipe.menuItemActive ? 'opacity-50' : ''}`}>
+                  <tr key={recipe.id} className={`hover:bg-[var(--color-adp-papel-3)] ${!recipe.menuItemActive ? 'opacity-50' : ''}`}>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-medium text-gray-900">{recipe.menuItemName}</span>
+                        <span className="font-medium text-[var(--color-adp-tinta)]">{recipe.menuItemName}</span>
                         {recipe.isTemplate && (
-                          <span className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">📋 Template</span>
+                          <span className="text-xs px-1.5 py-0.5 bg-[var(--color-adp-info)] text-white rounded-full font-medium">📋 Template</span>
                         )}
                         {recipe.parentRecipeName && (
-                          <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">🔗 {recipe.parentRecipeName}</span>
+                          <span className="text-xs px-1.5 py-0.5 bg-[var(--color-adp-atencion)] text-white rounded-full font-medium">🔗 {recipe.parentRecipeName}</span>
                         )}
                         {(recipe.childRecipeCount ?? 0) > 0 && (
-                          <span className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">👶 {recipe.childRecipeCount}</span>
+                          <span className="text-xs px-1.5 py-0.5 bg-[var(--color-adp-listo)] text-white rounded-full font-medium">👶 {recipe.childRecipeCount}</span>
                         )}
                         {!recipe.menuItemActive && (
-                          <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full">Inactivo</span>
+                          <span className="text-xs px-1.5 py-0.5 bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] rounded-full">Inactivo</span>
                         )}
                       </div>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${recipe.ingredientCount > 0 ? 'bg-blue-100 text-[#15352a]' : 'bg-gray-100 text-gray-500'}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${recipe.ingredientCount > 0 ? 'bg-[var(--color-adp-info)] text-white' : 'bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)]'}`}>
                         {recipe.ingredientCount} ingredientes
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-right text-gray-600">{recipe.yieldQuantity} porc.</td>
+                    <td className="py-3 px-4 text-right text-[var(--color-adp-tinta-2)]">{recipe.yieldQuantity} porc.</td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <Link href={`/admin/restaurant/recipes/${recipe.id}`}
-                          className="text-xs text-[#1b4235] hover:text-blue-800 font-medium transition-colors">Ver</Link>
+                          className="text-xs text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] font-medium transition-colors">Ver</Link>
                         <button onClick={() => handleDelete(recipe.id, recipe.menuItemName)}
-                          className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">Eliminar</button>
+                          className="text-xs text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] font-medium transition-colors">Eliminar</button>
                       </div>
                     </td>
                   </tr>
@@ -434,16 +434,16 @@ export default function RecipesPage() {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setDetailRecipe(null); setError(null); }} />
           <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
+            <div className="sticky top-0 bg-white border-b border-[var(--color-adp-borde)] px-6 py-4 flex items-center justify-between rounded-t-xl">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">{detailRecipe.menuItem?.name ?? <span className="text-gray-500">(sin ítem)</span>}</h2>
-                <p className="text-xs text-gray-500">
+                <h2 className="text-lg font-bold text-[var(--color-adp-tinta)]">{detailRecipe.menuItem?.name ?? <span className="text-[var(--color-adp-tinta-2)]">(sin ítem)</span>}</h2>
+                <p className="text-xs text-[var(--color-adp-tinta-2)]">
                   Rinde {detailRecipe.yieldQuantity} porciones
                   {detailRecipe.menuItem?.basePrice ? ` · Precio: ${formatPrice(detailRecipe.menuItem.basePrice / 100)}` : ''}
                 </p>
               </div>
               <button onClick={() => { setDetailRecipe(null); setError(null); }}
-                className="p-2 rounded-lg text-gray-500 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+                className="p-2 rounded-lg text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta-2)] hover:bg-[var(--color-adp-papel-3)] transition-colors">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -452,59 +452,59 @@ export default function RecipesPage() {
 
             {/* Notes */}
             {detailRecipe.notes && (
-              <div className="px-6 py-3 border-b border-gray-100 bg-amber-50">
-                <p className="text-sm text-amber-800">{detailRecipe.notes}</p>
+              <div className="px-6 py-3 border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-atencion)] text-white">
+                <p className="text-sm text-[var(--color-adp-atencion)]">{detailRecipe.notes}</p>
               </div>
             )}
 
             {/* Error */}
             {error && (
               <div className="px-6 pt-4">
-                <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>
+                <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-3 rounded-lg">{error}</p>
               </div>
             )}
 
             {/* Recipe items */}
             <div className="p-6 space-y-4">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="font-semibold text-[var(--color-adp-tinta)] flex items-center gap-2">
                 📋 Ingredientes
-                <span className="text-xs text-gray-500 font-normal">
+                <span className="text-xs text-[var(--color-adp-tinta-2)] font-normal">
                   ({detailRecipe.recipeItems.length})
                 </span>
               </h3>
 
               {detailRecipe.recipeItems.length === 0 ? (
-                <p className="text-sm text-gray-500">No hay ingredientes en esta receta aún.</p>
+                <p className="text-sm text-[var(--color-adp-tinta-2)]">No hay ingredientes en esta receta aún.</p>
               ) : (
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="border border-[var(--color-adp-borde)] rounded-lg overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-100 bg-gray-50">
-                        <th className="text-left py-2 px-3 font-medium text-gray-500 text-xs">Ingrediente</th>
-                        <th className="text-right py-2 px-3 font-medium text-gray-500 text-xs">Cantidad</th>
-                        <th className="text-right py-2 px-3 font-medium text-gray-500 text-xs">Costo unit.</th>
-                        <th className="text-right py-2 px-3 font-medium text-gray-500 text-xs">Subtotal</th>
-                        <th className="text-center py-2 px-3 font-medium text-gray-500 text-xs w-16"></th>
+                      <tr className="border-b border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)]">
+                        <th className="text-left py-2 px-3 font-medium text-[var(--color-adp-tinta-2)] text-xs">Ingrediente</th>
+                        <th className="text-right py-2 px-3 font-medium text-[var(--color-adp-tinta-2)] text-xs">Cantidad</th>
+                        <th className="text-right py-2 px-3 font-medium text-[var(--color-adp-tinta-2)] text-xs">Costo unit.</th>
+                        <th className="text-right py-2 px-3 font-medium text-[var(--color-adp-tinta-2)] text-xs">Subtotal</th>
+                        <th className="text-center py-2 px-3 font-medium text-[var(--color-adp-tinta-2)] text-xs w-16"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-[var(--color-adp-borde)]">
                       {detailRecipe.recipeItems.map(ri => {
                         const lineCost = ri.ingredientCostDisplay * ri.quantity;
                         return (
-                          <tr key={ri.id} className="hover:bg-gray-50">
-                            <td className="py-2 px-3 font-medium text-gray-900">{ri.ingredientName}</td>
-                            <td className="py-2 px-3 text-right text-gray-600">
+                          <tr key={ri.id} className="hover:bg-[var(--color-adp-papel-3)]">
+                            <td className="py-2 px-3 font-medium text-[var(--color-adp-tinta)]">{ri.ingredientName}</td>
+                            <td className="py-2 px-3 text-right text-[var(--color-adp-tinta-2)]">
                               {ri.quantity} {ri.ingredientUnit}
                             </td>
-                            <td className="py-2 px-3 text-right text-gray-600">
+                            <td className="py-2 px-3 text-right text-[var(--color-adp-tinta-2)]">
                               {formatPrice(ri.ingredientCostDisplay)}
                             </td>
-                            <td className="py-2 px-3 text-right font-semibold text-gray-900">
+                            <td className="py-2 px-3 text-right font-semibold text-[var(--color-adp-tinta)]">
                               {formatPrice(lineCost)}
                             </td>
                             <td className="py-2 px-3 text-center">
                               <button onClick={() => handleRemoveRecipeItem(ri.id)}
-                                className="text-xs text-red-400 hover:text-[#b03a2e] transition-colors" title="Quitar">
+                                className="text-xs text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] transition-colors" title="Quitar">
                                 ✕
                               </button>
                             </td>
@@ -514,11 +514,11 @@ export default function RecipesPage() {
                     </tbody>
                     {detailRecipe.recipeItems.length > 0 && (
                       <tfoot>
-                        <tr className="border-t border-gray-200 bg-gray-50">
-                          <td colSpan={3} className="py-2 px-3 text-right text-xs font-semibold text-gray-500">
+                        <tr className="border-t border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)]">
+                          <td colSpan={3} className="py-2 px-3 text-right text-xs font-semibold text-[var(--color-adp-tinta-2)]">
                             Costo total:
                           </td>
-                          <td className="py-2 px-3 text-right font-bold text-gray-900">
+                          <td className="py-2 px-3 text-right font-bold text-[var(--color-adp-tinta)]">
                             {formatPrice(
                               detailRecipe.recipeItems.reduce(
                                 (sum, ri) => sum + ri.ingredientCostDisplay * ri.quantity, 0
@@ -534,13 +534,13 @@ export default function RecipesPage() {
               )}
 
               {/* Add ingredient form */}
-              <div className="border border-dashed border-gray-300 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">+ Agregar ingrediente</h4>
+              <div className="border border-dashed border-[var(--color-adp-borde-2)] rounded-lg p-4">
+                <h4 className="text-sm font-medium text-[var(--color-adp-tinta)] mb-3">+ Agregar ingrediente</h4>
                 <form onSubmit={handleAddRecipeItem} className="flex flex-wrap items-end gap-3">
                   <div className="flex-1 min-w-[200px]">
-                    <label className="block text-xs text-gray-500 mb-1">Ingrediente</label>
+                    <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Ingrediente</label>
                     <select value={selectedIngredientId} onChange={e => setSelectedIngredientId(e.target.value)}
-                      required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none">
+                      required className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none">
                       <option value="">Seleccionar...</option>
                       {availableIngredients.map(ing => (
                         <option key={ing.id} value={ing.id}>
@@ -549,18 +549,18 @@ export default function RecipesPage() {
                       ))}
                     </select>
                     {availableIngredients.length === 0 && ingredients.length > 0 && (
-                      <p className="text-xs text-amber-600 mt-1">Todos los ingredientes ya están agregados.</p>
+                      <p className="text-xs text-[var(--color-adp-atencion)] mt-1">Todos los ingredientes ya están agregados.</p>
                     )}
                   </div>
                   <div className="w-28">
-                    <label className="block text-xs text-gray-500 mb-1">Cantidad</label>
+                    <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Cantidad</label>
                     <input type="number" value={itemQuantity} onChange={e => setItemQuantity(e.target.value)}
                       step="0.01" min="0.01" required
                       placeholder="0.5"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none" />
+                      className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none" />
                   </div>
                   <button type="submit" disabled={saving}
-                    className="px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors">
+                    className="px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors">
                     {saving ? '...' : 'Agregar'}
                   </button>
                 </form>

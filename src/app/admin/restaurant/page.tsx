@@ -139,13 +139,13 @@ export default async function RestaurantDashboardPage() {
 
   // ─── Colors for status badges ───────────────────────────────────────────────
   const orderStatusColors: Record<string, string> = {
-    DRAFT: "bg-gray-100 text-gray-700",
-    PLACED: "bg-blue-100 text-[#15352a]",
-    IN_KITCHEN: "bg-orange-100 text-orange-700",
-    READY: "bg-green-100 text-green-700",
-    SERVED: "bg-emerald-100 text-emerald-700",
-    PAID: "bg-violet-100 text-violet-700",
-    CANCELLED: "bg-red-100 text-red-700",
+    DRAFT: "bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)]",
+    PLACED: "bg-[var(--color-adp-info)] text-white",
+    IN_KITCHEN: "bg-[var(--color-adp-atencion)] text-white",
+    READY: "bg-[var(--color-adp-listo)] text-white",
+    SERVED: "bg-[var(--color-adp-listo)] text-white",
+    PAID: "bg-[var(--color-adp-info)] text-[var(--color-adp-info)]",
+    CANCELLED: "bg-[var(--color-adp-urgente)] text-white",
   };
 
   const statusLabel: Record<string, string> = {
@@ -161,8 +161,8 @@ export default async function RestaurantDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <span className="text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Dashboard</h1>
+        <span className="text-sm text-[var(--color-adp-tinta-2)]">
           {new Date().toLocaleDateString("es-MX", {
             weekday: "long",
             year: "numeric",
@@ -177,76 +177,76 @@ export default async function RestaurantDashboardPage() {
         {/* Active orders */}
         <Link
           href="/admin/restaurant/orders"
-          className="block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+          className="block bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] hover:shadow-md transition-shadow"
         >
           <div className="p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">Órdenes activas hoy</p>
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
+              <p className="text-sm font-medium text-[var(--color-adp-tinta-2)]">Órdenes activas hoy</p>
+              <span className="w-2 h-2 rounded-full bg-[var(--color-adp-info)] text-white" />
             </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{activeOrdersCount}</p>
-            <p className="mt-1 text-xs text-gray-500">pendientes</p>
+            <p className="mt-2 text-3xl font-bold text-[var(--color-adp-tinta)]">{activeOrdersCount}</p>
+            <p className="mt-1 text-xs text-[var(--color-adp-tinta-2)]">pendientes</p>
           </div>
         </Link>
 
         {/* Daily sales */}
         <Link
           href="/admin/restaurant/orders"
-          className="block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+          className="block bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] hover:shadow-md transition-shadow"
         >
           <div className="p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">Ventas del día</p>
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <p className="text-sm font-medium text-[var(--color-adp-tinta-2)]">Ventas del día</p>
+              <span className="w-2 h-2 rounded-full bg-[var(--color-adp-listo)] text-white" />
             </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{formatPesos(dailySales)}</p>
-            <p className="mt-1 text-xs text-gray-500">MXN</p>
+            <p className="mt-2 text-3xl font-bold text-[var(--color-adp-tinta)]">{formatPesos(dailySales)}</p>
+            <p className="mt-1 text-xs text-[var(--color-adp-tinta-2)]">MXN</p>
           </div>
         </Link>
 
         {/* Active sessions */}
         <Link
           href="/admin/restaurant/sessions"
-          className="block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+          className="block bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] hover:shadow-md transition-shadow"
         >
           <div className="p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">Tabs abiertos</p>
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <p className="text-sm font-medium text-[var(--color-adp-tinta-2)]">Tabs abiertos</p>
+              <span className="w-2 h-2 rounded-full bg-[var(--color-adp-atencion)] text-white" />
             </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">
+            <p className="mt-2 text-3xl font-bold text-[var(--color-adp-tinta)]">
               {occupiedSessionsCount}
             </p>
-            <p className="mt-1 text-xs text-gray-500">activos ahora</p>
+            <p className="mt-1 text-xs text-[var(--color-adp-tinta-2)]">activos ahora</p>
           </div>
         </Link>
 
         {/* Staff present */}
         <Link
           href="/admin/restaurant/staff"
-          className="block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+          className="block bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] hover:shadow-md transition-shadow"
         >
           <div className="p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">Staff presente</p>
-              <span className="w-2 h-2 rounded-full bg-violet-500" />
+              <p className="text-sm font-medium text-[var(--color-adp-tinta-2)]">Staff presente</p>
+              <span className="w-2 h-2 rounded-full bg-[var(--color-adp-info)] text-white" />
             </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{staffPresentCount}</p>
-            <p className="mt-1 text-xs text-gray-500">en turno</p>
+            <p className="mt-2 text-3xl font-bold text-[var(--color-adp-tinta)]">{staffPresentCount}</p>
+            <p className="mt-1 text-xs text-[var(--color-adp-tinta-2)]">en turno</p>
           </div>
         </Link>
         {/* Menu items */}
         <Link
           href="/admin/restaurant/menu-items"
-          className="block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+          className="block bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] hover:shadow-md transition-shadow"
         >
           <div className="p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">Items del menú</p>
-              <span className="w-2 h-2 rounded-full bg-cyan-500" />
+              <p className="text-sm font-medium text-[var(--color-adp-tinta-2)]">Items del menú</p>
+              <span className="w-2 h-2 rounded-full bg-[var(--color-adp-listo)] text-white" />
             </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{totalMenuItems}</p>
-            <p className="mt-1 text-xs text-gray-500">activos</p>
+            <p className="mt-2 text-3xl font-bold text-[var(--color-adp-tinta)]">{totalMenuItems}</p>
+            <p className="mt-1 text-xs text-[var(--color-adp-tinta-2)]">activos</p>
           </div>
         </Link>
       </div>
@@ -255,17 +255,17 @@ export default async function RestaurantDashboardPage() {
       {lowStockIngredients.length > 0 && (
         <Link
           href="/admin/restaurant/ingredients"
-          className="block bg-red-50 border border-red-200 rounded-xl p-4 hover:bg-red-100 transition-colors"
+          className="block adp-aviso rounded-xl p-4 transition-colors"
         >
           <div className="flex items-center gap-2">
             <span className="text-lg">⚠️</span>
-            <p className="text-sm font-semibold text-red-700">
+            <p className="text-sm font-semibold text-[var(--color-adp-urgente)]">
               Stock bajo — {lowStockIngredients.length} ingrediente(s) necesitan reposición
             </p>
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {lowStockIngredients.map((ing) => (
-              <span key={ing.id} className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full font-medium">
+              <span key={ing.id} className="text-xs px-2 py-1 bg-[var(--color-adp-urgente)] text-white rounded-full font-medium">
                 {/* Los números salían con todos sus decimales
                     (-1.0600000000000005). Se redondean a dos. */}
                 {ing.name}: {Number(ing.currentStock.toFixed(2))}/{Number(ing.minStock.toFixed(2))} {ing.unit}
@@ -277,35 +277,35 @@ export default async function RestaurantDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ─── Recent orders ─── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Órdenes recientes</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)]">
+          <div className="p-5 border-b border-[var(--color-adp-borde)] flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-[var(--color-adp-tinta)]">Órdenes recientes</h2>
             <Link
               href="/admin/restaurant/orders"
-              className="text-sm text-[#1b4235] hover:text-blue-800"
+              className="text-sm text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)]"
             >
               Ver todas →
             </Link>
           </div>
           <div className="p-5">
             {recentOrders.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-8">No hay órdenes hoy</p>
+              <p className="text-sm text-[var(--color-adp-tinta-2)] text-center py-8">No hay órdenes hoy</p>
             ) : (
               <div className="space-y-3">
                 {recentOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
+                    className="flex items-center justify-between py-2 border-b border-[var(--color-adp-borde)] last:border-0"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="font-bold text-lg text-gray-500 shrink-0">
+                      <span className="font-bold text-lg text-[var(--color-adp-tinta-2)] shrink-0">
                         {order.table?.number || order.serviceSession?.table?.number}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-[var(--color-adp-tinta)] truncate">
                           {order.orderItems.map((i) => i.menuItem.name).join(", ")}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-[var(--color-adp-tinta-2)]">
                           {order.createdAt.toLocaleTimeString("es-MX", {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -316,12 +316,12 @@ export default async function RestaurantDashboardPage() {
                     <div className="flex items-center gap-2 shrink-0">
                       <span
                         className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                          orderStatusColors[order.status] || "bg-gray-100 text-gray-700"
+                          orderStatusColors[order.status] || "bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)]"
                         }`}
                       >
                         {statusLabel[order.status] || order.status}
                       </span>
-                      <span className="text-sm font-semibold text-gray-700">
+                      <span className="text-sm font-semibold text-[var(--color-adp-tinta)]">
                         {formatPesos(order.total)}
                       </span>
                     </div>
@@ -333,19 +333,19 @@ export default async function RestaurantDashboardPage() {
         </div>
 
         {/* ─── Active tables ─── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Mesas activas</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)]">
+          <div className="p-5 border-b border-[var(--color-adp-borde)] flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-[var(--color-adp-tinta)]">Mesas activas</h2>
             <Link
               href="/admin/restaurant/tables"
-              className="text-sm text-[#1b4235] hover:text-blue-800"
+              className="text-sm text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)]"
             >
               Ver todas →
             </Link>
           </div>
           <div className="p-5">
             {activeTables.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-8">
+              <p className="text-sm text-[var(--color-adp-tinta-2)] text-center py-8">
                 No hay mesas ocupadas
               </p>
             ) : (
@@ -357,13 +357,13 @@ export default async function RestaurantDashboardPage() {
                     <Link
                       key={table.id}
                       href={`/admin/restaurant/orders?table=${table.number}`}
-                      className="block bg-amber-50 border border-amber-200 rounded-lg p-3 hover:bg-amber-100 transition-colors"
+                      className="block bg-[var(--color-adp-atencion)] border border-[var(--color-adp-atencion)] rounded-lg p-3 hover:bg-[var(--color-adp-atencion)]/85 transition-colors text-white"
                     >
-                      <p className="text-lg font-bold text-amber-800">{table.number}</p>
+                      <p className="text-lg font-bold text-[var(--color-adp-atencion)]">{table.number}</p>
                       {table.name && (
-                        <p className="text-xs text-amber-600 truncate">{table.name}</p>
+                        <p className="text-xs text-[var(--color-adp-atencion)] truncate">{table.name}</p>
                       )}
-                      <div className="mt-2 flex items-center gap-3 text-xs text-amber-700">
+                      <div className="mt-2 flex items-center gap-3 text-xs text-[var(--color-adp-atencion)]">
                         <span>{orderCount} orden{orderCount !== 1 ? "es" : ""}</span>
                         {session && (
                           <span>

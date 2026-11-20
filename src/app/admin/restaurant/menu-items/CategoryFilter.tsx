@@ -25,7 +25,7 @@ export default function CategoryFilter({ categories, currentCategoryId }: Catego
 
   return (
     <select
-      className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white"
+      className="border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-1.5 text-sm bg-white"
       defaultValue={currentCategoryId || ""}
       onChange={handleChange}
     >

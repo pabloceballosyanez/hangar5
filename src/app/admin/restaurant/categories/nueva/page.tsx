@@ -35,28 +35,28 @@ export default function NuevaCategoriaPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Nueva categoría</h1>
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        {error && <p className="text-sm text-[#b03a2e] bg-red-50 p-3 rounded-lg">{error}</p>}
+      <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)] mb-6">Nueva categoría</h1>
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-6 space-y-4">
+        {error && <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-3 rounded-lg">{error}</p>}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Nombre</label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 focus:border-blue-500 outline-none"
+            className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-[var(--color-adp-info)] outline-none"
             placeholder="Ej: Pizzas"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Tipo</label>
           <select
             value={kind}
             onChange={e => setKind(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+            className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
           >
             <option value="FOOD">Comida</option>
             <option value="DRINK">Bebida</option>
@@ -64,19 +64,19 @@ export default function NuevaCategoriaPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Orden</label>
+          <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Orden</label>
           <input
             type="number"
             value={sortOrder}
             onChange={e => setSortOrder(Number(e.target.value))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+            className="w-full border border-[var(--color-adp-borde-2)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
           />
         </div>
 
         <button
           type="submit"
           disabled={saving || !name.trim()}
-          className="w-full py-2.5 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
+          className="w-full py-2.5 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors"
         >
           {saving ? 'Creando...' : 'Crear categoría'}
         </button>

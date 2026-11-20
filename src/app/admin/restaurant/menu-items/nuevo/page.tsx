@@ -102,45 +102,45 @@ export default function NuevoMenuItemPage() {
         <div className="mb-6">
           <Link
             href="/admin/restaurant/menu-items"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] transition-colors"
           >
             ← Volver al menú
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">Nuevo item del menú</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)] mt-2">Nuevo item del menú</h1>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Nombre <span className="text-[var(--color-adp-urgente)]">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej: Tacos de pastor"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                 required
               />
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Categoría <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Categoría <span className="text-[var(--color-adp-urgente)]">*</span>
               </label>
               {loadingCategories ? (
-                <div className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-500 bg-gray-50">
+                <div className="w-full px-3 py-2 border border-[var(--color-adp-borde)] rounded-lg text-sm text-[var(--color-adp-tinta-2)] bg-[var(--color-adp-papel-3)]">
                   Cargando categorías…
                 </div>
               ) : (
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
+                  className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent bg-white"
                   required
                 >
                   {categories.length === 0 && (
@@ -157,26 +157,26 @@ export default function NuevoMenuItemPage() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Descripción <span className="text-gray-500 font-normal">(opcional)</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Descripción <span className="text-[var(--color-adp-tinta-2)] font-normal">(opcional)</span>
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Descripción del platillo o bebida…"
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent resize-none"
               />
             </div>
 
             {/* Price + Prep time row */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Precio base <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                  Precio base <span className="text-[var(--color-adp-urgente)]">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-adp-tinta-2)] text-sm">$</span>
                   <input
                     type="number"
                     value={basePricePesos}
@@ -186,15 +186,15 @@ export default function NuevoMenuItemPage() {
                     placeholder="0.00"
                     min={0}
                     step={0.01}
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                    className="w-full pl-7 pr-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                     required
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">En pesos MXN</p>
+                <p className="text-xs text-[var(--color-adp-tinta-2)] mt-1">En pesos MXN</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
                   Tiempo estimado
                 </label>
                 <div className="relative">
@@ -206,22 +206,22 @@ export default function NuevoMenuItemPage() {
                     }
                     placeholder="15"
                     min={1}
-                    className="w-full pr-14 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                    className="w-full pr-14 pl-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">min</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-adp-tinta-2)] text-sm">min</span>
                 </div>
               </div>
             </div>
 
             {/* Prep station */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
                 Estación de preparación
               </label>
               <select
                 value={prepStation}
                 onChange={(e) => setPrepStation(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent bg-white"
               >
                 {PREP_STATIONS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -233,22 +233,22 @@ export default function NuevoMenuItemPage() {
 
             {/* Image URL */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL de imagen <span className="text-gray-500 font-normal">(opcional)</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                URL de imagen <span className="text-[var(--color-adp-tinta-2)] font-normal">(opcional)</span>
               </label>
               <input
                 type="url"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://…"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
               />
             </div>
 
             {/* Sort order */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Orden <span className="text-gray-500 font-normal">(opcional)</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Orden <span className="text-[var(--color-adp-tinta-2)] font-normal">(opcional)</span>
               </label>
               <input
                 type="number"
@@ -258,16 +258,16 @@ export default function NuevoMenuItemPage() {
                 }
                 placeholder="0"
                 min={0}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[var(--color-adp-tinta-2)] mt-1">
                 Número menor aparece primero en el menú.
               </p>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              <div className="p-3 bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)] rounded-lg text-sm text-white">
                 {error}
               </div>
             )}
@@ -276,14 +276,14 @@ export default function NuevoMenuItemPage() {
             <div className="flex gap-3 pt-2">
               <Link
                 href="/admin/restaurant/menu-items"
-                className="flex-1 text-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 text-center px-4 py-2 border border-[var(--color-adp-borde-2)] text-sm font-medium text-[var(--color-adp-tinta)] rounded-lg hover:bg-[var(--color-adp-papel-3)] transition-colors"
               >
                 Cancelar
               </Link>
               <button
                 type="submit"
                 disabled={loading || loadingCategories}
-                className="flex-1 px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Creando…' : 'Crear item'}
               </button>

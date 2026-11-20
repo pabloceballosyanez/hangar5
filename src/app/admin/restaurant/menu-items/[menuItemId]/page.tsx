@@ -350,8 +350,8 @@ export default function EditMenuItemPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-        <p className="text-gray-500">Cargando item...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-adp-info)] mx-auto mb-4" />
+        <p className="text-[var(--color-adp-tinta-2)]">Cargando item...</p>
       </div>
     );
   }
@@ -359,8 +359,8 @@ export default function EditMenuItemPage() {
   if (error && !name) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <p className="text-[#b03a2e] mb-4">{error}</p>
-        <Link href="/admin/restaurant/menu-items" className="text-[#1b4235] hover:text-blue-800 text-sm font-medium">
+        <p className="text-[var(--color-adp-urgente)] mb-4">{error}</p>
+        <Link href="/admin/restaurant/menu-items" className="text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] text-sm font-medium">
           ← Volver al menú
         </Link>
       </div>
@@ -371,37 +371,37 @@ export default function EditMenuItemPage() {
     <div className="flex flex-col items-center py-8 px-4">
       <div className="w-full max-w-3xl">
         <div className="mb-6">
-          <Link href="/admin/restaurant/menu-items" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+          <Link href="/admin/restaurant/menu-items" className="text-sm text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)] transition-colors">
             ← Volver al menú
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">Editar item: {name}</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)] mt-2">Editar item: {name}</h1>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-[var(--color-adp-borde)] p-6">
           <form onSubmit={(e) => e.preventDefault()} className="space-y-5">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Nombre <span className="text-[var(--color-adp-urgente)]">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                 required
               />
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Categoría <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Categoría <span className="text-[var(--color-adp-urgente)]">*</span>
               </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent bg-white"
                 required
               >
                 {categories.map((cat) => (
@@ -414,60 +414,60 @@ export default function EditMenuItemPage() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Descripción <span className="text-gray-500 font-normal">(opcional)</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                Descripción <span className="text-[var(--color-adp-tinta-2)] font-normal">(opcional)</span>
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent resize-none"
               />
             </div>
 
             {/* Price + Prep time */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Precio base <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                  Precio base <span className="text-[var(--color-adp-urgente)]">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-adp-tinta-2)] text-sm">$</span>
                   <input
                     type="number"
                     value={basePricePesos}
                     onChange={(e) => setBasePricePesos(e.target.value === '' ? '' : Number(e.target.value))}
                     min={0}
                     step={0.01}
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                    className="w-full pl-7 pr-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                     required
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">En pesos MXN</p>
+                <p className="text-xs text-[var(--color-adp-tinta-2)] mt-1">En pesos MXN</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tiempo estimado</label>
+                <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Tiempo estimado</label>
                 <div className="relative">
                   <input
                     type="number"
                     value={estimatedPrepMinutes}
                     onChange={(e) => setEstimatedPrepMinutes(e.target.value === '' ? '' : Number(e.target.value))}
                     min={1}
-                    className="w-full pr-14 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                    className="w-full pr-14 pl-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">min</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-adp-tinta-2)] text-sm">min</span>
                 </div>
               </div>
             </div>
 
             {/* Prep station */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Estación de preparación</label>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Estación de preparación</label>
               <select
                 value={prepStation}
                 onChange={(e) => setPrepStation(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent bg-white"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent bg-white"
               >
                 {PREP_STATIONS.map((s) => (
                   <option key={s.value} value={s.value}>{s.label}</option>
@@ -477,15 +477,15 @@ export default function EditMenuItemPage() {
 
             {/* Image URL */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL de imagen <span className="text-gray-500 font-normal">(opcional)</span>
+              <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">
+                URL de imagen <span className="text-[var(--color-adp-tinta-2)] font-normal">(opcional)</span>
               </label>
               <input
                 type="text"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="/img/menu/ejemplo.jpg"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
               />
             </div>
 
@@ -497,18 +497,18 @@ export default function EditMenuItemPage() {
                   id="isActive"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
-                  className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
+                  className="w-4 h-4 text-[var(--color-adp-pino)] rounded border-[var(--color-adp-borde-2)] focus:ring-[var(--color-adp-pino)]/40"
                 />
-                <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Activo</label>
+                <label htmlFor="isActive" className="text-sm font-medium text-[var(--color-adp-tinta)]">Activo</label>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Orden</label>
+                <label className="block text-sm font-medium text-[var(--color-adp-tinta)] mb-1">Orden</label>
                 <input
                   type="number"
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value === '' ? '' : Number(e.target.value))}
                   min={0}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4235]/40 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 focus:border-transparent"
                 />
               </div>
             </div>
@@ -516,39 +516,39 @@ export default function EditMenuItemPage() {
             {/* Variants */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-700">Variantes</label>
+                <label className="text-sm font-medium text-[var(--color-adp-tinta)]">Variantes</label>
                 <button
                   type="button"
                   onClick={addVariant}
-                  className="text-xs text-[#1b4235] hover:text-blue-800 font-medium"
+                  className="text-xs text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)] font-medium"
                 >
                   + Añadir variante
                 </button>
               </div>
               {variants.length === 0 ? (
-                <p className="text-xs text-gray-500">Sin variantes. Ej: "Chico", "Grande"</p>
+                <p className="text-xs text-[var(--color-adp-tinta-2)]">Sin variantes. Ej: "Chico", "Grande"</p>
               ) : (
                 <div className="space-y-2">
                   {variants.map((v, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                    <div key={idx} className="flex items-center gap-2 p-2 bg-[var(--color-adp-papel-3)] rounded-lg">
                       <input
                         type="text"
                         value={v.name}
                         onChange={(e) => updateVariant(idx, 'name', e.target.value)}
                         placeholder="Nombre"
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#1b4235]/40"
+                        className="flex-1 px-2 py-1 border border-[var(--color-adp-borde-2)] rounded text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-adp-pino)]/40"
                       />
                       <div className="relative w-24">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">$</span>
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--color-adp-tinta-2)] text-xs">$</span>
                         <input
                           type="number"
                           value={v.priceDelta}
                           onChange={(e) => updateVariant(idx, 'priceDelta', Number(e.target.value))}
                           step={0.01}
-                          className="w-full pl-5 pr-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#1b4235]/40"
+                          className="w-full pl-5 pr-2 py-1 border border-[var(--color-adp-borde-2)] rounded text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-adp-pino)]/40"
                         />
                       </div>
-                      <label className="flex items-center gap-1 text-xs text-gray-500">
+                      <label className="flex items-center gap-1 text-xs text-[var(--color-adp-tinta-2)]">
                         <input
                           type="checkbox"
                           checked={v.isDefault}
@@ -560,7 +560,7 @@ export default function EditMenuItemPage() {
                       <button
                         type="button"
                         onClick={() => removeVariant(idx)}
-                        className="text-red-400 hover:text-[#b03a2e] text-xs px-1"
+                        className="text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] text-xs px-1"
                       >
                         ✕
                       </button>
@@ -572,32 +572,32 @@ export default function EditMenuItemPage() {
 
             {/* Error */}
             {error && (
-              <div ref={errorRef} className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+              <div ref={errorRef} className="p-3 bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)] rounded-lg text-sm text-white">{error}</div>
             )}
 
             {/* ── Modifier Groups ── */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-700">Modificadores</label>
-                <Link href="/admin/restaurant/modifier-groups" className="text-xs text-[#1b4235] hover:text-blue-800">
+                <label className="text-sm font-medium text-[var(--color-adp-tinta)]">Modificadores</label>
+                <Link href="/admin/restaurant/modifier-groups" className="text-xs text-[var(--color-adp-pino)] hover:text-[var(--color-adp-info)]">
                   Gestionar grupos →
                 </Link>
               </div>
               {modifierGroups.length === 0 ? (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[var(--color-adp-tinta-2)]">
                   No hay grupos de modificadores.{' '}
-                  <Link href="/admin/restaurant/modifier-groups" className="text-[#1b4235] underline">Crear grupos</Link>
+                  <Link href="/admin/restaurant/modifier-groups" className="text-[var(--color-adp-pino)] underline">Crear grupos</Link>
                 </p>
               ) : (
-                <div className="space-y-1.5 max-h-80 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                <div className="space-y-1.5 max-h-80 overflow-y-auto border border-[var(--color-adp-borde)] rounded-lg p-2">
                   {modifierGroups.map((mg) => {
                     const isSelected = selectedModifierGroupIds.includes(mg.id);
                     return (
                       <label
                         key={mg.id}
                         className={`flex items-start gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
-                          isSelected ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50 border border-transparent'
-                        }`}
+                          isSelected ? 'bg-[var(--color-adp-info)] border border-[var(--color-adp-info)]' : 'hover:bg-[var(--color-adp-papel-3)] border border-transparent'
+                        } text-white`}
                       >
                         <input
                           type="checkbox"
@@ -607,11 +607,11 @@ export default function EditMenuItemPage() {
                               prev.includes(mg.id) ? prev.filter((id) => id !== mg.id) : [...prev, mg.id]
                             );
                           }}
-                          className="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#1b4235] focus:ring-[#1b4235]/40"
+                          className="w-4 h-4 mt-0.5 rounded border-[var(--color-adp-borde-2)] text-[var(--color-adp-pino)] focus:ring-[var(--color-adp-pino)]/40"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">{mg.name}</p>
-                          <p className="text-xs text-gray-500 mb-1">
+                          <p className="text-sm font-medium text-[var(--color-adp-tinta)]">{mg.name}</p>
+                          <p className="text-xs text-[var(--color-adp-tinta-2)] mb-1">
                             {mg.modifiers?.length || 0} opciones
                             {mg.isRequired && ' · Obligatorio'}
                             {mg.minSelections > 0 && ` · Mín ${mg.minSelections}`}
@@ -619,10 +619,10 @@ export default function EditMenuItemPage() {
                           </p>
                           <div className="flex flex-wrap gap-x-3 gap-y-0.5">
                             {(mg.modifiers || []).map((mod, i) => (
-                              <span key={i} className="text-xs text-gray-500">
+                              <span key={i} className="text-xs text-[var(--color-adp-tinta-2)]">
                                 • {mod.name}
                                 {mod.priceDelta !== undefined && mod.priceDelta !== 0 && (
-                                  <span className="text-gray-500"> (+${mod.priceDelta.toFixed(2)})</span>
+                                  <span className="text-[var(--color-adp-tinta-2)]"> (+${mod.priceDelta.toFixed(2)})</span>
                                 )}
                               </span>
                             ))}
@@ -636,20 +636,20 @@ export default function EditMenuItemPage() {
             </div>
 
             {/* ── Recipe Toggle + Section ── */}
-            <div className="border-t border-gray-200 pt-5">
+            <div className="border-t border-[var(--color-adp-borde)] pt-5">
               <div className="flex items-center gap-3 mb-1">
                 <input
                   type="checkbox"
                   id="hasRecipe"
                   checked={hasRecipe}
                   onChange={handleToggleRecipe}
-                  className="w-4 h-4 text-[#1b4235] rounded border-gray-300 focus:ring-[#1b4235]/40"
+                  className="w-4 h-4 text-[var(--color-adp-pino)] rounded border-[var(--color-adp-borde-2)] focus:ring-[var(--color-adp-pino)]/40"
                 />
-                <label htmlFor="hasRecipe" className="text-sm font-semibold text-gray-800">
+                <label htmlFor="hasRecipe" className="text-sm font-semibold text-[var(--color-adp-tinta)]">
                   Tiene receta
                 </label>
               </div>
-              <p className="text-xs text-gray-500 ml-7 mb-3">
+              <p className="text-xs text-[var(--color-adp-tinta-2)] ml-7 mb-3">
                 Actívala para calcular el costo de ingredientes y margen del platillo
               </p>
 
@@ -658,36 +658,36 @@ export default function EditMenuItemPage() {
                   {/* Yield + Notes */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Rendimiento (porciones)</label>
+                      <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Rendimiento (porciones)</label>
                       <input
                         type="number"
                         value={recipeYield}
                         onChange={(e) => setRecipeYield(e.target.value === '' ? '' : Number(e.target.value))}
                         min={0.5}
                         step={0.5}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+                        className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Notas</label>
+                      <label className="block text-xs text-[var(--color-adp-tinta-2)] mb-1">Notas</label>
                       <input
                         type="text"
                         value={recipeNotes}
                         onChange={(e) => setRecipeNotes(e.target.value)}
                         placeholder="Instrucciones, tips..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+                        className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                       />
                     </div>
                   </div>
 
                   {/* Add ingredient */}
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs font-medium text-gray-700 mb-2">+ Agregar ingrediente</p>
+                  <div className="bg-[var(--color-adp-papel-3)] rounded-lg p-3">
+                    <p className="text-xs font-medium text-[var(--color-adp-tinta)] mb-2">+ Agregar ingrediente</p>
                     <div className="flex gap-2">
                       <select
                         value={addIngredientId}
                         onChange={(e) => setAddIngredientId(e.target.value)}
-                        className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-[#1b4235]/40 outline-none bg-white"
+                        className="flex-1 px-2 py-1.5 border border-[var(--color-adp-borde-2)] rounded text-xs focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none bg-white"
                       >
                         <option value="">Seleccionar...</option>
                         {availableIngredients.map((ing) => (
@@ -703,24 +703,24 @@ export default function EditMenuItemPage() {
                         placeholder="Cant."
                         step="0.01"
                         min="0.01"
-                        className="w-20 px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-[#1b4235]/40 outline-none"
+                        className="w-20 px-2 py-1.5 border border-[var(--color-adp-borde-2)] rounded text-xs focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                       />
                       <button
                         type="button"
                         onClick={addRecipeItem}
                         disabled={!addIngredientId || !addIngredientQty}
-                        className="px-3 py-1.5 bg-[#1b4235] text-white text-xs font-medium rounded hover:bg-[#15352a] disabled:opacity-50 transition-colors"
+                        className="px-3 py-1.5 bg-[var(--color-adp-pino)] text-white text-xs font-medium rounded hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors"
                       >
                         Agregar
                       </button>
                     </div>
                     {availableIngredients.length === 0 && ingredients.length > 0 && (
-                      <p className="text-xs text-amber-600 mt-2">Todos los ingredientes ya están en la receta.</p>
+                      <p className="text-xs text-[var(--color-adp-atencion)] mt-2">Todos los ingredientes ya están en la receta.</p>
                     )}
                     {ingredients.length === 0 && (
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-[var(--color-adp-tinta-2)] mt-2">
                         No hay ingredientes.{' '}
-                        <Link href="/admin/restaurant/ingredients" className="text-[#1b4235] underline">
+                        <Link href="/admin/restaurant/ingredients" className="text-[var(--color-adp-pino)] underline">
                           Crear ingredientes
                         </Link>
                       </p>
@@ -729,37 +729,37 @@ export default function EditMenuItemPage() {
 
                   {/* Ingredients table */}
                   {recipeItems.length > 0 && (
-                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="border border-[var(--color-adp-borde)] rounded-lg overflow-hidden">
                       <table className="w-full text-xs">
                         <thead>
-                          <tr className="bg-gray-50 border-b border-gray-200">
-                            <th className="text-left py-2 px-3 font-medium text-gray-500">Ingrediente</th>
-                            <th className="text-center py-2 px-3 font-medium text-gray-500 w-16">Cant.</th>
-                            <th className="text-right py-2 px-3 font-medium text-gray-500 w-20">Costo unit.</th>
-                            <th className="text-right py-2 px-3 font-medium text-gray-500 w-20">Subtotal</th>
+                          <tr className="bg-[var(--color-adp-papel-3)] border-b border-[var(--color-adp-borde)]">
+                            <th className="text-left py-2 px-3 font-medium text-[var(--color-adp-tinta-2)]">Ingrediente</th>
+                            <th className="text-center py-2 px-3 font-medium text-[var(--color-adp-tinta-2)] w-16">Cant.</th>
+                            <th className="text-right py-2 px-3 font-medium text-[var(--color-adp-tinta-2)] w-20">Costo unit.</th>
+                            <th className="text-right py-2 px-3 font-medium text-[var(--color-adp-tinta-2)] w-20">Subtotal</th>
                             <th className="w-8"></th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className="divide-y divide-[var(--color-adp-borde)]">
                           {recipeItems.map((ri, idx) => {
                             const subtotal = (ri.ingredientCost || 0) * ri.quantity;
                             return (
-                              <tr key={idx} className="hover:bg-gray-50">
-                                <td className="py-2 px-3 text-gray-900">{ri.ingredientName}</td>
-                                <td className="py-2 px-3 text-center text-gray-600">
+                              <tr key={idx} className="hover:bg-[var(--color-adp-papel-3)]">
+                                <td className="py-2 px-3 text-[var(--color-adp-tinta)]">{ri.ingredientName}</td>
+                                <td className="py-2 px-3 text-center text-[var(--color-adp-tinta-2)]">
                                   {ri.quantity} {ri.ingredientUnit}
                                 </td>
-                                <td className="py-2 px-3 text-right text-gray-600">
+                                <td className="py-2 px-3 text-right text-[var(--color-adp-tinta-2)]">
                                   ${(ri.ingredientCost || 0).toFixed(2)}
                                 </td>
-                                <td className="py-2 px-3 text-right font-medium text-gray-900">
+                                <td className="py-2 px-3 text-right font-medium text-[var(--color-adp-tinta)]">
                                   ${subtotal.toFixed(2)}
                                 </td>
                                 <td className="py-2 px-1 text-center">
                                   <button
                                     type="button"
                                     onClick={() => removeRecipeItem(idx)}
-                                    className="text-red-400 hover:text-[#b03a2e] text-xs"
+                                    className="text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] text-xs"
                                   >
                                     ✕
                                   </button>
@@ -769,30 +769,30 @@ export default function EditMenuItemPage() {
                           })}
                         </tbody>
                         {inheritedItems.length > 0 && (
-                          <tbody className="bg-purple-50/30">
-                            <tr className="border-b border-purple-100">
-                              <td colSpan={5} className="py-1.5 px-3 text-xs text-purple-600 font-medium">
+                          <tbody className="bg-[var(--color-adp-info)]/30">
+                            <tr className="border-b border-[var(--color-adp-info)]">
+                              <td colSpan={5} className="py-1.5 px-3 text-xs text-[var(--color-adp-info)] font-medium">
                                 🧬 Heredados de template
                               </td>
                             </tr>
                             {inheritedItems.map((ri, idx) => (
-                              <tr key={`inh-${idx}`} className="border-b border-purple-50">
-                                <td className="py-1.5 px-3 text-sm text-purple-700">{ri.ingredientName}</td>
-                                <td className="py-1.5 px-3 text-xs text-purple-500">{ri.ingredientUnit}</td>
-                                <td className="py-1.5 px-3 text-right text-sm text-purple-700">{ri.quantity.toFixed(2)}</td>
-                                <td className="py-1.5 px-3 text-right text-xs text-purple-500">${(ri.ingredientCost || 0).toFixed(2)}</td>
-                                <td className="py-1.5 px-3 text-right text-sm text-purple-700">${((ri.ingredientCost || 0) * ri.quantity).toFixed(2)}</td>
+                              <tr key={`inh-${idx}`} className="border-b border-[var(--color-adp-info)]">
+                                <td className="py-1.5 px-3 text-sm text-[var(--color-adp-info)]">{ri.ingredientName}</td>
+                                <td className="py-1.5 px-3 text-xs text-[var(--color-adp-info)]">{ri.ingredientUnit}</td>
+                                <td className="py-1.5 px-3 text-right text-sm text-[var(--color-adp-info)]">{ri.quantity.toFixed(2)}</td>
+                                <td className="py-1.5 px-3 text-right text-xs text-[var(--color-adp-info)]">${(ri.ingredientCost || 0).toFixed(2)}</td>
+                                <td className="py-1.5 px-3 text-right text-sm text-[var(--color-adp-info)]">${((ri.ingredientCost || 0) * ri.quantity).toFixed(2)}</td>
                                 <td></td>
                               </tr>
                             ))}
                           </tbody>
                         )}
                         <tfoot>
-                          <tr className="bg-gray-50 border-t border-gray-200">
-                            <td colSpan={3} className="py-2 px-3 text-right text-xs font-medium text-gray-500">
+                          <tr className="bg-[var(--color-adp-papel-3)] border-t border-[var(--color-adp-borde)]">
+                            <td colSpan={3} className="py-2 px-3 text-right text-xs font-medium text-[var(--color-adp-tinta-2)]">
                               Costo total:
                             </td>
-                            <td className="py-2 px-3 text-right text-xs font-bold text-gray-900">
+                            <td className="py-2 px-3 text-right text-xs font-bold text-[var(--color-adp-tinta)]">
                               ${recipeTotalCost.toFixed(2)}
                             </td>
                             <td></td>
@@ -805,21 +805,21 @@ export default function EditMenuItemPage() {
                   {/* Margin cards */}
                   {recipeItems.length > 0 && (
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="bg-gray-50 rounded-lg p-3 text-center">
-                        <p className="text-xs text-gray-500">Costo / porción</p>
-                        <p className={`text-sm font-bold ${costPerPortion > 0 ? 'text-amber-600' : 'text-gray-500'}`}>
+                      <div className="bg-[var(--color-adp-papel-3)] rounded-lg p-3 text-center">
+                        <p className="text-xs text-[var(--color-adp-tinta-2)]">Costo / porción</p>
+                        <p className={`text-sm font-bold ${costPerPortion > 0 ? 'text-[var(--color-adp-atencion)]' : 'text-[var(--color-adp-tinta-2)]'}`}>
                           ${costPerPortion.toFixed(2)}
                         </p>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3 text-center">
-                        <p className="text-xs text-gray-500">Margen</p>
-                        <p className={`text-sm font-bold ${margin >= 0 ? 'text-[#1b4235]' : 'text-[#b03a2e]'}`}>
+                      <div className="bg-[var(--color-adp-papel-3)] rounded-lg p-3 text-center">
+                        <p className="text-xs text-[var(--color-adp-tinta-2)]">Margen</p>
+                        <p className={`text-sm font-bold ${margin >= 0 ? 'text-[var(--color-adp-pino)]' : 'text-[var(--color-adp-urgente)]'}`}>
                           ${margin.toFixed(2)}
                         </p>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3 text-center">
-                        <p className="text-xs text-gray-500">% Rentabilidad</p>
-                        <p className={`text-sm font-bold ${marginPct >= 0 ? 'text-[#1b4235]' : 'text-[#b03a2e]'}`}>
+                      <div className="bg-[var(--color-adp-papel-3)] rounded-lg p-3 text-center">
+                        <p className="text-xs text-[var(--color-adp-tinta-2)]">% Rentabilidad</p>
+                        <p className={`text-sm font-bold ${marginPct >= 0 ? 'text-[var(--color-adp-pino)]' : 'text-[var(--color-adp-urgente)]'}`}>
                           {marginPct.toFixed(0)}%
                         </p>
                       </div>
@@ -833,7 +833,7 @@ export default function EditMenuItemPage() {
             <div className="flex gap-3 pt-2">
               <Link
                 href="/admin/restaurant/menu-items"
-                className="px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-[var(--color-adp-borde-2)] text-sm font-medium text-[var(--color-adp-tinta)] rounded-lg hover:bg-[var(--color-adp-papel-3)] transition-colors"
               >
                 Cancelar
               </Link>
@@ -841,7 +841,7 @@ export default function EditMenuItemPage() {
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="px-4 py-2 border border-red-200 text-sm font-medium text-[#b03a2e] rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+                className="px-4 py-2 border border-[var(--color-adp-urgente)] text-sm font-medium text-white rounded-lg hover:bg-[var(--color-adp-urgente)]/85 disabled:opacity-50 transition-colors"
               >
                 {deleting ? 'Desactivando...' : 'Desactivar'}
               </button>
@@ -849,7 +849,7 @@ export default function EditMenuItemPage() {
                 type="button"
                 disabled={saving}
                 onClick={() => handleSave({ preventDefault: () => {} } as React.FormEvent)}
-                className="flex-1 px-4 py-2 bg-[#1b4235] text-white text-sm font-medium rounded-lg hover:bg-[#15352a] disabled:opacity-50 transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--color-adp-pino)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-50 transition-colors"
               >
                 {saving ? 'Guardando...' : 'Guardar cambios'}
               </button>
@@ -857,7 +857,7 @@ export default function EditMenuItemPage() {
 
             {/* Error also visible near submit button */}
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+              <div className="p-3 bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)] rounded-lg text-sm text-white">{error}</div>
             )}
           </form>
         </div>
@@ -867,8 +867,8 @@ export default function EditMenuItemPage() {
       {saving && (
         <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg px-6 py-4 flex items-center gap-3">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />
-            <span className="text-sm font-medium text-gray-700">Guardando cambios...</span>
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[var(--color-adp-info)]" />
+            <span className="text-sm font-medium text-[var(--color-adp-tinta)]">Guardando cambios...</span>
           </div>
         </div>
       )}
