@@ -225,6 +225,13 @@ export async function crearVentaMostrador(input: VentaInput): Promise<ResultadoV
       });
     }
 
+    /* Descontar el inventario de la receta.
+       Faltaba: el Despegue creaba la orden, cobraba y no tocaba el stock.
+       Se podían vender cien cafés y el inventario seguía igual. Va dentro
+       de la misma transacción: la venta y el descuento entran juntos o no
+       entra ninguno. */
+    await descontarInventarioDeOrden(tx, orden.id);
+
     return orden;
   });
 
