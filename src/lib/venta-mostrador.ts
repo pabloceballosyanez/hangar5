@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { calcularCarrito } from "@/lib/calcular-carrito";
 import { generarCodigoUnico } from "@/lib/codigo-recogida";
+import { descontarInventarioDeOrden } from "@/lib/descontar-inventario";
 
 /**
  * Venta directa en la barra del Despegue.
