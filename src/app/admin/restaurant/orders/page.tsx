@@ -18,9 +18,9 @@ const statusColors: Record<string, string> = {
   IN_KITCHEN: "bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)]",
   READY: "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)]",
   SERVED: "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)]",
-  PAID: "bg-[var(--color-adp-info)] text-[var(--color-adp-info)] border-[var(--color-adp-info)]",
+  PAID: "bg-[var(--color-adp-info)] text-white border-[var(--color-adp-info)]",
   CANCELLED: "bg-[var(--color-adp-urgente)] text-white border-[var(--color-adp-urgente)]",
-};
+  };
 
 const statusLabel: Record<string, string> = {
   DRAFT: "Borrador",
@@ -29,7 +29,10 @@ const statusLabel: Record<string, string> = {
   IN_KITCHEN: "En cocina",
   READY: "Lista",
   SERVED: "Servida",
-  PAID: "Pagada",
+  /* Cobrar no es un paso de la cocina: la comida ya salió. Decir
+     "Pagada" aquí repetía lo que la columna PAGO ya dice y borraba el
+     dato de si el platillo llegó a la mesa. */
+  PAID: "Entregada",
   CANCELLED: "Cancelada",
 };
 
@@ -54,18 +57,25 @@ const prepLabel: Record<string, string> = {
   IN_KITCHEN: "En preparación",
   READY: "Lista",
   SERVED: "Servida",
-  PAID: "Pagada",
+  /* Cobrar no es un paso de la cocina: la comida ya salió. Decir
+     "Pagada" aquí repetía lo que la columna PAGO ya dice y borraba el
+     dato de si el platillo llegó a la mesa. */
+  PAID: "Entregada",
   CANCELLED: "Cancelada",
 };
 
 const prepColors: Record<string, string> = {
   DRAFT: "bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] border-[var(--color-adp-borde-2)]",
-  AWAITING_PAYMENT: "bg-[var(--color-adp-atencion)] text-[var(--color-adp-atencion)] border-[var(--color-adp-atencion)]",
+  AWAITING_PAYMENT: "bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)]",
   PLACED: "bg-[var(--color-adp-info)] text-white border-[var(--color-adp-info)]",
   IN_KITCHEN: "bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)]",
-  READY: "bg-[var(--color-adp-info)] text-[var(--color-adp-info)] border-[var(--color-adp-info)]",
+  READY: "bg-[var(--color-adp-info)] text-white border-[var(--color-adp-info)]",
   SERVED: "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)]",
-  PAID: "bg-[var(--color-adp-info)] text-[var(--color-adp-info)] border-[var(--color-adp-info)]",
+  PAID: "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)]",
+  /* PAID y CANCELLED ya no se pintan aquí: el cobro vive en su propia
+     columna y "cancelada" tiene su propio tab. Esta columna responde una
+     sola pregunta: ¿por dónde va la comida? */
+
   CANCELLED: "bg-[var(--color-adp-urgente)] text-white border-[var(--color-adp-urgente)]",
 };
 
@@ -302,9 +312,6 @@ export default function OrdersPage() {
                   <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Pago
                   </th>
-                  <th className="text-center py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
-                    Acción
-                  </th>
                   <th className="text-right py-3 px-4 font-medium text-[var(--color-adp-tinta-2)] uppercase text-xs tracking-wider">
                     Hora
                   </th>
@@ -432,146 +439,6 @@ export default function OrdersPage() {
                         ) : (
                           <span className="text-xs text-[var(--color-adp-tinta-2)]">—</span>
                         )
-                      )}
-                    </td>
-                    <td className="py-3 px-2 text-center">
-                      {actionLoading === order.id ? (
-                        <span className="w-5 h-5 border-2 border-[var(--color-adp-atencion)] border-t-transparent rounded-full animate-spin inline-block" />
-                      ) : (
-                        <div className="flex items-center justify-center gap-1">
-                          {['DRAFT', 'AWAITING_PAYMENT', 'PLACED', 'IN_KITCHEN', 'READY'].includes(order.status) && (
-                        <button
-                          onClick={() => { setCancelOrderId(order.id); setCancelPin(""); setActionError(null); }}
-                          className="px-2 py-1 text-xs font-medium bg-[var(--color-adp-urgente)] text-white border border-[var(--color-adp-urgente)] rounded-md hover:bg-[var(--color-adp-urgente)]/85 transition-colors"
-                          title="Cancelar orden (requiere supervisor)"
-                        >
-                          ❌ Cancelar
-                        </button>
-                      )}
-                      {/* Entregar solo tiene sentido si la orden sigue
-                          viva. Antes bastaba con que hubiera ítems en
-                          READY: al cancelar una orden con platillos ya
-                          listos, el botón seguía ahí y se podía
-                          "entregar" algo cancelado. */}
-                      {order.status !== 'CANCELLED' && (order.orderItems.some(i => i.status === 'READY')) && (
-                            (() => {
-                              const readyCount = order.orderItems.filter(i => i.status === 'READY').length;
-                              return (
-                                <button
-                                  onClick={async () => {
-                                    setActionLoading(order.id);
-                                    setActionSuccess(null);
-                                    setActionError(null);
-                                    try {
-                                      const count = await deliverOrderItems(order.id);
-                                      setActionSuccess(`✅ ${count} ítem(s) entregado(s)`);
-                                      await fetchOrders();
-                                    } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
-                                    setActionLoading(null);
-                                  }}
-                                  className="px-2 py-1 text-xs font-medium bg-[var(--color-adp-listo)] text-white border border-[var(--color-adp-listo)] rounded-md hover:bg-[var(--color-adp-listo)]/85 transition-colors"
-                                  title={`Entregar ${readyCount} ítem(es) listo(s)`}
-                                >
-                                  ✅ Entregar ({readyCount})
-                                </button>
-                              );
-                            })()
-                          )}
-                          {order.status === 'SERVED' && selectingPayment !== order.id && (() => {
-                            /* Solo se ofrece cobrar si falta cobrar.
-                               Antes el botón "Pagar" salía en TODAS las
-                               órdenes servidas, incluso en las que ya
-                               estaban pagadas — y eso hacía dudar si el
-                               cobro se había registrado bien o si al
-                               tocarlo se cobraría dos veces.
-                               Un pedido a crédito (ON_ACCOUNT) también
-                               muestra el botón: es justo donde hace
-                               falta, para saldar la deuda del huésped. */
-                            const pago = order.payments?.[0];
-                            const yaPagado = pago?.status === "COMPLETED";
-
-                            if (yaPagado) {
-                              return (
-                                <span
-                                  className="px-2 py-1 text-xs font-medium text-[var(--color-adp-tinta-2)]"
-                                  title={`Pagado con ${paymentMethodLabel[pago.method] || pago.method}`}
-                                >
-                                  Cobrado
-                                </span>
-                              );
-                            }
-
-                            const esCredito = pago?.method === "ON_ACCOUNT";
-
-                            return (
-                              <button
-                                onClick={() => setSelectingPayment(order.id)}
-                                className="px-2 py-1 text-xs font-medium bg-[var(--color-adp-info)] text-white border border-[var(--color-adp-info)] rounded-md hover:bg-[var(--color-adp-info)]/85 transition-colors"
-                                title={esCredito ? "Saldar la deuda del huésped" : "Seleccionar método de pago"}
-                              >
-                                {esCredito ? "💳 Saldar" : "💰 Pagar"}
-                              </button>
-                            );
-                          })()}
-                          {order.status === 'SERVED' && selectingPayment === order.id && (
-                            <div className="flex flex-col gap-1">
-                              {paymentOptions.map((opt) => {
-                                const disabled = opt.requiresCustomer && !order.serviceSession?.customer?.hasCredit;
-                                return (
-                                  <button
-                                    key={opt.method}
-                                    disabled={disabled}
-                                    onClick={async () => {
-                                      setActionLoading(order.id);
-                                      setSelectingPayment(null);
-                                      try {
-                                        await advanceOrderStatus(order.id, 'PAID', opt.method);
-                                        await fetchOrders();
-                                      } catch (e) {
-                                        setActionError(e instanceof Error ? e.message : 'Error');
-                                      }
-                                      setActionLoading(null);
-                                    }}
-                                    className={`px-2 py-1 text-xs font-medium border rounded-md transition-colors ${
-                                      disabled
-                                        ? 'bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta-2)] border-[var(--color-adp-borde)] cursor-not-allowed'
-                                        : opt.color
-                                    }`}
-                                    title={disabled ? 'Cliente sin crédito habilitado' : opt.label}
-                                  >
-                                    {opt.label}{disabled ? ' 🔒' : ''}
-                                  </button>
-                                );
-                              })}
-                              <button
-                                onClick={() => setSelectingPayment(null)}
-                                className="px-2 py-0.5 text-xs text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta-2)]"
-                              >
-                                Cancelar
-                              </button>
-                            </div>
-                          )}
-                          {order.status !== 'AWAITING_PAYMENT' && order.status !== 'READY' && order.status !== 'SERVED' && order.status !== 'PAID' && order.status !== 'CANCELLED' &&
-                            // Hide "Avanzar" for IN_KITCHEN when items are still pending (Fix #1 blocks it, cook handles it via KDS)
-                            !(order.status === 'IN_KITCHEN' && order.orderItems.some(i => i.status !== 'READY' && i.status !== 'SERVED' && i.status !== 'CANCELLED')) && (
-                            <button
-                              onClick={async () => {
-                                setActionLoading(order.id);
-                                try {
-                                  const next: Record<string, string> = { PLACED: 'IN_KITCHEN', IN_KITCHEN: 'READY', DRAFT: 'PLACED' };
-                                  const target = next[order.status];
-                                  if (target) await advanceOrderStatus(order.id, target);
-                                  await fetchOrders();
-                                } catch (e) { setActionError(e instanceof Error ? e.message : 'Error'); }
-                                setActionLoading(null);
-                              }}
-                              className="px-2 py-1 text-xs font-medium bg-[var(--color-adp-info)] text-white border border-[var(--color-adp-info)] rounded-md hover:bg-[var(--color-adp-info)]/85 transition-colors"
-                              title="Avanzar estado"
-                            >
-                              ⏭ Avanzar
-                            </button>
-                          )}
-                        </div>
                       )}
                     </td>
                     <td className="py-3 px-4 text-right text-xs text-[var(--color-adp-tinta-2)] whitespace-nowrap">

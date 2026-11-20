@@ -130,7 +130,26 @@ export async function GET(req: NextRequest) {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: Record<string, any> = {};
-    if (status && (ORDER_STATUSES as readonly string[]).includes(status)) where.status = status;
+
+    /* Los tabs de la pantalla mandan grupos ("active", "pending-pay"…),
+       no un estado exacto. Antes el servidor solo entendía estados
+       sueltos, así que "active" no coincidía con ninguno y devolvía
+       TODO: los cinco tabs listaban lo mismo.
+       Ahora entiende los dos: un estado exacto o uno de los grupos. */
+    const GRUPOS: Record<string, string[]> = {
+      active: ["PLACED", "IN_KITCHEN", "READY", "SERVED"],
+      "pending-pay": ["AWAITING_PAYMENT"],
+      completed: ["PAID"],
+      cancelled: ["CANCELLED"],
+    };
+
+    if (status) {
+      if (GRUPOS[status]) {
+        where.status = { in: GRUPOS[status] };
+      } else if ((ORDER_STATUSES as readonly string[]).includes(status)) {
+        where.status = status;
+      }
+    }
     if (source && (ORDER_SOURCES as readonly string[]).includes(source)) where.source = source;
     if (serviceSessionId) where.serviceSessionId = serviceSessionId;
     if (date) {
