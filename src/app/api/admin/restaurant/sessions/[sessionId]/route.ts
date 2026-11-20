@@ -77,7 +77,19 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
     const paymentInputs = parsed.data.payments;
     const cobrarAlojamiento = parsed.data.cobrarAlojamiento;
-    const totalPaid = paymentInputs.reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
+    /* Lo que entra a la caja de verdad. "A su cuenta" NO es dinero que
+       entra: es deuda que se anota en el libro del cliente.
+       Antes esta suma incluía el ON_ACCOUNT, así que al cobrar a cuenta
+       el balance daba cero, no se escribía el cargo en el libro y las
+       órdenes quedaban sin cobrar: el producto se regalaba. */
+    const totalPaid = paymentInputs
+      .filter((p) => p.method !== "ON_ACCOUNT")
+      .reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
+
+    /* Lo que se va a la cuenta del cliente. */
+    const totalAlaCuenta = paymentInputs
+      .filter((p) => p.method === "ON_ACCOUNT")
+      .reduce((sum, p) => sum + Math.round(p.amount * 100), 0);
 
     // Run entire close operation inside a transaction to prevent race conditions.
     // Session read + status check + close happen atomically.
@@ -166,19 +178,29 @@ export async function PUT(req: NextRequest, { params }: Params) {
         });
       }
 
-      const balance = totalOwed - totalPaid;
+      const balance = totalOwed - totalPaid - totalAlaCuenta;
 
-      if (session.customerId && balance !== 0) {
-        const ledgerAmount = balance > 0 ? balance : -Math.abs(balance);
+      /* El libro del cliente recibe un cargo cuando queda algo a deber:
+         lo que se pagó a cuenta MÁS lo que quedó sin cubrir. Antes solo
+         miraba el balance, y como el pago a cuenta ya lo dejaba en cero,
+         nunca se anotaba nada: el cliente comía gratis y su cuenta
+         seguía diciendo que no debía. */
+      const deuda = totalAlaCuenta + (balance > 0 ? balance : 0);
+
+      if (session.customerId && deuda > 0) {
         await tx.customerLedgerEntry.create({
           data: {
             customerId: session.customerId,
-            amount: ledgerAmount,
+            amount: deuda,
             type: "CHARGE",
             serviceSessionId: sessionId,
             note: `Saldo de sesión: ${session.label}`,
           },
         });
+
+        /* Las órdenes quedan cobradas: pagadas al contado o cargadas a
+           la cuenta. En los dos casos el negocio ya tiene su dinero o su
+           deuda anotada. */
         for (const order of unpaidOrders) {
           await tx.order.update({
             where: { id: order.id },
