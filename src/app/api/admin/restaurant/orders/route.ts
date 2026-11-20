@@ -131,23 +131,35 @@ export async function GET(req: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: Record<string, any> = {};
 
-    /* Los tabs de la pantalla mandan grupos ("active", "pending-pay"…),
-       no un estado exacto. Antes el servidor solo entendía estados
-       sueltos, así que "active" no coincidía con ninguno y devolvía
-       TODO: los cinco tabs listaban lo mismo.
+    /* Los tabs de la pantalla mandan grupos de FLUJO ("activas",
+       "por-cobrar"…), no un estado exacto. Antes el servidor solo entendía
+       estados sueltos, así que "active" no coincidía con ninguno y
+       devolvía TODO: los cinco tabs listaban lo mismo.
        Ahora entiende los dos: un estado exacto o uno de los grupos. */
     const GRUPOS: Record<string, string[]> = {
-      active: ["PLACED", "IN_KITCHEN", "READY", "SERVED"],
-      "pending-pay": ["AWAITING_PAYMENT"],
-      completed: ["PAID"],
-      cancelled: ["CANCELLED"],
+      // Lo que se está trabajando ahora mismo.
+      activas: ["DRAFT", "PLACED", "IN_KITCHEN", "READY"],
+      // Ya salió de cocina y falta que alguien pague.
+      "por-cobrar": ["SERVED"],
+      // Cobrado.
+      cerradas: ["PAID"],
+      canceladas: ["CANCELLED"],
+    };
+
+    // Nombres viejos, por si algún enlace guardado los usa.
+    const ALIAS: Record<string, string> = {
+      active: "activas",
+      "pending-pay": "por-cobrar",
+      completed: "cerradas",
+      cancelled: "canceladas",
     };
 
     if (status) {
-      if (GRUPOS[status]) {
-        where.status = { in: GRUPOS[status] };
-      } else if ((ORDER_STATUSES as readonly string[]).includes(status)) {
-        where.status = status;
+      const clave = ALIAS[status] ?? status;
+      if (GRUPOS[clave]) {
+        where.status = { in: GRUPOS[clave] };
+      } else if ((ORDER_STATUSES as readonly string[]).includes(clave)) {
+        where.status = clave;
       }
     }
     if (source && (ORDER_SOURCES as readonly string[]).includes(source)) where.source = source;

@@ -13,7 +13,7 @@ function formatPrice(pesos: number): string {
 
 const statusColors: Record<string, string> = {
   DRAFT: "bg-[var(--color-adp-papel-3)] text-[var(--color-adp-tinta)] border-[var(--color-adp-borde-2)]",
-  AWAITING_PAYMENT: "bg-[var(--color-adp-atencion)] text-[var(--color-adp-atencion)] border-[var(--color-adp-atencion)]",
+  AWAITING_PAYMENT: "bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)]",
   PLACED: "bg-[var(--color-adp-info)] text-white border-[var(--color-adp-info)]",
   IN_KITCHEN: "bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)]",
   READY: "bg-[var(--color-adp-listo)] text-white border-[var(--color-adp-listo)]",
@@ -93,20 +93,30 @@ const paymentOptions = [
   { method: "ON_ACCOUNT", label: "📒 Crédito", color: "bg-[var(--color-adp-atencion)] text-white border-[var(--color-adp-atencion)] hover:bg-[var(--color-adp-atencion)]", requiresCustomer: true },
 ];
 
+/* Los tabs siguen el FLUJO, no los nombres internos de los estados.
+   Antes "Pendientes" buscaba AWAITING_PAYMENT, un estado que casi no se
+   usa, así que una orden en cocina sin pagar no aparecía ahí; y "Activas"
+   metía las entregadas, que ya no están activas en ninguna parte.
+
+   Ahora cada tab responde una pregunta que el encargado sí se hace:
+     Activas    ¿qué se está trabajando?
+     Por cobrar ¿qué ya salió y falta que alguien pague?
+     Cerradas   ¿qué ya está cobrado?
+     Canceladas ¿qué se cayó? */
 const tabs = [
   { key: "", label: "Todas" },
-  { key: "active", label: "Activas" },
-  { key: "pending-pay", label: "Pendientes" },
-  { key: "completed", label: "Completadas" },
-  { key: "cancelled", label: "Canceladas" },
+  { key: "activas", label: "Activas" },
+  { key: "por-cobrar", label: "Por cobrar" },
+  { key: "cerradas", label: "Cerradas" },
+  { key: "canceladas", label: "Canceladas" },
 ] as const;
 
-// API filters map to status arrays for client-side filtering
+// Agrupación por flujo. El servidor entiende las mismas claves.
 const TAB_FILTER: Record<string, string[]> = {
-  active: ["PLACED", "IN_KITCHEN", "READY", "SERVED"],
-  "pending-pay": ["AWAITING_PAYMENT"],
-  completed: ["PAID"],
-  cancelled: ["CANCELLED"],
+  activas: ["DRAFT", "PLACED", "IN_KITCHEN", "READY"],
+  "por-cobrar": ["SERVED"],
+  cerradas: ["PAID"],
+  canceladas: ["CANCELLED"],
 };
 
 interface OrderItem {
