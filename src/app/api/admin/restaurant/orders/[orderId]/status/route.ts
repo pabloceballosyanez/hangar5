@@ -344,42 +344,27 @@ export async function PUT(
         }
       }
 
-      // Auto-advance to PAID if payment is already completed
-      if (newStatus === "SERVED") {
-        const hasCompletedPayment = updated.payments?.some(
-          (p) => p.status === "COMPLETED"
-        );
-        if (hasCompletedPayment) {
-          await tx.orderStatusEvent.create({
-            data: { orderId, fromStatus: "SERVED", toStatus: "PAID" },
-          });
-          await tx.order.update({
-            where: { id: orderId },
-            data: { status: "PAID" },
-          });
-          // Close session if all orders PAID/CANCELLED
-          if (updated.serviceSessionId) {
-            const sessionOrders = await tx.order.findMany({
-              where: { serviceSessionId: updated.serviceSessionId },
-              select: { status: true },
+        /* Entregar cierra la operación. El pago puede ir antes o después,
+           pero servir es un hecho definitivo: la comida llegó.
+
+           Antes esto era al revés: si la orden ya tenía pago, marcarla
+           SERVED la saltaba a PAID y borraba el dato de la entrega. Y si el
+           pago llegaba DESPUÉS de servir, nadie movía el estado: se quedaba
+           en SERVED con su pago COMPLETED y aparecía en "Por cobrar" aunque
+           ya estaba pagada.
+
+           Ahora el estado se queda en SERVED y el pago no lo reescribe. Que
+           la orden esté cobrada se sabe por su Payment, no por el status. */
+        if (newStatus === "SERVED") {
+          const yaPagada = updated.payments?.some(
+            (p) => p.status === "COMPLETED"
+          );
+          if (yaPagada) {
+            // Bitácora: quedó cerrada por las dos vías.
+            await tx.orderStatusEvent.create({
+              data: { orderId, fromStatus: "SERVED", toStatus: "SERVED" },
             });
-            const allDone = sessionOrders.every(
-              (o) => o.status === "PAID" || o.status === "CANCELLED"
-            );
-            if (allDone) {
-              const s = await tx.serviceSession.findUnique({
-                where: { id: updated.serviceSessionId },
-                select: { status: true },
-              });
-              if (s?.status === "OPEN") {
-                await tx.serviceSession.update({
-                  where: { id: updated.serviceSessionId },
-                  data: { status: "CLOSED", closedAt: new Date() },
-                });
-              }
-            }
           }
-        }
       }
 
       return { order: updated, statusEvent };

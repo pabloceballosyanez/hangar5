@@ -191,11 +191,13 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("/api/admin/restaurant/orders");
+      /* Se le pasa el tab al servidor: él distingue "por cobrar" de
+      /* "cerradas" por el pago, cosa que un filtro por status no puede
+      /* hacer, porque una orden cobrada sigue en SERVED. */
+      const qs = activeTab ? `?status=${encodeURIComponent(activeTab)}` : "";
+      const res = await fetch(`/api/admin/restaurant/orders${qs}`);
       if (!res.ok) return;
-      let data: Order[] = await res.json();
-      const statusFilter = TAB_FILTER[activeTab];
-      if (statusFilter) data = data.filter(o => statusFilter.includes(o.status));
+      const data: Order[] = await res.json();
       setOrders(data);
     } catch { /* keep old data */ }
   };
@@ -204,14 +206,11 @@ export default function OrdersPage() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await fetch("/api/admin/restaurant/orders");
+        const qs = activeTab ? `?status=${encodeURIComponent(activeTab)}` : "";
+        const res = await fetch(`/api/admin/restaurant/orders${qs}`);
         if (!res.ok || cancelled) return;
-        let data: Order[] = await res.json();
-        if (!cancelled) {
-          const statusFilter = TAB_FILTER[activeTab];
-          if (statusFilter) data = data.filter(o => statusFilter.includes(o.status));
-          setOrders(data);
-        }
+        const data: Order[] = await res.json();
+        if (!cancelled) setOrders(data);
       } catch { /* keep old data */ } finally {
         if (!cancelled) setLoading(false);
       }
@@ -222,13 +221,13 @@ export default function OrdersPage() {
     return () => { cancelled = true; clearInterval(interval); };
   }, [activeTab]);
 
-  const emptyMessage = activeTab === "active"
-    ? "No hay órdenes activas en este momento."
-    : activeTab === "pending-pay"
-    ? "No hay órdenes pendientes de pago."
-    : activeTab === "completed"
-    ? "No hay órdenes completadas."
-    : activeTab === "cancelled"
+  const emptyMessage = activeTab === "activas"
+    ? "Nada se está trabajando ahora mismo."
+    : activeTab === "por-cobrar"
+    ? "Todo lo entregado está cobrado."
+    : activeTab === "cerradas"
+    ? "Todavía no se ha cobrado ninguna orden."
+    : activeTab === "canceladas"
     ? "No hay órdenes canceladas."
     : "Aún no se han registrado órdenes.";
 

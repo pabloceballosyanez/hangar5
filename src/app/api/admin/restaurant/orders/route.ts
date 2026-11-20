@@ -132,17 +132,18 @@ export async function GET(req: NextRequest) {
     const where: Record<string, any> = {};
 
     /* Los tabs de la pantalla mandan grupos de FLUJO ("activas",
-       "por-cobrar"…), no un estado exacto. Antes el servidor solo entendía
-       estados sueltos, así que "active" no coincidía con ninguno y
-       devolvía TODO: los cinco tabs listaban lo mismo.
-       Ahora entiende los dos: un estado exacto o uno de los grupos. */
+       "por-cobrar"…), no un estado exacto.
+
+       Ojo con "por-cobrar" y "cerradas": NO se pueden separar por status,
+       porque desde que servir es definitivo, una orden entregada y cobrada
+       también está en SERVED. Lo que distingue una de otra es el pago.
+       Por eso esos dos grupos se resuelven por la relación payments. */
     const GRUPOS: Record<string, string[]> = {
       // Lo que se está trabajando ahora mismo.
       activas: ["DRAFT", "PLACED", "IN_KITCHEN", "READY"],
-      // Ya salió de cocina y falta que alguien pague.
-      "por-cobrar": ["SERVED"],
-      // Cobrado.
-      cerradas: ["PAID"],
+      // Entregadas o pagadas: lo que ya terminó su camino en cocina.
+      cerradas: ["SERVED", "PAID"],
+      // Canceladas.
       canceladas: ["CANCELLED"],
     };
 
@@ -156,7 +157,17 @@ export async function GET(req: NextRequest) {
 
     if (status) {
       const clave = ALIAS[status] ?? status;
-      if (GRUPOS[clave]) {
+
+      /* "Por cobrar" y "cerradas" se deciden por el PAGO, no por el
+         estado. Una orden entregada y cobrada sigue en SERVED (servir es
+         definitivo), así que el status no alcanza para separarlas. */
+      if (clave === "por-cobrar") {
+        where.status = { in: ["SERVED", "PAID"] };
+        where.NOT = { payments: { some: { status: "COMPLETED" } } };
+      } else if (clave === "cerradas") {
+        where.status = { in: ["SERVED", "PAID"] };
+        where.payments = { some: { status: "COMPLETED" } };
+      } else if (GRUPOS[clave]) {
         where.status = { in: GRUPOS[clave] };
       } else if ((ORDER_STATUSES as readonly string[]).includes(clave)) {
         where.status = clave;
