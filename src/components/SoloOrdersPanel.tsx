@@ -31,6 +31,9 @@ interface Order {
   createdAt: string;
   notes: string | null;
   orderItems: OrderItem[];
+  /** Los pagos de la orden. La sesión los guarda por pedido, no solo por
+   *  cuenta: así el historial puede decir cómo se cobró cada uno. */
+  payments?: { method: string; status: string }[];
 }
 
 interface SessionSummary {
@@ -124,15 +127,16 @@ function getSessionUrgency(session: SessionSummary): Urgency {
   return 'active';
 }
 
-const URGENCY_CONFIG: Record<Urgency, { bg: string; border: string; badge: string; label: string; }> = {
+const URGENCY_CONFIG: Record<Urgency, { bg: string; border: string; badge: string; label: string; texto: string }> = {
     /* Mismos cuatro estados que el KDS y el Mesero, con los mismos
-       tonos. Antes esta tabla inventaba su propia paleta: ámbar, naranja
-       y verde brillante, distintos a los del resto de la app. */
-    empty:         { bg: 'op-surface',   border: '', badge: 'op-neutral', label: 'Vacío' },
-    active:        { bg: 'op-warn',      border: '', badge: 'op-warn',    label: 'En cocina' },
-    partial_ready: { bg: 'op-warn',      border: '', badge: 'op-warn',    label: 'Parcial' },
-    all_ready:     { bg: 'op-good',      border: '', badge: 'op-good',    label: '¡Listo!' },
-    served:        { bg: 'op-surface-2', border: '', badge: 'op-neutral', label: 'Entregado' },
+       tonos. El texto acompaña al fondo: blanco en los estados fuertes
+       (ámbar y verde) y tinta en los claros. Antes era blanco siempre y
+       en los estados claros quedaba blanco sobre blanco: 1.01:1. */
+    empty:         { bg: 'op-surface',   border: '', badge: 'op-neutral', label: 'Vacío',     texto: 'text-snow' },
+    active:        { bg: 'op-warn',      border: '', badge: 'op-warn',    label: 'En cocina', texto: 'text-white' },
+    partial_ready: { bg: 'op-warn',      border: '', badge: 'op-warn',    label: 'Parcial',   texto: 'text-white' },
+    all_ready:     { bg: 'op-good',      border: '', badge: 'op-good',    label: '¡Listo!',   texto: 'text-white' },
+    served:        { bg: 'op-surface-2', border: '', badge: 'op-neutral', label: 'Entregado', texto: 'text-snow' },
   };
 
 /**
@@ -866,7 +870,7 @@ export default function SoloOrdersPanel({
                   </span>
 
                   {/* Label */}
-                  <span className={`op-small leading-tight max-w-[110px] truncate ${ isSelected ? 'font-bold text-white' : 'font-semibold text-white' }`}>
+                  <span className={`op-small leading-tight max-w-[110px] truncate ${cfg.texto} ${ isSelected ? 'font-bold' : 'font-semibold' }`}>
                     {s.table ? `Mesa ${s.table.number}` : s.label || '…'}
                   </span>
 
@@ -879,7 +883,7 @@ export default function SoloOrdersPanel({
 
                   {/* Total */}
                   {sessTotal > 0 && (
-                    <span className="text-[10px] font-mono font-bold text-white shrink-0">
+                    <span className={`text-[10px] font-mono font-bold shrink-0 ${cfg.texto}`}>
                       {fmt(sessTotal)}
                     </span>
                   )}
@@ -959,8 +963,10 @@ export default function SoloOrdersPanel({
                 </p>
               </div>
 
-              {/* Payment button */}
-              {grandTotal > 0 && (
+              {/* Botón de cobro. Solo aparece si la cuenta sigue abierta
+                  y tiene algo que cobrar. Después de pagar la sesión se
+                  cierra, así que el botón desaparece solo. */}
+              {grandTotal > 0 && sessionDetail.status !== 'CLOSED' && (
                 <button
                   onClick={() => setShowPayment(true)}
                   className="op-btn op-btn-ghost shrink-0"
@@ -991,23 +997,36 @@ export default function SoloOrdersPanel({
               </div>
             )}
 
-            {/* ── Paid/delivered orders ───────────────────────────────────── */}
+            {/* ── Historial de la cuenta ──────────────────────────────
+                Antes esto repetía la tarjeta completa de cada pedido, con
+                su botón de entregar y sus modificadores: la misma orden
+                se leía dos veces y el historial pesaba más que lo vivo.
+                Ahora es una línea: qué se pidió, cuánto y cómo se pagó. */}
             {detailOrders.filter(o => o.status === 'PAID' || o.status === 'SERVED').length > 0 && (
               <div className="mt-6">
-                <p className="op-small font-semibold text-ash uppercase tracking-wider mb-2">
-                  Entregadas / Pagadas
+                <p className="op-micro text-smoke mb-2">
+                  Ya servido
                 </p>
-                <div className="space-y-3">
+                <div className="op-surface rounded-xl divide-y divide-[var(--color-hair)]">
                   {detailOrders
                     .filter(o => o.status === 'PAID' || o.status === 'SERVED')
-                    .map(o => (
-                      <OrderCard
-                        key={o.id}
-                        order={o}
-                        onDeliver={() => {}}
-                        delivering={false}
-                      />
-                    ))}
+                    .map(o => {
+                      const pagado = o.payments?.find((p: { status: string }) => p.status === 'COMPLETED');
+                      return (
+                        <div key={o.id} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                          <div className="min-w-0">
+                            <p className="op-small text-snow truncate">
+                              {o.orderItems.map((i: { quantity: number; menuItem?: { name: string } }) => `${i.quantity}× ${i.menuItem?.name ?? ''}`).join(', ')}
+                            </p>
+                            <p className="op-micro text-smoke mt-0.5">
+                              {fmtTime(o.createdAt)}
+                              {pagado && ` · ${pagado.method === 'CASH' ? 'Efectivo' : pagado.method === 'CARD' ? 'Tarjeta' : pagado.method === 'ON_ACCOUNT' ? 'A su cuenta' : 'Transferencia'}`}
+                            </p>
+                          </div>
+                          <span className="op-small text-ash tabular-nums shrink-0">{fmt(o.total)}</span>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             )}
@@ -1024,10 +1043,16 @@ export default function SoloOrdersPanel({
           customer={sessionDetail.customer}
           onClose={() => setShowPayment(false)}
           onPaid={() => {
-            loadSessionDetail(selectedSessionId!, true);
+            /* Cobrar cierra la cuenta. Si se dejara seleccionada, el
+               panel seguiría mostrando una sesión cerrada con su botón
+               de cobro vivo, y al tocarlo el servidor responde "ya está
+               pagada". Se limpia la selección y el panel vuelve a
+               invitar a elegir un tab. */
+            setShowPayment(false);
+            setSessionDetail(null);
+            onSelectSession('');
             loadSessions();
             onMutate?.(); // notify KDS instantly (paid orders leave the queue)
-            setShowPayment(false);
           }}
         />
       )}
