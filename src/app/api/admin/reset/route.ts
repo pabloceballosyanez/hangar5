@@ -75,7 +75,14 @@ export async function POST(req: NextRequest) {
       //    se conservan intactos.
       await tx.stockMovement.deleteMany();
       await tx.traspaso.deleteMany().catch(() => undefined);
+
+      /* El stock vive en DOS lugares y hay que vaciar los dos:
+           - StockAlmacen.cantidad  → lo que se lee por almacén
+           - Ingredient.currentStock → el total del insumo, que es el que
+             descuenta la receta y el que pinta el aviso de stock bajo.
+         Poner solo el primero dejaba 24 insumos en negativo. */
       await tx.stockAlmacen.updateMany({ data: { cantidad: 0 } });
+      await tx.ingredient.updateMany({ data: { currentStock: 0 } });
 
       const despues = {
         ordenes: await tx.order.count(),
@@ -85,7 +92,9 @@ export async function POST(req: NextRequest) {
         clientes: await tx.customer.count(),
         reservas: await tx.booking.count(),
         stockEnCero: await tx.stockAlmacen.count({ where: { cantidad: 0 } }),
+        insumosEnCero: await tx.ingredient.count({ where: { currentStock: 0 } }),
         stockTotal: await tx.stockAlmacen.count(),
+        insumosTotal: await tx.ingredient.count(),
         movimientos: await tx.stockMovement.count(),
       };
 
