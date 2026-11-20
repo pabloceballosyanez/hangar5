@@ -31,8 +31,8 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   PLACED: { label: 'Enviada', color: 'text-blue-400' },
   IN_KITCHEN: { label: 'En cocina', color: 'text-yellow-400' },
   READY: { label: 'Lista', color: 'text-emerald-400' },
-  SERVED: { label: 'Servida', color: 'text-purple-400' },
-  PAID: { label: 'Pagada', color: 'text-slate-500' },
+  SERVED: { label: 'Entregada', color: 'text-[var(--color-adp-listo)]' },
+  PAID: { label: 'Entregada', color: 'text-[var(--color-adp-listo)]' },
   CANCELLED: { label: 'Cancelada', color: 'text-red-500' },
 };
 

@@ -28,10 +28,11 @@ const statusLabel: Record<string, string> = {
   PLACED: "Recibida",
   IN_KITCHEN: "En cocina",
   READY: "Lista",
-  SERVED: "Servida",
-  /* Cobrar no es un paso de la cocina: la comida ya salió. Decir
-     "Pagada" aquí repetía lo que la columna PAGO ya dice y borraba el
-     dato de si el platillo llegó a la mesa. */
+  /* Una sola palabra para un solo hecho. Antes SERVED decía "Servida" y
+     PAID decía "Entregada": dos nombres para lo mismo, y la columna
+     parecía tener un estado de más. Servir es servir, con pago o sin él;
+     si pagó lo dice la columna PAGO. */
+  SERVED: "Entregada",
   PAID: "Entregada",
   CANCELLED: "Cancelada",
 };
@@ -56,10 +57,11 @@ const prepLabel: Record<string, string> = {
   PLACED: "Recibida",
   IN_KITCHEN: "En preparación",
   READY: "Lista",
-  SERVED: "Servida",
-  /* Cobrar no es un paso de la cocina: la comida ya salió. Decir
-     "Pagada" aquí repetía lo que la columna PAGO ya dice y borraba el
-     dato de si el platillo llegó a la mesa. */
+  /* Una sola palabra para un solo hecho. Antes SERVED decía "Servida" y
+     PAID decía "Entregada": dos nombres para lo mismo, y la columna
+     parecía tener un estado de más. Servir es servir, con pago o sin él;
+     si pagó lo dice la columna PAGO. */
+  SERVED: "Entregada",
   PAID: "Entregada",
   CANCELLED: "Cancelada",
 };

@@ -144,7 +144,7 @@ export default async function RestaurantDashboardPage() {
     IN_KITCHEN: "bg-[var(--color-adp-atencion)] text-white",
     READY: "bg-[var(--color-adp-listo)] text-white",
     SERVED: "bg-[var(--color-adp-listo)] text-white",
-    PAID: "bg-[var(--color-adp-info)] text-[var(--color-adp-info)]",
+    PAID: "bg-[var(--color-adp-listo)] text-white",
     CANCELLED: "bg-[var(--color-adp-urgente)] text-white",
   };
 
@@ -153,8 +153,8 @@ export default async function RestaurantDashboardPage() {
     PLACED: "Recibida",
     IN_KITCHEN: "En cocina",
     READY: "Lista",
-    SERVED: "Servida",
-    PAID: "Pagada",
+    SERVED: "Entregada",
+    PAID: "Entregada",
     CANCELLED: "Cancelada",
   };
 

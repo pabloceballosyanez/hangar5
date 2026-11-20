@@ -79,7 +79,7 @@ const STATUS_LABELS: Record<string, { label: string; bg: string; text: string }>
   IN_KITCHEN: { label: 'En Cocina', bg: 'bg-amber-100', text: 'text-amber-800' },
   READY: { label: 'Lista', bg: 'bg-green-100', text: 'text-green-800' },
   SERVED: { label: 'Entregada', bg: 'bg-purple-100', text: 'text-purple-800' },
-  PAID: { label: 'Pagada', bg: 'op-surface-2', text: 'text-smoke' },
+  PAID: { label: 'Entregada', bg: 'op-surface-2', text: 'text-smoke' },
   CANCELLED: { label: 'Cancelada', bg: 'bg-red-100', text: 'text-red-600' },
 };
 

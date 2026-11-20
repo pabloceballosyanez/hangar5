@@ -34,8 +34,8 @@ const STATUS_LABELS: Record<string, string> = {
   PLACED: "Recibida",
   IN_KITCHEN: "En cocina",
   READY: "Lista",
-  SERVED: "Servida",
-  PAID: "Pagada",
+  SERVED: "Entregada",
+  PAID: "Entregada",
   CANCELLED: "Cancelada",
 };
 
