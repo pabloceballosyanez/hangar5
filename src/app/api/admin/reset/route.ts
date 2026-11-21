@@ -95,6 +95,22 @@ export async function POST(req: NextRequest) {
         insumosEnCero: await tx.ingredient.count({ where: { currentStock: 0 } }),
         stockTotal: await tx.stockAlmacen.count(),
         insumosTotal: await tx.ingredient.count(),
+        /* Desglose por almacén: con dos almacenes independientes hay que
+           poder ver que AMBOS quedaron en cero, no solo el total. */
+        porAlmacen: await Promise.all(
+          (await tx.almacen.findMany({ select: { clave: true, nombre: true } })).map(async (a) => {
+            const filas = await tx.stockAlmacen.findMany({
+              where: { almacen: { clave: a.clave } },
+              select: { cantidad: true },
+            });
+            return {
+              almacen: a.nombre,
+              filas: filas.length,
+              enCero: filas.filter(f => f.cantidad === 0).length,
+              suma: filas.reduce((s, f) => s + f.cantidad, 0),
+            };
+          }),
+        ),
         movimientos: await tx.stockMovement.count(),
       };
 
