@@ -74,6 +74,16 @@ export default function BarraCafe() {
   const [cobrando, setCobrando] = useState(false);
   const [ultimaVenta, setUltimaVenta] = useState<{ nombre: string; total: number } | null>(null);
 
+  /* El aviso de "cobrado" se va solo. Antes se quedaba pegado para
+     siempre: cobrabas el pedido de Juan y el cartel seguía diciendo
+     "Cobrado a Juan" cuando ya estabas con otro cliente. Ocho segundos
+     alcanzan para leerlo y confirmar que la venta entró. */
+  useEffect(() => {
+    if (!ultimaVenta) return;
+    const t = setTimeout(() => setUltimaVenta(null), 8000);
+    return () => clearTimeout(t);
+  }, [ultimaVenta]);
+
   const [buscaCliente, setBuscaCliente] = useState('');
   const [sugerencias, setSugerencias] = useState<ClienteHangar[]>([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
@@ -278,49 +288,57 @@ export default function BarraCafe() {
       <div className="grid lg:grid-cols-[1fr_400px]">
         {/* IZQUIERDA */}
         <div className="p-4 border-r border-hair">
-          <section className="mb-4">
-            <h2 className="op-small uppercase tracking-wide text-brass mb-2">1 · ¿Quién pide?</h2>
-            <div className="relative">
-              <input value={nombre}
-                onChange={(e) => { setNombre(e.target.value); setClienteId(null); }}
-                placeholder="Nombre de quien pide"
-                className="w-full px-4 py-3 rounded-xl bg-ink-2 border border-hair text-snow op-lead placeholder:text-smoke focus:outline-none focus:border-brass/60" />
-              {clienteId && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 op-small text-good">
-                  cliente del Hangar
-                </span>
-              )}
-            </div>
-            <div className="relative mt-2">
-              <input value={buscaCliente}
-                onChange={(e) => { setBuscaCliente(e.target.value); setMostrarSugerencias(true); }}
-                onFocus={() => setMostrarSugerencias(true)}
-                placeholder="…o busca un cliente del Hangar"
-                className="w-full px-4 py-2 rounded-lg bg-ink-2 border border-hair op-body text-ash placeholder:text-smoke focus:outline-none" />
-              {mostrarSugerencias && sugerencias.length > 0 && (
-                <div className="absolute z-20 mt-1 w-full bg-ink-3 border border-hair rounded-lg overflow-hidden">
-                  {sugerencias.map((c) => (
-                    <button key={c.id}
-                      onClick={() => {
-                        setNombre(c.name); setClienteId(c.id);
-                        /* Si el barista elige un cliente del Hangar, lo
-                           más probable es que quiera cargarlo a su
-                           cuenta: para eso lo buscó. Se preselecciona
-                           "A su cuenta" para que no cobre en efectivo
-                           por descuido — es justo lo que pasó con
-                           Pablo Ceballos. */
-                        setMetodo('CUENTA');
-                        setBuscaCliente(''); setSugerencias([]); setMostrarSugerencias(false);
-                      }}
-                      className="block w-full text-left px-3 py-2 op-body hover:bg-ink-4">
-                      <span className="text-snow">{c.name}</span>
-                      {c.email && <span className="text-smoke op-small ml-2">{c.email}</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
+            <section className="mb-3">
+              <h2 className="op-small uppercase tracking-wide text-brass mb-1.5">1 · ¿Quién pide?</h2>
+              {/* Un solo campo para las dos cosas: se teclea el nombre y, si
+                  coincide con un cliente del Hangar, aparece debajo para
+                  cargarlo a su cuenta. Antes eran dos campos apilados que
+                  ocupaban el doble, y el segundo casi siempre sobraba. */}
+              <div className="relative">
+                <input
+                  value={nombre}
+                  onChange={(e) => {
+                    setNombre(e.target.value);
+                    setClienteId(null);
+                    setBuscaCliente(e.target.value);
+                    setMostrarSugerencias(true);
+                  }}
+                  onFocus={() => setMostrarSugerencias(true)}
+                  onBlur={() => setTimeout(() => setMostrarSugerencias(false), 150)}
+                  placeholder="Nombre, o busca un cliente del Hangar…"
+                  className="w-full px-3 py-2 rounded-lg bg-ink-2 border border-hair text-snow op-body placeholder:text-smoke focus:outline-none focus:border-brass/60" />
+
+                {clienteId && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 op-micro text-good pointer-events-none">
+                    cliente del Hangar
+                  </span>
+                )}
+
+                {mostrarSugerencias && sugerencias.length > 0 && !clienteId && (
+                  <div className="absolute z-20 mt-1 w-full bg-ink-3 border border-hair rounded-lg overflow-hidden">
+                    {sugerencias.map((c) => (
+                      <button key={c.id}
+                        onClick={() => {
+                          setNombre(c.name);
+                          setClienteId(c.id);
+                          /* Elegir un cliente del Hangar casi siempre es para
+                             cargarlo a su cuenta: para eso lo buscó. Se
+                             preselecciona "A su cuenta" para que no se cobre
+                             en efectivo por descuido. */
+                          setMetodo('CUENTA');
+                          setBuscaCliente('');
+                          setSugerencias([]);
+                          setMostrarSugerencias(false);
+                        }}
+                        className="block w-full text-left px-3 py-1.5 op-body hover:bg-ink-4">
+                        <span className="text-snow">{c.name}</span>
+                        {c.email && <span className="text-smoke op-micro ml-2">{c.email}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
 
           <section>
             <h2 className="op-small uppercase tracking-wide text-brass mb-2">2 · Productos</h2>
