@@ -1,0 +1,112 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
+/**
+ * GET /api/cafe/ventas?fecha=YYYY-MM-DD
+ *
+ * Reporte de lo vendido en el Despegue. Devuelve dos cosas:
+ *   · resumen  — total del día, cuántos pedidos, ticket promedio y el
+ *                ranking de productos por unidades e ingreso
+ *   · pedidos  — la lista, con hora, cliente, productos y total
+ *
+ * Por qué existe: la pantalla del Despegue sirve para vender, pero no
+ * había dónde ver lo que ya se vendió. El barista cerraba el turno sin
+ * poder decir cuánto entró ni qué se movió.
+ *
+ * Solo cuenta lo cobrado: un pedido a cuenta también es una venta (la
+ * deuda vive en el libro del cliente), así que entra igual.
+ */
+export async function GET(req: NextRequest) {
+  /* Solo lectura, y solo del café. Se sigue el mismo criterio que
+     /api/cafe/barra, que tampoco pide sesión para leer la barra. */
+  const url = new URL(req.url);
+  const clave = url.searchParams.get("ubicacion") ?? "cafe";
+  const fecha = url.searchParams.get("fecha"); // YYYY-MM-DD
+
+  const ubicacion = await prisma.ubicacion.findUnique({
+    where: { clave },
+    select: { id: true, nombre: true },
+  });
+  if (!ubicacion) {
+    return NextResponse.json({ error: "Ubicación no encontrada" }, { status: 404 });
+  }
+
+  /* El día se calcula en la hora local del servidor. Se suma un día al
+     final en vez de usar la medianoche siguiente para no pelear con el
+     horario de verano. */
+  const base = fecha ? new Date(`${fecha}T00:00:00`) : new Date();
+  const inicio = new Date(base);
+  inicio.setHours(0, 0, 0, 0);
+  const fin = new Date(inicio);
+  fin.setDate(fin.getDate() + 1);
+
+  const pedidos = await prisma.order.findMany({
+    where: {
+      ubicacionId: ubicacion.id,
+      createdAt: { gte: inicio, lt: fin },
+      status: { notIn: ["CANCELLED", "DRAFT"] },
+    },
+    orderBy: { createdAt: "desc" },
+    include: {
+      orderItems: {
+        include: { menuItem: { select: { name: true } } },
+      },
+      payments: { select: { method: true, status: true } },
+    },
+  });
+
+  // ── Resumen ────────────────────────────────────────────────────────
+  let total = 0;
+  const porProducto = new Map<string, { unidades: number; importe: number }>();
+
+  const lista = pedidos.map((o) => {
+    total += o.total;
+
+    for (const it of o.orderItems) {
+      if (it.status === "CANCELLED") continue;
+      const nombre = it.menuItem?.name ?? "—";
+      const acc = porProducto.get(nombre) ?? { unidades: 0, importe: 0 };
+      acc.unidades += it.quantity;
+      acc.importe += it.unitPrice * it.quantity;
+      porProducto.set(nombre, acc);
+    }
+
+    const pago = o.payments?.find((p) => p.status === "COMPLETED");
+    return {
+      id: o.id,
+      hora: o.createdAt.toISOString(),
+      codigo: o.codigoRecogida,
+      cliente: o.customerName ?? "—",
+      estado: o.status,
+      total: o.total,
+      metodo: pago?.method ?? null,
+      entregado: o.entregadoAt !== null,
+      items: o.orderItems
+        .filter((it) => it.status !== "CANCELLED")
+        .map((it) => ({
+          nombre: it.menuItem?.name ?? "—",
+          cantidad: it.quantity,
+          importe: it.unitPrice * it.quantity,
+        })),
+    };
+  });
+
+  const ranking = [...porProducto.entries()]
+    .map(([nombre, v]) => ({ nombre, ...v }))
+    .sort((a, b) => b.importe - a.importe);
+
+  return NextResponse.json({
+    ubicacion: ubicacion.nombre,
+    fecha: inicio.toISOString().slice(0, 10),
+    resumen: {
+      total,
+      pedidos: lista.length,
+      ticketPromedio: lista.length ? Math.round(total / lista.length) : 0,
+      unidades: ranking.reduce((s, r) => s + r.unidades, 0),
+    },
+    ranking,
+    pedidos: lista,
+  });
+}

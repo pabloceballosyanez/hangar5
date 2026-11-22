@@ -74,6 +74,9 @@ export default function BarraCafe() {
   const [cobrando, setCobrando] = useState(false);
   const [ultimaVenta, setUltimaVenta] = useState<{ nombre: string; total: number } | null>(null);
 
+  /* Dos vistas: vender y revisar lo vendido. */
+  const [vista, setVista] = useState<'vender' | 'ventas'>('vender');
+
   /* El aviso de "cobrado" se va solo. Antes se quedaba pegado para
      siempre: cobrabas el pedido de Juan y el cartel seguía diciendo
      "Cobrado a Juan" cuando ya estabas con otro cliente. Ocho segundos
@@ -276,15 +279,30 @@ export default function BarraCafe() {
             Barra · {activos} {activos === 1 ? 'pedido activo' : 'pedidos activos'}
           </p>
         </div>
-        <button onClick={cargar} className="op-btn op-btn-ghost op-btn-sm">
-          Actualizar
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex rounded-lg border border-hair overflow-hidden">
+            <button onClick={() => setVista('vender')}
+              className={`px-3 py-1.5 op-small transition-colors ${
+                vista === 'vender' ? 'bg-brass text-white font-semibold' : 'text-ash hover:bg-ink-3'
+              }`}>Vender</button>
+            <button onClick={() => setVista('ventas')}
+              className={`px-3 py-1.5 op-small transition-colors ${
+                vista === 'ventas' ? 'bg-brass text-white font-semibold' : 'text-ash hover:bg-ink-3'
+              }`}>Ventas</button>
+          </div>
+          <button onClick={cargar} className="op-btn op-btn-ghost op-btn-sm">
+            Actualizar
+          </button>
+        </div>
       </header>
 
       {error && (
         <div className="bg-bad/15 border-b border-bad/40 px-4 py-2 op-body text-bad">{error}</div>
       )}
 
+      {vista === 'ventas' ? (
+        <Ventas />
+      ) : (
       <div className="grid lg:grid-cols-[1fr_400px]">
         {/* IZQUIERDA */}
         <div className="p-4 border-r border-hair">
@@ -525,7 +543,6 @@ export default function BarraCafe() {
             )}
           </div>
         </aside>
-      </div>
 
       {/* Colas */}
       <div className="border-t border-hair grid md:grid-cols-2 gap-4 p-4">
@@ -536,6 +553,8 @@ export default function BarraCafe() {
           accion={{ texto: 'Entregado', tipo: 'entregar' }} onAccion={avanzar}
           vacio="Nada esperando" destacado />
       </div>
+      </div>
+      )}
     </div>
   );
 }
@@ -599,5 +618,154 @@ function Cola({
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * Reporte de lo vendido en el Despegue.
+ *
+ * La pantalla servía para cobrar, pero al cerrar el turno no había dónde
+ * ver cuánto entró ni qué se movió. Este tab responde eso: el resumen del
+ * día, el ranking de lo más vendido y la lista de pedidos.
+ */
+function Ventas() {
+  interface Fila {
+    id: string;
+    hora: string;
+    codigo: string | null;
+    cliente: string;
+    total: number;
+    metodo: string | null;
+    entregado: boolean;
+    items: { nombre: string; cantidad: number; importe: number }[];
+  }
+  interface Datos {
+    resumen: { total: number; pedidos: number; ticketPromedio: number; unidades: number };
+    ranking: { nombre: string; unidades: number; importe: number }[];
+    pedidos: Fila[];
+  }
+
+  const [datos, setDatos] = useState<Datos | null>(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+
+  const cargar = useCallback(async () => {
+    try {
+      const r = await fetch('/api/cafe/ventas');
+      if (!r.ok) throw new Error('No se pudo cargar');
+      setDatos(await r.json());
+      setError('');
+    } catch {
+      setError('No se pudieron cargar las ventas');
+    } finally {
+      setCargando(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    cargar();
+    const t = setInterval(cargar, 60000);
+    return () => clearInterval(t);
+  }, [cargar]);
+
+  const pesos = (c: number) =>
+    new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(c / 100);
+
+  const hora = (iso: string) =>
+    new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+  const metodo = (m: string | null) =>
+    m === 'CASH' ? 'Efectivo'
+    : m === 'CARD' ? 'Tarjeta'
+    : m === 'TRANSFER' ? 'Transferencia'
+    : m === 'ON_ACCOUNT' ? 'A su cuenta'
+    : 'sin pago';
+
+  if (cargando) return <div className="p-8 text-center op-body text-smoke">Cargando ventas…</div>;
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <p className="op-body text-bad">{error}</p>
+        <button onClick={cargar} className="op-btn op-btn-ghost op-btn-sm mt-3">Reintentar</button>
+      </div>
+    );
+  }
+
+  const r = datos!.resumen;
+
+  if (r.pedidos === 0) {
+    return (
+      <div className="text-center py-16">
+        <p className="op-lead text-ash">Todavía no hay ventas hoy</p>
+        <p className="op-small text-smoke mt-1">Cobra la primera en la pestaña Vender</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div className="op-surface rounded-xl p-3">
+          <p className="op-micro text-smoke">Vendido hoy</p>
+          <p className="op-title text-brass font-mono mt-0.5">{pesos(r.total)}</p>
+        </div>
+        <div className="op-surface rounded-xl p-3">
+          <p className="op-micro text-smoke">Pedidos</p>
+          <p className="op-title text-snow mt-0.5">{r.pedidos}</p>
+        </div>
+        <div className="op-surface rounded-xl p-3">
+          <p className="op-micro text-smoke">Ticket promedio</p>
+          <p className="op-title text-snow font-mono mt-0.5">{pesos(r.ticketPromedio)}</p>
+        </div>
+        <div className="op-surface rounded-xl p-3">
+          <p className="op-micro text-smoke">Productos vendidos</p>
+          <p className="op-title text-snow mt-0.5">{r.unidades}</p>
+        </div>
+      </div>
+
+      <section className="mb-4">
+        <h2 className="op-small uppercase tracking-wide text-brass mb-2">Lo que más se vendió</h2>
+        <div className="op-surface rounded-xl divide-y divide-[var(--color-hair)]">
+          {datos!.ranking.slice(0, 8).map((prod, i) => (
+            <div key={prod.nombre} className="flex items-center gap-3 px-3 py-2">
+              <span className="op-micro text-smoke w-4 shrink-0">{i + 1}</span>
+              <span className="op-body text-snow flex-1 truncate">{prod.nombre}</span>
+              <span className="op-small text-ash shrink-0">{prod.unidades} u</span>
+              <span className="op-body text-snow font-mono shrink-0 w-20 text-right">
+                {pesos(prod.importe)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="op-small uppercase tracking-wide text-brass mb-2">
+          Pedidos de hoy ({r.pedidos})
+        </h2>
+        <div className="op-surface rounded-xl divide-y divide-[var(--color-hair)]">
+          {datos!.pedidos.map((o) => (
+            <div key={o.id} className="px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                <span className="op-body text-snow font-medium truncate">{o.cliente}</span>
+                {o.codigo && <span className="op-micro text-smoke font-mono">{o.codigo}</span>}
+                <span className="op-micro text-smoke">{hora(o.hora)}</span>
+                <span className={`op-micro px-1.5 py-0.5 rounded-full ${
+                  o.entregado ? 'text-white bg-[#167D2E]' : 'op-neutral'
+                }`}>
+                  {o.entregado ? 'Entregado' : 'Pendiente'}
+                </span>
+                <span className="ml-auto op-body text-snow font-mono shrink-0">{pesos(o.total)}</span>
+              </div>
+              <p className="op-micro text-smoke mt-0.5 truncate">
+                {o.items.map((i) => `${i.cantidad}× ${i.nombre}`).join(' · ')}
+                {' · '}{metodo(o.metodo)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }
