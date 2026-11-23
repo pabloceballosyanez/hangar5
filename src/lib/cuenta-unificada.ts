@@ -99,9 +99,12 @@ export async function asegurarFolio(sessionId: string): Promise<string | null> {
   if (!sesion) return null;
   if (sesion.folio) return sesion.folio;
 
-  // Consecutivo: cuántas cuentas hay abiertas hoy
-  const inicioDia = new Date();
-  inicioDia.setHours(0, 0, 0, 0);
+  // Consecutivo: cuántas cuentas se abrieron hoy EN EL HANGAR.
+  /* El día tiene que ser el de El Peñón, no el del servidor. Render
+     corre en UTC: después de las 6 de la tarde el servidor ya cree que
+     es mañana, y el consecutivo del folio se reiniciaba a media tarde. */
+  const hoyMx = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
+  const inicioDia = new Date(`${hoyMx}T00:00:00.000-06:00`);
   const delDia = await prisma.serviceSession.count({
     where: { createdAt: { gte: inicioDia } },
   });
