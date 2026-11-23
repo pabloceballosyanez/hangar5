@@ -199,6 +199,18 @@ export async function PUT(
         });
       }
 
+      /* ── ENTREGAR es el final del carril de cocina ───────────────────
+         Se anota la fecha en su propio campo. El pago vive aparte, en
+         paidAt. Antes entregar movía status a SERVED y eso obrigaba a
+         cobrar después; ahora una orden puede estar entregada y sin
+         cobrar, o cobrada y sin entregar, sin trabarse. */
+      if (newStatus === "SERVED") {
+        await tx.order.update({
+          where: { id: orderId },
+          data: { entregadoAt: new Date() },
+        });
+      }
+
       /* Recalcular el total cuando se cancela algo.
          Antes el total se quedaba congelado: cancelar una pizza de $280
          dejaba ese dinero en la cuenta aunque la pizza ya no se sirviera.

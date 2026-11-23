@@ -108,6 +108,7 @@ const paymentOptions = [
 const tabs = [
   { key: "", label: "Todas" },
   { key: "activas", label: "Activas" },
+  { key: "por-entregar", label: "Por entregar" },
   { key: "por-cobrar", label: "Por cobrar" },
   { key: "cerradas", label: "Cerradas" },
   { key: "canceladas", label: "Canceladas" },

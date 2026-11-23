@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { getAdminSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -205,17 +206,64 @@ export async function PUT(
 
 // ─── DELETE: cancel order ─────────────────────────────────────────────────────
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
+  /* ── Dos formas de quitarla ────────────────────────────────────────
+     Sin cuerpo: se CANCELA (la orden queda en la bitácora como cancelada,
+     el reporte la sigue viendo). Es lo de antes.
+     Con { confirmar: "BORRAR" }: se BORRA de verdad, con sus pagos, sus
+     ítems y su bitácora. Para pedidos de prueba que nunca debieron
+     existir; cancelarlos los dejaría como filas fantasma en el corte. */
+  const cuerpo = await req.json().catch(() => null);
+  const borrarDeVerdad = cuerpo?.confirmar === "BORRAR";
+
   try {
     const { orderId } = await params;
 
-    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        orderItems: { select: { id: true } },
+        payments: { select: { id: true } },
+      },
+    });
     if (!order) {
       return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
     }
 
+    /* ── Borrado real ────────────────────────────────────────────────
+       Solo administradores. Se lleva todo lo que cuelga de la orden, en
+       orden: primero lo que apunta a los ítems, luego los ítems.
+       El inventario NO se devuelve: si se devolviera, el almacén mentiría
+       sobre lo que hay físicamente. */
+    if (borrarDeVerdad) {
+      if (!getAdminSession(req)) {
+        return NextResponse.json({ error: "Solo un administrador puede borrar" }, { status: 403 });
+      }
+
+      const resumen = {
+        items: order.orderItems.length,
+        pagos: order.payments.length,
+        monto: order.total,
+        estado: order.status,
+      };
+
+      await prisma.$transaction(async (tx) => {
+        const itemIds = order.orderItems.map((i) => i.id);
+        if (itemIds.length > 0) {
+          await tx.orderItemModifier.deleteMany({ where: { orderItemId: { in: itemIds } } });
+        }
+        await tx.orderStatusEvent.deleteMany({ where: { orderId } });
+        await tx.payment.deleteMany({ where: { orderId } });
+        await tx.orderItem.deleteMany({ where: { orderId } });
+        await tx.order.delete({ where: { id: orderId } });
+      });
+
+      return NextResponse.json({ ok: true, borrada: orderId, ...resumen });
+    }
+
+    /* ── Cancelación (lo de siempre) ─────────────────────────────────── */
     if (order.status === "CANCELLED") {
       return NextResponse.json({ error: "La orden ya está cancelada" }, { status: 409 });
     }
@@ -226,21 +274,17 @@ export async function DELETE(
 
     const [statusEvent, updated] = await prisma.$transaction([
       prisma.orderStatusEvent.create({
-        data: {
-          orderId,
-          fromStatus: order.status,
-          toStatus: "CANCELLED",
-        },
+        data: { orderId, fromStatus: order.status, toStatus: "CANCELLED" },
       }),
-      prisma.order.update({
-        where: { id: orderId },
-        data: { status: "CANCELLED" },
-      }),
+      prisma.order.update({ where: { id: orderId }, data: { status: "CANCELLED" } }),
     ]);
 
-    return NextResponse.json({ order: serializeOrder(updated as unknown as Record<string, unknown>), statusEvent });
+    return NextResponse.json({
+      order: serializeOrder(updated as unknown as Record<string, unknown>),
+      statusEvent,
+    });
   } catch (err) {
     console.error("[DELETE /api/admin/restaurant/orders/[orderId]]", err);
-    return NextResponse.json({ error: "Error al cancelar orden" }, { status: 500 });
+    return NextResponse.json({ error: "Error al eliminar la orden" }, { status: 500 });
   }
 }

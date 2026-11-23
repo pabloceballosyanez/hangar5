@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { getStaffSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,13 @@ const closeSessionSchema = z.object({
 export async function PUT(req: NextRequest, { params }: Params) {
   try {
     const { sessionId } = await params;
+
+    /* Quién cierra la cuenta. Antes no se guardaba en ningún lado: los
+       eventos de estado quedaban con actorName null y después no había
+       forma de saber si fue la cocinera, el mesero o el admin. */
+    const sesion = getStaffSession(req);
+    const quien = sesion?.name ?? "Admin";
+
     const body = await req.json();
     const parsed = closeSessionSchema.safeParse(body);
     if (!parsed.success) {
@@ -102,7 +110,28 @@ export async function PUT(req: NextRequest, { params }: Params) {
       if (!session) throw new Error("NOT_FOUND");
       if (session.status === "CLOSED") throw new Error("ALREADY_CLOSED");
 
-      const unpaidOrders = session.orders.filter(o => o.status !== "PAID" && o.status !== "CANCELLED");
+      /* ── Regla de Pablo: la cuenta cierra solo si está pagada Y entregada ─
+         "La orden se cierra cuando está pagado y entregado... sino está
+         bien que esté incompleto." Si falta entregar algo, no se cierra:
+         se avisa qué falta para que alguien lo entregue primero. Antes se
+         cerraba igual y la orden quedaba huérfana (el caso de Pedro):
+         pagada, trabada en READY y sin forma de entregarla. */
+      const sinEntregar = session.orders.filter(
+        (o) =>
+          o.status !== "CANCELLED" &&
+          !o.entregadoAt &&
+          o.status !== "SERVED" &&
+          o.status !== "PAID"
+      );
+      if (sinEntregar.length > 0) {
+        throw new Error(`FALTA_ENTREGAR:${sinEntregar.length}`);
+      }
+
+      /* Órdenes con dinero pendiente. Ahora la verdad del pago vive en
+         paidAt, no en status: status es el carril de la cocina. */
+      const unpaidOrders = session.orders.filter(
+        (o) => o.status !== "CANCELLED" && !o.paidAt && o.status !== "PAID"
+      );
       const consumo = unpaidOrders.reduce((sum, o) => sum + o.total, 0);
 
       /* Servicios vendidos en la cuenta: motos, bicis, vuelos. Se cobran
@@ -198,16 +227,26 @@ export async function PUT(req: NextRequest, { params }: Params) {
           },
         });
 
-        /* Las órdenes quedan cobradas: pagadas al contado o cargadas a
-           la cuenta. En los dos casos el negocio ya tiene su dinero o su
-           deuda anotada. */
+        /* ── EL CAMBIO DE FONDO ───────────────────────────────────────────
+           Antes aquí se hacía `status: "PAID"`, que PISABA el carril de la
+           cocina con el del dinero: una orden READY se volvía PAID y se
+           perdía el hecho de que estaba lista.
+           Ahora el pago se anota en su propio campo (paidAt) y el estado de
+           preparación se queda como está. Los dos carriles avanzan por
+           separado, como en la tabla de Órdenes. */
         for (const order of unpaidOrders) {
           await tx.order.update({
             where: { id: order.id },
-            data: { status: "PAID" },
+            data: { paidAt: new Date() },
           });
           await tx.orderStatusEvent.create({
-            data: { orderId: order.id, fromStatus: order.status, toStatus: "PAID" },
+            data: {
+              orderId: order.id,
+              fromStatus: order.status,
+              toStatus: order.status, // la cocina no se mueve
+              actorName: quien,
+              reason: "Cobro registrado",
+            },
           });
         }
       }

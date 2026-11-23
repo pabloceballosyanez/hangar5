@@ -134,20 +134,14 @@ export async function GET(req: NextRequest) {
     /* Los tabs de la pantalla mandan grupos de FLUJO ("activas",
        "por-cobrar"…), no un estado exacto.
 
-       Ojo con "por-cobrar" y "cerradas": NO se pueden separar por status,
-       porque desde que servir es definitivo, una orden entregada y cobrada
-       también está en SERVED. Lo que distingue una de otra es el pago.
-       Por eso esos dos grupos se resuelven por la relación payments. */
-    const GRUPOS: Record<string, string[]> = {
-      // Lo que se está trabajando ahora mismo.
-      activas: ["DRAFT", "PLACED", "IN_KITCHEN", "READY"],
-      // Entregadas o pagadas: lo que ya terminó su camino en cocina.
-      cerradas: ["SERVED", "PAID"],
-      // Canceladas.
-      canceladas: ["CANCELLED"],
-    };
+       Desde que hay dos carriles, el grupo NO se puede resolver con
+       status: status es solo la cocina, y el dinero vive en paidAt.
+       Entregar escribe entregadoAt; cobrar escribe paidAt. Una orden
+       está terminada cuando tiene las dos fechas.
 
-    // Nombres viejos, por si algún enlace guardado los usa.
+       Las órdenes viejas no tienen esas fechas: su verdad está en
+       status (PAID = cobrada, SERVED = entregada por cobrar), así que
+       los filtros aceptan las dos formas. */
     const ALIAS: Record<string, string> = {
       active: "activas",
       "pending-pay": "por-cobrar",
@@ -158,19 +152,44 @@ export async function GET(req: NextRequest) {
     if (status) {
       const clave = ALIAS[status] ?? status;
 
-      /* "Por cobrar" y "cerradas" se deciden por el PAGO, no por el
-         estado. Una orden entregada y cobrada sigue en SERVED (servir es
-         definitivo), así que el status no alcanza para separarlas. */
-      if (clave === "por-cobrar") {
-        where.status = { in: ["SERVED", "PAID"] };
-        where.NOT = { payments: { some: { status: "COMPLETED" } } };
-      } else if (clave === "cerradas") {
-        where.status = { in: ["SERVED", "PAID"] };
-        where.payments = { some: { status: "COMPLETED" } };
-      } else if (GRUPOS[clave]) {
-        where.status = { in: GRUPOS[clave] };
-      } else if ((ORDER_STATUSES as readonly string[]).includes(clave)) {
-        where.status = clave;
+      /* Helper: ¿esta orden ya se cobró? paidAt o el PAID heredado. */
+      const pagadaOR = [
+        { paidAt: { not: null } },
+        { status: "PAID" },
+      ];
+      /* ¿Ya salió de la cocina? entregadoAt, o SERVED/PAID heredados. */
+      const entregadaOR = [
+        { entregadoAt: { not: null } },
+        { status: { in: ["SERVED", "PAID"] } },
+      ];
+
+      const noCancelada = { status: { not: "CANCELLED" } };
+
+      switch (clave) {
+        case "activas":
+          /* Aún en la cocina: no entregada y no cancelada. */
+          where.AND = [noCancelada, { NOT: { OR: entregadaOR } }];
+          break;
+        case "por-entregar":
+          /* Ya se cobró pero sigue en la cocina: el caso que antes era
+             imposible y que dejó trabada la orden de Pedro. */
+          where.AND = [noCancelada, { OR: pagadaOR }, { NOT: { OR: entregadaOR } }];
+          break;
+        case "por-cobrar":
+          /* Ya salió de la cocina y el dinero no ha llegado. */
+          where.AND = [noCancelada, { OR: entregadaOR }, { NOT: { OR: pagadaOR } }];
+          break;
+        case "cerradas":
+          /* Las dos cosas hechas. */
+          where.AND = [noCancelada, { OR: pagadaOR }, { OR: entregadaOR }];
+          break;
+        case "canceladas":
+          where.status = "CANCELLED";
+          break;
+        default:
+          if ((ORDER_STATUSES as readonly string[]).includes(clave)) {
+            where.status = clave;
+          }
       }
     }
     if (source && (ORDER_SOURCES as readonly string[]).includes(source)) where.source = source;
