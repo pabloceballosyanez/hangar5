@@ -32,10 +32,10 @@ export default function SoloPage() {
           </p>
         </div>
         <Link
-          href="/admin/restaurant"
+          href="/kds"
           className="op-btn op-btn-ghost op-btn-sm shrink-0"
         >
-          ← Volver
+          KDS →
         </Link>
       </header>
 

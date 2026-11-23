@@ -65,8 +65,12 @@ const INICIO: Record<Rol, string> = {
   GERENTE: "/admin/restaurant",
   CAJA: "/admin/restaurant/orders",
   MESERO: "/waiter",
-  COCINERO: "/kds",
-  BAR: "/kds",
+  /* Cocina y barra caen en el Modo Solo: es la pantalla que sirve para
+     todo lo del turno. Desde ahí, un botón los lleva al KDS cuando hay
+     más trabajo. Antes caían en el KDS y para cobrar tenían que buscar
+     la otra pantalla. */
+  COCINERO: "/solo",
+  BAR: "/solo",
 };
 
 export function inicioDe(rol: string | null | undefined): string {

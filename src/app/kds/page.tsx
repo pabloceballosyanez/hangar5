@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { SalirOPanel } from '@/components/SalirOPanel';
 import { MarkReadyButton } from './MarkReadyButton';
 
@@ -202,6 +203,12 @@ export default function KDSPage() {
           >
             Actualizar
           </button>
+          {/* Vuelta al Modo Solo. Cocina y barra ahora entran por ahí
+              cuando se quedan solos: cobran y luego regresan al KDS a
+              seguir preparando. */}
+          <Link href="/solo" className="op-btn op-btn-ghost op-btn-sm">
+            ← Modo Solo
+          </Link>
           {/* Salida. En pantalla bloqueada (PWA o kiosco) no hay botón
               atrás del navegador. Para quien no tiene acceso al panel,
               este botón cierra sesión en vez de rebotarlo. */}
