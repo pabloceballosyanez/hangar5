@@ -244,7 +244,7 @@ export async function GET(req: NextRequest) {
     opacity: 0.92;
   }
 
-  .portada .sub { color: var(--accent); }
+  .portada .sub { color: var(--ink); }
 
   .fig {
     position: relative;
