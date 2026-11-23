@@ -61,6 +61,18 @@ export async function GET(req: NextRequest) {
   let total = 0;
   const porProducto = new Map<string, { unidades: number; importe: number }>();
 
+  /* Lo que hay en la caja, separado por cómo entró el dinero.
+     "A su cuenta" no es efectivo ni tarjeta: es deuda del cliente, así
+     que se muestra aparte. Si se mezclara, la caja del Despegue no
+     cuadraría con lo que hay físicamente en el cajón. */
+  const porMetodo = {
+    CASH: { total: 0, pedidos: 0 },
+    CARD: { total: 0, pedidos: 0 },
+    TRANSFER: { total: 0, pedidos: 0 },
+    ON_ACCOUNT: { total: 0, pedidos: 0 },
+    SIN_PAGO: { total: 0, pedidos: 0 },
+  };
+
   const lista = pedidos.map((o) => {
     total += o.total;
 
@@ -74,6 +86,16 @@ export async function GET(req: NextRequest) {
     }
 
     const pago = o.payments?.find((p) => p.status === "COMPLETED");
+
+    const claveMetodo =
+      pago?.method === "CASH" ? "CASH"
+      : pago?.method === "CARD" ? "CARD"
+      : pago?.method === "TRANSFER" ? "TRANSFER"
+      : pago?.method === "ON_ACCOUNT" ? "ON_ACCOUNT"
+      : "SIN_PAGO";
+    porMetodo[claveMetodo].total += o.total;
+    porMetodo[claveMetodo].pedidos += 1;
+
     return {
       id: o.id,
       hora: o.createdAt.toISOString(),
@@ -105,6 +127,7 @@ export async function GET(req: NextRequest) {
       pedidos: lista.length,
       ticketPromedio: lista.length ? Math.round(total / lista.length) : 0,
       unidades: ranking.reduce((s, r) => s + r.unidades, 0),
+      porMetodo,
     },
     ranking,
     pedidos: lista,

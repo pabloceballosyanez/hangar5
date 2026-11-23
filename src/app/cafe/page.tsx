@@ -640,7 +640,13 @@ function Ventas() {
     items: { nombre: string; cantidad: number; importe: number }[];
   }
   interface Datos {
-    resumen: { total: number; pedidos: number; ticketPromedio: number; unidades: number };
+    resumen: {
+      total: number;
+      pedidos: number;
+      ticketPromedio: number;
+      unidades: number;
+      porMetodo: Record<string, { total: number; pedidos: number }>;
+    };
     ranking: { nombre: string; unidades: number; importe: number }[];
     pedidos: Fila[];
   }
@@ -705,6 +711,31 @@ function Ventas() {
 
   return (
     <div className="p-4">
+      {/* ── Cuánto hay en la caja, por forma de pago ─────────────────
+          Lo primero que pregunta el barista al cerrar: ¿cuánto efectivo
+          debo tener? Cada método va en su caja para que cuadre el cajón
+          sin tener que sumar pedido por pedido. "A su cuenta" va aparte
+          y en ámbar: no es dinero en la caja, es deuda del cliente. */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        {([
+          { clave: 'CASH',       nombre: 'Efectivo',     color: 'text-snow',   nota: 'en la caja' },
+          { clave: 'CARD',       nombre: 'Tarjeta',      color: 'text-snow',   nota: 'en el terminal' },
+          { clave: 'TRANSFER',   nombre: 'Transferencia', color: 'text-snow',  nota: 'al banco' },
+          { clave: 'ON_ACCOUNT', nombre: 'A su cuenta',  color: 'text-[#A35C00]', nota: 'queda a deber' },
+        ] as const).map((m) => {
+          const d = r.porMetodo?.[m.clave] ?? { total: 0, pedidos: 0 };
+          return (
+            <div key={m.clave} className="op-surface rounded-xl p-3">
+              <p className="op-micro text-smoke">{m.nombre}</p>
+              <p className={`op-title font-mono mt-0.5 ${m.color}`}>{pesos(d.total)}</p>
+              <p className="op-micro text-smoke mt-0.5">
+                {d.pedidos} {d.pedidos === 1 ? 'pedido' : 'pedidos'} · {m.nota}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <div className="op-surface rounded-xl p-3">
           <p className="op-micro text-smoke">Vendido hoy</p>
