@@ -166,7 +166,7 @@ export default function RestaurantLayout({
               ← Admin
             </Link>
             <a
-              href="/waiter/login"
+              href="/waiter"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm bg-[var(--color-adp-pino)] text-white px-3 py-1.5 rounded-lg hover:bg-[var(--color-adp-tenue)] transition-colors font-medium"
