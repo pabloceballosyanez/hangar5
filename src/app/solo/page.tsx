@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import SoloMenuPanel from '@/components/SoloMenuPanel';
 import SoloOrdersPanel from '@/components/SoloOrdersPanel';
@@ -8,6 +8,21 @@ import SoloKDSPanel from '@/components/SoloKDSPanel';
 
 export default function SoloPage() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+
+  /* Quién eres. El Modo Solo lo usan tanto el admin como la cocina, así
+     que el botón de volver al panel solo tiene sentido para quien puede
+     entrar. A cocina ese panel le está cerrado y el botón la rebotaría. */
+  const [puedeAdmin, setPuedeAdmin] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/auth/login')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const rol = d?.staff?.role;
+        if (rol) setPuedeAdmin(['SUPER_ADMIN', 'GERENTE', 'CAJA'].includes(rol));
+      })
+      .catch(() => {});
+  }, []);
 
   // Shared refresh signal: any mutation in one panel triggers an instant
   // re-fetch in the others (no remount, no flicker). Polling is the backup.
@@ -31,12 +46,16 @@ export default function SoloPage() {
             Mesero · Cocina · Cobro
           </p>
         </div>
-        <Link
-          href="/kds"
-          className="op-btn op-btn-ghost op-btn-sm shrink-0"
-        >
-          KDS →
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          {puedeAdmin && (
+            <Link href="/admin/restaurant" className="op-btn op-btn-ghost op-btn-sm">
+              ← Admin
+            </Link>
+          )}
+          <Link href="/kds" className="op-btn op-btn-ghost op-btn-sm">
+            KDS →
+          </Link>
+        </div>
       </header>
 
       {/* ── Paneles ───────────────────────────────────────────────────── */}
