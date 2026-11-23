@@ -33,14 +33,33 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Ubicación no encontrada" }, { status: 404 });
   }
 
-  /* El día se calcula en la hora local del servidor. Se suma un día al
-     final en vez de usar la medianoche siguiente para no pelear con el
-     horario de verano. */
-  const base = fecha ? new Date(`${fecha}T00:00:00`) : new Date();
-  const inicio = new Date(base);
-  inicio.setHours(0, 0, 0, 0);
-  const fin = new Date(inicio);
-  fin.setDate(fin.getDate() + 1);
+  /* El día se calcula en la hora del HANGAR, no la del servidor.
+     Render corre en UTC, así que a las 6 de la tarde en El Peñón el
+     servidor ya cree que es mañana: el reporte buscaba un día que allá
+     todavía no ocurría y devolvía cero aunque la barra llevara horas
+     vendiendo. Se ancla a México centro (UTC-6, sin horario de verano
+     desde 2022). */
+  const OFFSET_MX = -6 * 60; // minutos respecto a UTC
+
+  function rangoDelDia(fechaLocal?: string | null) {
+    // Si viene una fecha del cliente (YYYY-MM-DD), ese es el día.
+    if (fechaLocal) {
+      const inicio = new Date(`${fechaLocal}T00:00:00-06:00`);
+      const fin = new Date(inicio);
+      fin.setUTCDate(fin.getUTCDate() + 1);
+      return { inicio, fin, ymd: fechaLocal };
+    }
+    // Si no, el "hoy" del Hangar.
+    const ahora = new Date();
+    const local = new Date(ahora.getTime() + OFFSET_MX * 60_000);
+    const ymd = local.toISOString().slice(0, 10);
+    const inicio = new Date(`${ymd}T00:00:00-06:00`);
+    const fin = new Date(inicio);
+    fin.setUTCDate(fin.getUTCDate() + 1);
+    return { inicio, fin, ymd };
+  }
+
+  const { inicio, fin, ymd } = rangoDelDia(fecha);
 
   const pedidos = await prisma.order.findMany({
     where: {
@@ -121,7 +140,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     ubicacion: ubicacion.nombre,
-    fecha: inicio.toISOString().slice(0, 10),
+    fecha: ymd,
     resumen: {
       total,
       pedidos: lista.length,
