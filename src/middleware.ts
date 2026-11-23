@@ -199,8 +199,7 @@ export function middleware(req: NextRequest) {
      respetan ?from= para volver a donde ibas. */
   if (
     pathname.startsWith("/kds") ||
-    pathname.startsWith("/waiter") ||
-    pathname.startsWith("/solo")
+    pathname.startsWith("/waiter")
   ) {
     const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
     if (isStaffCookie(staffToken)) {
@@ -213,6 +212,24 @@ export function middleware(req: NextRequest) {
     const loginStaff = new URL("/login", req.url);
     loginStaff.searchParams.set("from", pathname);
     return NextResponse.redirect(loginStaff);
+  }
+
+  /* ── Modo Solo: pedir sí, configurar no ──────────────────────────────
+     Antes bastaba con tener PIN. Ahora se exige el permiso de
+     "operacion", que es el que abre tomar pedidos. Así cocina y barra
+     entran cuando se quedan solos, y los roles que no operan no entran. */
+  if (pathname.startsWith("/solo")) {
+    const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
+    const rol = isStaffCookie(staffToken) ? getStaffRole(staffToken) : null;
+    const conMaestra = isAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value);
+
+    if (conMaestra || (rol && puede(rol, "operacion"))) {
+      return NextResponse.next();
+    }
+
+    const loginSolo = new URL("/login", req.url);
+    loginSolo.searchParams.set("from", pathname);
+    return NextResponse.redirect(loginSolo);
   }
 
   // ── Panel de admin: entra quien tenga sesión y permiso ─────────────────

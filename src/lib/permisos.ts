@@ -42,9 +42,14 @@ const ZONAS: Record<Rol, Zona[]> = {
   /* Mesero: toma y sirve. Nada de precios ni configuración. */
   MESERO: ["operacion", "preparacion"],
 
-  /* Cocina y barra: preparan. Ven pedidos y qué falta. */
-  COCINERO: ["preparacion", "inventario"],
-  BAR: ["preparacion", "inventario"],
+  /* Cocina y barra: preparan, pero también toman pedidos.
+     Pablo: "hay momentos donde se quedan solos y deben poder tomar
+     pedidos. No deben poder tocar la configuración pero sí la operación.
+     No son roles tan estrictos." Por eso llevan "operacion": con eso
+     entran al Modo Solo y a la pantalla de Mesero. Sigue cerrado el menú,
+     los precios, los reportes y la configuración. */
+  COCINERO: ["preparacion", "inventario", "operacion"],
+  BAR: ["preparacion", "inventario", "operacion"],
 };
 
 /** ¿Este rol entra a esta zona? */
