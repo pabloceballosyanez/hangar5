@@ -43,3 +43,8 @@ next-env.d.ts
 /src/generated/prisma
 .env
 public/img-backup/
+
+# Copias locales de la base (no van a git; producción vive en Render)
+prisma/*.db
+prisma/*.db-*
+prisma/*.db.*

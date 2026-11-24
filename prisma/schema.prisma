@@ -538,7 +538,42 @@ model Order {
   customerEmail     String?
   customerPhone     String?
   source            String
+
+  /* ── Los DOS flujos de una orden ─────────────────────────────────────
+     Pablo: "cuando definimos el flujo podríamos tener 2 caminos
+     paralelos perfectamente viables. 1 es el flujo del dinero para el
+     cual tenemos la columna PAGO. El otro es el flujo de la cocina donde
+     usamos la columna PREPARACION. Entonces la orden se cierra cuando
+     está pagado y entregado."
+
+     Antes había UN solo campo (status) con una escalera que mezclaba
+     las dos cosas: DRAFT → PLACED → IN_KITCHEN → READY → SERVED → PAID.
+     Eso obligaba a entregar antes de cobrar, y al revés. Pagar una orden
+     que estaba READY la dejaba trabada: no había camino de READY a PAID
+     sin pasar por SERVED, y la sesión ya se había cerrado.
+
+     Ahora son dos carriles que avanzan por separado:
+
+       status       la COCINA:   PLACED → IN_KITCHEN → READY
+       entregadoAt  la ENTREGA:  null → fecha (lo pone quien entrega)
+       paidAt       el DINERO:   null → fecha (lo pone quien cobra)
+
+     Una orden está terminada cuando las dos fechas existen. Pagar no
+     toca la preparación, entregar no toca el pago. `status` sigue
+     existiendo para el carril de cocina; PAID y SERVED quedan como
+     valores heredados de las órdenes viejas y se leen como "terminada". */
   status            String              @default("DRAFT")
+
+  /* Cuándo se cobró. Null = sin cobrar. Se llena al recibir el pago
+     completo (contado, tarjeta, transferencia o cargo a la cuenta del
+     cliente: en los cuatro casos el negocio ya tiene su dinero o su
+     deuda anotada). */
+  paidAt            DateTime?
+
+  /* Cuándo se entregó físicamente. Null = todavía en la barra o la
+     cocina. Es el punto final del carril de preparación. */
+  entregadoAt       DateTime?
+
   subtotal          Int                 @default(0)
   tax               Int                 @default(0)
   total             Int                 @default(0)
@@ -551,7 +586,6 @@ model Order {
      pagó: sin esto, cualquiera podría decir "vengo por el pedido de
      Juan" y llevárselo. */
   codigoRecogida    String?             @unique
-  entregadoAt       DateTime?
 
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
