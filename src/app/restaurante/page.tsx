@@ -51,7 +51,9 @@ export default function RestaurantePage() {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const response = await fetch('/api/menu');
+        /* El menú se pide por ubicación. Antes traía todo lo activo y
+           aparecían aquí los productos del Despegue. */
+        const response = await fetch('/api/menu?lugar=restaurante');
         if (!response.ok) throw new Error('Failed to fetch menu');
         const data = await response.json();
         setCategories(data);
@@ -178,6 +180,9 @@ export default function RestaurantePage() {
               Hangar 5 — Cocina de Montaña. Ingredientes locales, fuego lento y la mejor vista de Temascaltepec.
             </p>
             <div className="flex items-center gap-4">
+              <Link href="/despegue" className="text-[11px] tracking-[0.22em] uppercase text-faint hover:text-gold transition-colors">
+                Café del Despegue
+              </Link>
               <Link href="/pedir" className="btn-gold inline-flex items-center gap-2.5">
                 <CartIcon />
                 Pedir online
