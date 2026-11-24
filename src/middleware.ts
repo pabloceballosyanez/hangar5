@@ -92,6 +92,11 @@ const RESTAURANT_API_PREFIX = "/api/admin/restaurant";
 
    Solo se listan las excepciones que no tienen pantalla propia. */
 function zonaDeApiRestaurant(pathname: string) {
+  /* Las mesas son la excepción: la PANTALLA /admin/restaurant/tables es
+     configuración (crear mesas, cambiarles el número), pero la API es
+     solo lectura de la operación: sin la lista de mesas nadie puede
+     abrir una cuenta. Cocina y mesero la necesitan para trabajar. */
+  if (pathname === "/api/admin/restaurant/tables") return "operacion" as const;
   return zonaDeRuta(pathname.replace("/api/admin/restaurant", "/admin/restaurant"));
 }
 
@@ -321,23 +326,53 @@ export function middleware(req: NextRequest) {
       }
 
       // ── Other admin APIs → admin or admin-level staff only ─────────────────
+      /* ── APIs de admin: se resuelve por ZONA, no por prefijo ────────
+         Antes esta rama pedía puede(rol, "admin") para todo lo que
+         empezara con /api/admin. Eso dejaba fuera a cocina y barra:
+         tienen operación e inventario, pero no "admin", así que el Modo
+         Solo les devolvía 403 al pedir las mesas y no podían abrir una
+         cuenta. Pablo: "me comentan que no pueden registrar nada en la
+         cocina del hangar".
+
+         Ahora se traduce la ruta de la API a su pantalla equivalente y
+         se pregunta a la misma tabla de permisos. Así, quien puede ver
+         la pantalla de inventario puede usar la API de inventario. */
       if (pathname.startsWith("/api/admin")) {
         if (isAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value)) {
           return NextResponse.next();
         }
-        // Staff con acceso al panel también entra a las APIs de admin
+
         const staffToken = req.cookies.get(STAFF_COOKIE)?.value;
-        if (isStaffCookie(staffToken)) {
-          const rol = getStaffRole(staffToken);
-          if (rol && puede(rol, "admin")) {
-            return NextResponse.next();
-          }
-          return NextResponse.json(
-            { error: "No autorizado — permiso insuficiente" },
-            { status: 403 }
-          );
+        if (!isStaffCookie(staffToken)) {
+          return NextResponse.json({ error: "No autorizado" }, { status: 401 });
         }
-        return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+        const rol = getStaffRole(staffToken);
+
+        /* La zona que pide esta API. Si no se reconoce, basta con estar
+           identificado para endpoints de lectura de la operación. */
+        const zona = zonaDeApiRestaurant(pathname);
+
+        if (zona && rol && puede(rol, zona)) {
+          return NextResponse.next();
+        }
+
+        /* Endpoints del restaurante sin zona propia (mesas, sesiones,
+           órdenes de operación): basta el acceso a operación, que es la
+           zona a la que pertenecen. */
+        if (
+          !zona &&
+          pathname.startsWith(RESTAURANT_API_PREFIX) &&
+          rol &&
+          puede(rol, "operacion")
+        ) {
+          return NextResponse.next();
+        }
+
+        return NextResponse.json(
+          { error: "No autorizado — permiso insuficiente" },
+          { status: 403 }
+        );
       }
 
   return NextResponse.next();
