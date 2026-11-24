@@ -110,12 +110,18 @@ export async function PUT(req: NextRequest, { params }: Params) {
       if (!session) throw new Error("NOT_FOUND");
       if (session.status === "CLOSED") throw new Error("ALREADY_CLOSED");
 
-      /* ── Regla de Pablo: la cuenta cierra solo si está pagada Y entregada ─
-         "La orden se cierra cuando está pagado y entregado... sino está
-         bien que esté incompleto." Si falta entregar algo, no se cierra:
-         se avisa qué falta para que alguien lo entregue primero. Antes se
-         cerraba igual y la orden quedaba huérfana (el caso de Pedro):
-         pagada, trabada en READY y sin forma de entregarla. */
+      /* ── El cobro NO se detiene por falta de entrega ─────────────────
+         Pablo: "si pagan antes de entregar el producto está perfecto. No
+         hay que detenerse."
+
+         El dinero y la entrega son carriles distintos. Se cobra siempre
+         que se pida cobrar: el cliente puede pagar y esperar su producto.
+         Lo que no puede pasar es CERRAR la cuenta con algo sin entregar.
+         Ese bloqueo va más abajo, justo antes de cerrar.
+
+         Antes estaba aquí arriba y mataba la llamada completa, así que
+         cobrar una coca cola sin entregarla devolvía un error que ni
+         siquiera explicaba qué pasaba. */
       const sinEntregar = session.orders.filter(
         (o) =>
           o.status !== "CANCELLED" &&
@@ -123,9 +129,6 @@ export async function PUT(req: NextRequest, { params }: Params) {
           o.status !== "SERVED" &&
           o.status !== "PAID"
       );
-      if (sinEntregar.length > 0) {
-        throw new Error(`FALTA_ENTREGAR:${sinEntregar.length}`);
-      }
 
       /* Órdenes con dinero pendiente. Ahora la verdad del pago vive en
          paidAt, no en status: status es el carril de la cocina. */
@@ -251,17 +254,38 @@ export async function PUT(req: NextRequest, { params }: Params) {
         }
       }
 
-      const closed = await tx.serviceSession.update({
-        where: { id: sessionId },
-        data: { status: "CLOSED", closedAt: new Date() },
-        include: { customer: true },
-      });
+      /* ── Si falta entregar: se cobra, pero la cuenta NO se cierra ────
+         Pablo: "si pagan antes de entregar el producto está perfecto. No
+         hay que detenerse. La orden se cierra cuando está pagado y
+         entregado; si no, está bien que esté incompleto."
+
+         Antes se lanzaba un error aquí y, como todo va en una transacción,
+         se revertía también el cobro: el dinero entraba en la mano del
+         cajero pero no quedaba registrado. Ahora la transacción vuelve
+         con una marca de "cobrada, sigue abierta" y la sesión se queda
+         OPEN con su pago anotado. */
+      const faltan = sinEntregar.length;
+
+      const closed =
+        faltan === 0
+          ? await tx.serviceSession.update({
+              where: { id: sessionId },
+              data: { status: "CLOSED", closedAt: new Date() },
+              include: { customer: true },
+            })
+          : await tx.serviceSession.findUnique({
+              where: { id: sessionId },
+              include: { customer: true },
+            });
 
       return {
         session: closed,
         totalOwed,
         totalPaid,
         balance,
+        /* true = se cobró pero la cuenta sigue abierta esperando entrega */
+        sigueAbierta: faltan > 0,
+        faltanPorEntregar: faltan,
         desglose: {
           consumoRestaurante: consumo / 100,
           servicios: totalServicios / 100,
@@ -270,7 +294,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
       };
     });
 
-    return NextResponse.json(result);
+
+      return NextResponse.json(result);
   } catch (err) {
     const message = (err as Error).message;
     if (message === "NOT_FOUND") {
@@ -285,6 +310,26 @@ export async function PUT(req: NextRequest, { params }: Params) {
         { status: 409 }
       );
     }
+
+    /* La cuenta solo cierra cuando todo está pagado Y entregado. Si falta
+       entregar, se dice CUÁNTAS y QUÉ hacer, no un "error al cerrar" que no
+       explica nada. Pablo lo vivió: cobró una coca cola sin entregarla y
+       solo vio un mensaje genérico. */
+    if (message.startsWith("FALTA_ENTREGAR:")) {
+      const cuantas = Number(message.split(":")[1] ?? 0);
+      return NextResponse.json(
+        {
+          error:
+            cuantas === 1
+              ? "Falta entregar 1 orden. Entrégala antes de cobrar: la cuenta cierra cuando todo está pagado y entregado."
+              : `Faltan entregar ${cuantas} órdenes. Entrégalas antes de cobrar: la cuenta cierra cuando todo está pagado y entregado.`,
+          faltanPorEntregar: cuantas,
+          codigo: "FALTA_ENTREGAR",
+        },
+        { status: 409 }
+      );
+    }
+
     console.error("[PUT /api/admin/restaurant/sessions/[sessionId]]", err);
     return NextResponse.json({ error: "Error al cerrar sesión" }, { status: 500 });
   }

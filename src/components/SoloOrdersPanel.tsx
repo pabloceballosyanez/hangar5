@@ -227,6 +227,9 @@ function PaymentSheet({
   const [paying, setPaying] = useState(false);
   const [paid, setPaid] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
+  /* Aviso neutral: el cobro salió bien pero la cuenta quedó abierta
+     esperando entrega. No es un error, así que no va en rojo. */
+  const [payAviso, setPayAviso] = useState<string | null>(null);
 
   const activeOrders = orders.filter(o => !['PAID', 'CANCELLED'].includes(o.status));
   const grandTotal = activeOrders.reduce((s, o) => s + o.total, 0);
@@ -256,6 +259,22 @@ function PaymentSheet({
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'No se pudo cerrar la cuenta');
+      }
+
+      /* El cobro se hizo, pero si algo quedó sin entregar la cuenta NO se
+         cerró. Pablo: "si pagan antes de entregar el producto está
+         perfecto... la orden se cierra cuando está pagado y entregado".
+         Se avisa para que nadie crea que ya terminó. */
+      const data = await res.json().catch(() => ({}));
+      if (data?.sigueAbierta) {
+        setPayAviso(
+          data.faltanPorEntregar === 1
+            ? 'Cobrado. La cuenta sigue abierta: falta entregar 1 orden.'
+            : `Cobrado. La cuenta sigue abierta: faltan ${data.faltanPorEntregar} órdenes por entregar.`
+        );
+        setPaid(true);
+        onPaid();
+        return;
       }
 
       setPaid(true);
@@ -335,6 +354,11 @@ function PaymentSheet({
               {payError && (
                 <p className="op-body text-center mb-3 op-bad py-1.5 rounded-lg">
                   {payError}
+                </p>
+              )}
+              {payAviso && (
+                <p className="op-body text-center mb-3 py-1.5 rounded-lg bg-[#FFF9E6] text-[#8A5B00]">
+                  {payAviso}
                 </p>
               )}
               <div className={`grid gap-3 ${canCredit ? 'grid-cols-3' : 'grid-cols-2'}`}>
