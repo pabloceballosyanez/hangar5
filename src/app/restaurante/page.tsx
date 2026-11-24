@@ -16,6 +16,7 @@ interface MenuItem {
   basePrice: number;
   imageUrl?: string;
   variants: MenuItemVariant[];
+  extras?: Array<{ id: string; name: string; priceDelta: number }>;
   slug?: string;
   hasStory?: boolean;
 }
@@ -271,6 +272,22 @@ export default function RestaurantePage() {
                             )}
                           </div>
                         )}
+
+                        {/* Extras con costo. Solo los que suben el
+                            precio: la gente debe saberlo antes de pedir,
+                            no cuando llega la cuenta. */}
+                        {(() => {
+                          const extras = item.extras ?? [];
+                          if (extras.length === 0) return null;
+                          return (
+                            <div className="mb-4">
+                              <p className="text-[10px] text-faint tracking-[0.14em] uppercase mb-1.5">Extras</p>
+                              <p className="text-[11px] text-muted leading-relaxed">
+                                {extras.map((m) => `${m.name} +$${formatPrice(m.priceDelta)}`).join(' · ')}
+                              </p>
+                            </div>
+                          );
+                        })()}
 
                         {/* Spacer */}
                         <div className="flex-1" />

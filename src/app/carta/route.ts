@@ -6,7 +6,22 @@ import type { Prisma } from "@prisma/client";
 export const dynamic = "force-dynamic";
 
 type CatConItems = Prisma.CategoryGetPayload<{
-  include: { menuItems: { include: { variants: true } } };
+  include: {
+    menuItems: {
+      include: {
+        variants: true;
+        /* Los modificadores llegan por la tabla puente; de ahí se sacan
+           los extras con costo que se imprimen bajo cada platillo. */
+        menuItemModifierGroups: {
+          include: {
+            modifierGroup: {
+              include: { modifiers: true };
+            };
+          };
+        };
+      };
+    };
+  };
 }>;
 type ItemConVariantes = CatConItems["menuItems"][number];
 type Variante = ItemConVariantes["variants"][number];
@@ -107,7 +122,23 @@ export async function GET(req: NextRequest) {
              arranca vacío a propósito y se va armando a mano. */
           ubicaciones: { some: { ubicacionId: ubicacion.id, disponible: true } },
         },
-        include: { variants: true },
+        include: {
+          variants: true,
+          /* Extras con costo, para imprimirlos bajo cada platillo. */
+          menuItemModifierGroups: {
+            include: {
+              modifierGroup: {
+                include: {
+                  modifiers: {
+                    where: { isActive: true, priceDelta: { gt: 0 } },
+                    select: { id: true, name: true, priceDelta: true },
+                    orderBy: { priceDelta: "asc" },
+                  },
+                },
+              },
+            },
+          },
+        },
         orderBy: { sortOrder: "asc" },
       },
     },
@@ -127,12 +158,24 @@ export async function GET(req: NextRequest) {
             )
             .join("");
           const fila = `<span class="name">${esc(item.name)}</span><span class="leader"></span><span class="price">${mxn(item.basePrice)}</span>`;
+
+          /* Los extras con costo, en una sola línea chica bajo el platillo:
+             "Queso +$20 · Pepperoni +$25 · Champiñones +$15". Se juntan los
+             grupos para no llenar la carta de títulos. Pablo: "la queja es
+             que no lo saben hasta que les llega la cuenta". */
+          const extras = (item.menuItemModifierGroups ?? [])
+            .flatMap((mg: { modifierGroup?: { modifiers?: Array<{ name: string; priceDelta: number }> } }) => mg.modifierGroup?.modifiers ?? [])
+            .filter((m: { priceDelta: number }) => m.priceDelta > 0)
+            .map((m: { name: string; priceDelta: number }) => `${esc(m.name)} +${mxn(m.priceDelta)}`)
+            .join(" · ");
+          const lineaExtras = extras ? `<div class="extras">${extras}</div>` : "";
+
           const conHistoria = tieneHistoria(item.name);
           return conHistoria
             ? `
-        <a class="item" href="/carta/${slugify(item.name)}">${fila}</a>${variants}`
+        <a class="item" href="/carta/${slugify(item.name)}">${fila}</a>${lineaExtras}${variants}`
             : `
-        <div class="item">${fila}</div>${variants}`;
+        <div class="item">${fila}</div>${lineaExtras}${variants}`;
         })
         .join("");
       return `
@@ -288,6 +331,19 @@ export async function GET(req: NextRequest) {
   .item .price::before { content: "$"; font-size: 85%; margin-right: 1pt; color: var(--faint); }
   .item.variant .name { font-size: 8pt; color: var(--faint); padding-left: 8pt; }
   .item.variant .price { font-size: 8pt; color: var(--faint); font-weight: 400; }
+
+  /* Extras con costo, bajo el platillo. Chicos y en gris para que no
+     compitan con el precio, pero presentes: la gente debe saber que el
+     extra cuesta antes de que le llegue la cuenta. */
+  .extras {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 6.6pt;
+    letter-spacing: 0.02em;
+    color: var(--faint);
+    line-height: 1.45;
+    margin: -1pt 0 3pt 0;
+    padding-left: 0.5pt;
+  }
 
   .foot {
     margin-top: 10pt; padding-top: 6pt; border-top: 1px solid var(--hair);
