@@ -192,7 +192,13 @@ export default function CustomersPage() {
               {/* Saldo */}
               <div className="text-right shrink-0 w-24">
                 <p className={`text-sm font-bold ${c.balance > 0 ? 'text-[var(--color-adp-urgente)]' : c.balance < 0 ? 'text-[var(--color-adp-pino)]' : 'text-[var(--color-adp-tinta-2)]'}`}>
-                  {c.balance > 0 ? `-$${c.balance.toFixed(0)}` : c.balance < 0 ? `+$${Math.abs(c.balance).toFixed(0)}` : '$0'}
+                  {/* El balance viene en CENTAVOS. Sin dividir, una deuda de
+                      $7.40 se listaba como "-$740". */}
+                  {c.balance > 0
+                    ? `-$${(c.balance / 100).toFixed(2)}`
+                    : c.balance < 0
+                      ? `+$${(Math.abs(c.balance) / 100).toFixed(2)}`
+                      : '$0'}
                 </p>
                 {c.hasCredit && c.creditLimit != null && (
                   <p className="text-[10px] text-[var(--color-adp-pino)]">tope ${(c.creditLimit / 100).toFixed(0)}</p>

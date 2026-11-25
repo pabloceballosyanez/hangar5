@@ -48,7 +48,17 @@ interface Customer {
   bookings: Booking[];
 }
 
-function formatPrice(p: number) { return `$${p.toFixed(2)}`; }
+/* Los montos vienen de la base en CENTAVOS. Sin dividir entre 100, una
+   deuda de $0.90 se mostraba como "$90.00": el historial del cliente
+   exageraba todo por cien. Es el mismo error de unidades que ya apareció
+   en el menú, así que se corrige aquí y no en cada llamada. */
+function formatPrice(centavos: number) {
+  return `$${(centavos / 100).toFixed(2)}`;
+}
+/* El campo de abono del formulario trabaja en PESOS, no en centavos. */
+function aPesos(centavos: number) {
+  return (centavos / 100).toFixed(2);
+}
 function fmtTime(iso: string) { return new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }); }
 
 const typeLabels: Record<string, string> = { CHARGE: 'Cargo', PAYMENT: 'Pago', REFUND: 'Reembolso', ADJUSTMENT: 'Ajuste' };
@@ -264,7 +274,7 @@ export default function CustomerDetailPage() {
             </div>
             {!showPayForm ? (
               <button
-                onClick={() => { setShowPayForm(true); setPayAmount(customer.balance.toFixed(2)); setPayError(null); }}
+                onClick={() => { setShowPayForm(true); setPayAmount(aPesos(customer.balance)); setPayError(null); }}
                 className="px-5 py-2.5 bg-[var(--color-adp-pino)] hover:bg-[var(--color-adp-pino-hondo)] active:scale-95 text-white text-sm font-bold rounded-lg transition-all shadow-sm"
               >
                 Registrar pago
@@ -302,7 +312,7 @@ export default function CustomerDetailPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setPayAmount(customer.balance.toFixed(2))}
+                    onClick={() => setPayAmount(aPesos(customer.balance))}
                     className="text-xs text-[var(--color-adp-urgente)] hover:text-[var(--color-adp-urgente)] mt-1"
                   >
                     Cobrar total: {formatPrice(customer.balance)}
