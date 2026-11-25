@@ -92,6 +92,10 @@ export default function CustomerDetailPage() {
   const [servicioCantidad, setServicioCantidad] = useState(1);
   const [servicioCargando, setServicioCargando] = useState(false);
   const [servicioError, setServicioError] = useState<string | null>(null);
+  /* Quitar un servicio pide PIN de supervisor: igual que cancelar una
+     orden o ajustar inventario, porque es dinero de una cuenta abierta. */
+  const [quitarServicioId, setQuitarServicioId] = useState<string | null>(null);
+  const [quitarPin, setQuitarPin] = useState('');
   const [paySuccess, setPaySuccess] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -121,7 +125,9 @@ export default function CustomerDetailPage() {
 
   /* Catálogo de servicios (vuelos, motos, bicis) una sola vez. */
   useEffect(() => {
-    fetch('/api/admin/bookings/items')
+    /* Todos los servicios vendibles, no solo los que se apartan por día:
+       el parapente y el ala delta también se cobran en la cuenta. */
+    fetch('/api/admin/restaurant/servicios')
       .then(r => r.ok ? r.json() : [])
       .then(d => setItemsServicio(Array.isArray(d) ? d : d.items ?? []))
       .catch(() => setItemsServicio([]));
@@ -174,6 +180,31 @@ export default function CustomerDetailPage() {
       setServicioError(e instanceof Error ? e.message : 'No se pudo cargar');
     } finally {
       setServicioCargando(false);
+    }
+  }
+
+  /** Quita un servicio de la cuenta. Exige PIN de supervisor. */
+  async function quitarServicio(sessionId: string, servicioId: string) {
+    setServicioError(null);
+    try {
+      const r = await fetch(
+        `/api/admin/restaurant/sessions/${sessionId}/cuenta/servicio/${servicioId}`,
+        {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ supervisorPin: quitarPin, motivo: 'Quitado desde la ficha del cliente' }),
+        }
+      );
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'No se pudo quitar');
+
+      setQuitarServicioId(null);
+      setQuitarPin('');
+      const abiertas = customer?.sessions.filter(s => s.status === 'OPEN').map(s => s.id) ?? [];
+      if (abiertas.length) await cargarServicios(abiertas);
+      await loadCustomer();
+    } catch (e) {
+      setServicioError(e instanceof Error ? e.message : 'No se pudo quitar');
     }
   }
 
@@ -485,11 +516,51 @@ export default function CustomerDetailPage() {
                   {serviciosDeEsta.length > 0 && (
                     <div className="px-3 pb-2 space-y-1">
                       {serviciosDeEsta.map(x => (
-                        <div key={x.id} className="flex justify-between text-xs text-[var(--color-adp-tinta-2)] border-t border-[var(--color-adp-borde)] pt-1">
+                        <div key={x.id} className="flex items-center justify-between text-xs text-[var(--color-adp-tinta-2)] border-t border-[var(--color-adp-borde)] pt-1">
                           <span>{x.cantidad > 1 && `${x.cantidad} × `}{x.descripcion}</span>
-                          <span className="font-medium">{formatPrice(x.total)}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{formatPrice(x.total)}</span>
+                            {/* Quitar exige PIN de supervisor: es dinero
+                                que el cliente va a pagar. */}
+                            {quitarServicioId === x.id ? (
+                              <span className="flex items-center gap-1">
+                                <input
+                                  type="password"
+                                  inputMode="numeric"
+                                  value={quitarPin}
+                                  onChange={e => setQuitarPin(e.target.value)}
+                                  placeholder="PIN"
+                                  className="w-16 px-1.5 py-0.5 border border-[var(--color-adp-borde-2)] rounded text-xs"
+                                  autoFocus
+                                />
+                                <button
+                                  onClick={() => quitarServicio(s.id, x.id)}
+                                  disabled={quitarPin.length < 4}
+                                  className="px-1.5 py-0.5 bg-[var(--color-adp-urgente)] disabled:opacity-40 text-white rounded text-[10px] font-medium"
+                                >
+                                  Quitar
+                                </button>
+                                <button
+                                  onClick={() => { setQuitarServicioId(null); setQuitarPin(''); setServicioError(null); }}
+                                  className="text-[10px] underline"
+                                >
+                                  no
+                                </button>
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => { setQuitarServicioId(x.id); setQuitarPin(''); setServicioError(null); }}
+                                className="text-[10px] text-[var(--color-adp-urgente)] hover:underline"
+                              >
+                                quitar
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
+                      {servicioError && quitarServicioId && (
+                        <p className="text-[10px] text-[var(--color-adp-urgente)]">{servicioError}</p>
+                      )}
                     </div>
                   )}
 
@@ -506,11 +577,23 @@ export default function CustomerDetailPage() {
                           className="sm:col-span-2 px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
                         >
                           <option value="">Elige un servicio…</option>
-                          {itemsServicio.map(i => (
-                            <option key={i.id} value={i.id}>
-                              {i.name} — {formatPrice(i.price)}
-                            </option>
-                          ))}
+                          {['cabana', 'glamping', 'moto', 'bici', 'parapente', 'aladelta', 'hike'].map(tipo => {
+                            const delTipo = itemsServicio.filter(i => i.type === tipo);
+                            if (delTipo.length === 0) return null;
+                            const etiqueta: Record<string, string> = {
+                              cabana: 'Cabañas', glamping: 'Glampings', moto: 'Motos',
+                              bici: 'Bicis', parapente: 'Parapente', aladelta: 'Ala delta', hike: 'Caminatas',
+                            };
+                            return (
+                              <optgroup key={tipo} label={etiqueta[tipo] ?? tipo}>
+                                {delTipo.map(i => (
+                                  <option key={i.id} value={i.id}>
+                                    {i.name} — {formatPrice(i.price)}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            );
+                          })}
                         </select>
                         <input
                           type="number"
