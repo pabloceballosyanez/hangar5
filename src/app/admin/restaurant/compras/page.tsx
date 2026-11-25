@@ -95,6 +95,14 @@ export default function ComprasPage() {
   const [rapidoCosto, setRapidoCosto] = useState('');
   const [rapidoGuardando, setRapidoGuardando] = useState(false);
 
+  /* Foto del ticket. Usa el MISMO endpoint que Inventario → Scaneo
+     (/inventory/scan-receipt), que ya existía y lee con gpt-4o-mini: saca
+     los productos, los empareja con los insumos del catálogo y devuelve el
+     precio. Aquí solo se aprovecha para prellenar los renglones de la
+     compra. */
+  const [escaneando, setEscaneando] = useState(false);
+  const [avisoFoto, setAvisoFoto] = useState<string | null>(null);
+
   const cargar = useCallback(async () => {
     try {
       const [c, p, a, i] = await Promise.all([
@@ -150,6 +158,69 @@ export default function ComprasPage() {
       setNuevoProveedor('');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo crear el proveedor');
+    }
+  }
+
+  /** Lee la foto de un ticket y prellena los renglones de la compra. */
+  async function escanearTicket(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';  // permite volver a elegir el mismo archivo
+    if (!file) return;
+
+    setError(null);
+    setAvisoFoto(null);
+    setEscaneando(true);
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const r = await fetch('/api/admin/restaurant/inventory/scan-receipt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: base64 }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'No se pudo leer la foto');
+
+      const items: Array<{
+        name: string;
+        quantity: number;
+        price: number;
+        matchedIngredientId: string | null;
+        matchedIngredientName: string | null;
+      }> = d.items ?? [];
+
+      if (items.length === 0) {
+        setError('No se encontraron productos en la foto. Prueba con otra más clara.');
+        return;
+      }
+
+      /* Se rellenan los renglones con lo que el modelo reconoció. Los que no
+         empatan con un insumo quedan sin elegir, para que el usuario los
+         apunte a mano: es mejor que adivinar. */
+      const nuevos: Renglon[] = items.map((i) => ({
+        ingredientId: i.matchedIngredientId ?? '',
+        cantidad: String(i.quantity ?? ''),
+        costoUnitario: String(i.price ?? ''),
+      }));
+      setRenglones(nuevos);
+      setAbierto(true);
+      setRapido(false);
+
+      const sinMatch = items.filter((i) => !i.matchedIngredientId).length;
+      setAvisoFoto(
+        sinMatch > 0
+          ? `Leí ${items.length} productos. ${sinMatch} no coinciden con el catálogo: asígnalos a mano antes de registrar.`
+          : `Leí ${items.length} productos. Revisa cantidades y precios antes de registrar.`
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo leer la foto');
+    } finally {
+      setEscaneando(false);
     }
   }
 
@@ -269,6 +340,26 @@ export default function ComprasPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Foto del ticket: usa el MISMO endpoint que Inventario → Scaneo
+              (/inventory/scan-receipt, gpt-4o-mini). Pablo: "en el módulo de
+              inventario ya había un endpoint con reconocimiento de imagen,
+              que eso sea igual para compras". */}
+          <label
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors border cursor-pointer ${
+              escaneando
+                ? 'bg-[var(--color-adp-papel-3)] border-[var(--color-adp-borde-2)] text-[var(--color-adp-tinta-2)] cursor-wait'
+                : 'bg-white border-[var(--color-adp-borde-2)] text-[var(--color-adp-tinta-2)] hover:border-[var(--color-adp-pino)]/50'
+            }`}
+          >
+            {escaneando ? 'Leyendo foto…' : 'Foto del ticket'}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={escaneando}
+              onChange={escanearTicket}
+            />
+          </label>
           {/* Captura rápida: un solo insumo, sin abrir el formulario largo.
               Es el caso de todos los días ("llegaron 2 kg de queso"). */}
           <button
@@ -367,6 +458,16 @@ export default function ComprasPage() {
               {rapidoGuardando ? 'Guardando…' : 'Registrar entrada'}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Aviso de la foto: qué se leyó y qué falta asignar */}
+      {avisoFoto && (
+        <div className="bg-[var(--color-adp-papel-2)] border border-[var(--color-adp-borde)] border-l-4 border-l-[var(--color-adp-info)] rounded-lg p-3 flex items-start justify-between gap-3">
+          <p className="text-xs text-[var(--color-adp-tinta-2)]">{avisoFoto}</p>
+          <button onClick={() => setAvisoFoto(null)} className="text-xs text-[var(--color-adp-tinta-2)] hover:underline shrink-0">
+            cerrar
+          </button>
         </div>
       )}
 
