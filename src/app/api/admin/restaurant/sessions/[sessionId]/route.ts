@@ -176,38 +176,61 @@ export async function PUT(req: NextRequest, { params }: Params) {
         throw new Error("UNPAID_ORDERS");
       }
 
-      for (const p of paymentInputs) {
-        const cents = Math.round(p.amount * 100);
-        if (cents <= 0) continue;
-        await tx.payment.create({
-          data: {
-            serviceSessionId: sessionId,
-            customerId: session.customerId,
-            amount: cents,
-            method: p.method,
-            status: "COMPLETED",
-            paidAt: new Date(),
-          },
-        });
-      }
+      /* ── UN SOLO Payment por cobro ────────────────────────────────────
+         Antes se creaba uno a nivel sesión Y otro por cada orden con el
+         mismo dinero: el cliente aparecía pagando el doble de lo que
+         consumió. Pablo lo vio en el historial ("pagos de 180 y 1300
+         pesos... pareciera que pagaron el doble de lo que consumieron").
 
-      /* Registrar el pago TAMBIÉN en cada orden.
-         Antes el pago quedaba solo a nivel sesión, y las órdenes se
-         marcaban PAID sin ninguna fila en Payment. En el panel de
-         Órdenes eso se ve como "Pagada / —": el cajero no sabe con qué
-         se cobró. Ahora cada orden guarda su parte con el método real. */
+         Ahora el cobro se cuelga de CADA ORDEN (un Payment por orden, por
+         su monto real), y la sesión suma de sus órdenes. Así la columna
+         PAGO del panel de Órdenes sigue sabiendo con qué se cobró, y el
+         historial del cliente no ve el dinero dos veces.
+
+         Lo que quedó de un pago mayor que el consumo (a cuenta, o por el
+         alojamiento) se registra aparte, sin orden asociada. */
+      const pagosCreados: Array<{ id: string; amount: number; method: string }> = [];
+
+      /* 1. Un pago por orden, por su total, con el primer método que
+            cubra ese monto (el caso normal es un solo método). */
+      let restanteAMarcar = paymentInputs.reduce((s, p) => s + Math.round(p.amount * 100), 0);
       for (const order of unpaidOrders) {
-        await tx.payment.create({
+        const montoOrden = order.total;
+        if (montoOrden <= 0) continue;
+
+        const cubierto = Math.min(montoOrden, restanteAMarcar);
+        restanteAMarcar -= cubierto;
+
+        const creado = await tx.payment.create({
           data: {
             orderId: order.id,
             serviceSessionId: sessionId,
             customerId: session.customerId,
-            amount: order.total,
+            amount: montoOrden,
             method: paymentInputs[0]?.method ?? "CASH",
             status: "COMPLETED",
             paidAt: new Date(),
           },
         });
+        pagosCreados.push({ id: creado.id, amount: montoOrden, method: creado.method });
+      }
+
+      /* 2. Lo que sobró del pago (a cuenta, o cubriendo el alojamiento)
+            va como pago de la cuenta, sin orden. */
+      const marcadoPorOrdenes = pagosCreados.reduce((s, p) => s + p.amount, 0);
+      const sobrante = totalPaid - marcadoPorOrdenes;
+      if (sobrante > 0) {
+        const creado = await tx.payment.create({
+          data: {
+            serviceSessionId: sessionId,
+            customerId: session.customerId,
+            amount: sobrante,
+            method: paymentInputs[0]?.method ?? "CASH",
+            status: "COMPLETED",
+            paidAt: new Date(),
+          },
+        });
+        pagosCreados.push({ id: creado.id, amount: sobrante, method: creado.method });
       }
 
       const balance = totalOwed - totalPaid - totalAlaCuenta;

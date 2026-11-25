@@ -242,21 +242,32 @@ export default function CustomerDetailPage() {
       </div>
 
       {/* ─── Cobrar deuda (siempre que tenga saldo pendiente) ─── */}
+      {/* Deuda pendiente. Antes era una caja con fondo rojo y el texto
+            también en rojo: no se leía nada. Pablo: "el color rojo de
+            algunos recuadros sugiere problemas, no me gusta como se ve...
+            además no se ven los textos dentro de esos campos".
+
+            Ahora sigue la paleta de papel y pino: tarjeta clara con una
+            franja de atención a la izquierda. El rojo se queda solo en la
+            cifra, que es lo único que debe alarmar. */}
       {customer.balance > 0 && (
-        <div className="bg-[var(--color-adp-urgente)] rounded-xl border border-[var(--color-adp-urgente)] p-5 text-white">
+        <div className="bg-[var(--color-adp-papel-2)] rounded-xl border border-[var(--color-adp-borde)] border-l-4 border-l-[var(--color-adp-urgente)] p-5">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-[var(--color-adp-urgente)]">💳 Deuda pendiente</h2>
-              <p className="text-sm text-[var(--color-adp-urgente)] mt-0.5">
-                Este cliente debe <span className="font-bold">{formatPrice(customer.balance)}</span>
+              <h2 className="text-lg font-semibold text-[var(--color-adp-tinta)]">Deuda pendiente</h2>
+              <p className="text-sm text-[var(--color-adp-tinta-2)] mt-0.5">
+                Este cliente debe{' '}
+                <span className="font-bold text-[var(--color-adp-urgente)]">
+                  {formatPrice(customer.balance)}
+                </span>
               </p>
             </div>
             {!showPayForm ? (
               <button
                 onClick={() => { setShowPayForm(true); setPayAmount(customer.balance.toFixed(2)); setPayError(null); }}
-                className="px-5 py-2.5 bg-[var(--color-adp-urgente)] hover:bg-[var(--color-adp-urgente)]/85 active:scale-95 text-white text-sm font-bold rounded-lg transition-all shadow-sm"
+                className="px-5 py-2.5 bg-[var(--color-adp-pino)] hover:bg-[var(--color-adp-pino-hondo)] active:scale-95 text-white text-sm font-bold rounded-lg transition-all shadow-sm"
               >
-                💵 Registrar pago
+                Registrar pago
               </button>
             ) : (
               <button
@@ -426,7 +437,15 @@ export default function CustomerDetailPage() {
           </div>
 
           {/* Balance card */}
-          <div className={`rounded-xl p-5 text-center ${customer.balance > 0 ? 'bg-[var(--color-adp-urgente)] border border-[var(--color-adp-urgente)]' : customer.balance < 0 ? 'bg-[var(--color-adp-listo)] border border-[var(--color-adp-listo)]' : 'bg-[var(--color-adp-papel-3)] border border-[var(--color-adp-borde)]'} text-white`}>
+            <div
+              className={`rounded-xl p-5 text-center border bg-[var(--color-adp-papel-2)] ${
+                customer.balance > 0
+                  ? 'border-[var(--color-adp-borde)] border-l-4 border-l-[var(--color-adp-urgente)]'
+                  : customer.balance < 0
+                    ? 'border-[var(--color-adp-borde)] border-l-4 border-l-[var(--color-adp-listo)]'
+                    : 'bg-[var(--color-adp-papel-3)] border-[var(--color-adp-borde)]'
+              }`}
+            >
             <p className="text-sm text-[var(--color-adp-tinta-2)] mb-1">Saldo actual</p>
             <p className={`text-3xl font-black ${customer.balance > 0 ? 'text-[var(--color-adp-urgente)]' : customer.balance < 0 ? 'text-[var(--color-adp-pino)]' : 'text-[var(--color-adp-tinta-2)]'}`}>
               {customer.balance > 0 ? formatPrice(customer.balance) : customer.balance < 0 ? `-${formatPrice(Math.abs(customer.balance))}` : '$0.00'}
