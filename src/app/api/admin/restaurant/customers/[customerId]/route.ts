@@ -25,7 +25,21 @@ export async function GET(_req: NextRequest, { params }: Params) {
           take: 20,
           include: {
             orders: { select: { total: true, status: true } },
-            payments: { select: { amount: true, method: true, status: true } },
+            /* El id y las fechas se mandan para poder distinguir dos pagos
+               del mismo monto: sin eso, el historial del cliente no deja
+               ver cuándo se cobró cada uno ni permite limpiar un duplicado. */
+            payments: {
+              select: {
+                id: true,
+                amount: true,
+                method: true,
+                status: true,
+                paidAt: true,
+                createdAt: true,
+                orderId: true,
+              },
+              orderBy: { createdAt: "asc" },
+            },
           },
         },
       },
