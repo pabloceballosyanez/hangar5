@@ -86,6 +86,15 @@ export default function ComprasPage() {
   /* Buscador de insumo por renglón */
   const [busqueda, setBusqueda] = useState<Record<number, string>>({});
 
+  /* Captura rápida: un insumo, tres campos, sin abrir el formulario largo.
+     Es lo de todos los días ("llegaron 2 kg de queso"). */
+  const [rapido, setRapido] = useState(false);
+  const [rapidoIngrediente, setRapidoIngrediente] = useState('');
+  const [rapidoBusqueda, setRapidoBusqueda] = useState('');
+  const [rapidoCantidad, setRapidoCantidad] = useState('');
+  const [rapidoCosto, setRapidoCosto] = useState('');
+  const [rapidoGuardando, setRapidoGuardando] = useState(false);
+
   const cargar = useCallback(async () => {
     try {
       const [c, p, a, i] = await Promise.all([
@@ -141,6 +150,52 @@ export default function ComprasPage() {
       setNuevoProveedor('');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo crear el proveedor');
+    }
+  }
+
+  /** Entrada rápida: crea una compra de un solo renglón. */
+  async function guardarRapido() {
+    setError(null);
+    const cant = parseFloat(rapidoCantidad);
+    if (!rapidoIngrediente || !(cant > 0)) {
+      setError('Elige el insumo y escribe la cantidad.');
+      return;
+    }
+    if (!almacenId) {
+      setError('No hay almacén elegido.');
+      return;
+    }
+
+    setRapidoGuardando(true);
+    try {
+      const r = await fetch('/api/admin/restaurant/compras', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          almacenId,
+          origen: 'RAPIDA',
+          renglones: [
+            {
+              ingredientId: rapidoIngrediente,
+              cantidad: cant,
+              costoUnitario: Math.round((parseFloat(rapidoCosto) || 0) * 100),
+            },
+          ],
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'No se pudo registrar');
+
+      setRapidoIngrediente('');
+      setRapidoBusqueda('');
+      setRapidoCantidad('');
+      setRapidoCosto('');
+      setRapido(false);
+      await cargar();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo registrar');
+    } finally {
+      setRapidoGuardando(false);
     }
   }
 
@@ -213,13 +268,107 @@ export default function ComprasPage() {
             {compras.length} compras registradas
           </p>
         </div>
-        <button
-          onClick={() => { setAbierto(true); setError(null); }}
-          className="px-4 py-2 bg-[var(--color-adp-pino)] hover:bg-[var(--color-adp-pino-hondo)] text-white text-sm font-medium rounded-lg transition-colors"
-        >
-          + Nueva compra
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Captura rápida: un solo insumo, sin abrir el formulario largo.
+              Es el caso de todos los días ("llegaron 2 kg de queso"). */}
+          <button
+            onClick={() => { setRapido(!rapido); setAbierto(false); setError(null); }}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors border ${
+              rapido
+                ? 'bg-[var(--color-adp-papel-3)] border-[var(--color-adp-pino)] text-[var(--color-adp-pino)]'
+                : 'bg-white border-[var(--color-adp-borde-2)] text-[var(--color-adp-tinta-2)] hover:border-[var(--color-adp-pino)]/50'
+            }`}
+          >
+            Captura rápida
+          </button>
+          <button
+            onClick={() => { setAbierto(true); setRapido(false); setError(null); }}
+            className="px-4 py-2 bg-[var(--color-adp-pino)] hover:bg-[var(--color-adp-pino-hondo)] text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            + Nueva compra
+          </button>
+        </div>
       </div>
+
+      {/* ─── Captura rápida: un insumo, tres campos ─── */}
+      {rapido && (
+        <div className="bg-white border border-[var(--color-adp-pino)]/40 rounded-xl p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-[var(--color-adp-tinta)]">Captura rápida</h2>
+            <button onClick={() => setRapido(false)} className="text-xs text-[var(--color-adp-tinta-2)] hover:underline">
+              Cerrar
+            </button>
+          </div>
+          <p className="text-xs text-[var(--color-adp-tinta-2)]">
+            Un solo insumo. Para cuando llega algo suelto o sin ticket.
+          </p>
+
+          {error && <p className="text-sm text-white bg-[var(--color-adp-urgente)] p-2.5 rounded">{error}</p>}
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+            <div className="sm:col-span-2">
+              <input
+                type="text"
+                value={rapidoBusqueda}
+                onChange={(e) => setRapidoBusqueda(e.target.value)}
+                placeholder="Buscar insumo…"
+                className="w-full px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm"
+                autoFocus
+              />
+              <select
+                value={rapidoIngrediente}
+                onChange={(e) => setRapidoIngrediente(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm bg-white"
+                size={rapidoBusqueda ? 5 : 1}
+              >
+                <option value="">— Elige insumo —</option>
+                {insumos
+                  .filter((x) =>
+                    rapidoBusqueda
+                      ? x.name.toLowerCase().includes(rapidoBusqueda.toLowerCase())
+                      : true
+                  )
+                  .slice(0, 40)
+                  .map((x) => (
+                    <option key={x.id} value={x.id}>{x.name} ({x.unit})</option>
+                  ))}
+              </select>
+            </div>
+            <input
+              type="number"
+              step="0.001"
+              value={rapidoCantidad}
+              onChange={(e) => setRapidoCantidad(e.target.value)}
+              placeholder="Cantidad"
+              className="px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm"
+            />
+            <input
+              type="number"
+              step="0.01"
+              value={rapidoCosto}
+              onChange={(e) => setRapidoCosto(e.target.value)}
+              placeholder="$/unidad"
+              className="px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm"
+            />
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-[var(--color-adp-borde)]">
+            <p className="text-sm text-[var(--color-adp-tinta-2)]">
+              Total:{' '}
+              <span className="font-bold text-[var(--color-adp-tinta)]">
+                {precio((parseFloat(rapidoCantidad) || 0) * (parseFloat(rapidoCosto) || 0))}
+              </span>
+            </p>
+            <button
+              onClick={guardarRapido}
+              disabled={rapidoGuardando || !rapidoIngrediente}
+              className="px-5 py-2.5 bg-[var(--color-adp-pino)] hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-40 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              {rapidoGuardando ? 'Guardando…' : 'Registrar entrada'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ─── Formulario ─── */}
       {abierto && (

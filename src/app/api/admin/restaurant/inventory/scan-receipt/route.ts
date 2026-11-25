@@ -64,26 +64,38 @@ Responde SOLO con un JSON válido, sin markdown, sin explicaciones:
   ]
 }`;
 
-    const openAIKey = process.env.OPENAI_API_KEY;
+    /* ── Quién lee la foto ──────────────────────────────────────────────
+       Antes esto usaba OpenAI (gpt-4o-mini) con OPENAI_API_KEY. Esa llave
+       no está configurada en Render, así que el escaneo devolvía 502 y el
+       botón de "registrar compra por foto" no servía para nada. Pablo:
+       "no veo un endpoint para ir agregando productos; agregar productos
+       es solo a través de una foto".
 
-    if (!openAIKey) {
+       Ahora usa Gemini 4 Neon vía OpenRouter, con la llave que ya existe
+       para el resto del sistema. Lee etiquetas y tickets con buena
+       precisión (se probó con las etiquetas de La Europea: peso, precio
+       por kg y total correctos).
+    */
+    const openRouterKey = process.env.OPENROUTER_API_KEY;
+
+    if (!openRouterKey) {
       return NextResponse.json(
         {
           error:
-            "Configura OPENAI_API_KEY en las variables de entorno de Render. DeepSeek no soporta análisis de imágenes.",
+            "Falta OPENROUTER_API_KEY en Render. Sin ella no se puede leer la foto.",
         },
         { status: 502 }
       );
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${openAIKey}`,
+        Authorization: `Bearer ${openRouterKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "google/gemini-4-neon",
         messages: [
           {
             role: "user",
@@ -94,15 +106,15 @@ Responde SOLO con un JSON válido, sin markdown, sin explicaciones:
           },
         ],
         temperature: 0.1,
-        max_tokens: 2000,
+        max_tokens: 4000,
       }),
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("[scan-receipt] OpenAI error:", response.status, errText.slice(0, 300));
+      console.error("[scan-receipt] OpenRouter error:", response.status, errText.slice(0, 300));
       return NextResponse.json(
-        { error: `Error al procesar la imagen. Verifica que OPENAI_API_KEY sea válida.` },
+        { error: `No se pudo leer la imagen (${response.status}). Revisa la llave de OpenRouter.` },
         { status: 502 }
       );
     }
