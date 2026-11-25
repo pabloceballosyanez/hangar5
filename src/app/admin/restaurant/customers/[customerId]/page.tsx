@@ -81,6 +81,17 @@ export default function CustomerDetailPage() {
   const [payNote, setPayNote] = useState('');
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
+
+  /* ── Cargar un servicio a la cuenta abierta ──────────────────────────
+     Vuelos, motos, bicis. El precio se congela en la cuenta al momento de
+     vender, igual que en ServicioCuenta. */
+  const [itemsServicio, setItemsServicio] = useState<Array<{ id: string; name: string; price: number; type: string }>>([]);
+  const [servicios, setServicios] = useState<Array<{ id: string; serviceSessionId: string; descripcion: string; cantidad: number; total: number }>>([]);
+  const [cargarServicioEn, setCargarServicioEn] = useState<string | null>(null);
+  const [servicioItemId, setServicioItemId] = useState('');
+  const [servicioCantidad, setServicioCantidad] = useState(1);
+  const [servicioCargando, setServicioCargando] = useState(false);
+  const [servicioError, setServicioError] = useState<string | null>(null);
   const [paySuccess, setPaySuccess] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -107,6 +118,65 @@ export default function CustomerDetailPage() {
   useEffect(() => {
     loadCustomer().then(() => setLoading(false)).catch(() => setLoading(false));
   }, [customerId]);
+
+  /* Catálogo de servicios (vuelos, motos, bicis) una sola vez. */
+  useEffect(() => {
+    fetch('/api/admin/bookings/items')
+      .then(r => r.ok ? r.json() : [])
+      .then(d => setItemsServicio(Array.isArray(d) ? d : d.items ?? []))
+      .catch(() => setItemsServicio([]));
+  }, []);
+
+  /* Servicios ya cargados en cada cuenta abierta del cliente. */
+  async function cargarServicios(sesiones: string[]) {
+    const todos: typeof servicios = [];
+    for (const id of sesiones) {
+      try {
+        const r = await fetch(`/api/admin/restaurant/sessions/${id}/cuenta/servicio`);
+        if (r.ok) {
+          const d = await r.json();
+          if (Array.isArray(d)) todos.push(...d);
+        }
+      } catch { /* sin servicios */ }
+    }
+    setServicios(todos);
+  }
+
+  useEffect(() => {
+    if (!customer) return;
+    const abiertas = customer.sessions.filter(s => s.status === 'OPEN').map(s => s.id);
+    if (abiertas.length > 0) cargarServicios(abiertas);
+  }, [customer]);
+
+  /** Carga un servicio a la cuenta abierta y refresca el cliente. */
+  async function cargarServicio(sessionId: string) {
+    if (!servicioItemId) return;
+    setServicioCargando(true);
+    setServicioError(null);
+    try {
+      const r = await fetch(`/api/admin/restaurant/sessions/${sessionId}/cuenta/servicio`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: servicioItemId, cantidad: servicioCantidad }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'No se pudo cargar el servicio');
+
+      /* Se limpia el formulario y se recarga: el total de la cuenta cambia
+         y conviene verlo al instante. */
+      setServicioItemId('');
+      setServicioCantidad(1);
+      setCargarServicioEn(null);
+      const abiertas = customer?.sessions.filter(s => s.status === 'OPEN').map(s => s.id) ?? [];
+      if (abiertas.length) await cargarServicios(abiertas);
+      await loadCustomer();
+    } catch (e) {
+      setServicioError(e instanceof Error ? e.message : 'No se pudo cargar');
+    } finally {
+      setServicioCargando(false);
+    }
+  }
+
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -365,21 +435,106 @@ export default function CustomerDetailPage() {
       )}
 
       {/* ─── Open Sessions (info) ─── */}
+      {/* ─── Sesiones abiertas: aquí se cargan los servicios ───
+          Pablo: "alguien está comiendo, ve volar a otros y pide un vuelo;
+          lo cómodo es agregarlo a la cuenta que ya tiene abierta".
+          Antes esta caja solo mostraba el total. */}
       {openSessions.length > 0 && (
-        <div className="bg-[var(--color-adp-info)] rounded-xl border border-[var(--color-adp-info)] p-5 text-white">
-          <h2 className="text-lg font-semibold text-[var(--color-adp-info)] mb-3">
-            🧾 Sesiones abiertas ({openSessions.length})
+        <div className="bg-[var(--color-adp-papel-2)] rounded-xl border border-[var(--color-adp-borde)] border-l-4 border-l-[var(--color-adp-info)] p-5">
+          <h2 className="text-lg font-semibold text-[var(--color-adp-tinta)] mb-3">
+            Sesiones abiertas ({openSessions.length})
           </h2>
           <div className="space-y-2">
             {openSessions.map(s => {
               const ordersTotal = s.orders.reduce((sum, o) => sum + o.total, 0);
+              const serviciosDeEsta = servicios.filter(x => x.serviceSessionId === s.id);
+              const serviciosTotal = serviciosDeEsta.reduce((sum, x) => sum + x.total, 0);
+              const abierta = cargarServicioEn === s.id;
+
               return (
-                <div key={s.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-[var(--color-adp-info)]">
-                  <div>
-                    <p className="font-medium text-[var(--color-adp-tinta)] text-sm">{s.label}</p>
-                    <p className="text-xs text-[var(--color-adp-tinta-2)]">Abierta {fmtTime(s.openedAt)} · {s.orders.length} órdenes</p>
+                <div key={s.id} className="bg-white rounded-lg border border-[var(--color-adp-borde)]">
+                  <div className="flex items-center justify-between p-3">
+                    <div>
+                      <p className="font-medium text-[var(--color-adp-tinta)] text-sm">{s.label}</p>
+                      <p className="text-xs text-[var(--color-adp-tinta-2)]">
+                        Abierta {fmtTime(s.openedAt)} · {s.orders.length} órdenes
+                        {serviciosDeEsta.length > 0 && ` · ${serviciosDeEsta.length} servicios`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <span className="text-sm font-bold text-[var(--color-adp-pino-hondo)]">
+                          {formatPrice(ordersTotal + serviciosTotal)}
+                        </span>
+                        {serviciosTotal > 0 && (
+                          <p className="text-[10px] text-[var(--color-adp-tinta-2)]">
+                            incl. {formatPrice(serviciosTotal)} servicios
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => setCargarServicioEn(abierta ? null : s.id)}
+                        className="px-3 py-1.5 bg-[var(--color-adp-pino)] hover:bg-[var(--color-adp-pino-hondo)] text-white text-xs font-medium rounded-lg transition-colors"
+                      >
+                        {abierta ? 'Cancelar' : '+ Servicio'}
+                      </button>
+                    </div>
                   </div>
-                  <span className="text-sm font-bold text-[var(--color-adp-pino-hondo)]">{formatPrice(ordersTotal)}</span>
+
+                  {/* Servicios ya cargados */}
+                  {serviciosDeEsta.length > 0 && (
+                    <div className="px-3 pb-2 space-y-1">
+                      {serviciosDeEsta.map(x => (
+                        <div key={x.id} className="flex justify-between text-xs text-[var(--color-adp-tinta-2)] border-t border-[var(--color-adp-borde)] pt-1">
+                          <span>{x.cantidad > 1 && `${x.cantidad} × `}{x.descripcion}</span>
+                          <span className="font-medium">{formatPrice(x.total)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Formulario para cargar uno */}
+                  {abierta && (
+                    <div className="p-3 border-t border-[var(--color-adp-borde)] bg-[var(--color-adp-papel-3)] rounded-b-lg space-y-2">
+                      {servicioError && (
+                        <p className="text-xs text-white bg-[var(--color-adp-urgente)] p-2 rounded">{servicioError}</p>
+                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <select
+                          value={servicioItemId}
+                          onChange={e => setServicioItemId(e.target.value)}
+                          className="sm:col-span-2 px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
+                        >
+                          <option value="">Elige un servicio…</option>
+                          {itemsServicio.map(i => (
+                            <option key={i.id} value={i.id}>
+                              {i.name} — {formatPrice(i.price)}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="number"
+                          min={1}
+                          value={servicioCantidad}
+                          onChange={e => setServicioCantidad(Math.max(1, Number(e.target.value)))}
+                          className="px-3 py-2 border border-[var(--color-adp-borde-2)] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[var(--color-adp-pino)]/40 outline-none"
+                          placeholder="Cantidad"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => cargarServicio(s.id)}
+                          disabled={!servicioItemId || servicioCargando}
+                          className="px-4 py-2 bg-[var(--color-adp-pino)] hover:bg-[var(--color-adp-pino-hondo)] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                        >
+                          {servicioCargando ? 'Cargando…' : 'Cargar a la cuenta'}
+                        </button>
+                        <p className="text-[11px] text-[var(--color-adp-tinta-2)] self-center">
+                          El precio se queda fijo en esta cuenta.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
