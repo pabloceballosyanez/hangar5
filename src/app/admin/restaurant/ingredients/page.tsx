@@ -177,6 +177,11 @@ export default function IngredientsPage() {
   useEffect(() => {
     const f = new URLSearchParams(window.location.search).get('filtro');
     setFiltro(f);
+    /* El botón "Qué falta" vive en la pestaña Conteo, pero la lista de
+       insumos está en la pestaña Insumos. Sin este salto, el filtro se
+       aplicaba a una lista que no se estaba viendo: la pantalla se
+       recargaba, seguía en Conteo y parecía que el botón no hacía nada. */
+    if (f === 'bajo') setPestana('insumos');
   }, []);
 
   const pasaFiltro = (i: { currentStock: number; minStock: number }) => {
@@ -193,15 +198,35 @@ export default function IngredientsPage() {
     !i.isActive && (!search || i.name.toLowerCase().includes(search.toLowerCase()))
   );
 
+  /* Cuántos insumos están bajo el mínimo, para el aviso. */
+  const bajoMinimo = ingredients.filter(i => i.isActive && i.minStock > 0 && i.currentStock < i.minStock);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Inventario</h1>
           <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">
-            {activeIngredients.length} ingredientes activos
+            {filtro === 'bajo'
+              ? `${activeIngredients.length} insumos por debajo del mínimo`
+              : `${activeIngredients.length} ingredientes activos`}
           </p>
-        </div>
+          {/* Aviso del filtro activo, con salida clara. Sin esto, quien
+              entra desde "Qué falta" ve menos insumos y no sabe por qué. */}
+          {filtro === 'bajo' && (
+            <div className="flex items-center gap-2 mt-2">
+              <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-[var(--color-adp-atencion)] text-white">
+                Filtrado: qué falta
+              </span>
+              <a
+                href="/admin/restaurant/ingredients"
+                className="text-xs text-[var(--color-adp-pino)] hover:underline"
+              >
+                Ver todos
+              </a>
+            </div>
+          )}
+          </div>
         <div className="flex items-center gap-2">
           <Link
             href="/admin/restaurant/inventory/scan"
@@ -260,8 +285,14 @@ export default function IngredientsPage() {
               href="/admin/restaurant/ingredients?filtro=bajo"
               className="block border border-[var(--color-adp-borde)] rounded-lg p-4 hover:border-[var(--color-adp-pino)]/40 hover:bg-[var(--color-adp-papel-3)]"
             >
-              <p className="font-medium text-[var(--color-adp-tinta)] text-sm mb-0.5">⚠️ Qué falta</p>
-              <p className="text-xs text-[var(--color-adp-tinta-2)]">Insumos por debajo del mínimo</p>
+              <p className="font-medium text-[var(--color-adp-tinta)] text-sm mb-0.5">
+                ⚠️ Qué falta{bajoMinimo.length > 0 ? ` (${bajoMinimo.length})` : ''}
+              </p>
+              <p className="text-xs text-[var(--color-adp-tinta-2)]">
+                {bajoMinimo.length === 0
+                  ? 'Todo por encima del mínimo'
+                  : 'Insumos por debajo del mínimo'}
+              </p>
             </Link>
           </div>
           <p className="text-[11px] text-[var(--color-adp-tinta-2)] mt-3">
