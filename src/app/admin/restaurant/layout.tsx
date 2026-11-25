@@ -29,6 +29,9 @@ const sidebarGroups = [
       { href: '/kds', label: 'KDS Cocina', icon: '👨‍🍳' },
       { href: '/admin/restaurant/customers', label: 'Clientes', icon: '👥' },
       { href: '/admin/restaurant/ingredients', label: 'Inventario', icon: '🧂' },
+      /* Compras va junto a Inventario: es el otro lado del mismo trabajo.
+         Inventario dice qué hay; Compras, qué entró y a qué precio. */
+      { href: '/admin/restaurant/compras', label: 'Compras', icon: '🧾' },
       { href: '/admin/restaurant/almacenes', label: 'Almacenes', icon: '📦' },
     ],
   },

@@ -257,6 +257,7 @@ model Ingredient {
   updatedAt      DateTime        @updatedAt
   recipeItems    RecipeItem[]
   stockMovements StockMovement[]
+  comprasRenglon CompraRenglon[]
   modifiers      Modifier[]         @relation("ModifierInventoryIngredient")
   stocks         StockAlmacen[]
   traspasos      Traspaso[]
@@ -762,4 +763,65 @@ model FixedExpense {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ─── Compras ────────────────────────────────────────────────────────────────
+// Una compra agrupa varios insumos con su proveedor y su fecha. Antes cada
+// insumo se movía suelto (StockMovement) y no había forma de ver "esto fue
+// una compra a La Europea del 24 de noviembre por $1,162.77". Pablo: "me
+// gustaría un módulo de compras para ir cuadrando todo. Hoy no sabría dónde
+// ver lo que hemos comprado".
+model Proveedor {
+  id        String   @id @default(cuid())
+  nombre    String
+  telefono  String?
+  notas     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  compras   Compra[]
+
+  @@index([nombre])
+}
+
+model Compra {
+  id          String   @id @default(cuid())
+  folio       String   @unique          // C-0001, para referirse a ella
+  proveedorId String?
+  proveedor   Proveedor? @relation(fields: [proveedorId], references: [id])
+  /* Proveedor escrito a mano cuando no está dado de alta (el señor de las
+     frutas que llega sin avisar). */
+  proveedorNombre String?
+  fecha       DateTime @default(now())
+  /* Cómo se capturó: foto del ticket, manual con varios renglones, o
+     captura rápida de un solo insumo. Sirve para saber qué tan confiable
+     es el dato. */
+  origen      String   @default("MANUAL") // TICKET | MANUAL | RAPIDA
+  total       Int      @default(0)        // centavos, suma de renglones
+  notas       String?
+  actorName   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  renglones   CompraRenglon[]
+
+  @@index([fecha])
+}
+
+model CompraRenglon {
+  id           String     @id @default(cuid())
+  compraId     String
+  compra       Compra     @relation(fields: [compraId], references: [id], onDelete: Cascade)
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  /* La descripción y el costo se congelan al comprar: si el insumo cambia
+     de nombre o de costo después, la compra sigue diciendo lo que se pagó. */
+  descripcion    String
+  cantidad       Float
+  unidad         String
+  costoUnitario  Int      // centavos por unidad
+  total          Int      // cantidad × costoUnitario, redondeado
+  createdAt      DateTime @default(now())
+
+  @@index([compraId])
+  @@index([ingredientId])
 }
