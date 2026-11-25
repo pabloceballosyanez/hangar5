@@ -165,8 +165,33 @@ export default function IngredientsPage() {
     } catch { /* ignore */ }
   }
 
-  const activeIngredients = ingredients.filter(i => i.isActive && (!search || i.name.toLowerCase().includes(search.toLowerCase())));
-  const inactiveIngredients = ingredients.filter(i => !i.isActive && (!search || i.name.toLowerCase().includes(search.toLowerCase())));
+  /* ── Filtro "Qué falta" ──────────────────────────────────────────────
+     El botón del panel manda ?filtro=bajo, pero la página nunca leía ese
+     parámetro: navegaba y no pasaba nada. Pablo: "tenemos un filtro para
+     obtener los productos con stock bajo pero no funciona... no hace nada".
+
+     "Bajo" = el stock está por debajo del mínimo Y el mínimo es mayor que
+     cero. Un insumo con mínimo 0 no "falta": simplemente no tiene tope. */
+  const [filtro, setFiltro] = useState<string | null>(null);
+
+  useEffect(() => {
+    const f = new URLSearchParams(window.location.search).get('filtro');
+    setFiltro(f);
+  }, []);
+
+  const pasaFiltro = (i: { currentStock: number; minStock: number }) => {
+    if (filtro !== 'bajo') return true;
+    return i.minStock > 0 && i.currentStock < i.minStock;
+  };
+
+  const activeIngredients = ingredients.filter(i =>
+    i.isActive &&
+    (!search || i.name.toLowerCase().includes(search.toLowerCase())) &&
+    pasaFiltro(i)
+  );
+  const inactiveIngredients = ingredients.filter(i =>
+    !i.isActive && (!search || i.name.toLowerCase().includes(search.toLowerCase()))
+  );
 
   return (
     <div className="space-y-6">

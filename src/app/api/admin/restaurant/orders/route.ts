@@ -153,9 +153,21 @@ export async function GET(req: NextRequest) {
       const clave = ALIAS[status] ?? status;
 
       /* Helper: ¿esta orden ya se cobró? paidAt o el PAID heredado. */
+      /* ── ¿Está pagada? Tres formas, según la época de la orden ────────
+         1. paidAt con fecha   → órdenes nuevas (el carril del dinero)
+         2. status PAID        → órdenes anteriores al cambio de flujos
+         3. tiene un Payment COMPLETED
+            Esta tercera es la que faltaba. Las 48 órdenes viejas se
+            cobraron cuando paidAt no existía: el pago quedó en la tabla
+            payments y ellas aparecían en "Por cobrar" aunque ya estaban
+            pagadas. Pablo: "hay órdenes que dicen pagadas y aparecen como
+            pendientes".
+
+         Mismo criterio para entregada. */
       const pagadaOR = [
         { paidAt: { not: null } },
         { status: "PAID" },
+        { payments: { some: { status: "COMPLETED" } } },
       ];
       /* ¿Ya salió de la cocina? entregadoAt, o SERVED/PAID heredados. */
       const entregadaOR = [
@@ -180,7 +192,14 @@ export async function GET(req: NextRequest) {
           where.AND = [noCancelada, { OR: entregadaOR }, { NOT: { OR: pagadaOR } }];
           break;
         case "cerradas":
-          /* Las dos cosas hechas. */
+          /* Las dos cosas hechas, aceptando las órdenes de antes del
+             cambio de flujos.
+             · pagada: paidAt, status PAID, o un Payment COMPLETED
+             · entregada: entregadoAt, o el status heredado SERVED/PAID
+               (antes de existir entregadoAt, servir el pedido movía el
+               status a SERVED: ese era el registro de la entrega).
+             Sin el criterio heredado, las órdenes viejas ya entregadas
+             nunca cerraban y desaparecían de todos los tabs. */
           where.AND = [noCancelada, { OR: pagadaOR }, { OR: entregadaOR }];
           break;
         case "canceladas":
