@@ -48,16 +48,16 @@ interface Customer {
   bookings: Booking[];
 }
 
-/* Los montos vienen de la base en CENTAVOS. Sin dividir entre 100, una
-   deuda de $0.90 se mostraba como "$90.00": el historial del cliente
-   exageraba todo por cien. Es el mismo error de unidades que ya apareció
-   en el menú, así que se corrige aquí y no en cada llamada. */
-function formatPrice(centavos: number) {
-  return `$${(centavos / 100).toFixed(2)}`;
+/* OJO: estas pantallas reciben los montos YA en PESOS.
+   El API del cliente divide entre 100 antes de responder (balance,
+   ledgerEntries, orders.total y payments.amount). Aquí no se vuelve a
+   dividir: hacerlo mostraba $7.40 donde la deuda real era $740. */
+function formatPrice(pesos: number) {
+  return `$${pesos.toFixed(2)}`;
 }
-/* El campo de abono del formulario trabaja en PESOS, no en centavos. */
-function aPesos(centavos: number) {
-  return (centavos / 100).toFixed(2);
+/* El campo de abono del formulario también trabaja en pesos. */
+function aPesos(pesos: number) {
+  return pesos.toFixed(2);
 }
 function fmtTime(iso: string) { return new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }); }
 
