@@ -33,7 +33,10 @@ export default function IngredientsPage() {
   /* Pestaña del inventario. Abre en "conteo" porque es lo que se usa a
      diario: contar y comprar. "insumos" es dar de alta y editar, que se
      hace de vez en cuando. */
-  const [pestana, setPestana] = useState<'conteo' | 'insumos'>('conteo');
+  /* Cuatro vistas. "Bajo mínimo" y "Negativos" son pestañas de verdad, no
+     un boton con parametro: al ser estado local cambian al instante, sin
+     depender de que la navegacion vuelva a montar la pagina. */
+  const [pestana, setPestana] = useState<'conteo' | 'insumos' | 'bajo' | 'negativos'>('conteo');
   const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [unit, setUnit] = useState('');
@@ -176,12 +179,9 @@ export default function IngredientsPage() {
 
   useEffect(() => {
     const f = new URLSearchParams(window.location.search).get('filtro');
+    /* Enlace viejo (?filtro=bajo): ahora lleva a la pestaña dedicada. */
     setFiltro(f);
-    /* El botón "Qué falta" vive en la pestaña Conteo, pero la lista de
-       insumos está en la pestaña Insumos. Sin este salto, el filtro se
-       aplicaba a una lista que no se estaba viendo: la pantalla se
-       recargaba, seguía en Conteo y parecía que el botón no hacía nada. */
-    if (f === 'bajo') setPestana('insumos');
+    if (f === 'bajo') setPestana('bajo');
   }, []);
 
   const pasaFiltro = (i: { currentStock: number; minStock: number }) => {
@@ -189,17 +189,29 @@ export default function IngredientsPage() {
     return i.minStock > 0 && i.currentStock < i.minStock;
   };
 
-  const activeIngredients = ingredients.filter(i =>
-    i.isActive &&
-    (!search || i.name.toLowerCase().includes(search.toLowerCase())) &&
-    pasaFiltro(i)
-  );
+  const activeIngredients = ingredients.filter(i => {
+    if (!i.isActive) return false;
+    if (search && !i.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (pestana === 'bajo') return i.minStock > 0 && i.currentStock < i.minStock && i.currentStock >= 0;
+    if (pestana === 'negativos') return i.currentStock < 0;
+    return true;
+  });
   const inactiveIngredients = ingredients.filter(i =>
     !i.isActive && (!search || i.name.toLowerCase().includes(search.toLowerCase()))
   );
 
-  /* Cuántos insumos están bajo el mínimo, para el aviso. */
-  const bajoMinimo = ingredients.filter(i => i.isActive && i.minStock > 0 && i.currentStock < i.minStock);
+  /* ── Los dos avisos de inventario ───────────────────────────────────
+     BAJO MÍNIMO: hay menos de lo que se pide tener. Es normal (toca
+     comprar), pero hay que verlo.
+     NEGATIVOS: hay menos de cero, o sea se vendió algo que el sistema no
+     tenía registrado. Eso no debería pasar nunca: significa que el
+     inventario no estaba cargado o que una receta descuenta de más. */
+  const bajoMinimo = ingredients.filter(
+    i => i.isActive && i.minStock > 0 && i.currentStock < i.minStock && i.currentStock >= 0
+  );
+  const negativos = ingredients.filter(
+    i => i.isActive && i.currentStock < 0
+  );
 
   return (
     <div className="space-y-6">
@@ -207,24 +219,21 @@ export default function IngredientsPage() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--color-adp-tinta)]">Inventario</h1>
           <p className="text-sm text-[var(--color-adp-tinta-2)] mt-1">
-            {filtro === 'bajo'
+            {pestana === 'bajo'
               ? `${activeIngredients.length} insumos por debajo del mínimo`
-              : `${activeIngredients.length} ingredientes activos`}
+              : pestana === 'negativos'
+                ? `${activeIngredients.length} insumos en negativo`
+                : `${activeIngredients.length} ingredientes activos`}
           </p>
-          {/* Aviso del filtro activo, con salida clara. Sin esto, quien
-              entra desde "Qué falta" ve menos insumos y no sabe por qué. */}
-          {filtro === 'bajo' && (
-            <div className="flex items-center gap-2 mt-2">
-              <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-[var(--color-adp-atencion)] text-white">
-                Filtrado: qué falta
-              </span>
-              <a
-                href="/admin/restaurant/ingredients"
-                className="text-xs text-[var(--color-adp-pino)] hover:underline"
-              >
-                Ver todos
-              </a>
-            </div>
+          {/* En negativo no debería haber nada nunca: significa que se
+              vendió producto que el sistema no tenía registrado. Si hay,
+              conviene mirarlo, no es solo "toca comprar". */}
+          {pestana === 'negativos' && activeIngredients.length > 0 && (
+            <p className="text-xs text-[var(--color-adp-urgente)] mt-2 max-w-md">
+              Hay insumos con menos de cero: se vendió algo que no estaba
+              cargado en el almacén. Revisa el conteo o la receta que los
+              descuenta.
+            </p>
           )}
           </div>
         <div className="flex items-center gap-2">
@@ -250,19 +259,30 @@ export default function IngredientsPage() {
           configuración. Abre en "Conteo", que es lo que se usa a diario. */}
       <div className="flex gap-1 border-b border-[var(--color-adp-borde)]">
         {[
-          { id: 'conteo', etiqueta: 'Conteo y compras' },
-          { id: 'insumos', etiqueta: 'Insumos' },
-        ].map((t) => (
+            { id: 'conteo', etiqueta: 'Conteo y compras', cuenta: 0, alerta: false },
+            { id: 'insumos', etiqueta: 'Todos', cuenta: 0, alerta: false },
+            { id: 'bajo', etiqueta: 'Bajo mínimo', cuenta: bajoMinimo.length, alerta: true },
+            { id: 'negativos', etiqueta: 'Negativos', cuenta: negativos.length, alerta: false },
+          ].map((t) => (
           <button
             key={t.id}
-            onClick={() => setPestana(t.id as 'conteo' | 'insumos')}
+            onClick={() => setPestana(t.id as 'conteo' | 'insumos' | 'bajo' | 'negativos')}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
               pestana === t.id
                 ? 'border-[var(--color-adp-pino)] text-[var(--color-adp-pino)]'
                 : 'border-transparent text-[var(--color-adp-tinta-2)] hover:text-[var(--color-adp-tinta)]'
             }`}
           >
-            {t.etiqueta}
+              {t.etiqueta}
+              {t.cuenta > 0 && (
+                <span className={`ml-1.5 inline-block px-1.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                  t.id === 'negativos'
+                    ? 'bg-[var(--color-adp-urgente)] text-white'
+                    : 'bg-[var(--color-adp-atencion)] text-white'
+                }`}>
+                  {t.cuenta}
+                </span>
+              )}
           </button>
         ))}
       </div>
@@ -281,19 +301,32 @@ export default function IngredientsPage() {
               <p className="font-medium text-[var(--color-adp-tinta)] text-sm mb-0.5">📸 Registrar compra</p>
               <p className="text-xs text-[var(--color-adp-tinta-2)]">Escanea el recibo y actualiza el stock</p>
             </Link>
-            <Link
-              href="/admin/restaurant/ingredients?filtro=bajo"
-              className="block border border-[var(--color-adp-borde)] rounded-lg p-4 hover:border-[var(--color-adp-pino)]/40 hover:bg-[var(--color-adp-papel-3)]"
+            <button
+              onClick={() => setPestana('negativos')}
+              className="text-left w-full block border border-[var(--color-adp-borde)] rounded-lg p-4 hover:border-[var(--color-adp-urgente)]/40 hover:bg-[var(--color-adp-papel-3)]"
             >
               <p className="font-medium text-[var(--color-adp-tinta)] text-sm mb-0.5">
-                ⚠️ Qué falta{bajoMinimo.length > 0 ? ` (${bajoMinimo.length})` : ''}
+                Qué falta{bajoMinimo.length > 0 ? ` (${bajoMinimo.length})` : ''}
               </p>
               <p className="text-xs text-[var(--color-adp-tinta-2)]">
                 {bajoMinimo.length === 0
                   ? 'Todo por encima del mínimo'
                   : 'Insumos por debajo del mínimo'}
               </p>
-            </Link>
+            </button>
+            <button
+              onClick={() => setPestana('negativos')}
+              className="text-left w-full block border border-[var(--color-adp-borde)] rounded-lg p-4 hover:border-[var(--color-adp-urgente)]/40 hover:bg-[var(--color-adp-papel-3)]"
+            >
+              <p className="font-medium text-[var(--color-adp-tinta)] text-sm mb-0.5">
+                En negativo{negativos.length > 0 ? ` (${negativos.length})` : ''}
+              </p>
+              <p className="text-xs text-[var(--color-adp-tinta-2)]">
+                {negativos.length === 0
+                  ? 'Ninguno en negativo'
+                  : 'Vendido sin estar registrado'}
+              </p>
+            </button>
           </div>
           <p className="text-[11px] text-[var(--color-adp-tinta-2)] mt-3">
             El stock de cada insumo se ve en la lista de abajo.
