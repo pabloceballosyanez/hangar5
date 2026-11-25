@@ -509,9 +509,36 @@ export default function CustomerDetailPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        {paidTotal > 0 && (
-                          <span className="text-xs font-medium text-[var(--color-adp-pino)]">Pagado {formatPrice(paidTotal)}</span>
-                        )}
+                        {/* Cómo se cubrió la cuenta. Si fue a su línea de
+                            crédito NO es "pagado": es deuda que quedó
+                            anotada. Pablo: "si pagaron una cuenta con su
+                            línea de crédito, lo lógico es que dijera que se
+                            pagó contra su línea de crédito". */}
+                        {(() => {
+                          if (paidTotal <= 0) return null;
+                          const aCuenta = s.payments
+                            .filter(p => p.method === 'ON_ACCOUNT')
+                            .reduce((sum, p) => sum + p.amount, 0);
+                          const enEfectivo = paidTotal - aCuenta;
+
+                          if (enEfectivo <= 0) {
+                            return (
+                              <span className="text-xs font-medium text-[var(--color-adp-atencion)]">
+                                A su línea de crédito {formatPrice(aCuenta)}
+                              </span>
+                            );
+                          }
+                          return (
+                            <span className="text-xs font-medium text-[var(--color-adp-pino)]">
+                              Pagado {formatPrice(enEfectivo)}
+                              {aCuenta > 0 && (
+                                <span className="text-[var(--color-adp-atencion)]">
+                                  {' '}· {formatPrice(aCuenta)} a cuenta
+                                </span>
+                              )}
+                            </span>
+                          );
+                        })()}
                         {s.closedAt && (
                           <p className="text-xs text-[var(--color-adp-tinta-2)]">{new Date(s.closedAt).toLocaleDateString('es-MX')}</p>
                         )}
