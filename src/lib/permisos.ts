@@ -95,7 +95,7 @@ export const ROLES: Array<{ valor: Rol; nombre: string; descripcion: string }> =
 export const RUTAS: Array<{ zona: Zona; prefijos: string[] }> = [
   { zona: "configuracion", prefijos: ["/admin/restaurant/staff", "/admin/restaurant/ubicaciones", "/admin/restaurant/tables"] },
   { zona: "reportes", prefijos: ["/admin/restaurant/reports", "/admin/restaurant/fixed-expenses", "/admin/restaurant/audit"] },
-  { zona: "inventario", prefijos: ["/admin/restaurant/ingredients", "/admin/restaurant/inventory", "/admin/restaurant/recipes"] },
+  { zona: "inventario", prefijos: ["/admin/restaurant/ingredients", "/admin/restaurant/inventory", "/admin/restaurant/recipes", "/admin/restaurant/compras", "/admin/restaurant/proveedores"] },
   { zona: "menu", prefijos: ["/admin/restaurant/menu-items", "/admin/restaurant/categories", "/admin/restaurant/tipos", "/admin/restaurant/modifier-groups"] },
   { zona: "operacion", prefijos: ["/admin/restaurant/orders", "/admin/restaurant/customers", "/admin/restaurant/sessions", "/waiter"] },
   { zona: "preparacion", prefijos: ["/kds", "/cafe"] },
