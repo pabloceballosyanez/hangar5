@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -54,10 +53,6 @@ async function siguienteFolio(tx: PrismaTx): Promise<string> {
 type PrismaTx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
 export async function POST(req: NextRequest) {
-  if (!getAdminSession(req)) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
   const parseo = compraSchema.safeParse(await req.json().catch(() => null));
   if (!parseo.success) {
     return NextResponse.json(
@@ -201,10 +196,6 @@ export async function POST(req: NextRequest) {
 
 /** GET: historial de compras, más recientes primero. */
 export async function GET(req: NextRequest) {
-  if (!getAdminSession(req)) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
   const q = req.nextUrl.searchParams;
   const desde = q.get("desde");
   const hasta = q.get("hasta");

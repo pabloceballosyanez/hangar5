@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -19,10 +18,6 @@ const schema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  if (!getAdminSession(req)) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
   const proveedores = await prisma.proveedor.findMany({
     where: { isActive: true },
     orderBy: { nombre: "asc" },
@@ -43,10 +38,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!getAdminSession(req)) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
   const parseo = schema.safeParse(await req.json().catch(() => null));
   if (!parseo.success) {
     return NextResponse.json({ error: "Falta el nombre" }, { status: 400 });
