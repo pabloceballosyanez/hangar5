@@ -64,26 +64,39 @@ Responde SOLO con un JSON válido, sin markdown, sin explicaciones:
   ]
 }`;
 
-    const openAIKey = process.env.OPENAI_API_KEY;
+    /* ── Quién lee la foto ──────────────────────────────────────────────
+       Antes usaba OpenAI (gpt-4o-mini) con OPENAI_API_KEY, que no está
+       configurada: el escaneo fallaba siempre y por eso "no se podía
+       agregar producto por foto".
 
-    if (!openAIKey) {
+       Ahora usa GLM 5.3 Flash de Z.ai (Zhipu) vía OpenRouter. Se probó con
+       la etiqueta real de La Europea y acertó los cuatro datos a la primera
+       (producto, peso, precio por kg y total).
+
+       Costo: $0.023 por millón de entrada / $0.068 de salida. Un ticket
+       cuesta alrededor de $0.00004.
+
+       Requiere OPENROUTER_API_KEY en las variables de entorno de Render. */
+    const apiKey = process.env.OPENROUTER_API_KEY;
+
+    if (!apiKey) {
       return NextResponse.json(
         {
           error:
-            "Configura OPENAI_API_KEY en las variables de entorno de Render. DeepSeek no soporta análisis de imágenes.",
+            "Falta OPENROUTER_API_KEY en Render. Agrégala en Environment para poder leer fotos.",
         },
         { status: 502 }
       );
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${openAIKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "z-ai/glm-5.3-flash",
         messages: [
           {
             role: "user",
@@ -100,9 +113,9 @@ Responde SOLO con un JSON válido, sin markdown, sin explicaciones:
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("[scan-receipt] OpenAI error:", response.status, errText.slice(0, 300));
+      console.error("[scan-receipt] OpenRouter error:", response.status, errText.slice(0, 300));
       return NextResponse.json(
-        { error: `Error al procesar la imagen. Verifica que OPENAI_API_KEY sea válida.` },
+        { error: `No se pudo leer la imagen (${response.status}). Revisa la llave de OpenRouter.` },
         { status: 502 }
       );
     }
